@@ -5,4 +5,4 @@ To start hosting the files in /public run:
 
 ## Command:
 
-     http-server [path] [options]
+     npm start
