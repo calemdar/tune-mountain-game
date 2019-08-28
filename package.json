@@ -4,7 +4,7 @@
   "description": "Tune Mountain MQP",
   "author": "Cem Alemdar",
   "scripts": {
-    "start": "npx http-server"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.17.1",
