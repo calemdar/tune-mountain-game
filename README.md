@@ -3,6 +3,6 @@ Audio based procedural level generation game
 
 To start hosting the files in /public run:
 
-## Usage:
+## Command:
 
      http-server [path] [options]
