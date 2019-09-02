@@ -1,0 +1,15 @@
+{
+  "name": "tune-mountain",
+  "version": "0.1.0",
+  "description": "Tune Mountain MQP",
+  "author": "Cem Alemdar",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "http-server": "^0.11.1",
+    "mime": "^2.4.4",
+    "pixi.js": "^5.1.2"
+  }
+}
