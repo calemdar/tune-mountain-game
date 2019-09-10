@@ -1,23 +1,21 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "node": true
     },
-    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "extends": ["eslint:recommended"],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
         "ecmaFeatures": {
-            "jsx": true
+            "jsx": false
         },
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "plugins": [
-        "react"
-    ],
     "rules": {
         "indent": [
             "error",
@@ -39,7 +37,10 @@
             "error",
             "multi-line"
         ],
-        "no-magic-numbers": "error",
+        "no-magic-numbers": [
+            "error",
+            { "ignore": [0, 1, 2, 3000]}
+        ],
         "max-classes-per-file": [
             "error",
             1
@@ -51,6 +52,7 @@
         "array-element-newline": [
             "error",
             { "multiline": true, "minItems": 2 }
-        ]
+        ],
+        "camelcase": "error"
     }
 }

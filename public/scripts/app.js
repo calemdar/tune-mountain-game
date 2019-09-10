@@ -1,14 +1,14 @@
-const canvas = document.getElementById('mycanvas');
+const canvas = document.getElementById("mycanvas");
 
 const game = new PIXI.Application({
-    view: canvas,
-    width: window.innerWidth,
-    height: window.innerHeight
+	view: canvas,
+	width: window.innerWidth,
+	height: window.innerHeight
 });
 
 const renderer = new PIXI.Renderer({});
 
-const texture = PIXI.Texture.from('../img/husky.png');
+const texture = PIXI.Texture.from("../img/husky.png");
 const husky = new PIXI.Sprite(texture);
 
 husky.x = game.renderer.width / 2;
@@ -20,5 +20,5 @@ game.stage.addChild(husky);
 game.ticker.add(animate);
 
 function animate() {
-    husky.rotation += 0.01;
+	husky.rotation += 0.01;
 }
