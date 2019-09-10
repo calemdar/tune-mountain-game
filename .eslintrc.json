@@ -37,10 +37,6 @@
             "error",
             "multi-line"
         ],
-        "no-magic-numbers": [
-            "error",
-            { "ignore": [0, 1, 2, 3000]}
-        ],
         "max-classes-per-file": [
             "error",
             1
