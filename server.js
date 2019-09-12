@@ -27,6 +27,10 @@ app.get("/scripts/app.js", function(req, res) {
 	res.sendFile(path.join(__dirname + "/public/scripts/app.js"));
 });
 
+app.get("/scripts/Bezier.js", function(req, res) {
+	res.sendFile(path.join(__dirname + "/public/scripts/Bezier.js"));
+});
+
 let server = http.createServer(app);
 server.listen(port, function () {
 	console.log("server started running");
