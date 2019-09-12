@@ -1,3 +1,21 @@
+const PIXI = require("pixi.js");
+const InputManager = require("tune-mountain-input-manager");
+const Parallax = require("./Parallax");
+
+const manager = new InputManager();
+
+// bind one or more actions (appends to existing actions)
+manager.bindAction("a", "Action1");
+
+// get observable
+const observable = manager.getObservable();
+
+// this handler will simply print to the console the actions being performed
+const handler = ( action ) => console.log(action, " hello");
+
+// subscribe to handle events
+observable.subscribe(handler);
+
 const songAnal = {
 	"bars": [{
 		"start": 251.98282,
@@ -102,41 +120,8 @@ const game = new PIXI.Application({
 	height: 384,
 	antialias: true
 });
-/**
- *  Parallax Scrolling Logic
- */
-var texture1 = PIXI.Texture.from("../img/bg-far.png");
 
-const tilingSprite1 = new PIXI.TilingSprite(
-	texture1,
-	game.screen.width,
-	game.screen.height,
-);
-game.stage.addChild(tilingSprite1);
-
-tilingSprite1.position.x = 0;
-tilingSprite1.position.y = 0;
-tilingSprite1.tilePosition.x = 0;
-tilingSprite1.tilePosition.y = 0;
-
-var texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-const tilingSprite2 = new PIXI.TilingSprite(
-	texture2,
-	game.screen.width,
-	game.screen.height,
-);
-game.stage.addChild(tilingSprite2);
-
-tilingSprite2.position.x = 0;
-tilingSprite2.position.y = 128;
-tilingSprite2.tilePosition.x = 0;
-tilingSprite2.tilePosition.y = 0;
-
-game.ticker.add(() => {
-	tilingSprite1.tilePosition.x -= 0.128;
-	tilingSprite2.tilePosition.x -= 0.64;
-});
+Parallax(game);
 
 /**
  * Bezier Curve Logic

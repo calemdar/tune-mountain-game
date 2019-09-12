@@ -5,10 +5,10 @@ const express = require("express"),
 	port = (process.env.PORT || 3000),
 	mime = require("mime");
 
-app.use(express.static(path.join(__dirname + "/public/img")));
+app.use(express.static(path.join(__dirname + "/static")));
 
 app.get("/", function(req, res) {
-	res.sendFile(path.join(__dirname + "/public/index.html"));
+	res.sendFile(path.join(__dirname + "/index.html"));
 });
 
 app.get("/img/:filename", function(req, res) {
@@ -17,18 +17,14 @@ app.get("/img/:filename", function(req, res) {
 	const extension = filename.slice(extensionIndex, filename.length);
 
 	res.header("Content-Type", mime.getType(extension));
-	res.sendFile(path.join(__dirname + "/public/img/" + filename ));
+	res.sendFile(path.join(__dirname + "/src/img/" + filename ));
 
 	console.log("/img/" + filename);
 
 });
 
-app.get("/scripts/app.js", function(req, res) {
-	res.sendFile(path.join(__dirname + "/public/scripts/app.js"));
-});
-
-app.get("/scripts/Bezier.js", function(req, res) {
-	res.sendFile(path.join(__dirname + "/public/scripts/Bezier.js"));
+app.get("/js/app.js", function(req, res) {
+	res.sendFile(path.join(__dirname + "/src/js/app.js"));
 });
 
 let server = http.createServer(app);
