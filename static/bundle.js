@@ -67463,22 +67463,6 @@ module.exports = {
 
 },{}],507:[function(require,module,exports){
 const PIXI = require("pixi.js");
-const InputManager = require("tune-mountain-input-manager");
-const Parallax = require("./Parallax");
-
-const manager = new InputManager();
-
-// bind one or more actions (appends to existing actions)
-manager.bindAction("a", "Action1");
-
-// get observable
-const observable = manager.getObservable();
-
-// this handler will simply print to the console the actions being performed
-const handler = ( action ) => console.log(action, " hello");
-
-// subscribe to handle events
-observable.subscribe(handler);
 
 const songAnal = {
 	"bars": [{
@@ -67576,56 +67560,46 @@ const songAnal = {
 	}
 };
 
-const canvas = document.getElementById("mycanvas");
-
-const game = new PIXI.Application({
-	view: canvas,
-	width: window.innerWidth,
-	height: 384,
-	antialias: true
-});
-
-Parallax(game);
-
-/**
- * Bezier Curve Logic
- */
-const bezier = new PIXI.Graphics();
-const points = new PIXI.Graphics();
+function Bezier(game) {
+	const bezier = new PIXI.Graphics();
+	const points = new PIXI.Graphics();
 
 // Initialize graphics elements
-points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
-points.beginFill(0xFFFFFF, 1);
-bezier.lineStyle(5, 0xAA0000, 1);
-bezier.position.x = 25;
-bezier.position.y = 25;
+	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
+	points.beginFill(0xFFFFFF, 1);
+	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.position.x = 25;
+	bezier.position.y = 25;
 
-let currentPos = {
-	x: bezier.position.x,
-	y: bezier.position.y
-};
+	let currentPos = {
+		x: bezier.position.x,
+		y: bezier.position.y
+	};
 
-/**  First two params: first control point
+	/**  First two params: first control point
 	 Second two params: second control point
 	 Final params: destination point
 	 Draw curves
- */
-bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
-bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
+	 */
+	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
+	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
 
 // Draw control and final position points
-points.drawCircle(100, 200, 2);
-points.drawCircle(200, 200, 2);
-points.drawCircle(250, 50, 2);
-points.drawCircle(400, 150, 2);
-points.endFill();
-points.beginFill(0x00AA00, 1);
-points.drawCircle(240, 100, 2);
-points.drawCircle(500, 200, 2);
-points.endFill();
+	points.drawCircle(100, 200, 2);
+	points.drawCircle(200, 200, 2);
+	points.drawCircle(250, 50, 2);
+	points.drawCircle(400, 150, 2);
+	points.endFill();
+	points.beginFill(0x00AA00, 1);
+	points.drawCircle(240, 100, 2);
+	points.drawCircle(500, 200, 2);
+	points.endFill();
 
-game.stage.addChild(bezier);
-game.stage.addChild(points);
+	game.stage.addChild(bezier);
+	game.stage.addChild(points);
+}
+
+module.exports = Bezier;
 
 /**
 for (let i = 0; i <= songAnal.bars.length; i++) {
@@ -67652,9 +67626,41 @@ for (let i = 0; i <= songAnal.bars.length; i++) {
 	currentPos.y = finalPointY;
 }
  */
-},{"./Parallax":508,"pixi.js":42,"tune-mountain-input-manager":50}],508:[function(require,module,exports){
+},{"pixi.js":42}],508:[function(require,module,exports){
+const PIXI = require("pixi.js");
+const InputManager = require("tune-mountain-input-manager");
+const Parallax = require("./Parallax");
+const Bezier = require("./Bezier");
+
+const manager = new InputManager();
+
+// bind one or more actions (appends to existing actions)
+manager.bindAction("a", "Action1");
+
+// get observable
+const observable = manager.getObservable();
+
+// this handler will simply print to the console the actions being performed
+const handler = ( action ) => console.log(action, " hello");
+
+// subscribe to handle events
+observable.subscribe(handler);
+
+const canvas = document.getElementById("mycanvas");
+
+const game = new PIXI.Application({
+	view: canvas,
+	width: window.innerWidth,
+	height: 384,
+	antialias: true
+});
+
+Parallax(game);
+Bezier(game);
+},{"./Bezier":507,"./Parallax":509,"pixi.js":42,"tune-mountain-input-manager":50}],509:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
+/**
 class Old {
 
 	constructor (gameRef) {
@@ -67667,9 +67673,6 @@ class Old {
 
 		const { game } = this;
 
-		/**
-		 *  Parallax Scrolling Logic
-		 */
 		var texture1 = PIXI.Texture.from("../img/bg-far.png");
 
 		const tilingSprite1 = new PIXI.TilingSprite(
@@ -67706,51 +67709,40 @@ class Old {
 	}
 
 }
+*/
 
 function Parallax(game) {
 
-	/**
-	 *  Parallax Scrolling Logic
-	 */
-	var texture1 = PIXI.Texture.from("../img/bg-far.png");
-
-	const tilingSprite1 = new PIXI.TilingSprite(
-		texture1,
-		game.screen.width,
-		game.screen.height,
-	);
-	game.stage.addChild(tilingSprite1);
-
-	tilingSprite1.position.x = 0;
-	tilingSprite1.position.y = 0;
-	tilingSprite1.tilePosition.x = 0;
-	tilingSprite1.tilePosition.y = 0;
-
-	var texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-	const tilingSprite2 = new PIXI.TilingSprite(
-		texture2,
-		game.screen.width,
-		game.screen.height,
-	);
-	game.stage.addChild(tilingSprite2);
-
-	tilingSprite2.position.x = 0;
-	tilingSprite2.position.y = 128;
-	tilingSprite2.tilePosition.x = 0;
-	tilingSprite2.tilePosition.y = 0;
+	const tilingSprite1 = createTiliingSprite(game, "../img/bg-far.png", 0);
+	const tilingSprite2 = createTiliingSprite(game, "../img/bg-mid.png", 128);
 
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
 		tilingSprite2.tilePosition.x -= 0.64;
 	});
 
-	console.log("i am using arrow func");
+}
 
+function createTiliingSprite(game, location, y) {
+	const texture = PIXI.Texture.from(location);
+
+	const tilingSprite = new PIXI.TilingSprite(
+		texture,
+		game.screen.width,
+		game.screen.height,
+	);
+	game.stage.addChild(tilingSprite);
+
+	tilingSprite.position.x = 0;
+	tilingSprite.position.y = y;
+	tilingSprite.tilePosition.x = 0;
+	tilingSprite.tilePosition.y = 0;
+
+	return tilingSprite;
 }
 
 module.exports = Parallax;
 
 
 
-},{"pixi.js":42}]},{},[507]);
+},{"pixi.js":42}]},{},[508]);

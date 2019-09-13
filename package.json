@@ -5,7 +5,7 @@
   "author": "Cem Alemdar",
   "scripts": {
     "start": "node server.js",
-    "hot-reload": "watchify ./src/js/Bezier.js -o ./static/bundle.js -v"
+    "hot-reload": "watchify ./src/js/Game.js -o ./static/bundle.js -v"
   },
   "dependencies": {
     "mime": "^2.4.4",

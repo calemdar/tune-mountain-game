@@ -1,20 +1,4 @@
 const PIXI = require("pixi.js");
-const InputManager = require("tune-mountain-input-manager");
-const Parallax = require("./Parallax");
-
-const manager = new InputManager();
-
-// bind one or more actions (appends to existing actions)
-manager.bindAction("a", "Action1");
-
-// get observable
-const observable = manager.getObservable();
-
-// this handler will simply print to the console the actions being performed
-const handler = ( action ) => console.log(action, " hello");
-
-// subscribe to handle events
-observable.subscribe(handler);
 
 const songAnal = {
 	"bars": [{
@@ -112,56 +96,46 @@ const songAnal = {
 	}
 };
 
-const canvas = document.getElementById("mycanvas");
-
-const game = new PIXI.Application({
-	view: canvas,
-	width: window.innerWidth,
-	height: 384,
-	antialias: true
-});
-
-Parallax(game);
-
-/**
- * Bezier Curve Logic
- */
-const bezier = new PIXI.Graphics();
-const points = new PIXI.Graphics();
+function Bezier(game) {
+	const bezier = new PIXI.Graphics();
+	const points = new PIXI.Graphics();
 
 // Initialize graphics elements
-points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
-points.beginFill(0xFFFFFF, 1);
-bezier.lineStyle(5, 0xAA0000, 1);
-bezier.position.x = 25;
-bezier.position.y = 25;
+	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
+	points.beginFill(0xFFFFFF, 1);
+	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.position.x = 25;
+	bezier.position.y = 25;
 
-let currentPos = {
-	x: bezier.position.x,
-	y: bezier.position.y
-};
+	let currentPos = {
+		x: bezier.position.x,
+		y: bezier.position.y
+	};
 
-/**  First two params: first control point
+	/**  First two params: first control point
 	 Second two params: second control point
 	 Final params: destination point
 	 Draw curves
- */
-bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
-bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
+	 */
+	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
+	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
 
 // Draw control and final position points
-points.drawCircle(100, 200, 2);
-points.drawCircle(200, 200, 2);
-points.drawCircle(250, 50, 2);
-points.drawCircle(400, 150, 2);
-points.endFill();
-points.beginFill(0x00AA00, 1);
-points.drawCircle(240, 100, 2);
-points.drawCircle(500, 200, 2);
-points.endFill();
+	points.drawCircle(100, 200, 2);
+	points.drawCircle(200, 200, 2);
+	points.drawCircle(250, 50, 2);
+	points.drawCircle(400, 150, 2);
+	points.endFill();
+	points.beginFill(0x00AA00, 1);
+	points.drawCircle(240, 100, 2);
+	points.drawCircle(500, 200, 2);
+	points.endFill();
 
-game.stage.addChild(bezier);
-game.stage.addChild(points);
+	game.stage.addChild(bezier);
+	game.stage.addChild(points);
+}
+
+module.exports = Bezier;
 
 /**
 for (let i = 0; i <= songAnal.bars.length; i++) {
