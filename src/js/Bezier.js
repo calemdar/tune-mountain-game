@@ -100,7 +100,7 @@ function Bezier(game) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
 
-// Initialize graphics elements
+	// Initialize graphics elements
 	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
 	points.beginFill(0xFFFFFF, 1);
 	bezier.lineStyle(5, 0xAA0000, 1);
@@ -120,7 +120,7 @@ function Bezier(game) {
 	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
 	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
 
-// Draw control and final position points
+	// Draw control and final position points
 	points.drawCircle(100, 200, 2);
 	points.drawCircle(200, 200, 2);
 	points.drawCircle(250, 50, 2);
