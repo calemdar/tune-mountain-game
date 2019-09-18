@@ -2,6 +2,7 @@ const PIXI = require("pixi.js");
 const InputManager = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
+const Viewport = require("./Viewport");
 
 const manager = new InputManager();
 
@@ -26,5 +27,6 @@ const game = new PIXI.Application({
 	antialias: true
 });
 
-Parallax(game);
+const viewport = Viewport(game);
+Parallax(game, viewport);
 Bezier(game);
