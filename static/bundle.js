@@ -67566,7 +67566,7 @@ const songAnal = {
 	}
 };
 
-function Bezier(game) {
+function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
 
@@ -67603,8 +67603,8 @@ function Bezier(game) {
 	points.drawCircle(500, 200, 2);
 	points.endFill();
 
-	game.stage.addChild(bezier);
-	game.stage.addChild(points);
+	viewport.addChild(bezier);
+	viewport.addChild(points);
 }
 
 module.exports = Bezier;
@@ -67636,8 +67636,25 @@ function drawCurves() {
 	}
 }
 
-function createControlPoint(point) {
+function createControlPoint(point, currentPos) {
+	let maxY;
+	let xDisplacement;
+	let yDisplacement;
 
+	switch(true) {
+		case songFeat.energy >= 0.9:
+			maxY = 175;
+			break;
+		case (songFeat.energy >= 0.6 && songFeat.energy <= 0.9):
+			maxY = 125;
+			break;
+		case (songFeat.energy >= 0.3 && songFeat.energy <= 0.6):
+			maxY = 100;
+			break;
+		case songFeat.energy <= 0.3:
+			maxY = 50;
+			break;
+	}
 }
 
  */
@@ -67667,14 +67684,27 @@ const canvas = document.getElementById("mycanvas");
 const game = new PIXI.Application({
 	view: canvas,
 	width: window.innerWidth,
-	height: 384,
+	height: window.innerHeight,
 	antialias: true
 });
 
 const viewport = Viewport(game);
 Parallax(game, viewport);
-Bezier(game);
+Bezier(viewport);
+addBox(viewport);
 
+function addBox(viewport) {
+
+	// add a red box
+	const sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
+	sprite.tint = 0xff0000;
+	sprite.width = sprite.height = 100;
+	sprite.position.set(100, 100);
+	sprite.anchor.set(0.5);
+
+	//viewport.follow(sprite);
+	//viewport.zoomPercent(0.25);
+}
 },{"./Bezier":508,"./Parallax":510,"./Viewport":511,"pixi.js":43,"tune-mountain-input-manager":51}],510:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
@@ -67783,20 +67813,12 @@ function CreateViewport(game) {
 
 	// activate plugins
 	viewport
-		.drag()
 		.pinch()
 		.wheel()
 		.decelerate();
 
-	// add a red box
-	const sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
-	sprite.tint = 0xff0000;
-	sprite.width = sprite.height = 100;
-	sprite.position.set(100, 100);
-	sprite.anchor.set(0.5);
-
-	//viewport.follow(sprite);
-	//viewport.zoomPercent(0.25);
+	const point = new PIXI.Point(100, 100);
+	viewport.snapZoom({width: 300, center: point});
 
 	return viewport;
 }

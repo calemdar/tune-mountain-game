@@ -96,7 +96,7 @@ const songAnal = {
 	}
 };
 
-function Bezier(game) {
+function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
 
@@ -133,8 +133,8 @@ function Bezier(game) {
 	points.drawCircle(500, 200, 2);
 	points.endFill();
 
-	game.stage.addChild(bezier);
-	game.stage.addChild(points);
+	viewport.addChild(bezier);
+	viewport.addChild(points);
 }
 
 module.exports = Bezier;
@@ -166,8 +166,25 @@ function drawCurves() {
 	}
 }
 
-function createControlPoint(point) {
+function createControlPoint(point, currentPos) {
+	let maxY;
+	let xDisplacement;
+	let yDisplacement;
 
+	switch(true) {
+		case songFeat.energy >= 0.9:
+			maxY = 175;
+			break;
+		case (songFeat.energy >= 0.6 && songFeat.energy <= 0.9):
+			maxY = 125;
+			break;
+		case (songFeat.energy >= 0.3 && songFeat.energy <= 0.6):
+			maxY = 100;
+			break;
+		case songFeat.energy <= 0.3:
+			maxY = 50;
+			break;
+	}
 }
 
  */

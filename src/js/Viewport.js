@@ -17,20 +17,12 @@ function CreateViewport(game) {
 
 	// activate plugins
 	viewport
-		.drag()
 		.pinch()
 		.wheel()
 		.decelerate();
 
-	// add a red box
-	const sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
-	sprite.tint = 0xff0000;
-	sprite.width = sprite.height = 100;
-	sprite.position.set(100, 100);
-	sprite.anchor.set(0.5);
-
-	//viewport.follow(sprite);
-	//viewport.zoomPercent(0.25);
+	const point = new PIXI.Point(100, 100);
+	viewport.snapZoom({width: 300, center: point});
 
 	return viewport;
 }
