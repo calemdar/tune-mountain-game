@@ -51,10 +51,10 @@ class Old {
 }
 */
 
-function Parallax(game) {
+function Parallax(game, viewport) {
 
-	const tilingSprite1 = createTiliingSprite(game, "../img/bg-far.png", 0);
-	const tilingSprite2 = createTiliingSprite(game, "../img/bg-mid.png", 128);
+	const tilingSprite1 = createTilingSprite(game, viewport, "../img/bg-far.png", 0);
+	const tilingSprite2 = createTilingSprite(game, viewport, "../img/bg-mid.png", 128);
 
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
@@ -63,7 +63,7 @@ function Parallax(game) {
 
 }
 
-function createTiliingSprite(game, location, y) {
+function createTilingSprite(game, viewport, location, y) {
 	const texture = PIXI.Texture.from(location);
 
 	const tilingSprite = new PIXI.TilingSprite(
@@ -71,7 +71,7 @@ function createTiliingSprite(game, location, y) {
 		game.screen.width,
 		game.screen.height,
 	);
-	game.stage.addChild(tilingSprite);
+	viewport.addChild(tilingSprite);
 
 	tilingSprite.position.x = 0;
 	tilingSprite.position.y = y;

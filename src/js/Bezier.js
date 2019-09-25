@@ -96,7 +96,7 @@ const songAnal = {
 	}
 };
 
-function Bezier(game) {
+function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
 
@@ -116,6 +116,8 @@ function Bezier(game) {
 	 Second two params: second control point
 	 Final params: destination point
 	 Draw curves
+	 MAX CPY change - 175 pixels
+	 MAX CPX change -
 	 */
 	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
 	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
@@ -131,34 +133,58 @@ function Bezier(game) {
 	points.drawCircle(500, 200, 2);
 	points.endFill();
 
-	game.stage.addChild(bezier);
-	game.stage.addChild(points);
+	viewport.addChild(bezier);
+	viewport.addChild(points);
 }
 
 module.exports = Bezier;
 
 /**
-for (let i = 0; i <= songAnal.bars.length; i++) {
-	// What value from songAnal are we going to use to change the control points?
-	// Pitches from songAnal.segments[i].pitches[num] could be useful, I feel like we talked about it
-	// But so many pitches per segment, and segments per beat....how to handle
-	const controlPoint1X = currentPos.x + ;
-	const controlPoint1Y = currentPos.y + ;
-	const controlPoint2X = currentPos.x + ;
-	const controlPoint2Y = currentPos.y + ;
-	const finalPointX = currentPos.x + (songAnal.bars[i].duration * 100);
-	const finalPointY = currentPos.y + (songFeat.danceability * 100);
+function drawCurves() {
+	for (let i = 0; i <= songAnal.bars.length; i++) {
+		// Dancability to determine vertical displacement between control points
+		// Valence to determine horizontal displacement
+		// Energy to determine max values for just vertical - max would be 175px
+		const controlPoint1X = currentPos.x +;
+		const controlPoint1Y = currentPos.y +;
+		const controlPoint2X = currentPos.x +;
+		const controlPoint2Y = currentPos.y +;
+		const finalPointX = currentPos.x + (conversion(songAnal.bars[i].duration));
+		const finalPointY = currentPos.y + (conversion(songFeat.loudness));
 
-	bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
-						 controlPoint2X, controlPoint2Y,
-						 finalPointX, finalPointY);
+		bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
+			controlPoint2X, controlPoint2Y,
+			finalPointX, finalPointY);
 
-	// Not necessary, just for viewing points
-	points.drawCircle(controlPoint1X, controlPoint1Y, 2);
-	points.drawCircle(controlPoint2X, controlPoint2Y, 2);
-	points.drawCircle(finalPointX, finalPointY, 2);
+		// Not necessary, just for viewing points
+		points.drawCircle(controlPoint1X, controlPoint1Y, 2);
+		points.drawCircle(controlPoint2X, controlPoint2Y, 2);
+		points.drawCircle(finalPointX, finalPointY, 2);
 
-	currentPos.x = finalPointX;
-	currentPos.y = finalPointY;
+		currentPos.x = finalPointX;
+		currentPos.y = finalPointY;
+	}
 }
+
+function createControlPoint(point, currentPos) {
+	let maxY;
+	let xDisplacement;
+	let yDisplacement;
+
+	switch(true) {
+		case songFeat.energy >= 0.9:
+			maxY = 175;
+			break;
+		case (songFeat.energy >= 0.6 && songFeat.energy <= 0.9):
+			maxY = 125;
+			break;
+		case (songFeat.energy >= 0.3 && songFeat.energy <= 0.6):
+			maxY = 100;
+			break;
+		case songFeat.energy <= 0.3:
+			maxY = 50;
+			break;
+	}
+}
+
  */
