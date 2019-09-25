@@ -67685,49 +67685,42 @@ const game = new PIXI.Application({
 	antialias: true
 });
 
+const actionState = {};
+
 const viewport = Viewport(game);
 Parallax(game, viewport);
 Bezier(viewport);
-addBox(viewport);
 const character = addCharacter(game, viewport);
 
 // this handler will simply print to the console the actions being performed
 const handler = (action => {
-	if (action.type === "press") {
-		switch (action.actions[0]) {
-		case "moveLeft":
-			character.x -= 15;
-			break;
-		case "moveRight":
-			character.x += 15;
-			break;
-		case "moveUp":
-			character.y -= 15;
-			break;
-		case "moveDown":
-			character.y += 15;
-			break;
-		default:
-			console.log("we did something else");
-			break;
-		}
+	for (let i = 0; i < action.actions.length; i++) {
+		actionState[action.actions[i]] = action.type;
 	}
 });
 
 // subscribe to handle events
 observable.subscribe(handler);
 
-function addBox(viewport) {
+game.ticker.add(handleActions);
 
-	// add a red box
-	const sprite = viewport.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
-	sprite.tint = 0xff0000;
-	sprite.width = sprite.height = 100;
-	sprite.position.set(100, 100);
-	sprite.anchor.set(0.5);
-
-	//viewport.follow(sprite);
-	//viewport.zoomPercent(0.25);
+function handleActions() {
+	if (actionState.moveLeft === "press")
+	{character.x -= 15;}
+	else if (actionState.moveRight === "press")
+	{character.x += 15;}
+	else if (actionState.moveUp === "press")
+	{character.y -= 15;}
+	else if (actionState.moveDown === "press")
+	{character.y += 15;}
+	else if (actionState.moveLeft === "release")
+	{character.x -= 0;}
+	else if (actionState.moveRight === "release")
+	{character.x += 0;}
+	else if (actionState.moveUp === "release")
+	{character.y -= 0;}
+	else if (actionState.moveDown === "release")
+	{character.y += 0;}
 }
 
 function addCharacter(game, viewport) {
