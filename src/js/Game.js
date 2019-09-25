@@ -2,6 +2,9 @@ const PIXI = require("pixi.js");
 const InputManager = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
+const Physics = require("./Physics");
+const Planck = require("planck-js");
+
 
 const manager = new InputManager();
 
@@ -23,8 +26,13 @@ const game = new PIXI.Application({
 	view: canvas,
 	width: window.innerWidth,
 	height: 384,
-	antialias: true
+	antialias: true,
+	backgroundColor: 0x333333
 });
 
-Parallax(game);
-Bezier(game);
+let ticker = PIXI.Ticker.shared;
+
+//Parallax(game);
+//Bezier(game);
+Physics(ticker);
+ticker.start();
