@@ -21,8 +21,8 @@ function CreateViewport(game) {
 		.wheel()
 		.decelerate();
 
-	const point = new PIXI.Point(100, 100);
-	viewport.snapZoom({width: 300, center: point});
+	//const point = new PIXI.Point(100, 100);
+	//viewport.snapZoom({width: 300, center: point});
 
 	return viewport;
 }

@@ -67668,16 +67668,13 @@ const Viewport = require("./Viewport");
 const manager = new InputManager();
 
 // bind one or more actions (appends to existing actions)
-manager.bindAction("a", "Action1");
+manager.bindAction("a", "moveLeft");
+manager.bindAction("s", "moveDown");
+manager.bindAction("d", "moveRight");
+manager.bindAction("w", "moveUp");
 
 // get observable
 const observable = manager.getObservable();
-
-// this handler will simply print to the console the actions being performed
-const handler = ( action ) => console.log(action, " hello");
-
-// subscribe to handle events
-observable.subscribe(handler);
 
 const canvas = document.getElementById("mycanvas");
 
@@ -67692,6 +67689,33 @@ const viewport = Viewport(game);
 Parallax(game, viewport);
 Bezier(viewport);
 addBox(viewport);
+const character = addCharacter(game, viewport);
+
+// this handler will simply print to the console the actions being performed
+const handler = (action => {
+	if (action.type === "press") {
+		switch (action.actions[0]) {
+		case "moveLeft":
+			character.x -= 15;
+			break;
+		case "moveRight":
+			character.x += 15;
+			break;
+		case "moveUp":
+			character.y -= 15;
+			break;
+		case "moveDown":
+			character.y += 15;
+			break;
+		default:
+			console.log("we did something else");
+			break;
+		}
+	}
+});
+
+// subscribe to handle events
+observable.subscribe(handler);
 
 function addBox(viewport) {
 
@@ -67704,6 +67728,20 @@ function addBox(viewport) {
 
 	//viewport.follow(sprite);
 	//viewport.zoomPercent(0.25);
+}
+
+function addCharacter(game, viewport) {
+	const character = new PIXI.Sprite.from("../img/snowboarder.png");
+	character.anchor.set(0.5);
+
+	character.x = game.screen.width / 2;
+	character.y = game.screen.height / 2;
+
+	viewport.addChild(character);
+	viewport.follow(character);
+	viewport.zoomPercent(0.25);
+
+	return character;
 }
 },{"./Bezier":508,"./Parallax":510,"./Viewport":511,"pixi.js":43,"tune-mountain-input-manager":51}],510:[function(require,module,exports){
 const PIXI = require("pixi.js");
@@ -67817,8 +67855,8 @@ function CreateViewport(game) {
 		.wheel()
 		.decelerate();
 
-	const point = new PIXI.Point(100, 100);
-	viewport.snapZoom({width: 300, center: point});
+	//const point = new PIXI.Point(100, 100);
+	//viewport.snapZoom({width: 300, center: point});
 
 	return viewport;
 }
