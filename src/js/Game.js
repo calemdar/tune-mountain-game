@@ -70,7 +70,7 @@ function addCharacter(game, viewport) {
 	character.y = game.screen.height / 2;
 
 	viewport.addChild(character);
-	viewport.follow(character);
+	//viewport.follow(character);
 	viewport.zoomPercent(0.25);
 
 	return character;

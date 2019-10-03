@@ -17,9 +17,11 @@ function CreateViewport(game) {
 
 	// activate plugins
 	viewport
+		.drag()
 		.pinch()
 		.wheel()
 		.decelerate();
+
 
 	//const point = new PIXI.Point(100, 100);
 	//viewport.snapZoom({width: 300, center: point});
