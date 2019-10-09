@@ -1,4 +1,5 @@
 const PIXI = require("pixi.js");
+const Planck = require("planck-js");
 
 const songAnal = {
 	"bars": [{
@@ -100,6 +101,8 @@ function Bezier(game) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
 
+
+
 	// Initialize graphics elements
 	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
 	points.beginFill(0xFFFFFF, 1);
@@ -117,18 +120,18 @@ function Bezier(game) {
 	 Final params: destination point
 	 Draw curves
 	 */
-	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
-	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
+	bezier.bezierCurveTo(100, 200, 200, 200, 240, 150);
+	bezier.bezierCurveTo(350, 100, 450, 350, 700, 200);
 
 	// Draw control and final position points
 	points.drawCircle(100, 200, 2);
 	points.drawCircle(200, 200, 2);
-	points.drawCircle(250, 50, 2);
-	points.drawCircle(400, 150, 2);
+	points.drawCircle(350, 100, 2);
+	points.drawCircle(450, 350, 2);
 	points.endFill();
 	points.beginFill(0x00AA00, 1);
-	points.drawCircle(240, 100, 2);
-	points.drawCircle(500, 200, 2);
+	points.drawCircle(240, 250, 2);
+	points.drawCircle(700, 200, 2);
 	points.endFill();
 
 	game.stage.addChild(bezier);

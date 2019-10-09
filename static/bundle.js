@@ -85118,6 +85118,7 @@ module.exports = {
 
 },{}],560:[function(require,module,exports){
 const PIXI = require("pixi.js");
+const Planck = require("planck-js");
 
 const songAnal = {
 	"bars": [{
@@ -85219,6 +85220,8 @@ function Bezier(game) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
 
+
+
 	// Initialize graphics elements
 	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
 	points.beginFill(0xFFFFFF, 1);
@@ -85236,18 +85239,18 @@ function Bezier(game) {
 	 Final params: destination point
 	 Draw curves
 	 */
-	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
-	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
+	bezier.bezierCurveTo(100, 200, 200, 200, 240, 150);
+	bezier.bezierCurveTo(350, 100, 450, 350, 700, 200);
 
 	// Draw control and final position points
 	points.drawCircle(100, 200, 2);
 	points.drawCircle(200, 200, 2);
-	points.drawCircle(250, 50, 2);
-	points.drawCircle(400, 150, 2);
+	points.drawCircle(350, 100, 2);
+	points.drawCircle(450, 350, 2);
 	points.endFill();
 	points.beginFill(0x00AA00, 1);
-	points.drawCircle(240, 100, 2);
-	points.drawCircle(500, 200, 2);
+	points.drawCircle(240, 250, 2);
+	points.drawCircle(700, 200, 2);
 	points.endFill();
 
 	game.stage.addChild(bezier);
@@ -85281,7 +85284,7 @@ for (let i = 0; i <= songAnal.bars.length; i++) {
 	currentPos.y = finalPointY;
 }
  */
-},{"pixi.js":42}],561:[function(require,module,exports){
+},{"pixi.js":42,"planck-js":69}],561:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const InputManager = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
@@ -85318,9 +85321,76 @@ let ticker = PIXI.Ticker.shared;
 
 //Parallax(game);
 //Bezier(game);
-Physics(ticker);
+Physics(game);
 ticker.start();
-},{"./Bezier":560,"./Parallax":562,"./Physics":563,"pixi.js":42,"planck-js":69,"tune-mountain-input-manager":103}],562:[function(require,module,exports){
+},{"./Bezier":560,"./Parallax":563,"./Physics":564,"pixi.js":42,"planck-js":69,"tune-mountain-input-manager":103}],562:[function(require,module,exports){
+const PIXI = require("pixi.js");
+const Bezier = require("./Bezier");
+const Physics = require("./Physics");
+const Planck = require("planck-js");
+const Vec2 = Planck.Vec2;
+
+function GameObject () {
+
+	GameObject.prototype.create = function create (name, position, scale, anchor, mass, sprite, physics) {
+		let object = {};
+
+		if(typeof(name) === "string"){
+			object.name = name;
+		}
+		else{
+			object.errorMessage += "name not a String";
+		}
+		object.position = position;
+		object.scale = scale;
+		object.anchor = anchor;
+		object.mass = mass;
+		object.sprite = sprite;
+		object.physics = physics;
+
+
+		return object;
+	};
+	GameObject.prototype.renderPosition = function renderPosition (object, game) {
+
+		let physicsPos = object.physics.getPosition();
+		object.sprite.anchor = object.anchor;
+
+		let circle = new PIXI.Graphics();
+		circle.beginFill(0xFF0000, 1);
+
+		circle.drawCircle(physicsPos.x, physicsPos.y, 2);
+		//circle.endFill();
+
+		game.stage.addChild(circle);
+
+
+		object.sprite.position = physicsPos;
+		//console.log("Physics Pos: " + physicsPos);
+		//console.log("Pixi Pos: " + object.sprite.position.x);
+	};
+	GameObject.prototype.error = function error (object) {
+		console.log(object.errorMessage);
+	};
+
+}
+
+
+
+
+
+/*
+let cube = obj.create("Cube", {Pixi:{x:0, y:0}, Planck: {x:0, y:0}}, 1.0);
+let sphere = obj.create("Sphere", {Pixi:{x:0, y:0}, Planck: {x:0, y:0}});
+let rectangle = obj.create( {Pixi:{x:5, y:5}, Planck: {x:0, y:0}});
+
+console.log(cube);
+console.log(sphere);
+console.log(rectangle);
+*/
+
+module.exports = GameObject;
+},{"./Bezier":560,"./Physics":564,"pixi.js":42,"planck-js":69}],563:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 /**
@@ -85408,44 +85478,215 @@ module.exports = Parallax;
 
 
 
-},{"pixi.js":42}],563:[function(require,module,exports){
+},{"pixi.js":42}],564:[function(require,module,exports){
+const PIXI = require("pixi.js");
 const Planck = require("planck-js");
+const GameObject = require("./GameObject");
 
-function Physics(ticker) {
+function Physics(game) {
 
-	const world = Planck.World({
-		gravity: Planck.Vec2(0, -10)
-	});
+	const pl = Planck, Vec2 = pl.Vec2;
+	const world = new pl.World(Vec2(0, 10));
+	const obj = new GameObject();
 
-	let bar = world.createBody();
-	bar.createFixture(Planck.Edge(Planck.Vec2(-10, 0), Planck.Vec2(10, 0)));
-	bar.setAngle(0.2);
+	let COUNT = 10;
+	let bodies = [];
 
+	let ground = world.createBody();
+	ground.createFixture(pl.Edge(Vec2(0.0, 100.0), Vec2(100.0, 200.0)), 1.0);
+	ground.setPosition(Vec2(0, 100));
+
+	let circle = pl.Circle(1.0);
+
+	for (let i = 0; i < COUNT; ++i) {
+		bodies[i] = world.createDynamicBody(Vec2(0.0, 4.0 + 3.0 * i));
+		bodies[i].createFixture(circle, 1.0);
+		bodies[i].setLinearVelocity(Vec2(0.0, -50.0));
+	}
+
+	// physics object
 	let box = world.createBody().setDynamic();
-	box.createFixture(Planck.Box(0.5, 0.5));
-	box.setPosition(Planck.Vec2(1.0, 1.0));
+	box.createFixture(pl.Circle(0.5, 0.5));
+	box.setPosition(Vec2(60.0, 20.0));
 	box.setMassData({
 		mass : 1,
-		center : Planck.Vec2(),
+		center : Vec2(),
 		I : 1
 	});
+
+	const texture = PIXI.Texture.from("../img/ball.png");
+	const husky = new PIXI.Sprite(texture);
+	husky.interactive = true;
+	husky.buttonMode = true;
+
+	let gameCube = obj.create("Cube", Vec2(10.0, 10.0), 1.0, Vec2(0.5, 1), box.getMass(), husky, box);
+
+	/*
+	gameCube.sprite.on("tap", (event) => {
+		//handle event
+		console.log("clicked");
+		gameCube.physics.applyAngularImpulse(-100.0, true);
+	});
+	*/
+
+	// add game object to scene
+	game.stage.addChild(gameCube.sprite);
+
+	/*
+	gameCube.sprite = husky;
+	gameCube.position.Planck = box.getPosition();
+	gameCube.scale = 1.0;
+	gameCube.mass = box.getMass();s
+	gameCube.physics.body = box;
+	*/
+
+	//console.log(gameCube);
+
+	// Physics Bezier Curve
+	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
+
+		//return (1-t)^3 * p0 + 3*(1-t)^2 * t * c0 + 3*(1-t) * t^2 * c1 + t^3 * p1
+		//       {   first   }  {      second     }  {      third      }  { fourth }
+		let point;
+		let addVectors;
+		let first = multiplyVec(p0, ((1-t)*(1-t)*(1-t)));
+		let second = multiplyVec(c0, (3 * ((1-t)*(1-t)) * t));
+		let third = multiplyVec(c1, (3 * (1-t) * (t*t)));
+		let fourth = multiplyVec(p1, (t*t*t));
+
+
+		addVectors = addVec(first, second);
+		addVectors = addVec(addVectors, third);
+		addVectors = addVec(addVectors, fourth);
+
+		point = addVectors;
+
+		return point;
+
+	};
+
+	const bezierCurvePoints = function(p0, c0, c1, p1) {
+
+		let t;
+		let numPoints = 40;
+		let point = Vec2();
+		let curvePoints = [];
+		let currentPoint = 1;
+
+		for(let i = 0; i < numPoints; i++){
+			t = i / numPoints;
+			point = cubicBezierPoint(t, p0, p1, c0, c1);
+			// change Vector2 to Vector3 for bugfix
+
+			allCurvePoints.push(point);
+			currentPoint++;
+		}
+
+		//return curvePoints;
+	};
+
+	const physicalBezierCurve = function (points) {
+		let line;
+
+		let drawVertex1 = new PIXI.Graphics();
+		drawVertex1.beginFill(0x00FF00, 1);
+		for(let i = 0; i < points.length - 1; i+=1){
+
+			let vertex1 = points[i];
+			let vertex2 = points[i+1];
+
+
+			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
+			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
+
+
+			line = world.createBody();
+
+			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x + 5, 0.01), 1.0);
+			//line.createFixture(pl.Edge(points[i], points[i+1]), 0.0);
+			line.setPosition(findMidpoint(vertex1, vertex2));
+			line.setAngle(findAngle(vertex1, vertex2));
+
+		}
+
+		drawVertex1.endFill();
+
+		game.stage.addChild(drawVertex1);
+	};
+
+	const multiplyVec = function (vector, number){
+		let result = Vec2();
+
+		result.x = vector.x * number;
+		result.y = vector.y * number;
+
+		return result;
+	};
+
+	const addVec = function (vector1, vector2){
+		let result = Vec2();
+
+		result.x = vector1.x + vector2.x;
+		result.y = vector1.y + vector2.y;
+
+		return result;
+	};
+
+	const subtractVec = function (vector1, vector2){
+		let result = Vec2();
+
+		result.x = vector1.x - vector2.x;
+		result.y = vector1.y - vector2.y;
+
+		return result;
+	};
+
+	const findMidpoint = function (point1, point2){
+		let result = Vec2();
+
+		result.x = (point1.x + point2.x) / 2.0;
+		result.y = (point1.y + point2.y) / 2.0;
+
+		return result;
+	};
+
+	const findAngle = function (point1, point2) {
+
+		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+
+		console.log(angle);
+		return angle;
+	};
+
+	let allCurvePoints = [];
+	bezierCurvePoints(Vec2(25,25), Vec2(100,200), Vec2(200,200), Vec2(240,150));
+	bezierCurvePoints(Vec2(240,150), Vec2(350,100), Vec2(450,350), Vec2(700,200));
+
+	physicalBezierCurve(allCurvePoints);
+
+
 
 	const renderStep = function() {
 		world.step(1 / 60);
 		// iterate over bodies and fixtures
 		for (let body = world.getBodyList(); body; body = body.getNext()) {
+
 			for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
 				// draw or update fixture
-
 			}
+
+			//console.log(body.getPosition());
 		}
-		console.log(world);
+		let physicsPos = obj.renderPosition(gameCube, game);
+
 	};
 
-	ticker.add(renderStep);
+
+
+	game.ticker.add(renderStep);
 	console.log(renderStep);
 }
 
 module.exports = Physics;
 
-},{"planck-js":69}]},{},[561]);
+},{"./GameObject":562,"pixi.js":42,"planck-js":69}]},{},[561]);

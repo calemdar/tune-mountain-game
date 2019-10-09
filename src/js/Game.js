@@ -34,5 +34,5 @@ let ticker = PIXI.Ticker.shared;
 
 //Parallax(game);
 //Bezier(game);
-Physics(ticker);
+Physics(game);
 ticker.start();
