@@ -6,11 +6,13 @@ let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
+	const texture = PIXI.Texture.from("..//img/husky.png");
 
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
 	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.beginTextureFill(texture);
 	bezier.position.x = 15;
 	bezier.position.y = 15;
 
@@ -89,6 +91,11 @@ function drawCurves(bezier, points) {
 		currentPos.x = finalPointX;
 		currentPos.y = finalPointY;
 	}
+
+	bezier.lineTo(15, currentPos.y);
+	bezier.lineTo(15, 15);
+	bezier.closePath();
+	bezier.endFill();
 }
 
 

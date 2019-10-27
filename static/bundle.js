@@ -67476,11 +67476,13 @@ let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
+	const texture = PIXI.Texture.from("..//img/husky.png");
 
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
 	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.beginTextureFill(texture);
 	bezier.position.x = 15;
 	bezier.position.y = 15;
 
@@ -67559,6 +67561,11 @@ function drawCurves(bezier, points) {
 		currentPos.x = finalPointX;
 		currentPos.y = finalPointY;
 	}
+
+	bezier.lineTo(15, currentPos.y);
+	bezier.lineTo(15, 15);
+	bezier.closePath();
+	bezier.endFill();
 }
 
 
@@ -67659,11 +67666,12 @@ const game = new PIXI.Application({
 const actionState = {};
 
 const viewport = Viewport(game);
-Parallax(game, viewport);
+Parallax(game);
+game.stage.addChild(viewport);
 Bezier(viewport);
 const character = addCharacter(game, viewport);
 
-// this handler will simply print to the console the actions being performed
+// Adds the current action being sent to the actionState array
 const handler = (action => {
 	for (let i = 0; i < action.actions.length; i++) {
 		actionState[action.actions[i]] = action.type;
@@ -67702,7 +67710,7 @@ function addCharacter(game, viewport) {
 	character.y = game.screen.height / 2;
 
 	viewport.addChild(character);
-	//viewport.follow(character);
+	viewport.follow(character);
 	viewport.zoomPercent(0.25);
 
 	return character;
@@ -67761,10 +67769,10 @@ class Old {
 }
 */
 
-function Parallax(game, viewport) {
+function Parallax(game) {
 
-	const tilingSprite1 = createTilingSprite(game, viewport, "../img/bg-far.png", 0);
-	const tilingSprite2 = createTilingSprite(game, viewport, "../img/bg-mid.png", 128);
+	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", 0);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 128);
 
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
@@ -67773,7 +67781,7 @@ function Parallax(game, viewport) {
 
 }
 
-function createTilingSprite(game, viewport, location, y) {
+function createTilingSprite(game, location, y) {
 	const texture = PIXI.Texture.from(location);
 
 	const tilingSprite = new PIXI.TilingSprite(
@@ -67781,7 +67789,7 @@ function createTilingSprite(game, viewport, location, y) {
 		game.screen.width,
 		game.screen.height,
 	);
-	viewport.addChild(tilingSprite);
+	game.stage.addChild(tilingSprite);
 
 	tilingSprite.position.x = 0;
 	tilingSprite.position.y = y;
@@ -67796,7 +67804,7 @@ module.exports = Parallax;
 
 
 },{"pixi.js":43}],511:[function(require,module,exports){
-const PIXI = require("pixi.js");
+
 const Viewport = require("pixi-viewport").Viewport;
 
 function CreateViewport(game) {
@@ -67807,11 +67815,11 @@ function CreateViewport(game) {
 		worldWidth: 1000,
 		worldHeight: 1000,
 
-		interaction: game.renderer.plugins.interaction // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+		interaction: game.renderer.plugins.interaction
 	});
 
 	// add the viewport to the stage
-	game.stage.addChild(viewport);
+	//game.stage.addChild(viewport);
 
 	// activate plugins
 	viewport
@@ -67820,15 +67828,11 @@ function CreateViewport(game) {
 		.wheel()
 		.decelerate();
 
-
-	//const point = new PIXI.Point(100, 100);
-	//viewport.snapZoom({width: 300, center: point});
-
 	return viewport;
 }
 
 module.exports = CreateViewport;
-},{"pixi-viewport":42,"pixi.js":43}],512:[function(require,module,exports){
+},{"pixi-viewport":42}],512:[function(require,module,exports){
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",
