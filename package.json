@@ -11,6 +11,7 @@
     "mime": "^2.4.4",
     "pixi-viewport": "^4.2.3",
     "pixi.js": "^5.1.2",
+    "planck-js": "^0.3.10",
     "tune-mountain-input-manager": "github:calemdar/tune-mountain-input#master"
   },
   "devDependencies": {
