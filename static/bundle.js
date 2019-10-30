@@ -67476,38 +67476,18 @@ let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
+	const texture = PIXI.Texture.from("..//img/husky.png");
 
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
 	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.beginTextureFill(texture);
 	bezier.position.x = 15;
 	bezier.position.y = 15;
 
-	let currentPos = {
-		x: bezier.position.x,
-		y: bezier.position.y
-	};
+	drawCurves(bezier, points);
 
-	/**  First two params: first control point
-	 Second two params: second control point
-	 Final params: destination point
-	 Draw curves
-	 MAX CPY change - 175 pixels
-	 MAX CPX change -
-	*/
-	bezier.bezierCurveTo(100, 200, 200, 200, 240, 100);
-	bezier.bezierCurveTo(250, 50, 400, 150, 500, 200);
-
-	// Draw control and final position points
-	points.drawCircle(100, 200, 2);
-	points.drawCircle(200, 200, 2);
-	points.drawCircle(250, 50, 2);
-	points.drawCircle(400, 150, 2);
-	points.endFill();
-	points.beginFill(0x00AA00, 1);
-	points.drawCircle(240, 100, 2);
-	points.drawCircle(500, 200, 2);
 	points.endFill();
 
 	viewport.addChild(bezier);
@@ -67522,7 +67502,7 @@ function Bezier(viewport) {
 
 module.exports = Bezier;
 
-/*
+
 function drawCurves(bezier, points) {
 
 	let currentPos = {
@@ -67531,10 +67511,8 @@ function drawCurves(bezier, points) {
 	};
 	let j = 0;
 
-	for (let i = 0; i <= songAnalysis.bars.length; i++) {
-		// Dancability to determine vertical displacement between control points
-		// Valence to determine horizontal displacement
-		// Energy to determine max values for just vertical - max would be 175px
+	for (let i = 0; i < songAnalysis.bars.length; i++) {
+		/*
 		let barStart = songAnalysis.bars[i].start;
 		let barFinish = songAnalysis.bars[i].duration + barStart;
 		let segments = [];
@@ -67554,19 +67532,23 @@ function drawCurves(bezier, points) {
 					break;
 			}
 		}
+		*/
 
-		const finalXVariation = songAnalysis.bars[i].duration * 10;
-		for (let k = 0; k <= segments.length; k++) {
+		const finalXVariation = songAnalysis.bars[i].duration;
+		const controlPoint1X = currentPos.x + featuretoPixel(songFeatures.acousticness, finalXVariation * 5);
+		const controlPoint1Y = currentPos.y + featuretoPixel(songFeatures.danceability, finalXVariation * 5);
+		const controlPoint2X = currentPos.x + featuretoPixel(songFeatures.valence, finalXVariation * 5);
+		const controlPoint2Y = currentPos.y + featuretoPixel(songFeatures.energy, finalXVariation * 5);
+		const finalPointX = currentPos.x + finalXVariation * 10;
+		const finalPointY = currentPos.y + loudnessToPixels(songFeatures.loudness, finalXVariation * 10);
 
-		}
-
-		const controlPoint1X = currentPos.x +;
-		const controlPoint1Y = currentPos.y +;
-		const controlPoint2X = currentPos.x +;
-		const controlPoint2Y = currentPos.y +;
-		const finalPointX = currentPos.x + finalXVariation;
-		const finalPointY = currentPos.y + loudnessToPixels(songFeatures.loudness, finalXVariation);
-
+		/**  First two params: first control point
+			 Second two params: second control point
+			 Final params: destination point
+			 Draw curves
+			 MAX CPY change - 175 pixels
+			 MAX CPX change -
+		 */
 		bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
 			controlPoint2X, controlPoint2Y,
 			finalPointX, finalPointY);
@@ -67579,8 +67561,13 @@ function drawCurves(bezier, points) {
 		currentPos.x = finalPointX;
 		currentPos.y = finalPointY;
 	}
+
+	bezier.lineTo(15, currentPos.y);
+	bezier.lineTo(15, 15);
+	bezier.closePath();
+	bezier.endFill();
 }
-*/
+
 
 function loudnessToPixels(loudness, xDistance) {
 	let finalY;
@@ -67603,7 +67590,31 @@ function loudnessToPixels(loudness, xDistance) {
 	return finalY;
 }
 
+function featuretoPixel(feature, finalXDistance) {
+	let distance;
+
+	switch(true) {
+	case feature > 0.9:
+		distance = finalXDistance * 2;
+		break;
+	case (feature > 0.6 && feature <= 0.9):
+		distance = finalXDistance * 1.5;
+		break;
+	case (feature > 0.3 && feature <= 0.6):
+		distance = finalXDistance;
+		break;
+	case feature <= 0.3:
+		distance = finalXDistance * 0.5;
+		break;
+	}
+
+	return distance;
+}
+
 /*
+// Dancability to determine vertical displacement between control points
+		// Valence to determine horizontal displacement
+		// Energy to determine max values for just vertical - max would be 175px
 function createControlPoint(point, currentPos) {
 	let maxY;
 	let xDisplacement;
@@ -67655,11 +67666,12 @@ const game = new PIXI.Application({
 const actionState = {};
 
 const viewport = Viewport(game);
-Parallax(game, viewport);
+Parallax(game);
+game.stage.addChild(viewport);
 Bezier(viewport);
 const character = addCharacter(game, viewport);
 
-// this handler will simply print to the console the actions being performed
+// Adds the current action being sent to the actionState array
 const handler = (action => {
 	for (let i = 0; i < action.actions.length; i++) {
 		actionState[action.actions[i]] = action.type;
@@ -67757,10 +67769,10 @@ class Old {
 }
 */
 
-function Parallax(game, viewport) {
+function Parallax(game) {
 
-	const tilingSprite1 = createTilingSprite(game, viewport, "../img/bg-far.png", 0);
-	const tilingSprite2 = createTilingSprite(game, viewport, "../img/bg-mid.png", 128);
+	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", 0);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 128);
 
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
@@ -67769,7 +67781,7 @@ function Parallax(game, viewport) {
 
 }
 
-function createTilingSprite(game, viewport, location, y) {
+function createTilingSprite(game, location, y) {
 	const texture = PIXI.Texture.from(location);
 
 	const tilingSprite = new PIXI.TilingSprite(
@@ -67777,7 +67789,7 @@ function createTilingSprite(game, viewport, location, y) {
 		game.screen.width,
 		game.screen.height,
 	);
-	viewport.addChild(tilingSprite);
+	game.stage.addChild(tilingSprite);
 
 	tilingSprite.position.x = 0;
 	tilingSprite.position.y = y;
@@ -67792,7 +67804,7 @@ module.exports = Parallax;
 
 
 },{"pixi.js":43}],511:[function(require,module,exports){
-const PIXI = require("pixi.js");
+
 const Viewport = require("pixi-viewport").Viewport;
 
 function CreateViewport(game) {
@@ -67803,26 +67815,24 @@ function CreateViewport(game) {
 		worldWidth: 1000,
 		worldHeight: 1000,
 
-		interaction: game.renderer.plugins.interaction // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+		interaction: game.renderer.plugins.interaction
 	});
 
 	// add the viewport to the stage
-	game.stage.addChild(viewport);
+	//game.stage.addChild(viewport);
 
 	// activate plugins
 	viewport
+		.drag()
 		.pinch()
 		.wheel()
 		.decelerate();
-
-	//const point = new PIXI.Point(100, 100);
-	//viewport.snapZoom({width: 300, center: point});
 
 	return viewport;
 }
 
 module.exports = CreateViewport;
-},{"pixi-viewport":42,"pixi.js":43}],512:[function(require,module,exports){
+},{"pixi-viewport":42}],512:[function(require,module,exports){
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",

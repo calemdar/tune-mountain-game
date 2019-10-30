@@ -1,4 +1,4 @@
-const PIXI = require("pixi.js");
+
 const Viewport = require("pixi-viewport").Viewport;
 
 function CreateViewport(game) {
@@ -9,20 +9,18 @@ function CreateViewport(game) {
 		worldWidth: 1000,
 		worldHeight: 1000,
 
-		interaction: game.renderer.plugins.interaction // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+		interaction: game.renderer.plugins.interaction
 	});
 
 	// add the viewport to the stage
-	game.stage.addChild(viewport);
+	//game.stage.addChild(viewport);
 
 	// activate plugins
 	viewport
+		.drag()
 		.pinch()
 		.wheel()
 		.decelerate();
-
-	//const point = new PIXI.Point(100, 100);
-	//viewport.snapZoom({width: 300, center: point});
 
 	return viewport;
 }

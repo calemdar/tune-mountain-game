@@ -27,11 +27,12 @@ const game = new PIXI.Application({
 const actionState = {};
 
 const viewport = Viewport(game);
-Parallax(game, viewport);
+Parallax(game);
+game.stage.addChild(viewport);
 Bezier(viewport);
 const character = addCharacter(game, viewport);
 
-// this handler will simply print to the console the actions being performed
+// Adds the current action being sent to the actionState array
 const handler = (action => {
 	for (let i = 0; i < action.actions.length; i++) {
 		actionState[action.actions[i]] = action.type;
