@@ -1,6 +1,7 @@
 const PIXI = require("pixi.js");
 let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
 let songFeatures = require("../../static/json/SmokeandGunsFeatures");
+const Planck = require("planck-js");
 
 
 function Bezier(viewport) {
