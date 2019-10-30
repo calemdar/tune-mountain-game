@@ -9,8 +9,6 @@ function Bezier(viewport) {
 	const points = new PIXI.Graphics();
 	const texture = PIXI.Texture.from("..//img/husky.png");
 
-
-
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
