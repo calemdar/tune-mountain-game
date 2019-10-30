@@ -6,26 +6,19 @@ const Vec2 = Planck.Vec2;
 
 function GameObject () {
 
-	GameObject.prototype.create = function create (name, position, scale, anchor, mass, sprite, physics) {
+	GameObject.prototype.create =({name, position=Vec2(0,0), scale=1, anchor=1, mass=1, sprite=1, physics=1})  => {
 		let object = {};
 
-		if(typeof(name) === "string"){
-			object.name = name;
+		if(!name || typeof(name) != "string") {
+			object.errorMessage = "name not a String";
+			return object;
 		}
-		else{
-			object.errorMessage += "name not a String";
-		}
-		object.position = position;
-		object.scale = scale;
-		object.anchor = anchor;
-		object.mass = mass;
-		object.sprite = sprite;
-		object.physics = physics;
 
+		object = { name, position, scale, anchor, mass, sprite, physics };
 
 		return object;
 	};
-	GameObject.prototype.renderPosition = function renderPosition (object, game) {
+	GameObject.prototype.renderPosition = (object, game) => {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
@@ -39,7 +32,8 @@ function GameObject () {
 		game.stage.addChild(circle);
 
 
-		object.sprite.position = physicsPos;
+		object.sprite.position.x = physicsPos.x;
+		object.sprite.position.y = physicsPos.y;
 		//console.log("Physics Pos: " + physicsPos);
 		//console.log("Pixi Pos: " + object.sprite.position.x);
 	};
@@ -48,10 +42,6 @@ function GameObject () {
 	};
 
 }
-
-
-
-
 
 /*
 let cube = obj.create("Cube", {Pixi:{x:0, y:0}, Planck: {x:0, y:0}}, 1.0);

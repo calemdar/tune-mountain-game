@@ -85291,8 +85291,158 @@ const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
 const Planck = require("planck-js");
+const GenerateCurve = require("./GenerationAlgorithm");
+
+// example data
+const exampleAnalysis = {
+	"bars": [
+		{
+			"start": 251.98282,
+			"duration": 1.0,
+			"confidence": 0.652
+		},
+		{
+			"start": 252.98282,
+			"duration": 1.0,
+			"confidence": 0.652
+		},
+		{
+			"start": 253.98282,
+			"duration": 1.0,
+			"confidence": 0.652
+		}
+],
+	"beats": [
+		{
+			"start": 251.98282,
+			"duration": 0.5,
+			"confidence": 0.652
+		},
+		{
+			"start": 252.98282,
+			"duration": 0.5,
+			"confidence": 0.652
+		},
+		{
+			"start": 253.98282,
+			"duration": 0.5,
+			"confidence": 0.652
+		}
+],
+	"sections": [
+		{
+			"start": 237.02356,
+			"duration": 18.32542,
+			"confidence": 1,
+			"loudness": -20.074,
+			"tempo": 98.253,
+			"tempo_confidence": 0.767,
+			"key": 5,
+			"key_confidence": 0.327,
+			"mode": 1,
+			"mode_confidence": 0.566,
+			"time_signature": 4,
+			"time_signature_confidence": 1
+		}
+],
+	"segments": [
+		{
+			"start": 252.15601,
+			"duration": 3.19297,
+			"confidence": 0.522,
+			"loudness_start": -23.356,
+			"loudness_max_time": 0.06971,
+			"loudness_max": -18.121,
+			"loudness_end": -60,
+			"pitches": [
+				0.709,
+				0.092,
+				0.196,
+				0.084,
+				0.352,
+				0.134,
+				0.161,
+				1,
+				0.17,
+				0.161,
+				0.211,
+				0.15
+			],
+			"timbre": [
+				23.312,
+				-7.374,
+				-45.719,
+				294.874,
+				51.869,
+				-79.384,
+				-89.048,
+				143.322,
+				-4.676,
+				-51.303,
+				-33.274,
+				-19.037
+			]
+		}
+],
+	"tatums": [
+		{
+			"start": 251.98282,
+			"duration": 0.29765,
+			"confidence": 0.652
+		}
+	],
+	"track": {
+	"duration": 255.34898,
+		"sample_md5": "",
+		"offset_seconds": 0,
+		"window_seconds": 0,
+		"analysis_sample_rate": 22050,
+		"analysis_channels": 1,
+		"end_of_fade_in": 0,
+		"start_of_fade_out": 251.73333,
+		"loudness": -11.84,
+		"tempo": 98.002,
+		"tempo_confidence": 0.423,
+		"time_signature": 4,
+		"time_signature_confidence": 1,
+		"key": 5,
+		"key_confidence": 0.36,
+		"mode": 0,
+		"mode_confidence": 0.414,
+		"codestring": "eJxVnAmS5DgOBL-ST-B9_P9j4x7M6qoxW9tpsZQSCeI...",
+		"code_version": 3.15,
+		"echoprintstring": "eJzlvQmSHDmStHslxw4cB-v9j_A-tahhVKV0IH9...",
+		"echoprint_version": 4.12,
+		"synchstring": "eJx1mIlx7ToORFNRCCK455_YoE9Dtt-vmrKsK3EBsTY...",
+		"synch_version": 1,
+		"rhythmstring": "eJyNXAmOLT2r28pZQuZh_xv7g21Iqu_3pCd160xV...",
+		"rhythm_version": 1
+	}
+};
+const exampleFeatures = {
+	"duration_ms" : 255349,
+	"key" : 5,
+	"mode" : 0,
+	"time_signature" : 4,
+	"acousticness" : 0.514,
+	"danceability" : 0.735,
+	"energy" : 0.578,
+	"instrumentalness" : 0.0902,
+	"liveness" : 0.159,
+	"loudness" : -11.840,
+	"speechiness" : 0.0461,
+	"valence" : 0.624,
+	"tempo" : 98.002,
+	"id" : "06AKEBrKUckW0KREUWRnvT",
+	"uri" : "spotify:track:06AKEBrKUckW0KREUWRnvT",
+	"track_href" : "https://api.spotify.com/v1/tracks/06AKEBrKUckW0KREUWRnvT",
+	"analysis_url" : "https://api.spotify.com/v1/audio-analysis/06AKEBrKUckW0KREUWRnvT",
+	"type" : "audio_features"
+}
 
 
+
+// Game code
 const manager = new InputManager();
 
 // bind one or more actions (appends to existing actions)
@@ -85321,9 +85471,13 @@ let ticker = PIXI.Ticker.shared;
 
 //Parallax(game);
 //Bezier(game);
-Physics(game);
+
+
+let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
+console.log(curves);
+Physics(game, curves);
 ticker.start();
-},{"./Bezier":560,"./Parallax":563,"./Physics":564,"pixi.js":42,"planck-js":69,"tune-mountain-input-manager":103}],562:[function(require,module,exports){
+},{"./Bezier":560,"./GenerationAlgorithm":563,"./Parallax":564,"./Physics":565,"pixi.js":42,"planck-js":69,"tune-mountain-input-manager":103}],562:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -85332,26 +85486,19 @@ const Vec2 = Planck.Vec2;
 
 function GameObject () {
 
-	GameObject.prototype.create = function create (name, position, scale, anchor, mass, sprite, physics) {
+	GameObject.prototype.create =({name, position=Vec2(0,0), scale=1, anchor=1, mass=1, sprite=1, physics=1})  => {
 		let object = {};
 
-		if(typeof(name) === "string"){
-			object.name = name;
+		if(!name || typeof(name) != "string") {
+			object.errorMessage = "name not a String";
+			return object;
 		}
-		else{
-			object.errorMessage += "name not a String";
-		}
-		object.position = position;
-		object.scale = scale;
-		object.anchor = anchor;
-		object.mass = mass;
-		object.sprite = sprite;
-		object.physics = physics;
 
+		object = { name, position, scale, anchor, mass, sprite, physics };
 
 		return object;
 	};
-	GameObject.prototype.renderPosition = function renderPosition (object, game) {
+	GameObject.prototype.renderPosition = (object, game) => {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
@@ -85365,7 +85512,8 @@ function GameObject () {
 		game.stage.addChild(circle);
 
 
-		object.sprite.position = physicsPos;
+		object.sprite.position.x = physicsPos.x;
+		object.sprite.position.y = physicsPos.y;
 		//console.log("Physics Pos: " + physicsPos);
 		//console.log("Pixi Pos: " + object.sprite.position.x);
 	};
@@ -85374,10 +85522,6 @@ function GameObject () {
 	};
 
 }
-
-
-
-
 
 /*
 let cube = obj.create("Cube", {Pixi:{x:0, y:0}, Planck: {x:0, y:0}}, 1.0);
@@ -85390,7 +85534,75 @@ console.log(rectangle);
 */
 
 module.exports = GameObject;
-},{"./Bezier":560,"./Physics":564,"pixi.js":42,"planck-js":69}],563:[function(require,module,exports){
+},{"./Bezier":560,"./Physics":565,"pixi.js":42,"planck-js":69}],563:[function(require,module,exports){
+const PIXI = require("pixi.js");
+const Planck = require("planck-js");
+const Vec2 = Planck.Vec2;
+
+
+// Algorithm to generate the tune mountain
+function GenerationAlgoritm (audioAnalysis, audioFeatures){
+	let startPoint = Vec2(5, 5);
+	let currentPoint = Vec2(5,5);
+	let songLength = audioAnalysis.track.duration;
+	let curves = [];
+	let currentCurve = new PIXI.Graphics();
+	let singleCurvePoints = [];
+
+
+
+	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
+		let start, end, c0, c1, cMax, cMin;
+		let currentBar = audioAnalysis.bars[i];
+
+		start = currentPoint;
+		// delete this
+		console.log(currentPoint);
+
+		end = Vec2(start.x + (currentBar.duration * 300), start.y + (audioFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
+
+
+		c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
+		c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
+
+		//cMax = Vec2(end.x + (audioFeatures.energy * 100), );
+		//c0 = Vec2();
+
+		singleCurvePoints.push(start, c0, c1, end);
+		curves.push(singleCurvePoints);
+
+
+		currentPoint = end;
+		singleCurvePoints = [];
+
+	}
+
+	function getRandomInt(min, max) {
+		return Math.random() * (max - min) + min;
+	}
+
+	// move matrix calculations into seperate module
+	function addVec (vector1, vector2){
+		let result = Vec2();
+
+		result.x = vector1.x + vector2.x;
+		result.y = vector1.y + vector2.y;
+
+		return result;
+	}
+
+	// check data confidence
+	function checkConfidence(conf){
+		let maxConf = 0.6;
+		return conf > maxConf; // true if confidence is higher, false otherwise
+	}
+
+	return curves;
+
+}
+
+module.exports = GenerationAlgoritm;
+},{"pixi.js":42,"planck-js":69}],564:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 /**
@@ -85478,12 +85690,13 @@ module.exports = Parallax;
 
 
 
-},{"pixi.js":42}],564:[function(require,module,exports){
+},{"pixi.js":42}],565:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
-function Physics(game) {
+
+function Physics(game, curvePoints) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
 	const world = new pl.World(Vec2(0, 10));
@@ -85491,6 +85704,8 @@ function Physics(game) {
 
 	let COUNT = 10;
 	let bodies = [];
+	// Hard coded curves
+	let allCurvePoints = [];
 
 	let ground = world.createBody();
 	ground.createFixture(pl.Edge(Vec2(0.0, 100.0), Vec2(100.0, 200.0)), 1.0);
@@ -85506,10 +85721,10 @@ function Physics(game) {
 
 	// physics object
 	let box = world.createBody().setDynamic();
-	box.createFixture(pl.Circle(0.5, 0.5));
+	box.createFixture(pl.Circle(0.5), 1.0);
 	box.setPosition(Vec2(60.0, 20.0));
 	box.setMassData({
-		mass : 1,
+		mass : 5,
 		center : Vec2(),
 		I : 1
 	});
@@ -85519,7 +85734,7 @@ function Physics(game) {
 	husky.interactive = true;
 	husky.buttonMode = true;
 
-	let gameCube = obj.create("Cube", Vec2(10.0, 10.0), 1.0, Vec2(0.5, 1), box.getMass(), husky, box);
+	let gameCube = obj.create({name: "Cube", sprite: husky, physics: box, position: Vec2(10.0, 10.0), anchor: Vec2(0.5, 1), mass: box.getMass()});
 
 	/*
 	gameCube.sprite.on("tap", (event) => {
@@ -85568,7 +85783,7 @@ function Physics(game) {
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
-		let numPoints = 40;
+		let numPoints = 20;
 		let point = Vec2();
 		let curvePoints = [];
 		let currentPoint = 1;
@@ -85576,7 +85791,6 @@ function Physics(game) {
 		for(let i = 0; i < numPoints; i++){
 			t = i / numPoints;
 			point = cubicBezierPoint(t, p0, p1, c0, c1);
-			// change Vector2 to Vector3 for bugfix
 
 			allCurvePoints.push(point);
 			currentPoint++;
@@ -85595,17 +85809,30 @@ function Physics(game) {
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
 
-
+			// Pixi drawing
 			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
 			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
 
-
 			line = world.createBody();
 
-			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x + 5, 0.01), 1.0);
+			drawVertex1.drawRect(vertex1.x, vertex1.y, 0.01, 0.01);
+			drawVertex1.drawRect(vertex2.x, vertex2.y, 0.01, 0.01);
+
+			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x, 0.01), 1.0);
 			//line.createFixture(pl.Edge(points[i], points[i+1]), 0.0);
 			line.setPosition(findMidpoint(vertex1, vertex2));
-			line.setAngle(findAngle(vertex1, vertex2));
+
+			// Find start of new curve
+			if(i === 19){
+
+				let vertex0 = points[i-1];
+				line.setAngle(findAngle(vertex0, vertex2));
+			}
+			else{
+				line.setAngle(findAngle(vertex1, vertex2));
+			}
+
+			console.log("Point " + i + " Angle " + findAngle(vertex1, vertex2));
 
 		}
 
@@ -85653,17 +85880,24 @@ function Physics(game) {
 	const findAngle = function (point1, point2) {
 
 		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
-
-		console.log(angle);
 		return angle;
 	};
 
-	let allCurvePoints = [];
-	bezierCurvePoints(Vec2(25,25), Vec2(100,200), Vec2(200,200), Vec2(240,150));
-	bezierCurvePoints(Vec2(240,150), Vec2(350,100), Vec2(450,350), Vec2(700,200));
+	const getCurvePoints = function (){
 
-	physicalBezierCurve(allCurvePoints);
+		for(let i = 0; i < curvePoints.length; i+=1){
+			//bezierCurvePoints(Vec2(25,25), Vec2(100,200), Vec2(200,200), Vec2(240,150));
+			//bezierCurvePoints(Vec2(240,150), Vec2(350,150), Vec2(450,350), Vec2(700,200));
 
+			bezierCurvePoints(curvePoints[i][0], curvePoints[i][1], curvePoints[i][2], curvePoints[i][3]);
+		}
+
+
+		physicalBezierCurve(allCurvePoints);
+	};
+
+	// Testing
+	getCurvePoints();
 
 
 	const renderStep = function() {
@@ -85684,9 +85918,8 @@ function Physics(game) {
 
 
 	game.ticker.add(renderStep);
-	console.log(renderStep);
+
 }
 
 module.exports = Physics;
-
 },{"./GameObject":562,"pixi.js":42,"planck-js":69}]},{},[561]);

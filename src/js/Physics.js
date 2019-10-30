@@ -2,7 +2,8 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
-function Physics(game) {
+
+function Physics(game, curvePoints) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
 	const world = new pl.World(Vec2(0, 10));
@@ -10,6 +11,8 @@ function Physics(game) {
 
 	let COUNT = 10;
 	let bodies = [];
+	// Hard coded curves
+	let allCurvePoints = [];
 
 	let ground = world.createBody();
 	ground.createFixture(pl.Edge(Vec2(0.0, 100.0), Vec2(100.0, 200.0)), 1.0);
@@ -25,10 +28,10 @@ function Physics(game) {
 
 	// physics object
 	let box = world.createBody().setDynamic();
-	box.createFixture(pl.Circle(0.5, 0.5));
+	box.createFixture(pl.Circle(0.5), 1.0);
 	box.setPosition(Vec2(60.0, 20.0));
 	box.setMassData({
-		mass : 1,
+		mass : 5,
 		center : Vec2(),
 		I : 1
 	});
@@ -38,7 +41,7 @@ function Physics(game) {
 	husky.interactive = true;
 	husky.buttonMode = true;
 
-	let gameCube = obj.create("Cube", Vec2(10.0, 10.0), 1.0, Vec2(0.5, 1), box.getMass(), husky, box);
+	let gameCube = obj.create({name: "Cube", sprite: husky, physics: box, position: Vec2(10.0, 10.0), anchor: Vec2(0.5, 1), mass: box.getMass()});
 
 	/*
 	gameCube.sprite.on("tap", (event) => {
@@ -87,7 +90,7 @@ function Physics(game) {
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
-		let numPoints = 40;
+		let numPoints = 20;
 		let point = Vec2();
 		let curvePoints = [];
 		let currentPoint = 1;
@@ -95,7 +98,6 @@ function Physics(game) {
 		for(let i = 0; i < numPoints; i++){
 			t = i / numPoints;
 			point = cubicBezierPoint(t, p0, p1, c0, c1);
-			// change Vector2 to Vector3 for bugfix
 
 			allCurvePoints.push(point);
 			currentPoint++;
@@ -114,17 +116,30 @@ function Physics(game) {
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
 
-
+			// Pixi drawing
 			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
 			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
 
-
 			line = world.createBody();
 
-			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x + 5, 0.01), 1.0);
+			drawVertex1.drawRect(vertex1.x, vertex1.y, 0.01, 0.01);
+			drawVertex1.drawRect(vertex2.x, vertex2.y, 0.01, 0.01);
+
+			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x, 0.01), 1.0);
 			//line.createFixture(pl.Edge(points[i], points[i+1]), 0.0);
 			line.setPosition(findMidpoint(vertex1, vertex2));
-			line.setAngle(findAngle(vertex1, vertex2));
+
+			// Find start of new curve
+			if(i === 19){
+
+				let vertex0 = points[i-1];
+				line.setAngle(findAngle(vertex0, vertex2));
+			}
+			else{
+				line.setAngle(findAngle(vertex1, vertex2));
+			}
+
+			console.log("Point " + i + " Angle " + findAngle(vertex1, vertex2));
 
 		}
 
@@ -172,17 +187,24 @@ function Physics(game) {
 	const findAngle = function (point1, point2) {
 
 		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
-
-		console.log(angle);
 		return angle;
 	};
 
-	let allCurvePoints = [];
-	bezierCurvePoints(Vec2(25,25), Vec2(100,200), Vec2(200,200), Vec2(240,150));
-	bezierCurvePoints(Vec2(240,150), Vec2(350,100), Vec2(450,350), Vec2(700,200));
+	const getCurvePoints = function (){
 
-	physicalBezierCurve(allCurvePoints);
+		for(let i = 0; i < curvePoints.length; i+=1){
+			//bezierCurvePoints(Vec2(25,25), Vec2(100,200), Vec2(200,200), Vec2(240,150));
+			//bezierCurvePoints(Vec2(240,150), Vec2(350,150), Vec2(450,350), Vec2(700,200));
 
+			bezierCurvePoints(curvePoints[i][0], curvePoints[i][1], curvePoints[i][2], curvePoints[i][3]);
+		}
+
+
+		physicalBezierCurve(allCurvePoints);
+	};
+
+	// Testing
+	getCurvePoints();
 
 
 	const renderStep = function() {
@@ -203,7 +225,7 @@ function Physics(game) {
 
 
 	game.ticker.add(renderStep);
-	console.log(renderStep);
+
 }
 
 module.exports = Physics;
