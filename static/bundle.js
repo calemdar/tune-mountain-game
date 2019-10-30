@@ -23370,7 +23370,11 @@ exports.LoaderResource = LoaderResource;
 exports.TextureLoader = TextureLoader;
 
 
+<<<<<<< HEAD
+},{"@pixi/core":4,"@pixi/utils":34,"resource-loader":49}],16:[function(require,module,exports){
+=======
 },{"@pixi/core":4,"@pixi/utils":34,"resource-loader":101}],16:[function(require,module,exports){
+>>>>>>> planck
 /*!
  * @pixi/math - v5.1.0
  * Compiled Fri, 19 Jul 2019 21:54:36 UTC
@@ -37180,7 +37184,11 @@ exports.trimCanvas = trimCanvas;
 exports.uid = uid;
 
 
+<<<<<<< HEAD
+},{"@pixi/constants":3,"@pixi/settings":26,"earcut":35,"eventemitter3":37,"url":506}],35:[function(require,module,exports){
+=======
 },{"@pixi/constants":3,"@pixi/settings":26,"earcut":35,"eventemitter3":37,"url":558}],35:[function(require,module,exports){
+>>>>>>> planck
 'use strict';
 
 module.exports = earcut;
@@ -38182,7 +38190,11 @@ Promise.reject = function(reason){
 })(typeof window != 'undefined' ? window : typeof global != 'undefined' ? global : typeof self != 'undefined' ? self : this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+<<<<<<< HEAD
+},{"timers":50}],37:[function(require,module,exports){
+=======
 },{"timers":102}],37:[function(require,module,exports){
+>>>>>>> planck
 'use strict';
 
 var has = Object.prototype.hasOwnProperty
@@ -38814,6 +38826,12 @@ module.exports = function parseURI (str, opts) {
 }
 
 },{}],42:[function(require,module,exports){
+(function (global){
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports,require("pixi.js")):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e((t=t||self).Viewport={},t.PIXI)}(this,function(t,e){"use strict";class i{constructor(t){this.viewport=t,this.touches=[],this.addListeners()}addListeners(){this.viewport.interactive=!0,this.viewport.forceHitArea||(this.viewport.hitArea=new e.Rectangle(0,0,this.viewport.worldWidth,this.viewport.worldHeight)),this.viewport.on("pointerdown",this.down,this),this.viewport.on("pointermove",this.move,this),this.viewport.on("pointerup",this.up,this),this.viewport.on("pointerupoutside",this.up,this),this.viewport.on("pointercancel",this.up,this),this.viewport.on("pointerout",this.up,this),this.wheelFunction=t=>this.handleWheel(t),this.viewport.options.divWheel.addEventListener("wheel",this.wheelFunction,{passive:this.viewport.options.passiveWheel}),this.isMouseDown=!1}destroy(){this.viewport.options.divWheel.removeEventListener("wheel",this.wheelFunction)}down(t){if(this.viewport.pause||!this.viewport.worldVisible)return;if("mouse"===t.data.pointerType?this.isMouseDown=!0:this.get(t.data.pointerId)||this.touches.push({id:t.data.pointerId,last:null}),1===this.count()){this.last=t.data.global.clone();const e=this.viewport.plugins.get("decelerate"),i=this.viewport.plugins.get("bounce");e&&e.isActive()||i&&i.isActive()?this.clickedAvailable=!1:this.clickedAvailable=!0}else this.clickedAvailable=!1;this.viewport.plugins.down(t)&&this.viewport.options.stopPropagation&&t.stopPropagation()}checkThreshold(t){return Math.abs(t)>=this.viewport.threshold}move(t){if(this.viewport.pause||!this.viewport.worldVisible)return;const e=this.viewport.plugins.move(t);if(this.clickedAvailable){const e=t.data.global.x-this.last.x,i=t.data.global.y-this.last.y;(this.checkThreshold(e)||this.checkThreshold(i))&&(this.clickedAvailable=!1)}e&&this.viewport.options.stopPropagation&&t.stopPropagation()}up(t){if(this.viewport.pause||!this.viewport.worldVisible)return;"mouse"===t.data.pointerType&&(this.isMouseDown=!1),"mouse"!==t.data.pointerType&&this.remove(t.data.pointerId);const e=this.viewport.plugins.up(t);this.clickedAvailable&&0===this.count()&&(this.viewport.emit("clicked",{screen:this.last,world:this.viewport.toWorld(this.last),viewport:this}),this.clickedAvailable=!1),e&&this.viewport.options.stopPropagation&&t.stopPropagation()}getPointerPosition(t){let i=new e.Point;return this.viewport.options.interaction?this.viewport.options.interaction.mapPositionToPoint(i,t.clientX,t.clientY):(i.x=t.clientX,i.y=t.clientY),i}handleWheel(t){if(this.viewport.pause||!this.viewport.worldVisible)return;const e=this.viewport.toLocal(this.getPointerPosition(t));if(this.viewport.left<=e.x&&e.x<=this.viewport.right&&this.viewport.top<=e.y&&e.y<=this.viewport.bottom){this.viewport.plugins.wheel(t)&&t.preventDefault()}}pause(){this.touches=[],this.isMouseDown=!1}get(t){for(let e of this.touches)if(e.id===t)return e;return null}remove(t){for(let e=0;e<this.touches.length;e++)if(this.touches[e].id===t)return void this.touches.splice(e,1)}count(){return(this.isMouseDown?1:0)+this.touches.length}}const s=["drag","pinch","wheel","follow","mouse-edges","decelerate","bounce","snap-zoom","clamp-zoom","snap","clamp"];class n{constructor(t){this.viewport=t,this.list=[],this.plugins={}}add(t,e,i=s.length){this.plugins[t]=e;const n=s.indexOf(t);-1!==n&&s.splice(n,1),s.splice(i,0,t),this.sort()}get(t){return this.plugins[t]}update(t){for(let e of this.list)e.update(t)}resize(){for(let t of this.list)t.resize()}reset(){this.plugins.bounce&&(this.plugins.bounce.reset(),this.plugins.bounce.bounce()),this.plugins.decelerate&&this.plugins.decelerate.reset(),this.plugins.snap&&this.plugins.snap.reset(),this.plugins.clamp&&this.plugins.clamp.update(),this.plugins["clamp-zoom"]&&this.plugins["clamp-zoom"].clamp()}remove(t){this.plugins[t]&&(this.plugins[t]=null,this.viewport.emit(t+"-remove"),this.sort())}pause(t){this.plugins[t]&&this.plugins[t].pause()}resume(t){this.plugins[t]&&this.plugins[t].resume()}sort(){this.list=[];for(let t of s)this.plugins[t]&&this.list.push(this.plugins[t])}down(t){let e=!1;for(let i of this.list)i.down(t)&&(e=!0);return e}move(t){let e=!1;for(let i of this.viewport.plugins.list)i.move(t)&&(e=!0);return e}up(t){let e=!1;for(let i of this.list)i.up(t)&&(e=!0);return e}wheel(t){let e=!1;for(let i of this.list)i.wheel(t)&&(e=!0);return e}}class h{constructor(t){this.parent=t,this.paused=!1}destroy(){}down(){return!1}move(){return!1}up(){return!1}wheel(){return!1}update(){}resize(){}reset(){}pause(){this.paused=!0}resume(){this.paused=!1}}const o={direction:"all",wheel:!0,wheelScroll:1,reverse:!1,clampWheel:!1,underflow:"center",factor:1,mouseButtons:"all"};class r extends h{constructor(t,e={}){super(t),this.options=Object.assign({},o,e),this.moved=!1,this.reverse=this.options.reverse?1:-1,this.xDirection=!this.options.direction||"all"===this.options.direction||"x"===this.options.direction,this.yDirection=!this.options.direction||"all"===this.options.direction||"y"===this.options.direction,this.parseUnderflow(),this.mouseButtons(this.options.mouseButtons)}mouseButtons(t){this.mouse=t&&"all"!==t?[-1!==t.indexOf("left"),-1!==t.indexOf("middle"),-1!==t.indexOf("right")]:[!0,!0,!0]}parseUnderflow(){const t=this.options.underflow.toLowerCase();"center"===t?(this.underflowX=0,this.underflowY=0):(this.underflowX=-1!==t.indexOf("left")?-1:-1!==t.indexOf("right")?1:0,this.underflowY=-1!==t.indexOf("top")?-1:-1!==t.indexOf("bottom")?1:0)}checkButtons(t){const e="mouse"===t.data.pointerType,i=this.parent.input.count();return!(!(1===i||i>1&&!this.parent.plugins.get("pinch"))||e&&!this.mouse[t.data.button])}down(t){if(!this.paused)return this.checkButtons(t)?(this.last={x:t.data.global.x,y:t.data.global.y},this.current=t.data.pointerId,!0):void(this.last=null)}get active(){return this.moved}move(t){if(!this.paused&&this.last&&this.current===t.data.pointerId){const i=t.data.global.x,s=t.data.global.y,n=this.parent.input.count();if(1===n||n>1&&!this.parent.plugins.get("pinch")){const t=i-this.last.x,n=s-this.last.y;if(this.moved||this.xDirection&&this.parent.input.checkThreshold(t)||this.yDirection&&this.parent.input.checkThreshold(n)){const t={x:i,y:s};return this.xDirection&&(this.parent.x+=(t.x-this.last.x)*this.options.factor),this.yDirection&&(this.parent.y+=(t.y-this.last.y)*this.options.factor),this.last=t,this.moved||this.parent.emit("drag-start",{screen:new e.Point(this.last.x,this.last.y),world:this.parent.toWorld(new e.Point(this.last.x,this.last.y)),viewport:this.parent}),this.moved=!0,this.parent.emit("moved",{viewport:this.parent,type:"drag"}),!0}}else this.moved=!1}}up(){const t=this.parent.input.touches;if(1===t.length){const e=t[0];return e.last&&(this.last={x:e.last.x,y:e.last.y},this.current=e.id),this.moved=!1,!0}if(this.last&&this.moved){const t=new e.Point(this.last.x,this.last.y);return this.parent.emit("drag-end",{screen:t,world:this.parent.toWorld(t),viewport:this.parent}),this.last=null,this.moved=!1,!0}}wheel(t){if(!this.paused&&this.options.wheel){if(!this.parent.plugins.get("wheel"))return this.xDirection&&(this.parent.x+=t.deltaX*this.options.wheelScroll*this.reverse),this.yDirection&&(this.parent.y+=t.deltaY*this.options.wheelScroll*this.reverse),this.options.clampWheel&&this.clamp(),this.parent.emit("wheel-scroll",this.parent),this.parent.emit("moved",this.parent),this.parent.options.passiveWheel||t.preventDefault(),!0}}resume(){this.last=null,this.paused=!1}clamp(){const t=this.parent.plugins.get("decelerate")||{};if("y"!==this.options.clampWheel)if(this.parent.screenWorldWidth<this.parent.screenWidth)switch(this.underflowX){case-1:this.parent.x=0;break;case 1:this.parent.x=this.parent.screenWidth-this.parent.screenWorldWidth;break;default:this.parent.x=(this.parent.screenWidth-this.parent.screenWorldWidth)/2}else this.parent.left<0?(this.parent.x=0,t.x=0):this.parent.right>this.parent.worldWidth&&(this.parent.x=-this.parent.worldWidth*this.parent.scale.x+this.parent.screenWidth,t.x=0);if("x"!==this.options.clampWheel)if(this.parent.screenWorldHeight<this.parent.screenHeight)switch(this.underflowY){case-1:this.parent.y=0;break;case 1:this.parent.y=this.parent.screenHeight-this.parent.screenWorldHeight;break;default:this.parent.y=(this.parent.screenHeight-this.parent.screenWorldHeight)/2}else this.parent.top<0&&(this.parent.y=0,t.y=0),this.parent.bottom>this.parent.worldHeight&&(this.parent.y=-this.parent.worldHeight*this.parent.scale.y+this.parent.screenHeight,t.y=0)}}const a={noDrag:!1,percent:1,center:null};class p extends h{constructor(t,e={}){super(t),this.options=Object.assign({},a,e)}down(){if(this.parent.input.count()>=2)return this.active=!0,!0}move(t){if(this.paused||!this.active)return;const e=t.data.global.x,i=t.data.global.y,s=this.parent.input.touches;if(s.length>=2){const n=s[0],h=s[1],o=n.last&&h.last?Math.sqrt(Math.pow(h.last.x-n.last.x,2)+Math.pow(h.last.y-n.last.y,2)):null;if(n.id===t.data.pointerId?n.last={x:e,y:i,data:t.data}:h.id===t.data.pointerId&&(h.last={x:e,y:i,data:t.data}),o){let t;const e={x:n.last.x+(h.last.x-n.last.x)/2,y:n.last.y+(h.last.y-n.last.y)/2};this.options.center||(t=this.parent.toLocal(e));const i=(Math.sqrt(Math.pow(h.last.x-n.last.x,2)+Math.pow(h.last.y-n.last.y,2))-o)/this.parent.screenWidth*this.parent.scale.x*this.options.percent;this.parent.scale.x+=i,this.parent.scale.y+=i,this.parent.emit("zoomed",{viewport:this.parent,type:"pinch"});const s=this.parent.plugins.get("clamp-zoom");if(s&&s.clamp(),this.options.center)this.parent.moveCenter(this.options.center);else{const i=this.parent.toGlobal(t);this.parent.x+=e.x-i.x,this.parent.y+=e.y-i.y,this.parent.emit("moved",{viewport:this.parent,type:"pinch"})}!this.options.noDrag&&this.lastCenter&&(this.parent.x+=e.x-this.lastCenter.x,this.parent.y+=e.y-this.lastCenter.y,this.parent.emit("moved",{viewport:this.parent,type:"pinch"})),this.lastCenter=e,this.moved=!0}else this.pinching||(this.parent.emit("pinch-start",this.parent),this.pinching=!0);return!0}}up(){if(this.pinching&&this.parent.input.touches.length<=1)return this.active=!1,this.lastCenter=null,this.pinching=!1,this.moved=!1,this.parent.emit("pinch-end",this.parent),!0}}const l={left:!1,right:!1,top:!1,bottom:!1,direction:null,underflow:"center"};class c extends h{constructor(t,e={}){super(t),this.options=Object.assign({},l,e),this.options.direction&&(this.options.left="x"===this.options.direction||"all"===this.options.direction||null,this.options.right="x"===this.options.direction||"all"===this.options.direction||null,this.options.top="y"===this.options.direction||"all"===this.options.direction||null,this.options.bottom="y"===this.options.direction||"all"===this.options.direction||null),this.parseUnderflow(),this.update()}parseUnderflow(){const t=this.options.underflow.toLowerCase();"none"===t?this.noUnderflow=!0:"center"===t?(this.underflowX=this.underflowY=0,this.noUnderflow=!1):(this.underflowX=-1!==t.indexOf("left")?-1:-1!==t.indexOf("right")?1:0,this.underflowY=-1!==t.indexOf("top")?-1:-1!==t.indexOf("bottom")?1:0,this.noUnderflow=!1)}move(){return this.update(),!1}update(){if(this.paused)return;const t={x:this.parent.x,y:this.parent.y},e=this.parent.plugins.decelerate||{};if(null!==this.options.left||null!==this.options.right){let i=!1;if(this.parent.screenWorldWidth<this.parent.screenWidth){if(!this.noUnderflow)switch(this.underflowX){case-1:0!==this.parent.x&&(this.parent.x=0,i=!0);break;case 1:this.parent.x!==this.parent.screenWidth-this.parent.screenWorldWidth&&(this.parent.x=this.parent.screenWidth-this.parent.screenWorldWidth,i=!0);break;default:this.parent.x!==(this.parent.screenWidth-this.parent.screenWorldWidth)/2&&(this.parent.x=(this.parent.screenWidth-this.parent.screenWorldWidth)/2,i=!0)}}else null!==this.options.left&&this.parent.left<(!0===this.options.left?0:this.options.left)&&(this.parent.x=-(!0===this.options.left?0:this.options.left)*this.parent.scale.x,e.x=0,i=!0),null!==this.options.right&&this.parent.right>(!0===this.options.right?this.parent.worldWidth:this.options.right)&&(this.parent.x=-(!0===this.options.right?this.parent.worldWidth:this.options.right)*this.parent.scale.x+this.parent.screenWidth,e.x=0,i=!0);i&&this.parent.emit("moved",{viewport:this.parent,original:t,type:"clamp-x"})}if(null!==this.options.top||null!==this.options.bottom){let i=!1;if(this.parent.screenWorldHeight<this.parent.screenHeight){if(!this.noUnderflow)switch(this.underflowY){case-1:0!==this.parent.y&&(this.parent.y=0,i=!0);break;case 1:this.parent.y!==this.parent.screenHeight-this.parent.screenWorldHeight&&(this.parent.y=this.parent.screenHeight-this.parent.screenWorldHeight,i=!0);break;default:this.parent.y!==(this.parent.screenHeight-this.parent.screenWorldHeight)/2&&(this.parent.y=(this.parent.screenHeight-this.parent.screenWorldHeight)/2,i=!0)}}else null!==this.options.top&&this.parent.top<(!0===this.options.top?0:this.options.top)&&(this.parent.y=-(!0===this.options.top?0:this.options.top)*this.parent.scale.y,e.y=0,i=!0),null!==this.options.bottom&&this.parent.bottom>(!0===this.options.bottom?this.parent.worldHeight:this.options.bottom)&&(this.parent.y=-(!0===this.options.bottom?this.parent.worldHeight:this.options.bottom)*this.parent.scale.y+this.parent.screenHeight,e.y=0,i=!0);i&&this.parent.emit("moved",{viewport:this.parent,original:t,type:"clamp-y"})}}}const d={minWidth:null,minHeight:null,maxWidth:null,maxHeight:null};class u extends h{constructor(t,e={}){super(t),this.options=Object.assign({},d,e),this.clamp()}resize(){this.clamp()}clamp(){if(this.paused)return;let t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight;if(null!==this.options.minWidth&&t<this.options.minWidth){const i=this.parent.scale.x;this.parent.fitWidth(this.options.minWidth,!1,!1,!0),this.parent.scale.y*=this.parent.scale.x/i,t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}if(null!==this.options.maxWidth&&t>this.options.maxWidth){const i=this.parent.scale.x;this.parent.fitWidth(this.options.maxWidth,!1,!1,!0),this.parent.scale.y*=this.parent.scale.x/i,t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}if(null!==this.options.minHeight&&e<this.options.minHeight){const i=this.parent.scale.y;this.parent.fitHeight(this.options.minHeight,!1,!1,!0),this.parent.scale.x*=this.parent.scale.y/i,t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}if(null!==this.options.maxHeight&&e>this.options.maxHeight){const t=this.parent.scale.y;this.parent.fitHeight(this.options.maxHeight,!1,!1,!0),this.parent.scale.x*=this.parent.scale.y/t,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}}}const g={friction:.95,bounce:.8,minSpeed:.01};class m extends h{constructor(t,e={}){super(t),this.options=Object.assign({},g,e),this.saved=[],this.reset(),this.parent.on("moved",t=>this.moved(t))}destroy(){this.parent}down(){this.saved=[],this.x=this.y=!1}isActive(){return this.x||this.y}move(){if(this.paused)return;const t=this.parent.input.count();(1===t||t>1&&!this.parent.plugins.get("pinch"))&&(this.saved.push({x:this.parent.x,y:this.parent.y,time:performance.now()}),this.saved.length>60&&this.saved.splice(0,30))}moved(t){if(this.saved.length){const e=this.saved[this.saved.length-1];"clamp-x"===t.type?e.x===t.original.x&&(e.x=this.parent.x):"clamp-y"===t.type&&e.y===t.original.y&&(e.y=this.parent.y)}}up(){if(0===this.parent.input.count()&&this.saved.length){const t=performance.now();for(let e of this.saved)if(e.time>=t-100){const i=t-e.time;this.x=(this.parent.x-e.x)/i,this.y=(this.parent.y-e.y)/i,this.percentChangeX=this.percentChangeY=this.options.friction;break}}}activate(t){void 0!==(t=t||{}).x&&(this.x=t.x,this.percentChangeX=this.options.friction),void 0!==t.y&&(this.y=t.y,this.percentChangeY=this.options.friction)}update(t){if(this.paused)return;let e;this.x&&(this.parent.x+=this.x*t,this.x*=this.percentChangeX,Math.abs(this.x)<this.options.minSpeed&&(this.x=0),e=!0),this.y&&(this.parent.y+=this.y*t,this.y*=this.percentChangeY,Math.abs(this.y)<this.options.minSpeed&&(this.y=0),e=!0),e&&this.parent.emit("moved",{viewport:this.parent,type:"decelerate"})}reset(){this.x=this.y=null}}var w="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:{};var f=function(t,e){return t(e={exports:{}},e.exports),e.exports}(function(t,e){(function(){var e;(function(e){t.exports=e})(e={linear:function(t,e,i,s){return i*t/s+e},easeInQuad:function(t,e,i,s){return i*(t/=s)*t+e},easeOutQuad:function(t,e,i,s){return-i*(t/=s)*(t-2)+e},easeInOutQuad:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t+e:-i/2*(--t*(t-2)-1)+e},easeInCubic:function(t,e,i,s){return i*(t/=s)*t*t+e},easeOutCubic:function(t,e,i,s){return i*((t=t/s-1)*t*t+1)+e},easeInOutCubic:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t*t+e:i/2*((t-=2)*t*t+2)+e},easeInQuart:function(t,e,i,s){return i*(t/=s)*t*t*t+e},easeOutQuart:function(t,e,i,s){return-i*((t=t/s-1)*t*t*t-1)+e},easeInOutQuart:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t*t*t+e:-i/2*((t-=2)*t*t*t-2)+e},easeInQuint:function(t,e,i,s){return i*(t/=s)*t*t*t*t+e},easeOutQuint:function(t,e,i,s){return i*((t=t/s-1)*t*t*t*t+1)+e},easeInOutQuint:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t*t*t*t+e:i/2*((t-=2)*t*t*t*t+2)+e},easeInSine:function(t,e,i,s){return-i*Math.cos(t/s*(Math.PI/2))+i+e},easeOutSine:function(t,e,i,s){return i*Math.sin(t/s*(Math.PI/2))+e},easeInOutSine:function(t,e,i,s){return-i/2*(Math.cos(Math.PI*t/s)-1)+e},easeInExpo:function(t,e,i,s){return 0===t?e:i*Math.pow(2,10*(t/s-1))+e},easeOutExpo:function(t,e,i,s){return t===s?e+i:i*(1-Math.pow(2,-10*t/s))+e},easeInOutExpo:function(t,e,i,s){return(t/=s/2)<1?i/2*Math.pow(2,10*(t-1))+e:i/2*(2-Math.pow(2,-10*--t))+e},easeInCirc:function(t,e,i,s){return-i*(Math.sqrt(1-(t/=s)*t)-1)+e},easeOutCirc:function(t,e,i,s){return i*Math.sqrt(1-(t=t/s-1)*t)+e},easeInOutCirc:function(t,e,i,s){return(t/=s/2)<1?-i/2*(Math.sqrt(1-t*t)-1)+e:i/2*(Math.sqrt(1-(t-=2)*t)+1)+e},easeInElastic:function(t,e,i,s){var n,h,o;return o=1.70158,0===t||(t/=s),(h=0)||(h=.3*s),(n=i)<Math.abs(i)?(n=i,o=h/4):o=h/(2*Math.PI)*Math.asin(i/n),-n*Math.pow(2,10*(t-=1))*Math.sin((t*s-o)*(2*Math.PI)/h)+e},easeOutElastic:function(t,e,i,s){var n,h,o;return o=1.70158,0===t||(t/=s),(h=0)||(h=.3*s),(n=i)<Math.abs(i)?(n=i,o=h/4):o=h/(2*Math.PI)*Math.asin(i/n),n*Math.pow(2,-10*t)*Math.sin((t*s-o)*(2*Math.PI)/h)+i+e},easeInOutElastic:function(t,e,i,s){var n,h,o;return o=1.70158,0===t||(t/=s/2),(h=0)||(h=s*(.3*1.5)),(n=i)<Math.abs(i)?(n=i,o=h/4):o=h/(2*Math.PI)*Math.asin(i/n),t<1?n*Math.pow(2,10*(t-=1))*Math.sin((t*s-o)*(2*Math.PI)/h)*-.5+e:n*Math.pow(2,-10*(t-=1))*Math.sin((t*s-o)*(2*Math.PI)/h)*.5+i+e},easeInBack:function(t,e,i,s,n){return void 0===n&&(n=1.70158),i*(t/=s)*t*((n+1)*t-n)+e},easeOutBack:function(t,e,i,s,n){return void 0===n&&(n=1.70158),i*((t=t/s-1)*t*((n+1)*t+n)+1)+e},easeInOutBack:function(t,e,i,s,n){return void 0===n&&(n=1.70158),(t/=s/2)<1?i/2*(t*t*((1+(n*=1.525))*t-n))+e:i/2*((t-=2)*t*((1+(n*=1.525))*t+n)+2)+e},easeInBounce:function(t,i,s,n){return s-e.easeOutBounce(n-t,0,s,n)+i},easeOutBounce:function(t,e,i,s){return(t/=s)<1/2.75?i*(7.5625*t*t)+e:t<2/2.75?i*(7.5625*(t-=1.5/2.75)*t+.75)+e:t<2.5/2.75?i*(7.5625*(t-=2.25/2.75)*t+.9375)+e:i*(7.5625*(t-=2.625/2.75)*t+.984375)+e},easeInOutBounce:function(t,i,s,n){return t<n/2?.5*e.easeInBounce(2*t,0,s,n)+i:.5*e.easeOutBounce(2*t-n,0,s,n)+.5*s+i}})}).call(w)});function x(t,e){return t?"function"==typeof t?t:"string"==typeof t?f[t]:void 0:f[e]}const y={sides:"all",friction:.5,time:150,ease:"easeInOutSine",underflow:"center"};class v extends h{constructor(t,e={}){super(t),this.options=Object.assign({},y,e),this.ease=x(this.options.ease,"easeInOutSine"),this.options.sides&&("all"===this.options.sides?this.top=this.bottom=this.left=this.right=!0:"horizontal"===this.options.sides?this.right=this.left=!0:"vertical"===this.options.sides?this.top=this.bottom=!0:(this.top=-1!==this.options.sides.indexOf("top"),this.bottom=-1!==this.options.sides.indexOf("bottom"),this.left=-1!==this.options.sides.indexOf("left"),this.right=-1!==this.options.sides.indexOf("right"))),this.parseUnderflow(),this.last={},this.reset()}parseUnderflow(){const t=this.options.underflow.toLowerCase();"center"===t?(this.underflowX=0,this.underflowY=0):(this.underflowX=-1!==t.indexOf("left")?-1:-1!==t.indexOf("right")?1:0,this.underflowY=-1!==t.indexOf("top")?-1:-1!==t.indexOf("bottom")?1:0)}isActive(){return null!==this.toX||null!==this.toY}down(){this.toX=this.toY=null}up(){this.bounce()}update(t){if(!this.paused){if(this.bounce(),this.toX){const e=this.toX;e.time+=t,this.parent.emit("moved",{viewport:this.parent,type:"bounce-x"}),e.time>=this.options.time?(this.parent.x=e.end,this.toX=null,this.parent.emit("bounce-x-end",this.parent)):this.parent.x=this.ease(e.time,e.start,e.delta,this.options.time)}if(this.toY){const e=this.toY;e.time+=t,this.parent.emit("moved",{viewport:this.parent,type:"bounce-y"}),e.time>=this.options.time?(this.parent.y=e.end,this.toY=null,this.parent.emit("bounce-y-end",this.parent)):this.parent.y=this.ease(e.time,e.start,e.delta,this.options.time)}}}calcUnderflowX(){let t;switch(this.underflowX){case-1:t=0;break;case 1:t=this.parent.screenWidth-this.parent.screenWorldWidth;break;default:t=(this.parent.screenWidth-this.parent.screenWorldWidth)/2}return t}calcUnderflowY(){let t;switch(this.underflowY){case-1:t=0;break;case 1:t=this.parent.screenHeight-this.parent.screenWorldHeight;break;default:t=(this.parent.screenHeight-this.parent.screenWorldHeight)/2}return t}bounce(){if(this.paused)return;let t,e=this.parent.plugins.get("decelerate");e&&(e.x||e.y)&&(e.x&&e.percentChangeX===e.options.friction||e.y&&e.percentChangeY===e.options.friction)&&(((t=this.parent.OOB()).left&&this.left||t.right&&this.right)&&(e.percentChangeX=this.options.friction),(t.top&&this.top||t.bottom&&this.bottom)&&(e.percentChangeY=this.options.friction));const i=this.parent.plugins.get("drag")||{},s=this.parent.plugins.get("pinch")||{};if(e=e||{},!(i.active||s.active||this.toX&&this.toY||e.x&&e.y)){const i=(t=t||this.parent.OOB()).cornerPoint;if(!this.toX&&!e.x){let e=null;t.left&&this.left?e=this.parent.screenWorldWidth<this.parent.screenWidth?this.calcUnderflowX():0:t.right&&this.right&&(e=this.parent.screenWorldWidth<this.parent.screenWidth?this.calcUnderflowX():-i.x),null!==e&&this.parent.x!==e&&(this.toX={time:0,start:this.parent.x,delta:e-this.parent.x,end:e},this.parent.emit("bounce-x-start",this.parent))}if(!this.toY&&!e.y){let e=null;t.top&&this.top?e=this.parent.screenWorldHeight<this.parent.screenHeight?this.calcUnderflowY():0:t.bottom&&this.bottom&&(e=this.parent.screenWorldHeight<this.parent.screenHeight?this.calcUnderflowY():-i.y),null!==e&&this.parent.y!==e&&(this.toY={time:0,start:this.parent.y,delta:e-this.parent.y,end:e},this.parent.emit("bounce-y-start",this.parent))}}}reset(){this.toX=this.toY=null}}const b={topLeft:!1,friction:.8,time:1e3,ease:"easeInOutSine",interrupt:!0,removeOnComplete:!1,removeOnInterrupt:!1,forceStart:!1};class W extends h{constructor(t,e,i,s={}){super(t),this.options=Object.assign({},b,s),this.ease=x(s.ease,"easeInOutSine"),this.x=e,this.y=i,this.options.forceStart&&this.snapStart()}snapStart(){this.percent=0,this.snapping={time:0};const t=this.options.topLeft?this.parent.corner:this.parent.center;this.deltaX=this.x-t.x,this.deltaY=this.y-t.y,this.startX=t.x,this.startY=t.y,this.parent.emit("snap-start",this.parent)}wheel(){this.options.removeOnInterrupt&&this.parent.plugins.remove("snap")}down(){this.options.removeOnInterrupt?this.parent.plugins.remove("snap"):this.options.interrupt&&(this.snapping=null)}up(){if(0===this.parent.input.count()){const t=this.parent.plugins.get("decelerate");t&&(t.x||t.y)&&(t.percentChangeX=t.percentChangeY=this.options.friction)}}update(t){if(!(this.paused||this.options.interrupt&&0!==this.parent.input.count()))if(this.snapping){const e=this.snapping;let i,s,n;if(e.time+=t,e.time>this.options.time)i=!0,s=this.startX+this.deltaX,n=this.startY+this.deltaY;else{const t=this.ease(e.time,0,1,this.options.time);s=this.startX+this.deltaX*t,n=this.startY+this.deltaY*t}this.options.topLeft?this.parent.moveCorner(s,n):this.parent.moveCenter(s,n),this.parent.emit("moved",{viewport:this.parent,type:"snap"}),i&&(this.options.removeOnComplete&&this.parent.plugins.remove("snap"),this.parent.emit("snap-end",this.parent),this.snapping=null)}else{const t=this.options.topLeft?this.parent.corner:this.parent.center;t.x===this.x&&t.y===this.y||this.snapStart()}}}const H={width:0,height:0,time:1e3,ease:"easeInOutSine",center:null,interrupt:!0,removeOnComplete:!1,removeOnInterrupts:!1,forceStart:!1,noMove:!1};class M extends h{constructor(t,e={}){super(t),this.options=Object.assign({},H,e),this.ease=x(this.options.ease),this.options.width>0&&(this.x_scale=t.screenWidth/this.options.width),this.options.height>0&&(this.y_scale=t.screenHeight/this.options.height),this.xIndependent=!!this.x_scale,this.yIndependent=!!this.y_scale,this.x_scale=this.xIndependent?this.x_scale:this.y_scale,this.y_scale=this.yIndependent?this.y_scale:this.x_scale,0===this.options.time?(t.container.scale.x=this.x_scale,t.container.scale.y=this.y_scale,this.options.removeOnComplete&&this.parent.plugins.remove("snap-zoom")):e.forceStart&&this.createSnapping()}createSnapping(){const t=this.parent.scale;this.snapping={time:0,startX:t.x,startY:t.y,deltaX:this.x_scale-t.x,deltaY:this.y_scale-t.y},this.parent.emit("snap-zoom-start",this.parent)}resize(){this.snapping=null,this.options.width>0&&(this.x_scale=this.parent._screenWidth/this.options.width),this.options.height>0&&(this.y_scale=this.parent._screenHeight/this.options.height),this.x_scale=this.xIndependent?this.x_scale:this.y_scale,this.y_scale=this.yIndependent?this.y_scale:this.x_scale}reset(){this.snapping=null}wheel(){this.options.removeOnInterrupt&&this.parent.plugins.remove("snap-zoom")}down(){this.options.removeOnInterrupt?this.parent.plugins.remove("snap-zoom"):this.options.interrupt&&(this.snapping=null)}update(t){if(this.paused)return;if(this.options.interrupt&&0!==this.parent.input.count())return;let e;if(this.options.center||this.options.noMove||(e=this.parent.center),this.snapping){if(this.snapping){const i=this.snapping;if(i.time+=t,i.time>=this.options.time)this.parent.scale.set(this.x_scale,this.y_scale),this.options.removeOnComplete&&this.parent.plugins.remove("snap-zoom"),this.parent.emit("snap-zoom-end",this.parent),this.snapping=null;else{const t=this.snapping;this.parent.scale.x=this.ease(t.time,t.startX,t.deltaX,this.options.time),this.parent.scale.y=this.ease(t.time,t.startY,t.deltaY,this.options.time)}const s=this.parent.plugins.get("clamp-zoom");s&&s.clamp(),this.options.noMove||(this.options.center?this.parent.moveCenter(this.options.center):this.parent.moveCenter(e))}}else this.parent.scale.x===this.x_scale&&this.parent.scale.y===this.y_scale||this.createSnapping()}resume(){this.snapping=null,super.resume()}}const O={speed:0,acceleration:null,radius:null};class z extends h{constructor(t,e,i={}){super(t),this.target=e,this.options=Object.assign({},O,i),this.velocity={x:0,y:0}}update(t){if(this.paused)return;const e=this.parent.center;let i=this.target.x,s=this.target.y;if(this.options.radius){if(!(Math.sqrt(Math.pow(this.target.y-e.y,2)+Math.pow(this.target.x-e.x,2))>this.options.radius))return;{const t=Math.atan2(this.target.y-e.y,this.target.x-e.x);i=this.target.x-Math.cos(t)*this.options.radius,s=this.target.y-Math.sin(t)*this.options.radius}}const n=i-e.x,h=s-e.y;if(n||h)if(this.options.speed)if(this.options.acceleration){const o=Math.atan2(s-e.y,i-e.x),r=Math.sqrt(Math.pow(n,2)+Math.pow(h,2));if(r){const a=(Math.pow(this.velocity.x,2)+Math.pow(this.velocity.y,2))/(2*this.options.acceleration);this.velocity=r>a?{x:Math.min(this.velocity.x+this.options.acceleration*t,this.options.speed),y:Math.min(this.velocity.y+this.options.acceleration*t,this.options.speed)}:{x:Math.max(this.velocity.x-this.options.acceleration*this.options.speed,0),y:Math.max(this.velocity.y-this.options.acceleration*this.options.speed,0)};const p=Math.cos(o)*this.velocity.x,l=Math.sin(o)*this.velocity.y,c=Math.abs(p)>Math.abs(n)?i:e.x+p,d=Math.abs(l)>Math.abs(h)?s:e.y+l;this.parent.moveCenter(c,d),this.parent.emit("moved",{viewport:this.parent,type:"follow"})}}else{const t=Math.atan2(s-e.y,i-e.x),o=Math.cos(t)*this.options.speed,r=Math.sin(t)*this.options.speed,a=Math.abs(o)>Math.abs(n)?i:e.x+o,p=Math.abs(r)>Math.abs(h)?s:e.y+r;this.parent.moveCenter(a,p),this.parent.emit("moved",{viewport:this.parent,type:"follow"})}else this.parent.moveCenter(i,s),this.parent.emit("moved",{viewport:this.parent,type:"follow"})}}const C={percent:.1,smooth:!1,interrupt:!0,reverse:!1,center:null};class I extends h{constructor(t,e={}){super(t),this.options=Object.assign({},C,e)}down(){this.options.interrupt&&(this.smoothing=null)}update(){if(this.smoothing){const t=this.smoothingCenter,e=this.smoothing;let i;this.options.center||(i=this.parent.toLocal(t)),this.parent.scale.x+=e.x,this.parent.scale.y+=e.y,this.parent.emit("zoomed",{viewport:this.parent,type:"wheel"});const s=this.parent.plugins.get("clamp-zoom");if(s&&s.clamp(),this.options.center)this.parent.moveCenter(this.options.center);else{const e=this.parent.toGlobal(i);this.parent.x+=t.x-e.x,this.parent.y+=t.y-e.y}this.smoothingCount++,this.smoothingCount>=this.options.smooth&&(this.smoothing=null)}}wheel(t){if(this.paused)return;let e=this.parent.input.getPointerPosition(t);const i=(this.options.reverse?-1:1)*-t.deltaY*(t.deltaMode?120:1)/500,s=Math.pow(2,(1+this.options.percent)*i);if(this.options.smooth){const t={x:this.smoothing?this.smoothing.x*(this.options.smooth-this.smoothingCount):0,y:this.smoothing?this.smoothing.y*(this.options.smooth-this.smoothingCount):0};this.smoothing={x:((this.parent.scale.x+t.x)*s-this.parent.scale.x)/this.options.smooth,y:((this.parent.scale.y+t.y)*s-this.parent.scale.y)/this.options.smooth},this.smoothingCount=0,this.smoothingCenter=e}else{let t;this.options.center||(t=this.parent.toLocal(e)),this.parent.scale.x*=s,this.parent.scale.y*=s,this.parent.emit("zoomed",{viewport:this.parent,type:"wheel"});const i=this.parent.plugins.get("clamp-zoom");if(i&&i.clamp(),this.options.center)this.parent.moveCenter(this.options.center);else{const i=this.parent.toGlobal(t);this.parent.x+=e.x-i.x,this.parent.y+=e.y-i.y}}return this.parent.emit("moved",{viewport:this.parent,type:"wheel"}),this.parent.emit("wheel",{wheel:{dx:t.deltaX,dy:t.deltaY,dz:t.deltaZ},event:t,viewport:this.parent}),!this.parent.options.passiveWheel||void 0}}const S={radius:null,distance:null,top:null,bottom:null,left:null,right:null,speed:8,reverse:!1,noDecelerate:!1,linear:!1,allowButtons:!1};class _ extends h{constructor(t,e={}){super(t),this.options=Object.assign({},S,e),this.reverse=this.options.reverse?1:-1,this.radiusSquared=Math.pow(this.options.radius,2),this.resize()}resize(){const t=this.options.distance;null!==t?(this.left=t,this.top=t,this.right=this.parent.worldScreenWidth-t,this.bottom=this.parent.worldScreenHeight-t):this.radius||(this.left=this.options.left,this.top=this.options.top,this.right=null===this.options.right?null:this.parent.worldScreenWidth-this.options.right,this.bottom=null===this.options.bottom?null:this.parent.worldScreenHeight-this.options.bottom)}down(){this.options.allowButtons||(this.horizontal=this.vertical=null)}move(t){if("mouse"!==t.data.pointerType&&1!==t.data.identifier||!this.options.allowButtons&&0!==t.data.buttons)return;const e=t.data.global.x,i=t.data.global.y;if(this.radiusSquared){const t=this.parent.toScreen(this.parent.center);if(Math.pow(t.x-e,2)+Math.pow(t.y-i,2)>=this.radiusSquared){const s=Math.atan2(t.y-i,t.x-e);this.options.linear?(this.horizontal=Math.round(Math.cos(s))*this.options.speed*this.reverse*.06,this.vertical=Math.round(Math.sin(s))*this.options.speed*this.reverse*.06):(this.horizontal=Math.cos(s)*this.options.speed*this.reverse*.06,this.vertical=Math.sin(s)*this.options.speed*this.reverse*.06)}else this.horizontal&&this.decelerateHorizontal(),this.vertical&&this.decelerateVertical(),this.horizontal=this.vertical=0}else null!==this.left&&e<this.left?this.horizontal=1*this.reverse*this.options.speed*.06:null!==this.right&&e>this.right?this.horizontal=-1*this.reverse*this.options.speed*.06:(this.decelerateHorizontal(),this.horizontal=0),null!==this.top&&i<this.top?this.vertical=1*this.reverse*this.options.speed*.06:null!==this.bottom&&i>this.bottom?this.vertical=-1*this.reverse*this.options.speed*.06:(this.decelerateVertical(),this.vertical=0)}decelerateHorizontal(){const t=this.parent.plugins.get("decelerate");this.horizontal&&t&&!this.options.noDecelerate&&t.activate({x:this.horizontal*this.options.speed*this.reverse/(1e3/60)})}decelerateVertical(){const t=this.parent.plugins.get("decelerate");this.vertical&&t&&!this.options.noDecelerate&&t.activate({y:this.vertical*this.options.speed*this.reverse/(1e3/60)})}up(){this.horizontal&&this.decelerateHorizontal(),this.vertical&&this.decelerateVertical(),this.horizontal=this.vertical=null}update(){if(!this.paused&&(this.horizontal||this.vertical)){const t=this.parent.center;this.horizontal&&(t.x+=this.horizontal*this.options.speed),this.vertical&&(t.y+=this.vertical*this.options.speed),this.parent.moveCenter(t),this.parent.emit("moved",{viewport:this.parent,type:"mouse-edges"})}}}const k={screenWidth:window.innerWidth,screenHeight:window.innerHeight,worldWidth:null,worldHeight:null,threshold:5,passiveWheel:!0,stopPropagation:!1,forceHitArea:null,noTicker:!1,interaction:null,disableOnContextMenu:!1};t.Plugin=h,t.Viewport=class extends e.Container{constructor(t={}){if(super(),this.options=Object.assign({},k,t),t.ticker)this.options.ticker=t.ticker;else{let i;const s=e;i=parseInt(/^(\d+)\./.exec(e.VERSION)[1])<5?s.ticker.shared:s.Ticker.shared,this.options.ticker=t.ticker||i}this.screenWidth=this.options.screenWidth,this.screenHeight=this.options.screenHeight,this._worldWidth=this.options.worldWidth,this._worldHeight=this.options.worldHeight,this.forceHitArea=this.options.forceHitArea,this.threshold=this.options.threshold,this.options.divWheel=this.options.divWheel||document.body,this.options.disableOnContextMenu&&(this.options.divWheel.oncontextmenu=t=>t.preventDefault()),this.options.noTicker||(this.tickerFunction=()=>this.update(this.options.ticker.elapsedMS),this.options.ticker.add(this.tickerFunction)),this.input=new i(this),this.plugins=new n(this)}destroy(t){this.options.noTicker||this.options.ticker.remove(this.tickerFunction),this.input.destroy(),super.destroy(t)}update(t){this.pause||(this.plugins.update(t),this.lastViewport&&(this.lastViewport.x!==this.x||this.lastViewport.y!==this.y?this.moving=!0:this.moving&&(this.emit("moved-end",this),this.moving=!1),this.lastViewport.scaleX!==this.scale.x||this.lastViewport.scaleY!==this.scale.y?this.zooming=!0:this.zooming&&(this.emit("zoomed-end",this),this.zooming=!1)),this.forceHitArea||(this._hitAreaDefault=new e.Rectangle(this.left,this.top,this.worldScreenWidth,this.worldScreenHeight),this.hitArea=this._hitAreaDefault),this._dirty=this._dirty||!this.lastViewport||this.lastViewport.x!==this.x||this.lastViewport.y!==this.y||this.lastViewport.scaleX!==this.scale.x||this.lastViewport.scaleY!==this.scale.y,this.lastViewport={x:this.x,y:this.y,scaleX:this.scale.x,scaleY:this.scale.y},this.emit("frame-end",this))}resize(t=window.innerWidth,e=window.innerHeight,i,s){this.screenWidth=t,this.screenHeight=e,void 0!==i&&(this._worldWidth=i),void 0!==s&&(this._worldHeight=s),this.plugins.resize()}get worldWidth(){return this._worldWidth?this._worldWidth:this.width/this.scale.x}set worldWidth(t){this._worldWidth=t,this.plugins.resize()}get worldHeight(){return this._worldHeight?this._worldHeight:this.height/this.scale.y}set worldHeight(t){this._worldHeight=t,this.plugins.resize()}getVisibleBounds(){return new e.Rectangle(this.left,this.top,this.worldScreenWidth,this.worldScreenHeight)}toWorld(t,i){return 2===arguments.length?this.toLocal(new e.Point(t,i)):this.toLocal(t)}toScreen(t,i){return 2===arguments.length?this.toGlobal(new e.Point(t,i)):this.toGlobal(t)}get worldScreenWidth(){return this.screenWidth/this.scale.x}get worldScreenHeight(){return this.screenHeight/this.scale.y}get screenWorldWidth(){return this.worldWidth*this.scale.x}get screenWorldHeight(){return this.worldHeight*this.scale.y}get center(){return new e.Point(this.worldScreenWidth/2-this.x/this.scale.x,this.worldScreenHeight/2-this.y/this.scale.y)}set center(t){this.moveCenter(t)}moveCenter(){let t,e;return isNaN(arguments[0])?(t=arguments[0].x,e=arguments[0].y):(t=arguments[0],e=arguments[1]),this.position.set((this.worldScreenWidth/2-t)*this.scale.x,(this.worldScreenHeight/2-e)*this.scale.y),this.plugins.reset(),this.dirty=!0,this}get corner(){return new e.Point(-this.x/this.scale.x,-this.y/this.scale.y)}set corner(t){this.moveCorner(t)}moveCorner(t,e){return 1===arguments.length?this.position.set(-t.x*this.scale.x,-t.y*this.scale.y):this.position.set(-t*this.scale.x,-e*this.scale.y),this.plugins.reset(),this}fitWidth(t,e,i=!0,s){let n;e&&(n=this.center),this.scale.x=this.screenWidth/t,i&&(this.scale.y=this.scale.x);const h=this.plugins.get("clamp-zoom");return!s&&h&&h.clamp(),e&&this.moveCenter(n),this}fitHeight(t,e,i=!0,s){let n;e&&(n=this.center),this.scale.y=this.screenHeight/t,i&&(this.scale.x=this.scale.y);const h=this.plugins.get("clamp-zoom");return!s&&h&&h.clamp(),e&&this.moveCenter(n),this}fitWorld(t){let e;t&&(e=this.center),this.scale.x=this.screenWidth/this.worldWidth,this.scale.y=this.screenHeight/this.worldHeight,this.scale.x<this.scale.y?this.scale.y=this.scale.x:this.scale.x=this.scale.y;const i=this.plugins.get("clamp-zoom");return i&&i.clamp(),t&&this.moveCenter(e),this}fit(t,e=this.worldWidth,i=this.worldHeight){let s;t&&(s=this.center),this.scale.x=this.screenWidth/e,this.scale.y=this.screenHeight/i,this.scale.x<this.scale.y?this.scale.y=this.scale.x:this.scale.x=this.scale.y;const n=this.plugins.get("clamp-zoom");return n&&n.clamp(),t&&this.moveCenter(s),this}setZoom(t,e){let i;e&&(i=this.center),this.scale.set(t);const s=this.plugins.get("clamp-zoom");return s&&s.clamp(),e&&this.moveCenter(i),this}zoomPercent(t,e){return this.setZoom(this.scale.x+this.scale.x*t,e)}zoom(t,e){return this.fitWidth(t+this.worldScreenWidth,e),this}set scaled(t){this.setZoom(t,!0)}get scaled(){return this.scale.x}snapZoom(t){return this.plugins.add("snap-zoom",new M(this,t)),this}OOB(){return{left:this.left<0,right:this.right>this._worldWidth,top:this.top<0,bottom:this.bottom>this._worldHeight,cornerPoint:new e.Point(this._worldWidth*this.scale.x-this.screenWidth,this._worldHeight*this.scale.y-this.screenHeight)}}get right(){return-this.x/this.scale.x+this.worldScreenWidth}set right(t){this.x=-t*this.scale.x+this.screenWidth,this.plugins.reset()}get left(){return-this.x/this.scale.x}set left(t){this.x=-t*this.scale.x,this.plugins.reset()}get top(){return-this.y/this.scale.y}set top(t){this.y=-t*this.scale.y,this.plugins.reset()}get bottom(){return-this.y/this.scale.y+this.worldScreenHeight}set bottom(t){this.y=-t*this.scale.y+this.screenHeight,this.plugins.reset()}get dirty(){return this._dirty}set dirty(t){this._dirty=t}get forceHitArea(){return this._forceHitArea}set forceHitArea(t){t?(this._forceHitArea=t,this.hitArea=t):(this._forceHitArea=null,this.hitArea=new e.Rectangle(0,0,this.worldWidth,this.worldHeight))}drag(t){return this.plugins.add("drag",new r(this,t)),this}clamp(t){return this.plugins.add("clamp",new c(this,t)),this}decelerate(t){return this.plugins.add("decelerate",new m(this,t)),this}bounce(t){return this.plugins.add("bounce",new v(this,t)),this}pinch(t){return this.plugins.add("pinch",new p(this,t)),this}snap(t,e,i){return this.plugins.add("snap",new W(this,t,e,i)),this}follow(t,e){return this.plugins.add("follow",new z(this,t,e)),this}wheel(t){return this.plugins.add("wheel",new I(this,t)),this}clampZoom(t){return this.plugins.add("clamp-zoom",new u(this,t)),this}mouseEdges(t){return this.plugins.add("mouse-edges",new _(this,t)),this}get pause(){return this._pause}set pause(t){this._pause=t,this.lastViewport=null,this.moving=!1,this.zooming=!1,t&&this.input.pause()}ensureVisible(t,e,i,s){t<this.left?this.left=t:t+i>this.right&&(this.right=t+i),e<this.top?this.top=e:e+s>this.bottom&&(this.bottom=e+s)}},Object.defineProperty(t,"__esModule",{value:!0})});
+
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"pixi.js":43}],43:[function(require,module,exports){
 /*!
  * pixi.js - v5.1.2
  * Compiled Sat, 24 Aug 2019 01:06:18 UTC
@@ -40247,6 +40265,9 @@ exports.filters = filters;
 exports.useDeprecated = useDeprecated;
 
 
+<<<<<<< HEAD
+},{"@pixi/accessibility":1,"@pixi/app":2,"@pixi/constants":3,"@pixi/core":4,"@pixi/display":5,"@pixi/extract":6,"@pixi/filter-alpha":7,"@pixi/filter-blur":8,"@pixi/filter-color-matrix":9,"@pixi/filter-displacement":10,"@pixi/filter-fxaa":11,"@pixi/filter-noise":12,"@pixi/graphics":13,"@pixi/interaction":14,"@pixi/loaders":15,"@pixi/math":16,"@pixi/mesh":18,"@pixi/mesh-extras":17,"@pixi/mixin-cache-as-bitmap":19,"@pixi/mixin-get-child-by-name":20,"@pixi/mixin-get-global-position":21,"@pixi/particles":22,"@pixi/polyfill":23,"@pixi/prepare":24,"@pixi/runner":25,"@pixi/settings":26,"@pixi/sprite":29,"@pixi/sprite-animated":27,"@pixi/sprite-tiling":28,"@pixi/spritesheet":30,"@pixi/text":32,"@pixi/text-bitmap":31,"@pixi/ticker":33,"@pixi/utils":34}],44:[function(require,module,exports){
+=======
 },{"@pixi/accessibility":1,"@pixi/app":2,"@pixi/constants":3,"@pixi/core":4,"@pixi/display":5,"@pixi/extract":6,"@pixi/filter-alpha":7,"@pixi/filter-blur":8,"@pixi/filter-color-matrix":9,"@pixi/filter-displacement":10,"@pixi/filter-fxaa":11,"@pixi/filter-noise":12,"@pixi/graphics":13,"@pixi/interaction":14,"@pixi/loaders":15,"@pixi/math":16,"@pixi/mesh":18,"@pixi/mesh-extras":17,"@pixi/mixin-cache-as-bitmap":19,"@pixi/mixin-get-child-by-name":20,"@pixi/mixin-get-global-position":21,"@pixi/particles":22,"@pixi/polyfill":23,"@pixi/prepare":24,"@pixi/runner":25,"@pixi/settings":26,"@pixi/sprite":29,"@pixi/sprite-animated":27,"@pixi/sprite-tiling":28,"@pixi/spritesheet":30,"@pixi/text":32,"@pixi/text-bitmap":31,"@pixi/ticker":33,"@pixi/utils":34}],43:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
@@ -57903,6 +57924,7 @@ module.exports = function(to, from) {
 };
 
 },{}],96:[function(require,module,exports){
+>>>>>>> planck
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -58088,7 +58110,11 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
+<<<<<<< HEAD
+},{}],45:[function(require,module,exports){
+=======
 },{}],97:[function(require,module,exports){
+>>>>>>> planck
 (function (global){
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 ;(function(root) {
@@ -58622,7 +58648,11 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+<<<<<<< HEAD
+},{}],46:[function(require,module,exports){
+=======
 },{}],98:[function(require,module,exports){
+>>>>>>> planck
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -58708,7 +58738,11 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
+<<<<<<< HEAD
+},{}],47:[function(require,module,exports){
+=======
 },{}],99:[function(require,module,exports){
+>>>>>>> planck
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -58795,13 +58829,21 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
+<<<<<<< HEAD
+},{}],48:[function(require,module,exports){
+=======
 },{}],100:[function(require,module,exports){
+>>>>>>> planck
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
+<<<<<<< HEAD
+},{"./decode":46,"./encode":47}],49:[function(require,module,exports){
+=======
 },{"./decode":98,"./encode":99}],101:[function(require,module,exports){
+>>>>>>> planck
 /*!
  * resource-loader - v3.0.1
  * https://github.com/pixijs/pixi-sound
@@ -61152,7 +61194,11 @@ exports.encodeBinary = encodeBinary;
 exports.middleware = index;
 
 
+<<<<<<< HEAD
+},{"mini-signals":39,"parse-uri":41}],50:[function(require,module,exports){
+=======
 },{"mini-signals":39,"parse-uri":41}],102:[function(require,module,exports){
+>>>>>>> planck
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -61231,12 +61277,20 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+<<<<<<< HEAD
+},{"process/browser.js":44,"timers":50}],51:[function(require,module,exports){
+=======
 },{"process/browser.js":96,"timers":102}],103:[function(require,module,exports){
+>>>>>>> planck
 // simply exports input manager as the main package content.
 const InputManager = require('./src/Manager');
 
 module.exports = InputManager;
+<<<<<<< HEAD
+},{"./src/Manager":504}],52:[function(require,module,exports){
+=======
 },{"./src/Manager":556}],104:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61290,7 +61344,11 @@ var AsyncSubject = (function (_super) {
 }(Subject_1.Subject));
 exports.AsyncSubject = AsyncSubject;
 
+<<<<<<< HEAD
+},{"./Subject":62,"./Subscription":65}],53:[function(require,module,exports){
+=======
 },{"./Subject":114,"./Subscription":117}],105:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61340,7 +61398,11 @@ var BehaviorSubject = (function (_super) {
 }(Subject_1.Subject));
 exports.BehaviorSubject = BehaviorSubject;
 
+<<<<<<< HEAD
+},{"./Subject":62,"./util/ObjectUnsubscribedError":480}],54:[function(require,module,exports){
+=======
 },{"./Subject":114,"./util/ObjectUnsubscribedError":532}],106:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61377,7 +61439,11 @@ var InnerSubscriber = (function (_super) {
 }(Subscriber_1.Subscriber));
 exports.InnerSubscriber = InnerSubscriber;
 
+<<<<<<< HEAD
+},{"./Subscriber":64}],55:[function(require,module,exports){
+=======
 },{"./Subscriber":116}],107:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('./Observable');
 /**
@@ -61505,7 +61571,11 @@ var Notification = (function () {
 }());
 exports.Notification = Notification;
 
+<<<<<<< HEAD
+},{"./Observable":56}],56:[function(require,module,exports){
+=======
 },{"./Observable":108}],108:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('./util/root');
 var toSubscriber_1 = require('./util/toSubscriber');
@@ -61811,7 +61881,11 @@ var Observable = (function () {
 }());
 exports.Observable = Observable;
 
+<<<<<<< HEAD
+},{"./symbol/observable":466,"./util/pipe":498,"./util/root":499,"./util/toSubscriber":501}],57:[function(require,module,exports){
+=======
 },{"./symbol/observable":518,"./util/pipe":550,"./util/root":551,"./util/toSubscriber":553}],109:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 exports.empty = {
     closed: true,
@@ -61820,7 +61894,11 @@ exports.empty = {
     complete: function () { }
 };
 
+<<<<<<< HEAD
+},{}],58:[function(require,module,exports){
+=======
 },{}],110:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61851,7 +61929,11 @@ var OuterSubscriber = (function (_super) {
 }(Subscriber_1.Subscriber));
 exports.OuterSubscriber = OuterSubscriber;
 
+<<<<<<< HEAD
+},{"./Subscriber":64}],59:[function(require,module,exports){
+=======
 },{"./Subscriber":116}],111:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61954,7 +62036,11 @@ var ReplayEvent = (function () {
     return ReplayEvent;
 }());
 
+<<<<<<< HEAD
+},{"./Subject":62,"./SubjectSubscription":63,"./Subscription":65,"./operators/observeOn":399,"./scheduler/queue":464,"./util/ObjectUnsubscribedError":480}],60:[function(require,module,exports){
+=======
 },{"./Subject":114,"./SubjectSubscription":115,"./Subscription":117,"./operators/observeOn":451,"./scheduler/queue":516,"./util/ObjectUnsubscribedError":532}],112:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 /* tslint:disable:no-unused-variable */
 // Subject imported before Observable to bypass circular dependency issue since
@@ -62188,7 +62274,11 @@ var Symbol = {
 };
 exports.Symbol = Symbol;
 
+<<<<<<< HEAD
+},{"./AsyncSubject":52,"./BehaviorSubject":53,"./Notification":55,"./Observable":56,"./ReplaySubject":59,"./Subject":62,"./Subscriber":64,"./Subscription":65,"./add/observable/bindCallback":66,"./add/observable/bindNodeCallback":67,"./add/observable/combineLatest":68,"./add/observable/concat":69,"./add/observable/defer":70,"./add/observable/dom/ajax":71,"./add/observable/dom/webSocket":72,"./add/observable/empty":73,"./add/observable/forkJoin":74,"./add/observable/from":75,"./add/observable/fromEvent":76,"./add/observable/fromEventPattern":77,"./add/observable/fromPromise":78,"./add/observable/generate":79,"./add/observable/if":80,"./add/observable/interval":81,"./add/observable/merge":82,"./add/observable/never":83,"./add/observable/of":84,"./add/observable/onErrorResumeNext":85,"./add/observable/pairs":86,"./add/observable/race":87,"./add/observable/range":88,"./add/observable/throw":89,"./add/observable/timer":90,"./add/observable/using":91,"./add/observable/zip":92,"./add/operator/audit":93,"./add/operator/auditTime":94,"./add/operator/buffer":95,"./add/operator/bufferCount":96,"./add/operator/bufferTime":97,"./add/operator/bufferToggle":98,"./add/operator/bufferWhen":99,"./add/operator/catch":100,"./add/operator/combineAll":101,"./add/operator/combineLatest":102,"./add/operator/concat":103,"./add/operator/concatAll":104,"./add/operator/concatMap":105,"./add/operator/concatMapTo":106,"./add/operator/count":107,"./add/operator/debounce":108,"./add/operator/debounceTime":109,"./add/operator/defaultIfEmpty":110,"./add/operator/delay":111,"./add/operator/delayWhen":112,"./add/operator/dematerialize":113,"./add/operator/distinct":114,"./add/operator/distinctUntilChanged":115,"./add/operator/distinctUntilKeyChanged":116,"./add/operator/do":117,"./add/operator/elementAt":118,"./add/operator/every":119,"./add/operator/exhaust":120,"./add/operator/exhaustMap":121,"./add/operator/expand":122,"./add/operator/filter":123,"./add/operator/finally":124,"./add/operator/find":125,"./add/operator/findIndex":126,"./add/operator/first":127,"./add/operator/groupBy":128,"./add/operator/ignoreElements":129,"./add/operator/isEmpty":130,"./add/operator/last":131,"./add/operator/let":132,"./add/operator/map":133,"./add/operator/mapTo":134,"./add/operator/materialize":135,"./add/operator/max":136,"./add/operator/merge":137,"./add/operator/mergeAll":138,"./add/operator/mergeMap":139,"./add/operator/mergeMapTo":140,"./add/operator/mergeScan":141,"./add/operator/min":142,"./add/operator/multicast":143,"./add/operator/observeOn":144,"./add/operator/onErrorResumeNext":145,"./add/operator/pairwise":146,"./add/operator/partition":147,"./add/operator/pluck":148,"./add/operator/publish":149,"./add/operator/publishBehavior":150,"./add/operator/publishLast":151,"./add/operator/publishReplay":152,"./add/operator/race":153,"./add/operator/reduce":154,"./add/operator/repeat":155,"./add/operator/repeatWhen":156,"./add/operator/retry":157,"./add/operator/retryWhen":158,"./add/operator/sample":159,"./add/operator/sampleTime":160,"./add/operator/scan":161,"./add/operator/sequenceEqual":162,"./add/operator/share":163,"./add/operator/shareReplay":164,"./add/operator/single":165,"./add/operator/skip":166,"./add/operator/skipLast":167,"./add/operator/skipUntil":168,"./add/operator/skipWhile":169,"./add/operator/startWith":170,"./add/operator/subscribeOn":171,"./add/operator/switch":172,"./add/operator/switchMap":173,"./add/operator/switchMapTo":174,"./add/operator/take":175,"./add/operator/takeLast":176,"./add/operator/takeUntil":177,"./add/operator/takeWhile":178,"./add/operator/throttle":179,"./add/operator/throttleTime":180,"./add/operator/timeInterval":181,"./add/operator/timeout":182,"./add/operator/timeoutWith":183,"./add/operator/timestamp":184,"./add/operator/toArray":185,"./add/operator/toPromise":186,"./add/operator/window":187,"./add/operator/windowCount":188,"./add/operator/windowTime":189,"./add/operator/windowToggle":190,"./add/operator/windowWhen":191,"./add/operator/withLatestFrom":192,"./add/operator/zip":193,"./add/operator/zipAll":194,"./observable/ConnectableObservable":199,"./observable/dom/AjaxObservable":224,"./operator/timeInterval":336,"./operators":349,"./operators/timestamp":441,"./scheduler/VirtualTimeScheduler":460,"./scheduler/animationFrame":461,"./scheduler/asap":462,"./scheduler/async":463,"./scheduler/queue":464,"./symbol/iterator":465,"./symbol/observable":466,"./symbol/rxSubscriber":467,"./testing/TestScheduler":472,"./util/ArgumentOutOfRangeError":474,"./util/EmptyError":475,"./util/ObjectUnsubscribedError":480,"./util/TimeoutError":482,"./util/UnsubscriptionError":483,"./util/pipe":498}],61:[function(require,module,exports){
+=======
 },{"./AsyncSubject":104,"./BehaviorSubject":105,"./Notification":107,"./Observable":108,"./ReplaySubject":111,"./Subject":114,"./Subscriber":116,"./Subscription":117,"./add/observable/bindCallback":118,"./add/observable/bindNodeCallback":119,"./add/observable/combineLatest":120,"./add/observable/concat":121,"./add/observable/defer":122,"./add/observable/dom/ajax":123,"./add/observable/dom/webSocket":124,"./add/observable/empty":125,"./add/observable/forkJoin":126,"./add/observable/from":127,"./add/observable/fromEvent":128,"./add/observable/fromEventPattern":129,"./add/observable/fromPromise":130,"./add/observable/generate":131,"./add/observable/if":132,"./add/observable/interval":133,"./add/observable/merge":134,"./add/observable/never":135,"./add/observable/of":136,"./add/observable/onErrorResumeNext":137,"./add/observable/pairs":138,"./add/observable/race":139,"./add/observable/range":140,"./add/observable/throw":141,"./add/observable/timer":142,"./add/observable/using":143,"./add/observable/zip":144,"./add/operator/audit":145,"./add/operator/auditTime":146,"./add/operator/buffer":147,"./add/operator/bufferCount":148,"./add/operator/bufferTime":149,"./add/operator/bufferToggle":150,"./add/operator/bufferWhen":151,"./add/operator/catch":152,"./add/operator/combineAll":153,"./add/operator/combineLatest":154,"./add/operator/concat":155,"./add/operator/concatAll":156,"./add/operator/concatMap":157,"./add/operator/concatMapTo":158,"./add/operator/count":159,"./add/operator/debounce":160,"./add/operator/debounceTime":161,"./add/operator/defaultIfEmpty":162,"./add/operator/delay":163,"./add/operator/delayWhen":164,"./add/operator/dematerialize":165,"./add/operator/distinct":166,"./add/operator/distinctUntilChanged":167,"./add/operator/distinctUntilKeyChanged":168,"./add/operator/do":169,"./add/operator/elementAt":170,"./add/operator/every":171,"./add/operator/exhaust":172,"./add/operator/exhaustMap":173,"./add/operator/expand":174,"./add/operator/filter":175,"./add/operator/finally":176,"./add/operator/find":177,"./add/operator/findIndex":178,"./add/operator/first":179,"./add/operator/groupBy":180,"./add/operator/ignoreElements":181,"./add/operator/isEmpty":182,"./add/operator/last":183,"./add/operator/let":184,"./add/operator/map":185,"./add/operator/mapTo":186,"./add/operator/materialize":187,"./add/operator/max":188,"./add/operator/merge":189,"./add/operator/mergeAll":190,"./add/operator/mergeMap":191,"./add/operator/mergeMapTo":192,"./add/operator/mergeScan":193,"./add/operator/min":194,"./add/operator/multicast":195,"./add/operator/observeOn":196,"./add/operator/onErrorResumeNext":197,"./add/operator/pairwise":198,"./add/operator/partition":199,"./add/operator/pluck":200,"./add/operator/publish":201,"./add/operator/publishBehavior":202,"./add/operator/publishLast":203,"./add/operator/publishReplay":204,"./add/operator/race":205,"./add/operator/reduce":206,"./add/operator/repeat":207,"./add/operator/repeatWhen":208,"./add/operator/retry":209,"./add/operator/retryWhen":210,"./add/operator/sample":211,"./add/operator/sampleTime":212,"./add/operator/scan":213,"./add/operator/sequenceEqual":214,"./add/operator/share":215,"./add/operator/shareReplay":216,"./add/operator/single":217,"./add/operator/skip":218,"./add/operator/skipLast":219,"./add/operator/skipUntil":220,"./add/operator/skipWhile":221,"./add/operator/startWith":222,"./add/operator/subscribeOn":223,"./add/operator/switch":224,"./add/operator/switchMap":225,"./add/operator/switchMapTo":226,"./add/operator/take":227,"./add/operator/takeLast":228,"./add/operator/takeUntil":229,"./add/operator/takeWhile":230,"./add/operator/throttle":231,"./add/operator/throttleTime":232,"./add/operator/timeInterval":233,"./add/operator/timeout":234,"./add/operator/timeoutWith":235,"./add/operator/timestamp":236,"./add/operator/toArray":237,"./add/operator/toPromise":238,"./add/operator/window":239,"./add/operator/windowCount":240,"./add/operator/windowTime":241,"./add/operator/windowToggle":242,"./add/operator/windowWhen":243,"./add/operator/withLatestFrom":244,"./add/operator/zip":245,"./add/operator/zipAll":246,"./observable/ConnectableObservable":251,"./observable/dom/AjaxObservable":276,"./operator/timeInterval":388,"./operators":401,"./operators/timestamp":493,"./scheduler/VirtualTimeScheduler":512,"./scheduler/animationFrame":513,"./scheduler/asap":514,"./scheduler/async":515,"./scheduler/queue":516,"./symbol/iterator":517,"./symbol/observable":518,"./symbol/rxSubscriber":519,"./testing/TestScheduler":524,"./util/ArgumentOutOfRangeError":526,"./util/EmptyError":527,"./util/ObjectUnsubscribedError":532,"./util/TimeoutError":534,"./util/UnsubscriptionError":535,"./util/pipe":550}],113:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 /**
  * An execution context and a data structure to order tasks and schedule their
@@ -62238,7 +62328,11 @@ var Scheduler = (function () {
 }());
 exports.Scheduler = Scheduler;
 
+<<<<<<< HEAD
+},{}],62:[function(require,module,exports){
+=======
 },{}],114:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -62407,7 +62501,11 @@ var AnonymousSubject = (function (_super) {
 }(Subject));
 exports.AnonymousSubject = AnonymousSubject;
 
+<<<<<<< HEAD
+},{"./Observable":56,"./SubjectSubscription":63,"./Subscriber":64,"./Subscription":65,"./symbol/rxSubscriber":467,"./util/ObjectUnsubscribedError":480}],63:[function(require,module,exports){
+=======
 },{"./Observable":108,"./SubjectSubscription":115,"./Subscriber":116,"./Subscription":117,"./symbol/rxSubscriber":519,"./util/ObjectUnsubscribedError":532}],115:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -62448,7 +62546,11 @@ var SubjectSubscription = (function (_super) {
 }(Subscription_1.Subscription));
 exports.SubjectSubscription = SubjectSubscription;
 
+<<<<<<< HEAD
+},{"./Subscription":65}],64:[function(require,module,exports){
+=======
 },{"./Subscription":117}],116:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -62720,7 +62822,11 @@ function isTrustedSubscriber(obj) {
     return obj instanceof Subscriber || ('syncErrorThrowable' in obj && obj[rxSubscriber_1.rxSubscriber]);
 }
 
+<<<<<<< HEAD
+},{"./Observer":57,"./Subscription":65,"./symbol/rxSubscriber":467,"./util/isFunction":491}],65:[function(require,module,exports){
+=======
 },{"./Observer":109,"./Subscription":117,"./symbol/rxSubscriber":519,"./util/isFunction":543}],117:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var isArray_1 = require('./util/isArray');
 var isObject_1 = require('./util/isObject');
@@ -62914,786 +63020,1306 @@ function flattenUnsubscriptionErrors(errors) {
     return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError_1.UnsubscriptionError) ? err.errors : err); }, []);
 }
 
+<<<<<<< HEAD
+},{"./util/UnsubscriptionError":483,"./util/errorObject":486,"./util/isArray":488,"./util/isFunction":491,"./util/isObject":493,"./util/tryCatch":502}],66:[function(require,module,exports){
+=======
 },{"./util/UnsubscriptionError":535,"./util/errorObject":538,"./util/isArray":540,"./util/isFunction":543,"./util/isObject":545,"./util/tryCatch":554}],118:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var bindCallback_1 = require('../../observable/bindCallback');
 Observable_1.Observable.bindCallback = bindCallback_1.bindCallback;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/bindCallback":219}],67:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/bindCallback":271}],119:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var bindNodeCallback_1 = require('../../observable/bindNodeCallback');
 Observable_1.Observable.bindNodeCallback = bindNodeCallback_1.bindNodeCallback;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/bindNodeCallback":220}],68:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/bindNodeCallback":272}],120:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var combineLatest_1 = require('../../observable/combineLatest');
 Observable_1.Observable.combineLatest = combineLatest_1.combineLatest;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/combineLatest":221}],69:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/combineLatest":273}],121:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var concat_1 = require('../../observable/concat');
 Observable_1.Observable.concat = concat_1.concat;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/concat":222}],70:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/concat":274}],122:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var defer_1 = require('../../observable/defer');
 Observable_1.Observable.defer = defer_1.defer;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/defer":223}],71:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/defer":275}],123:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../../Observable');
 var ajax_1 = require('../../../observable/dom/ajax');
 Observable_1.Observable.ajax = ajax_1.ajax;
 
+<<<<<<< HEAD
+},{"../../../Observable":56,"../../../observable/dom/ajax":226}],72:[function(require,module,exports){
+=======
 },{"../../../Observable":108,"../../../observable/dom/ajax":278}],124:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../../Observable');
 var webSocket_1 = require('../../../observable/dom/webSocket');
 Observable_1.Observable.webSocket = webSocket_1.webSocket;
 
+<<<<<<< HEAD
+},{"../../../Observable":56,"../../../observable/dom/webSocket":227}],73:[function(require,module,exports){
+=======
 },{"../../../Observable":108,"../../../observable/dom/webSocket":279}],125:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var empty_1 = require('../../observable/empty');
 Observable_1.Observable.empty = empty_1.empty;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/empty":228}],74:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/empty":280}],126:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var forkJoin_1 = require('../../observable/forkJoin');
 Observable_1.Observable.forkJoin = forkJoin_1.forkJoin;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/forkJoin":229}],75:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/forkJoin":281}],127:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var from_1 = require('../../observable/from');
 Observable_1.Observable.from = from_1.from;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/from":230}],76:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/from":282}],128:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var fromEvent_1 = require('../../observable/fromEvent');
 Observable_1.Observable.fromEvent = fromEvent_1.fromEvent;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/fromEvent":231}],77:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/fromEvent":283}],129:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var fromEventPattern_1 = require('../../observable/fromEventPattern');
 Observable_1.Observable.fromEventPattern = fromEventPattern_1.fromEventPattern;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/fromEventPattern":232}],78:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/fromEventPattern":284}],130:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var fromPromise_1 = require('../../observable/fromPromise');
 Observable_1.Observable.fromPromise = fromPromise_1.fromPromise;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/fromPromise":233}],79:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/fromPromise":285}],131:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var generate_1 = require('../../observable/generate');
 Observable_1.Observable.generate = generate_1.generate;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/generate":234}],80:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/generate":286}],132:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var if_1 = require('../../observable/if');
 Observable_1.Observable.if = if_1._if;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/if":235}],81:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/if":287}],133:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var interval_1 = require('../../observable/interval');
 Observable_1.Observable.interval = interval_1.interval;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/interval":236}],82:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/interval":288}],134:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var merge_1 = require('../../observable/merge');
 Observable_1.Observable.merge = merge_1.merge;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/merge":237}],83:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/merge":289}],135:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var never_1 = require('../../observable/never');
 Observable_1.Observable.never = never_1.never;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/never":238}],84:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/never":290}],136:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var of_1 = require('../../observable/of');
 Observable_1.Observable.of = of_1.of;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/of":239}],85:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/of":291}],137:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var onErrorResumeNext_1 = require('../../observable/onErrorResumeNext');
 Observable_1.Observable.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNext;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/onErrorResumeNext":240}],86:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/onErrorResumeNext":292}],138:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var pairs_1 = require('../../observable/pairs');
 Observable_1.Observable.pairs = pairs_1.pairs;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/pairs":241}],87:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/pairs":293}],139:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var race_1 = require('../../observable/race');
 Observable_1.Observable.race = race_1.race;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/race":242}],88:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/race":294}],140:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var range_1 = require('../../observable/range');
 Observable_1.Observable.range = range_1.range;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/range":243}],89:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/range":295}],141:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var throw_1 = require('../../observable/throw');
 Observable_1.Observable.throw = throw_1._throw;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/throw":244}],90:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/throw":296}],142:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var timer_1 = require('../../observable/timer');
 Observable_1.Observable.timer = timer_1.timer;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/timer":245}],91:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/timer":297}],143:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var using_1 = require('../../observable/using');
 Observable_1.Observable.using = using_1.using;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/using":246}],92:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/using":298}],144:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var zip_1 = require('../../observable/zip');
 Observable_1.Observable.zip = zip_1.zip;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../observable/zip":247}],93:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../observable/zip":299}],145:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var audit_1 = require('../../operator/audit');
 Observable_1.Observable.prototype.audit = audit_1.audit;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/audit":248}],94:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/audit":300}],146:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var auditTime_1 = require('../../operator/auditTime');
 Observable_1.Observable.prototype.auditTime = auditTime_1.auditTime;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/auditTime":249}],95:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/auditTime":301}],147:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var buffer_1 = require('../../operator/buffer');
 Observable_1.Observable.prototype.buffer = buffer_1.buffer;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/buffer":250}],96:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/buffer":302}],148:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferCount_1 = require('../../operator/bufferCount');
 Observable_1.Observable.prototype.bufferCount = bufferCount_1.bufferCount;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/bufferCount":251}],97:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/bufferCount":303}],149:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferTime_1 = require('../../operator/bufferTime');
 Observable_1.Observable.prototype.bufferTime = bufferTime_1.bufferTime;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/bufferTime":252}],98:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/bufferTime":304}],150:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferToggle_1 = require('../../operator/bufferToggle');
 Observable_1.Observable.prototype.bufferToggle = bufferToggle_1.bufferToggle;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/bufferToggle":253}],99:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/bufferToggle":305}],151:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferWhen_1 = require('../../operator/bufferWhen');
 Observable_1.Observable.prototype.bufferWhen = bufferWhen_1.bufferWhen;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/bufferWhen":254}],100:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/bufferWhen":306}],152:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var catch_1 = require('../../operator/catch');
 Observable_1.Observable.prototype.catch = catch_1._catch;
 Observable_1.Observable.prototype._catch = catch_1._catch;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/catch":255}],101:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/catch":307}],153:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var combineAll_1 = require('../../operator/combineAll');
 Observable_1.Observable.prototype.combineAll = combineAll_1.combineAll;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/combineAll":256}],102:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/combineAll":308}],154:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var combineLatest_1 = require('../../operator/combineLatest');
 Observable_1.Observable.prototype.combineLatest = combineLatest_1.combineLatest;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/combineLatest":257}],103:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/combineLatest":309}],155:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var concat_1 = require('../../operator/concat');
 Observable_1.Observable.prototype.concat = concat_1.concat;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/concat":258}],104:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/concat":310}],156:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var concatAll_1 = require('../../operator/concatAll');
 Observable_1.Observable.prototype.concatAll = concatAll_1.concatAll;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/concatAll":259}],105:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/concatAll":311}],157:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var concatMap_1 = require('../../operator/concatMap');
 Observable_1.Observable.prototype.concatMap = concatMap_1.concatMap;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/concatMap":260}],106:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/concatMap":312}],158:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var concatMapTo_1 = require('../../operator/concatMapTo');
 Observable_1.Observable.prototype.concatMapTo = concatMapTo_1.concatMapTo;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/concatMapTo":261}],107:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/concatMapTo":313}],159:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var count_1 = require('../../operator/count');
 Observable_1.Observable.prototype.count = count_1.count;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/count":262}],108:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/count":314}],160:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var debounce_1 = require('../../operator/debounce');
 Observable_1.Observable.prototype.debounce = debounce_1.debounce;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/debounce":263}],109:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/debounce":315}],161:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var debounceTime_1 = require('../../operator/debounceTime');
 Observable_1.Observable.prototype.debounceTime = debounceTime_1.debounceTime;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/debounceTime":264}],110:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/debounceTime":316}],162:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var defaultIfEmpty_1 = require('../../operator/defaultIfEmpty');
 Observable_1.Observable.prototype.defaultIfEmpty = defaultIfEmpty_1.defaultIfEmpty;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/defaultIfEmpty":265}],111:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/defaultIfEmpty":317}],163:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var delay_1 = require('../../operator/delay');
 Observable_1.Observable.prototype.delay = delay_1.delay;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/delay":266}],112:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/delay":318}],164:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var delayWhen_1 = require('../../operator/delayWhen');
 Observable_1.Observable.prototype.delayWhen = delayWhen_1.delayWhen;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/delayWhen":267}],113:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/delayWhen":319}],165:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var dematerialize_1 = require('../../operator/dematerialize');
 Observable_1.Observable.prototype.dematerialize = dematerialize_1.dematerialize;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/dematerialize":268}],114:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/dematerialize":320}],166:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var distinct_1 = require('../../operator/distinct');
 Observable_1.Observable.prototype.distinct = distinct_1.distinct;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/distinct":269}],115:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/distinct":321}],167:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var distinctUntilChanged_1 = require('../../operator/distinctUntilChanged');
 Observable_1.Observable.prototype.distinctUntilChanged = distinctUntilChanged_1.distinctUntilChanged;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/distinctUntilChanged":270}],116:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/distinctUntilChanged":322}],168:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var distinctUntilKeyChanged_1 = require('../../operator/distinctUntilKeyChanged');
 Observable_1.Observable.prototype.distinctUntilKeyChanged = distinctUntilKeyChanged_1.distinctUntilKeyChanged;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/distinctUntilKeyChanged":271}],117:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/distinctUntilKeyChanged":323}],169:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var do_1 = require('../../operator/do');
 Observable_1.Observable.prototype.do = do_1._do;
 Observable_1.Observable.prototype._do = do_1._do;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/do":272}],118:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/do":324}],170:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var elementAt_1 = require('../../operator/elementAt');
 Observable_1.Observable.prototype.elementAt = elementAt_1.elementAt;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/elementAt":273}],119:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/elementAt":325}],171:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var every_1 = require('../../operator/every');
 Observable_1.Observable.prototype.every = every_1.every;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/every":274}],120:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/every":326}],172:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var exhaust_1 = require('../../operator/exhaust');
 Observable_1.Observable.prototype.exhaust = exhaust_1.exhaust;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/exhaust":275}],121:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/exhaust":327}],173:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var exhaustMap_1 = require('../../operator/exhaustMap');
 Observable_1.Observable.prototype.exhaustMap = exhaustMap_1.exhaustMap;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/exhaustMap":276}],122:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/exhaustMap":328}],174:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var expand_1 = require('../../operator/expand');
 Observable_1.Observable.prototype.expand = expand_1.expand;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/expand":277}],123:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/expand":329}],175:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var filter_1 = require('../../operator/filter');
 Observable_1.Observable.prototype.filter = filter_1.filter;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/filter":278}],124:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/filter":330}],176:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var finally_1 = require('../../operator/finally');
 Observable_1.Observable.prototype.finally = finally_1._finally;
 Observable_1.Observable.prototype._finally = finally_1._finally;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/finally":279}],125:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/finally":331}],177:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var find_1 = require('../../operator/find');
 Observable_1.Observable.prototype.find = find_1.find;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/find":280}],126:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/find":332}],178:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var findIndex_1 = require('../../operator/findIndex');
 Observable_1.Observable.prototype.findIndex = findIndex_1.findIndex;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/findIndex":281}],127:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/findIndex":333}],179:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var first_1 = require('../../operator/first');
 Observable_1.Observable.prototype.first = first_1.first;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/first":282}],128:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/first":334}],180:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var groupBy_1 = require('../../operator/groupBy');
 Observable_1.Observable.prototype.groupBy = groupBy_1.groupBy;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/groupBy":283}],129:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/groupBy":335}],181:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var ignoreElements_1 = require('../../operator/ignoreElements');
 Observable_1.Observable.prototype.ignoreElements = ignoreElements_1.ignoreElements;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/ignoreElements":284}],130:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/ignoreElements":336}],182:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var isEmpty_1 = require('../../operator/isEmpty');
 Observable_1.Observable.prototype.isEmpty = isEmpty_1.isEmpty;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/isEmpty":285}],131:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/isEmpty":337}],183:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var last_1 = require('../../operator/last');
 Observable_1.Observable.prototype.last = last_1.last;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/last":286}],132:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/last":338}],184:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var let_1 = require('../../operator/let');
 Observable_1.Observable.prototype.let = let_1.letProto;
 Observable_1.Observable.prototype.letBind = let_1.letProto;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/let":287}],133:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/let":339}],185:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var map_1 = require('../../operator/map');
 Observable_1.Observable.prototype.map = map_1.map;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/map":288}],134:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/map":340}],186:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var mapTo_1 = require('../../operator/mapTo');
 Observable_1.Observable.prototype.mapTo = mapTo_1.mapTo;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/mapTo":289}],135:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/mapTo":341}],187:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var materialize_1 = require('../../operator/materialize');
 Observable_1.Observable.prototype.materialize = materialize_1.materialize;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/materialize":290}],136:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/materialize":342}],188:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var max_1 = require('../../operator/max');
 Observable_1.Observable.prototype.max = max_1.max;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/max":291}],137:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/max":343}],189:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var merge_1 = require('../../operator/merge');
 Observable_1.Observable.prototype.merge = merge_1.merge;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/merge":292}],138:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/merge":344}],190:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeAll_1 = require('../../operator/mergeAll');
 Observable_1.Observable.prototype.mergeAll = mergeAll_1.mergeAll;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/mergeAll":293}],139:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/mergeAll":345}],191:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeMap_1 = require('../../operator/mergeMap');
 Observable_1.Observable.prototype.mergeMap = mergeMap_1.mergeMap;
 Observable_1.Observable.prototype.flatMap = mergeMap_1.mergeMap;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/mergeMap":294}],140:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/mergeMap":346}],192:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeMapTo_1 = require('../../operator/mergeMapTo');
 Observable_1.Observable.prototype.flatMapTo = mergeMapTo_1.mergeMapTo;
 Observable_1.Observable.prototype.mergeMapTo = mergeMapTo_1.mergeMapTo;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/mergeMapTo":295}],141:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/mergeMapTo":347}],193:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeScan_1 = require('../../operator/mergeScan');
 Observable_1.Observable.prototype.mergeScan = mergeScan_1.mergeScan;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/mergeScan":296}],142:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/mergeScan":348}],194:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var min_1 = require('../../operator/min');
 Observable_1.Observable.prototype.min = min_1.min;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/min":297}],143:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/min":349}],195:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var multicast_1 = require('../../operator/multicast');
 Observable_1.Observable.prototype.multicast = multicast_1.multicast;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/multicast":298}],144:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/multicast":350}],196:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var observeOn_1 = require('../../operator/observeOn');
 Observable_1.Observable.prototype.observeOn = observeOn_1.observeOn;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/observeOn":299}],145:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/observeOn":351}],197:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var onErrorResumeNext_1 = require('../../operator/onErrorResumeNext');
 Observable_1.Observable.prototype.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNext;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/onErrorResumeNext":300}],146:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/onErrorResumeNext":352}],198:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var pairwise_1 = require('../../operator/pairwise');
 Observable_1.Observable.prototype.pairwise = pairwise_1.pairwise;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/pairwise":301}],147:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/pairwise":353}],199:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var partition_1 = require('../../operator/partition');
 Observable_1.Observable.prototype.partition = partition_1.partition;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/partition":302}],148:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/partition":354}],200:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var pluck_1 = require('../../operator/pluck');
 Observable_1.Observable.prototype.pluck = pluck_1.pluck;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/pluck":303}],149:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/pluck":355}],201:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var publish_1 = require('../../operator/publish');
 Observable_1.Observable.prototype.publish = publish_1.publish;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/publish":304}],150:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/publish":356}],202:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var publishBehavior_1 = require('../../operator/publishBehavior');
 Observable_1.Observable.prototype.publishBehavior = publishBehavior_1.publishBehavior;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/publishBehavior":305}],151:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/publishBehavior":357}],203:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var publishLast_1 = require('../../operator/publishLast');
 Observable_1.Observable.prototype.publishLast = publishLast_1.publishLast;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/publishLast":306}],152:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/publishLast":358}],204:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var publishReplay_1 = require('../../operator/publishReplay');
 Observable_1.Observable.prototype.publishReplay = publishReplay_1.publishReplay;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/publishReplay":307}],153:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/publishReplay":359}],205:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var race_1 = require('../../operator/race');
 Observable_1.Observable.prototype.race = race_1.race;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/race":308}],154:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/race":360}],206:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var reduce_1 = require('../../operator/reduce');
 Observable_1.Observable.prototype.reduce = reduce_1.reduce;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/reduce":309}],155:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/reduce":361}],207:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var repeat_1 = require('../../operator/repeat');
 Observable_1.Observable.prototype.repeat = repeat_1.repeat;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/repeat":310}],156:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/repeat":362}],208:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var repeatWhen_1 = require('../../operator/repeatWhen');
 Observable_1.Observable.prototype.repeatWhen = repeatWhen_1.repeatWhen;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/repeatWhen":311}],157:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/repeatWhen":363}],209:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var retry_1 = require('../../operator/retry');
 Observable_1.Observable.prototype.retry = retry_1.retry;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/retry":312}],158:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/retry":364}],210:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var retryWhen_1 = require('../../operator/retryWhen');
 Observable_1.Observable.prototype.retryWhen = retryWhen_1.retryWhen;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/retryWhen":313}],159:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/retryWhen":365}],211:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var sample_1 = require('../../operator/sample');
 Observable_1.Observable.prototype.sample = sample_1.sample;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/sample":314}],160:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/sample":366}],212:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var sampleTime_1 = require('../../operator/sampleTime');
 Observable_1.Observable.prototype.sampleTime = sampleTime_1.sampleTime;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/sampleTime":315}],161:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/sampleTime":367}],213:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var scan_1 = require('../../operator/scan');
 Observable_1.Observable.prototype.scan = scan_1.scan;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/scan":316}],162:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/scan":368}],214:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var sequenceEqual_1 = require('../../operator/sequenceEqual');
 Observable_1.Observable.prototype.sequenceEqual = sequenceEqual_1.sequenceEqual;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/sequenceEqual":317}],163:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/sequenceEqual":369}],215:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var share_1 = require('../../operator/share');
 Observable_1.Observable.prototype.share = share_1.share;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/share":318}],164:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/share":370}],216:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var shareReplay_1 = require('../../operator/shareReplay');
 Observable_1.Observable.prototype.shareReplay = shareReplay_1.shareReplay;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/shareReplay":319}],165:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/shareReplay":371}],217:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var single_1 = require('../../operator/single');
 Observable_1.Observable.prototype.single = single_1.single;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/single":320}],166:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/single":372}],218:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var skip_1 = require('../../operator/skip');
 Observable_1.Observable.prototype.skip = skip_1.skip;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/skip":321}],167:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/skip":373}],219:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var skipLast_1 = require('../../operator/skipLast');
 Observable_1.Observable.prototype.skipLast = skipLast_1.skipLast;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/skipLast":322}],168:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/skipLast":374}],220:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var skipUntil_1 = require('../../operator/skipUntil');
 Observable_1.Observable.prototype.skipUntil = skipUntil_1.skipUntil;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/skipUntil":323}],169:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/skipUntil":375}],221:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var skipWhile_1 = require('../../operator/skipWhile');
 Observable_1.Observable.prototype.skipWhile = skipWhile_1.skipWhile;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/skipWhile":324}],170:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/skipWhile":376}],222:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var startWith_1 = require('../../operator/startWith');
 Observable_1.Observable.prototype.startWith = startWith_1.startWith;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/startWith":325}],171:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/startWith":377}],223:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var subscribeOn_1 = require('../../operator/subscribeOn');
 Observable_1.Observable.prototype.subscribeOn = subscribeOn_1.subscribeOn;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/subscribeOn":326}],172:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/subscribeOn":378}],224:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var switch_1 = require('../../operator/switch');
 Observable_1.Observable.prototype.switch = switch_1._switch;
 Observable_1.Observable.prototype._switch = switch_1._switch;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/switch":327}],173:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/switch":379}],225:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var switchMap_1 = require('../../operator/switchMap');
 Observable_1.Observable.prototype.switchMap = switchMap_1.switchMap;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/switchMap":328}],174:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/switchMap":380}],226:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var switchMapTo_1 = require('../../operator/switchMapTo');
 Observable_1.Observable.prototype.switchMapTo = switchMapTo_1.switchMapTo;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/switchMapTo":329}],175:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/switchMapTo":381}],227:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var take_1 = require('../../operator/take');
 Observable_1.Observable.prototype.take = take_1.take;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/take":330}],176:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/take":382}],228:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var takeLast_1 = require('../../operator/takeLast');
 Observable_1.Observable.prototype.takeLast = takeLast_1.takeLast;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/takeLast":331}],177:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/takeLast":383}],229:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var takeUntil_1 = require('../../operator/takeUntil');
 Observable_1.Observable.prototype.takeUntil = takeUntil_1.takeUntil;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/takeUntil":332}],178:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/takeUntil":384}],230:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var takeWhile_1 = require('../../operator/takeWhile');
 Observable_1.Observable.prototype.takeWhile = takeWhile_1.takeWhile;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/takeWhile":333}],179:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/takeWhile":385}],231:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var throttle_1 = require('../../operator/throttle');
 Observable_1.Observable.prototype.throttle = throttle_1.throttle;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/throttle":334}],180:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/throttle":386}],232:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var throttleTime_1 = require('../../operator/throttleTime');
 Observable_1.Observable.prototype.throttleTime = throttleTime_1.throttleTime;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/throttleTime":335}],181:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/throttleTime":387}],233:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var timeInterval_1 = require('../../operator/timeInterval');
 Observable_1.Observable.prototype.timeInterval = timeInterval_1.timeInterval;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/timeInterval":336}],182:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/timeInterval":388}],234:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var timeout_1 = require('../../operator/timeout');
 Observable_1.Observable.prototype.timeout = timeout_1.timeout;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/timeout":337}],183:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/timeout":389}],235:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var timeoutWith_1 = require('../../operator/timeoutWith');
 Observable_1.Observable.prototype.timeoutWith = timeoutWith_1.timeoutWith;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/timeoutWith":338}],184:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/timeoutWith":390}],236:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var timestamp_1 = require('../../operator/timestamp');
 Observable_1.Observable.prototype.timestamp = timestamp_1.timestamp;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/timestamp":339}],185:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/timestamp":391}],237:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var toArray_1 = require('../../operator/toArray');
 Observable_1.Observable.prototype.toArray = toArray_1.toArray;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/toArray":340}],186:[function(require,module,exports){
+// HACK: does nothing, because `toPromise` now lives on the `Observable` itself.
+// leaving this module here to prevent breakage.
+
+},{}],187:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/toArray":392}],238:[function(require,module,exports){
 // HACK: does nothing, because `toPromise` now lives on the `Observable` itself.
 // leaving this module here to prevent breakage.
 
 },{}],239:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var window_1 = require('../../operator/window');
 Observable_1.Observable.prototype.window = window_1.window;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/window":341}],188:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/window":393}],240:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowCount_1 = require('../../operator/windowCount');
 Observable_1.Observable.prototype.windowCount = windowCount_1.windowCount;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/windowCount":342}],189:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/windowCount":394}],241:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowTime_1 = require('../../operator/windowTime');
 Observable_1.Observable.prototype.windowTime = windowTime_1.windowTime;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/windowTime":343}],190:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/windowTime":395}],242:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowToggle_1 = require('../../operator/windowToggle');
 Observable_1.Observable.prototype.windowToggle = windowToggle_1.windowToggle;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/windowToggle":344}],191:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/windowToggle":396}],243:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowWhen_1 = require('../../operator/windowWhen');
 Observable_1.Observable.prototype.windowWhen = windowWhen_1.windowWhen;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/windowWhen":345}],192:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/windowWhen":397}],244:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var withLatestFrom_1 = require('../../operator/withLatestFrom');
 Observable_1.Observable.prototype.withLatestFrom = withLatestFrom_1.withLatestFrom;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/withLatestFrom":346}],193:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/withLatestFrom":398}],245:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var zip_1 = require('../../operator/zip');
 Observable_1.Observable.prototype.zip = zip_1.zipProto;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/zip":347}],194:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/zip":399}],246:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../../Observable');
 var zipAll_1 = require('../../operator/zipAll');
 Observable_1.Observable.prototype.zipAll = zipAll_1.zipAll;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../operator/zipAll":348}],195:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../operator/zipAll":400}],247:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -63764,7 +64390,11 @@ var ArrayLikeObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ArrayLikeObservable = ArrayLikeObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"./EmptyObservable":201,"./ScalarObservable":215}],196:[function(require,module,exports){
+=======
 },{"../Observable":108,"./EmptyObservable":253,"./ScalarObservable":267}],248:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -63887,7 +64517,11 @@ var ArrayObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ArrayObservable = ArrayObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../util/isScheduler":495,"./EmptyObservable":201,"./ScalarObservable":215}],197:[function(require,module,exports){
+=======
 },{"../Observable":108,"../util/isScheduler":547,"./EmptyObservable":253,"./ScalarObservable":267}],249:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64152,7 +64786,11 @@ function dispatchError(arg) {
     subject.error(err);
 }
 
+<<<<<<< HEAD
+},{"../AsyncSubject":52,"../Observable":56,"../util/errorObject":486,"../util/tryCatch":502}],198:[function(require,module,exports){
+=======
 },{"../AsyncSubject":104,"../Observable":108,"../util/errorObject":538,"../util/tryCatch":554}],250:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64416,7 +65054,11 @@ function dispatchError(arg) {
     subject.error(err);
 }
 
+<<<<<<< HEAD
+},{"../AsyncSubject":52,"../Observable":56,"../util/errorObject":486,"../util/tryCatch":502}],199:[function(require,module,exports){
+=======
 },{"../AsyncSubject":104,"../Observable":108,"../util/errorObject":538,"../util/tryCatch":554}],251:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64588,7 +65230,11 @@ var RefCountSubscriber = (function (_super) {
     return RefCountSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../Subject":62,"../Subscriber":64,"../Subscription":65,"../operators/refCount":410}],200:[function(require,module,exports){
+=======
 },{"../Observable":108,"../Subject":114,"../Subscriber":116,"../Subscription":117,"../operators/refCount":462}],252:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64688,7 +65334,11 @@ var DeferSubscriber = (function (_super) {
     return DeferSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../OuterSubscriber":58,"../util/subscribeToResult":500}],201:[function(require,module,exports){
+=======
 },{"../Observable":108,"../OuterSubscriber":110,"../util/subscribeToResult":552}],253:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64770,7 +65420,11 @@ var EmptyObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.EmptyObservable = EmptyObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56}],202:[function(require,module,exports){
+=======
 },{"../Observable":108}],254:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64854,7 +65508,11 @@ var ErrorObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ErrorObservable = ErrorObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56}],203:[function(require,module,exports){
+=======
 },{"../Observable":108}],255:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65057,7 +65715,11 @@ var ForkJoinSubscriber = (function (_super) {
     return ForkJoinSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../OuterSubscriber":58,"../util/isArray":488,"../util/subscribeToResult":500,"./EmptyObservable":201}],204:[function(require,module,exports){
+=======
 },{"../Observable":108,"../OuterSubscriber":110,"../util/isArray":540,"../util/subscribeToResult":552,"./EmptyObservable":253}],256:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65274,7 +65936,11 @@ var FromEventObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.FromEventObservable = FromEventObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../Subscription":65,"../util/errorObject":486,"../util/isFunction":491,"../util/tryCatch":502}],205:[function(require,module,exports){
+=======
 },{"../Observable":108,"../Subscription":117,"../util/errorObject":538,"../util/isFunction":543,"../util/tryCatch":554}],257:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65388,7 +66054,11 @@ var FromEventPatternObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.FromEventPatternObservable = FromEventPatternObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../Subscription":65,"../util/isFunction":491}],206:[function(require,module,exports){
+=======
 },{"../Observable":108,"../Subscription":117,"../util/isFunction":543}],258:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65511,7 +66181,11 @@ var FromObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.FromObservable = FromObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../operators/observeOn":399,"../symbol/iterator":465,"../symbol/observable":466,"../util/isArray":488,"../util/isArrayLike":489,"../util/isPromise":494,"./ArrayLikeObservable":195,"./ArrayObservable":196,"./IteratorObservable":210,"./PromiseObservable":213}],207:[function(require,module,exports){
+=======
 },{"../Observable":108,"../operators/observeOn":451,"../symbol/iterator":517,"../symbol/observable":518,"../util/isArray":540,"../util/isArrayLike":541,"../util/isPromise":546,"./ArrayLikeObservable":247,"./ArrayObservable":248,"./IteratorObservable":262,"./PromiseObservable":265}],259:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65647,7 +66321,11 @@ var GenerateObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.GenerateObservable = GenerateObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../util/isScheduler":495}],208:[function(require,module,exports){
+=======
 },{"../Observable":108,"../util/isScheduler":547}],260:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65709,7 +66387,11 @@ var IfSubscriber = (function (_super) {
     return IfSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../OuterSubscriber":58,"../util/subscribeToResult":500}],209:[function(require,module,exports){
+=======
 },{"../Observable":108,"../OuterSubscriber":110,"../util/subscribeToResult":552}],261:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65798,7 +66480,11 @@ var IntervalObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.IntervalObservable = IntervalObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../scheduler/async":463,"../util/isNumeric":492}],210:[function(require,module,exports){
+=======
 },{"../Observable":108,"../scheduler/async":515,"../util/isNumeric":544}],262:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65962,7 +66648,11 @@ function sign(value) {
     return valueAsNumber < 0 ? -1 : 1;
 }
 
+<<<<<<< HEAD
+},{"../Observable":56,"../symbol/iterator":465,"../util/root":499}],211:[function(require,module,exports){
+=======
 },{"../Observable":108,"../symbol/iterator":517,"../util/root":551}],263:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66022,7 +66712,11 @@ var NeverObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.NeverObservable = NeverObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../util/noop":496}],212:[function(require,module,exports){
+=======
 },{"../Observable":108,"../util/noop":548}],264:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66108,7 +66802,11 @@ var PairsObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.PairsObservable = PairsObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56}],213:[function(require,module,exports){
+=======
 },{"../Observable":108}],265:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66230,7 +66928,11 @@ function dispatchError(arg) {
     }
 }
 
+<<<<<<< HEAD
+},{"../Observable":56,"../util/root":499}],214:[function(require,module,exports){
+=======
 },{"../Observable":108,"../util/root":551}],266:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66327,7 +67029,11 @@ var RangeObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.RangeObservable = RangeObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56}],215:[function(require,module,exports){
+=======
 },{"../Observable":108}],267:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66386,7 +67092,11 @@ var ScalarObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ScalarObservable = ScalarObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56}],216:[function(require,module,exports){
+=======
 },{"../Observable":108}],268:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66438,7 +67148,11 @@ var SubscribeOnObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.SubscribeOnObservable = SubscribeOnObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../scheduler/asap":462,"../util/isNumeric":492}],217:[function(require,module,exports){
+=======
 },{"../Observable":108,"../scheduler/asap":514,"../util/isNumeric":544}],269:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66546,7 +67260,11 @@ var TimerObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.TimerObservable = TimerObservable;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../scheduler/async":463,"../util/isDate":490,"../util/isNumeric":492,"../util/isScheduler":495}],218:[function(require,module,exports){
+=======
 },{"../Observable":108,"../scheduler/async":515,"../util/isDate":542,"../util/isNumeric":544,"../util/isScheduler":547}],270:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66608,17 +67326,29 @@ var UsingSubscriber = (function (_super) {
     return UsingSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../OuterSubscriber":58,"../util/subscribeToResult":500}],219:[function(require,module,exports){
+=======
 },{"../Observable":108,"../OuterSubscriber":110,"../util/subscribeToResult":552}],271:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var BoundCallbackObservable_1 = require('./BoundCallbackObservable');
 exports.bindCallback = BoundCallbackObservable_1.BoundCallbackObservable.create;
 
+<<<<<<< HEAD
+},{"./BoundCallbackObservable":197}],220:[function(require,module,exports){
+=======
 },{"./BoundCallbackObservable":249}],272:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var BoundNodeCallbackObservable_1 = require('./BoundNodeCallbackObservable');
 exports.bindNodeCallback = BoundNodeCallbackObservable_1.BoundNodeCallbackObservable.create;
 
+<<<<<<< HEAD
+},{"./BoundNodeCallbackObservable":198}],221:[function(require,module,exports){
+=======
 },{"./BoundNodeCallbackObservable":250}],273:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var isScheduler_1 = require('../util/isScheduler');
 var isArray_1 = require('../util/isArray');
@@ -66755,7 +67485,11 @@ function combineLatest() {
 }
 exports.combineLatest = combineLatest;
 
+<<<<<<< HEAD
+},{"../operators/combineLatest":359,"../util/isArray":488,"../util/isScheduler":495,"./ArrayObservable":196}],222:[function(require,module,exports){
+=======
 },{"../operators/combineLatest":411,"../util/isArray":540,"../util/isScheduler":547,"./ArrayObservable":248}],274:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var isScheduler_1 = require('../util/isScheduler');
 var of_1 = require('./of');
@@ -66867,12 +67601,20 @@ function concat() {
 }
 exports.concat = concat;
 
+<<<<<<< HEAD
+},{"../operators/concatAll":361,"../util/isScheduler":495,"./from":230,"./of":239}],223:[function(require,module,exports){
+=======
 },{"../operators/concatAll":413,"../util/isScheduler":547,"./from":282,"./of":291}],275:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var DeferObservable_1 = require('./DeferObservable');
 exports.defer = DeferObservable_1.DeferObservable.create;
 
+<<<<<<< HEAD
+},{"./DeferObservable":200}],224:[function(require,module,exports){
+=======
 },{"./DeferObservable":252}],276:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -67299,7 +68041,11 @@ var AjaxTimeoutError = (function (_super) {
 }(AjaxError));
 exports.AjaxTimeoutError = AjaxTimeoutError;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../Subscriber":64,"../../operators/map":388,"../../util/errorObject":486,"../../util/root":499,"../../util/tryCatch":502}],225:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../Subscriber":116,"../../operators/map":440,"../../util/errorObject":538,"../../util/root":551,"../../util/tryCatch":554}],277:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -67550,62 +68296,110 @@ var WebSocketSubject = (function (_super) {
 }(Subject_1.AnonymousSubject));
 exports.WebSocketSubject = WebSocketSubject;
 
+<<<<<<< HEAD
+},{"../../Observable":56,"../../ReplaySubject":59,"../../Subject":62,"../../Subscriber":64,"../../Subscription":65,"../../util/assign":485,"../../util/errorObject":486,"../../util/root":499,"../../util/tryCatch":502}],226:[function(require,module,exports){
+=======
 },{"../../Observable":108,"../../ReplaySubject":111,"../../Subject":114,"../../Subscriber":116,"../../Subscription":117,"../../util/assign":537,"../../util/errorObject":538,"../../util/root":551,"../../util/tryCatch":554}],278:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var AjaxObservable_1 = require('./AjaxObservable');
 exports.ajax = AjaxObservable_1.AjaxObservable.create;
 
+<<<<<<< HEAD
+},{"./AjaxObservable":224}],227:[function(require,module,exports){
+=======
 },{"./AjaxObservable":276}],279:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var WebSocketSubject_1 = require('./WebSocketSubject');
 exports.webSocket = WebSocketSubject_1.WebSocketSubject.create;
 
+<<<<<<< HEAD
+},{"./WebSocketSubject":225}],228:[function(require,module,exports){
+=======
 },{"./WebSocketSubject":277}],280:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var EmptyObservable_1 = require('./EmptyObservable');
 exports.empty = EmptyObservable_1.EmptyObservable.create;
 
+<<<<<<< HEAD
+},{"./EmptyObservable":201}],229:[function(require,module,exports){
+=======
 },{"./EmptyObservable":253}],281:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ForkJoinObservable_1 = require('./ForkJoinObservable');
 exports.forkJoin = ForkJoinObservable_1.ForkJoinObservable.create;
 
+<<<<<<< HEAD
+},{"./ForkJoinObservable":203}],230:[function(require,module,exports){
+=======
 },{"./ForkJoinObservable":255}],282:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var FromObservable_1 = require('./FromObservable');
 exports.from = FromObservable_1.FromObservable.create;
 
+<<<<<<< HEAD
+},{"./FromObservable":206}],231:[function(require,module,exports){
+=======
 },{"./FromObservable":258}],283:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var FromEventObservable_1 = require('./FromEventObservable');
 exports.fromEvent = FromEventObservable_1.FromEventObservable.create;
 
+<<<<<<< HEAD
+},{"./FromEventObservable":204}],232:[function(require,module,exports){
+=======
 },{"./FromEventObservable":256}],284:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var FromEventPatternObservable_1 = require('./FromEventPatternObservable');
 exports.fromEventPattern = FromEventPatternObservable_1.FromEventPatternObservable.create;
 
+<<<<<<< HEAD
+},{"./FromEventPatternObservable":205}],233:[function(require,module,exports){
+=======
 },{"./FromEventPatternObservable":257}],285:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var PromiseObservable_1 = require('./PromiseObservable');
 exports.fromPromise = PromiseObservable_1.PromiseObservable.create;
 
+<<<<<<< HEAD
+},{"./PromiseObservable":213}],234:[function(require,module,exports){
+=======
 },{"./PromiseObservable":265}],286:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var GenerateObservable_1 = require('./GenerateObservable');
 exports.generate = GenerateObservable_1.GenerateObservable.create;
 
+<<<<<<< HEAD
+},{"./GenerateObservable":207}],235:[function(require,module,exports){
+=======
 },{"./GenerateObservable":259}],287:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var IfObservable_1 = require('./IfObservable');
 exports._if = IfObservable_1.IfObservable.create;
 
+<<<<<<< HEAD
+},{"./IfObservable":208}],236:[function(require,module,exports){
+=======
 },{"./IfObservable":260}],288:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var IntervalObservable_1 = require('./IntervalObservable');
 exports.interval = IntervalObservable_1.IntervalObservable.create;
 
+<<<<<<< HEAD
+},{"./IntervalObservable":209}],237:[function(require,module,exports){
+=======
 },{"./IntervalObservable":261}],289:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Observable_1 = require('../Observable');
 var ArrayObservable_1 = require('./ArrayObservable');
@@ -67696,27 +68490,47 @@ function merge() {
 }
 exports.merge = merge;
 
+<<<<<<< HEAD
+},{"../Observable":56,"../operators/mergeAll":393,"../util/isScheduler":495,"./ArrayObservable":196}],238:[function(require,module,exports){
+=======
 },{"../Observable":108,"../operators/mergeAll":445,"../util/isScheduler":547,"./ArrayObservable":248}],290:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var NeverObservable_1 = require('./NeverObservable');
 exports.never = NeverObservable_1.NeverObservable.create;
 
+<<<<<<< HEAD
+},{"./NeverObservable":211}],239:[function(require,module,exports){
+=======
 },{"./NeverObservable":263}],291:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ArrayObservable_1 = require('./ArrayObservable');
 exports.of = ArrayObservable_1.ArrayObservable.of;
 
+<<<<<<< HEAD
+},{"./ArrayObservable":196}],240:[function(require,module,exports){
+=======
 },{"./ArrayObservable":248}],292:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var onErrorResumeNext_1 = require('../operators/onErrorResumeNext');
 exports.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNextStatic;
 
+<<<<<<< HEAD
+},{"../operators/onErrorResumeNext":400}],241:[function(require,module,exports){
+=======
 },{"../operators/onErrorResumeNext":452}],293:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var PairsObservable_1 = require('./PairsObservable');
 exports.pairs = PairsObservable_1.PairsObservable.create;
 
+<<<<<<< HEAD
+},{"./PairsObservable":212}],242:[function(require,module,exports){
+=======
 },{"./PairsObservable":264}],294:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -67806,32 +68620,56 @@ var RaceSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.RaceSubscriber = RaceSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../observable/ArrayObservable":196,"../util/isArray":488,"../util/subscribeToResult":500}],243:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../observable/ArrayObservable":248,"../util/isArray":540,"../util/subscribeToResult":552}],295:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var RangeObservable_1 = require('./RangeObservable');
 exports.range = RangeObservable_1.RangeObservable.create;
 
+<<<<<<< HEAD
+},{"./RangeObservable":214}],244:[function(require,module,exports){
+=======
 },{"./RangeObservable":266}],296:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ErrorObservable_1 = require('./ErrorObservable');
 exports._throw = ErrorObservable_1.ErrorObservable.create;
 
+<<<<<<< HEAD
+},{"./ErrorObservable":202}],245:[function(require,module,exports){
+=======
 },{"./ErrorObservable":254}],297:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var TimerObservable_1 = require('./TimerObservable');
 exports.timer = TimerObservable_1.TimerObservable.create;
 
+<<<<<<< HEAD
+},{"./TimerObservable":217}],246:[function(require,module,exports){
+=======
 },{"./TimerObservable":269}],298:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var UsingObservable_1 = require('./UsingObservable');
 exports.using = UsingObservable_1.UsingObservable.create;
 
+<<<<<<< HEAD
+},{"./UsingObservable":218}],247:[function(require,module,exports){
+=======
 },{"./UsingObservable":270}],299:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var zip_1 = require('../operators/zip');
 exports.zip = zip_1.zipStatic;
 
+<<<<<<< HEAD
+},{"../operators/zip":449}],248:[function(require,module,exports){
+=======
 },{"../operators/zip":501}],300:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var audit_1 = require('../operators/audit');
 /**
@@ -67879,7 +68717,11 @@ function audit(durationSelector) {
 }
 exports.audit = audit;
 
+<<<<<<< HEAD
+},{"../operators/audit":350}],249:[function(require,module,exports){
+=======
 },{"../operators/audit":402}],301:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var auditTime_1 = require('../operators/auditTime');
@@ -67931,7 +68773,11 @@ function auditTime(duration, scheduler) {
 }
 exports.auditTime = auditTime;
 
+<<<<<<< HEAD
+},{"../operators/auditTime":351,"../scheduler/async":463}],250:[function(require,module,exports){
+=======
 },{"../operators/auditTime":403,"../scheduler/async":515}],302:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var buffer_1 = require('../operators/buffer');
 /**
@@ -67971,7 +68817,11 @@ function buffer(closingNotifier) {
 }
 exports.buffer = buffer;
 
+<<<<<<< HEAD
+},{"../operators/buffer":352}],251:[function(require,module,exports){
+=======
 },{"../operators/buffer":404}],303:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var bufferCount_1 = require('../operators/bufferCount');
 /**
@@ -68021,7 +68871,11 @@ function bufferCount(bufferSize, startBufferEvery) {
 }
 exports.bufferCount = bufferCount;
 
+<<<<<<< HEAD
+},{"../operators/bufferCount":353}],252:[function(require,module,exports){
+=======
 },{"../operators/bufferCount":405}],304:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var isScheduler_1 = require('../util/isScheduler');
@@ -68089,7 +68943,11 @@ function bufferTime(bufferTimeSpan) {
 }
 exports.bufferTime = bufferTime;
 
+<<<<<<< HEAD
+},{"../operators/bufferTime":354,"../scheduler/async":463,"../util/isScheduler":495}],253:[function(require,module,exports){
+=======
 },{"../operators/bufferTime":406,"../scheduler/async":515,"../util/isScheduler":547}],305:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var bufferToggle_1 = require('../operators/bufferToggle');
 /**
@@ -68135,7 +68993,11 @@ function bufferToggle(openings, closingSelector) {
 }
 exports.bufferToggle = bufferToggle;
 
+<<<<<<< HEAD
+},{"../operators/bufferToggle":355}],254:[function(require,module,exports){
+=======
 },{"../operators/bufferToggle":407}],306:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var bufferWhen_1 = require('../operators/bufferWhen');
 /**
@@ -68176,7 +69038,11 @@ function bufferWhen(closingSelector) {
 }
 exports.bufferWhen = bufferWhen;
 
+<<<<<<< HEAD
+},{"../operators/bufferWhen":356}],255:[function(require,module,exports){
+=======
 },{"../operators/bufferWhen":408}],307:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var catchError_1 = require('../operators/catchError');
 /**
@@ -68243,7 +69109,11 @@ function _catch(selector) {
 }
 exports._catch = _catch;
 
+<<<<<<< HEAD
+},{"../operators/catchError":357}],256:[function(require,module,exports){
+=======
 },{"../operators/catchError":409}],308:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var combineAll_1 = require('../operators/combineAll');
 /**
@@ -68291,7 +69161,11 @@ function combineAll(project) {
 }
 exports.combineAll = combineAll;
 
+<<<<<<< HEAD
+},{"../operators/combineAll":358}],257:[function(require,module,exports){
+=======
 },{"../operators/combineAll":410}],309:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var combineLatest_1 = require('../operators/combineLatest');
 /* tslint:enable:max-line-length */
@@ -68347,7 +69221,11 @@ function combineLatest() {
 }
 exports.combineLatest = combineLatest;
 
+<<<<<<< HEAD
+},{"../operators/combineLatest":359}],258:[function(require,module,exports){
+=======
 },{"../operators/combineLatest":411}],310:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var concat_1 = require('../operators/concat');
 var concat_2 = require('../observable/concat');
@@ -68411,7 +69289,11 @@ function concat() {
 }
 exports.concat = concat;
 
+<<<<<<< HEAD
+},{"../observable/concat":222,"../operators/concat":360}],259:[function(require,module,exports){
+=======
 },{"../observable/concat":274,"../operators/concat":412}],311:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var concatAll_1 = require('../operators/concatAll');
 /* tslint:enable:max-line-length */
@@ -68468,7 +69350,11 @@ function concatAll() {
 }
 exports.concatAll = concatAll;
 
+<<<<<<< HEAD
+},{"../operators/concatAll":361}],260:[function(require,module,exports){
+=======
 },{"../operators/concatAll":413}],312:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var concatMap_1 = require('../operators/concatMap');
 /* tslint:enable:max-line-length */
@@ -68536,7 +69422,11 @@ function concatMap(project, resultSelector) {
 }
 exports.concatMap = concatMap;
 
+<<<<<<< HEAD
+},{"../operators/concatMap":362}],261:[function(require,module,exports){
+=======
 },{"../operators/concatMap":414}],313:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var concatMapTo_1 = require('../operators/concatMapTo');
 /* tslint:enable:max-line-length */
@@ -68601,7 +69491,11 @@ function concatMapTo(innerObservable, resultSelector) {
 }
 exports.concatMapTo = concatMapTo;
 
+<<<<<<< HEAD
+},{"../operators/concatMapTo":363}],262:[function(require,module,exports){
+=======
 },{"../operators/concatMapTo":415}],314:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var count_1 = require('../operators/count');
 /**
@@ -68657,7 +69551,11 @@ function count(predicate) {
 }
 exports.count = count;
 
+<<<<<<< HEAD
+},{"../operators/count":364}],263:[function(require,module,exports){
+=======
 },{"../operators/count":416}],315:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var debounce_1 = require('../operators/debounce');
 /**
@@ -68707,7 +69605,11 @@ function debounce(durationSelector) {
 }
 exports.debounce = debounce;
 
+<<<<<<< HEAD
+},{"../operators/debounce":365}],264:[function(require,module,exports){
+=======
 },{"../operators/debounce":417}],316:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var debounceTime_1 = require('../operators/debounceTime');
@@ -68763,7 +69665,11 @@ function debounceTime(dueTime, scheduler) {
 }
 exports.debounceTime = debounceTime;
 
+<<<<<<< HEAD
+},{"../operators/debounceTime":366,"../scheduler/async":463}],265:[function(require,module,exports){
+=======
 },{"../operators/debounceTime":418,"../scheduler/async":515}],317:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var defaultIfEmpty_1 = require('../operators/defaultIfEmpty');
 /* tslint:enable:max-line-length */
@@ -68803,7 +69709,11 @@ function defaultIfEmpty(defaultValue) {
 }
 exports.defaultIfEmpty = defaultIfEmpty;
 
+<<<<<<< HEAD
+},{"../operators/defaultIfEmpty":367}],266:[function(require,module,exports){
+=======
 },{"../operators/defaultIfEmpty":419}],318:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var delay_1 = require('../operators/delay');
@@ -68852,7 +69762,11 @@ function delay(delay, scheduler) {
 }
 exports.delay = delay;
 
+<<<<<<< HEAD
+},{"../operators/delay":368,"../scheduler/async":463}],267:[function(require,module,exports){
+=======
 },{"../operators/delay":420,"../scheduler/async":515}],319:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var delayWhen_1 = require('../operators/delayWhen');
 /**
@@ -68905,7 +69819,11 @@ function delayWhen(delayDurationSelector, subscriptionDelay) {
 }
 exports.delayWhen = delayWhen;
 
+<<<<<<< HEAD
+},{"../operators/delayWhen":369}],268:[function(require,module,exports){
+=======
 },{"../operators/delayWhen":421}],320:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var dematerialize_1 = require('../operators/dematerialize');
 /**
@@ -68953,7 +69871,11 @@ function dematerialize() {
 }
 exports.dematerialize = dematerialize;
 
+<<<<<<< HEAD
+},{"../operators/dematerialize":370}],269:[function(require,module,exports){
+=======
 },{"../operators/dematerialize":422}],321:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var distinct_1 = require('../operators/distinct');
 /**
@@ -69006,7 +69928,11 @@ function distinct(keySelector, flushes) {
 }
 exports.distinct = distinct;
 
+<<<<<<< HEAD
+},{"../operators/distinct":371}],270:[function(require,module,exports){
+=======
 },{"../operators/distinct":423}],322:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var distinctUntilChanged_1 = require('../operators/distinctUntilChanged');
 /* tslint:enable:max-line-length */
@@ -69054,7 +69980,11 @@ function distinctUntilChanged(compare, keySelector) {
 }
 exports.distinctUntilChanged = distinctUntilChanged;
 
+<<<<<<< HEAD
+},{"../operators/distinctUntilChanged":372}],271:[function(require,module,exports){
+=======
 },{"../operators/distinctUntilChanged":424}],323:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var distinctUntilKeyChanged_1 = require('../operators/distinctUntilKeyChanged');
 /* tslint:enable:max-line-length */
@@ -69120,7 +70050,11 @@ function distinctUntilKeyChanged(key, compare) {
 }
 exports.distinctUntilKeyChanged = distinctUntilKeyChanged;
 
+<<<<<<< HEAD
+},{"../operators/distinctUntilKeyChanged":373}],272:[function(require,module,exports){
+=======
 },{"../operators/distinctUntilKeyChanged":425}],324:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var tap_1 = require('../operators/tap');
 /* tslint:enable:max-line-length */
@@ -69172,7 +70106,11 @@ function _do(nextOrObserver, error, complete) {
 }
 exports._do = _do;
 
+<<<<<<< HEAD
+},{"../operators/tap":435}],273:[function(require,module,exports){
+=======
 },{"../operators/tap":487}],325:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var elementAt_1 = require('../operators/elementAt');
 /**
@@ -69222,7 +70160,11 @@ function elementAt(index, defaultValue) {
 }
 exports.elementAt = elementAt;
 
+<<<<<<< HEAD
+},{"../operators/elementAt":374}],274:[function(require,module,exports){
+=======
 },{"../operators/elementAt":426}],326:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var every_1 = require('../operators/every');
 /**
@@ -69244,7 +70186,11 @@ function every(predicate, thisArg) {
 }
 exports.every = every;
 
+<<<<<<< HEAD
+},{"../operators/every":375}],275:[function(require,module,exports){
+=======
 },{"../operators/every":427}],327:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var exhaust_1 = require('../operators/exhaust');
 /**
@@ -69287,7 +70233,11 @@ function exhaust() {
 }
 exports.exhaust = exhaust;
 
+<<<<<<< HEAD
+},{"../operators/exhaust":376}],276:[function(require,module,exports){
+=======
 },{"../operators/exhaust":428}],328:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var exhaustMap_1 = require('../operators/exhaustMap');
 /* tslint:enable:max-line-length */
@@ -69341,7 +70291,11 @@ function exhaustMap(project, resultSelector) {
 }
 exports.exhaustMap = exhaustMap;
 
+<<<<<<< HEAD
+},{"../operators/exhaustMap":377}],277:[function(require,module,exports){
+=======
 },{"../operators/exhaustMap":429}],329:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var expand_1 = require('../operators/expand');
 /* tslint:enable:max-line-length */
@@ -69398,7 +70352,11 @@ function expand(project, concurrent, scheduler) {
 }
 exports.expand = expand;
 
+<<<<<<< HEAD
+},{"../operators/expand":378}],278:[function(require,module,exports){
+=======
 },{"../operators/expand":430}],330:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var filter_1 = require('../operators/filter');
 /* tslint:enable:max-line-length */
@@ -69446,7 +70404,11 @@ function filter(predicate, thisArg) {
 }
 exports.filter = filter;
 
+<<<<<<< HEAD
+},{"../operators/filter":379}],279:[function(require,module,exports){
+=======
 },{"../operators/filter":431}],331:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var finalize_1 = require('../operators/finalize');
 /**
@@ -69462,7 +70424,11 @@ function _finally(callback) {
 }
 exports._finally = _finally;
 
+<<<<<<< HEAD
+},{"../operators/finalize":380}],280:[function(require,module,exports){
+=======
 },{"../operators/finalize":432}],332:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var find_1 = require('../operators/find');
 /* tslint:enable:max-line-length */
@@ -69504,7 +70470,11 @@ function find(predicate, thisArg) {
 }
 exports.find = find;
 
+<<<<<<< HEAD
+},{"../operators/find":381}],281:[function(require,module,exports){
+=======
 },{"../operators/find":433}],333:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var findIndex_1 = require('../operators/findIndex');
 /**
@@ -69546,7 +70516,11 @@ function findIndex(predicate, thisArg) {
 }
 exports.findIndex = findIndex;
 
+<<<<<<< HEAD
+},{"../operators/findIndex":382}],282:[function(require,module,exports){
+=======
 },{"../operators/findIndex":434}],334:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var first_1 = require('../operators/first');
 /**
@@ -69603,7 +70577,11 @@ function first(predicate, resultSelector, defaultValue) {
 }
 exports.first = first;
 
+<<<<<<< HEAD
+},{"../operators/first":383}],283:[function(require,module,exports){
+=======
 },{"../operators/first":435}],335:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var groupBy_1 = require('../operators/groupBy');
 exports.GroupedObservable = groupBy_1.GroupedObservable;
@@ -69680,7 +70658,11 @@ function groupBy(keySelector, elementSelector, durationSelector, subjectSelector
 }
 exports.groupBy = groupBy;
 
+<<<<<<< HEAD
+},{"../operators/groupBy":384}],284:[function(require,module,exports){
+=======
 },{"../operators/groupBy":436}],336:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ignoreElements_1 = require('../operators/ignoreElements');
 /**
@@ -69699,7 +70681,11 @@ function ignoreElements() {
 exports.ignoreElements = ignoreElements;
 ;
 
+<<<<<<< HEAD
+},{"../operators/ignoreElements":385}],285:[function(require,module,exports){
+=======
 },{"../operators/ignoreElements":437}],337:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var isEmpty_1 = require('../operators/isEmpty');
 /**
@@ -69716,7 +70702,11 @@ function isEmpty() {
 }
 exports.isEmpty = isEmpty;
 
+<<<<<<< HEAD
+},{"../operators/isEmpty":386}],286:[function(require,module,exports){
+=======
 },{"../operators/isEmpty":438}],338:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var last_1 = require('../operators/last');
 /* tslint:enable:max-line-length */
@@ -69742,7 +70732,11 @@ function last(predicate, resultSelector, defaultValue) {
 }
 exports.last = last;
 
+<<<<<<< HEAD
+},{"../operators/last":387}],287:[function(require,module,exports){
+=======
 },{"../operators/last":439}],339:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 /**
  * @param func
@@ -69755,7 +70749,11 @@ function letProto(func) {
 }
 exports.letProto = letProto;
 
+<<<<<<< HEAD
+},{}],288:[function(require,module,exports){
+=======
 },{}],340:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var map_1 = require('../operators/map');
 /**
@@ -69796,7 +70794,11 @@ function map(project, thisArg) {
 }
 exports.map = map;
 
+<<<<<<< HEAD
+},{"../operators/map":388}],289:[function(require,module,exports){
+=======
 },{"../operators/map":440}],341:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mapTo_1 = require('../operators/mapTo');
 /**
@@ -69830,7 +70832,11 @@ function mapTo(value) {
 }
 exports.mapTo = mapTo;
 
+<<<<<<< HEAD
+},{"../operators/mapTo":389}],290:[function(require,module,exports){
+=======
 },{"../operators/mapTo":441}],342:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var materialize_1 = require('../operators/materialize');
 /**
@@ -69882,7 +70888,11 @@ function materialize() {
 }
 exports.materialize = materialize;
 
+<<<<<<< HEAD
+},{"../operators/materialize":390}],291:[function(require,module,exports){
+=======
 },{"../operators/materialize":442}],343:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var max_1 = require('../operators/max');
 /**
@@ -69921,7 +70931,11 @@ function max(comparer) {
 }
 exports.max = max;
 
+<<<<<<< HEAD
+},{"../operators/max":391}],292:[function(require,module,exports){
+=======
 },{"../operators/max":443}],344:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var merge_1 = require('../operators/merge');
 var merge_2 = require('../observable/merge');
@@ -69982,7 +70996,11 @@ function merge() {
 }
 exports.merge = merge;
 
+<<<<<<< HEAD
+},{"../observable/merge":237,"../operators/merge":392}],293:[function(require,module,exports){
+=======
 },{"../observable/merge":289,"../operators/merge":444}],345:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeAll_1 = require('../operators/mergeAll');
 /**
@@ -70035,7 +71053,11 @@ function mergeAll(concurrent) {
 }
 exports.mergeAll = mergeAll;
 
+<<<<<<< HEAD
+},{"../operators/mergeAll":393}],294:[function(require,module,exports){
+=======
 },{"../operators/mergeAll":445}],346:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeMap_1 = require('../operators/mergeMap');
 /* tslint:enable:max-line-length */
@@ -70103,7 +71125,11 @@ function mergeMap(project, resultSelector, concurrent) {
 }
 exports.mergeMap = mergeMap;
 
+<<<<<<< HEAD
+},{"../operators/mergeMap":394}],295:[function(require,module,exports){
+=======
 },{"../operators/mergeMap":446}],347:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeMapTo_1 = require('../operators/mergeMapTo');
 /* tslint:enable:max-line-length */
@@ -70156,7 +71182,11 @@ function mergeMapTo(innerObservable, resultSelector, concurrent) {
 }
 exports.mergeMapTo = mergeMapTo;
 
+<<<<<<< HEAD
+},{"../operators/mergeMapTo":395}],296:[function(require,module,exports){
+=======
 },{"../operators/mergeMapTo":447}],348:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeScan_1 = require('../operators/mergeScan');
 /**
@@ -70196,7 +71226,11 @@ function mergeScan(accumulator, seed, concurrent) {
 }
 exports.mergeScan = mergeScan;
 
+<<<<<<< HEAD
+},{"../operators/mergeScan":396}],297:[function(require,module,exports){
+=======
 },{"../operators/mergeScan":448}],349:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var min_1 = require('../operators/min');
 /**
@@ -70235,7 +71269,11 @@ function min(comparer) {
 }
 exports.min = min;
 
+<<<<<<< HEAD
+},{"../operators/min":397}],298:[function(require,module,exports){
+=======
 },{"../operators/min":449}],350:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var multicast_1 = require('../operators/multicast');
 /* tslint:enable:max-line-length */
@@ -70338,7 +71376,11 @@ function multicast(subjectOrSubjectFactory, selector) {
 }
 exports.multicast = multicast;
 
+<<<<<<< HEAD
+},{"../operators/multicast":398}],299:[function(require,module,exports){
+=======
 },{"../operators/multicast":450}],351:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var observeOn_1 = require('../operators/observeOn');
 /**
@@ -70393,7 +71435,11 @@ function observeOn(scheduler, delay) {
 }
 exports.observeOn = observeOn;
 
+<<<<<<< HEAD
+},{"../operators/observeOn":399}],300:[function(require,module,exports){
+=======
 },{"../operators/observeOn":451}],352:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var onErrorResumeNext_1 = require('../operators/onErrorResumeNext');
 /* tslint:enable:max-line-length */
@@ -70467,7 +71513,11 @@ function onErrorResumeNext() {
 }
 exports.onErrorResumeNext = onErrorResumeNext;
 
+<<<<<<< HEAD
+},{"../operators/onErrorResumeNext":400}],301:[function(require,module,exports){
+=======
 },{"../operators/onErrorResumeNext":452}],353:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var pairwise_1 = require('../operators/pairwise');
 /**
@@ -70510,7 +71560,11 @@ function pairwise() {
 }
 exports.pairwise = pairwise;
 
+<<<<<<< HEAD
+},{"../operators/pairwise":401}],302:[function(require,module,exports){
+=======
 },{"../operators/pairwise":453}],354:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var partition_1 = require('../operators/partition');
 /**
@@ -70559,7 +71613,11 @@ function partition(predicate, thisArg) {
 }
 exports.partition = partition;
 
+<<<<<<< HEAD
+},{"../operators/partition":402}],303:[function(require,module,exports){
+=======
 },{"../operators/partition":454}],355:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var pluck_1 = require('../operators/pluck');
 /**
@@ -70597,7 +71655,11 @@ function pluck() {
 }
 exports.pluck = pluck;
 
+<<<<<<< HEAD
+},{"../operators/pluck":403}],304:[function(require,module,exports){
+=======
 },{"../operators/pluck":455}],356:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var publish_1 = require('../operators/publish');
 /* tslint:enable:max-line-length */
@@ -70619,7 +71681,11 @@ function publish(selector) {
 }
 exports.publish = publish;
 
+<<<<<<< HEAD
+},{"../operators/publish":404}],305:[function(require,module,exports){
+=======
 },{"../operators/publish":456}],357:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var publishBehavior_1 = require('../operators/publishBehavior');
 /**
@@ -70633,7 +71699,11 @@ function publishBehavior(value) {
 }
 exports.publishBehavior = publishBehavior;
 
+<<<<<<< HEAD
+},{"../operators/publishBehavior":405}],306:[function(require,module,exports){
+=======
 },{"../operators/publishBehavior":457}],358:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var publishLast_1 = require('../operators/publishLast');
 /**
@@ -70647,7 +71717,11 @@ function publishLast() {
 }
 exports.publishLast = publishLast;
 
+<<<<<<< HEAD
+},{"../operators/publishLast":406}],307:[function(require,module,exports){
+=======
 },{"../operators/publishLast":458}],359:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var publishReplay_1 = require('../operators/publishReplay');
 /* tslint:enable:max-line-length */
@@ -70665,7 +71739,11 @@ function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
 }
 exports.publishReplay = publishReplay;
 
+<<<<<<< HEAD
+},{"../operators/publishReplay":407}],308:[function(require,module,exports){
+=======
 },{"../operators/publishReplay":459}],360:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var race_1 = require('../operators/race');
 // NOTE: to support backwards compatability with 5.4.* and lower
@@ -70689,7 +71767,11 @@ function race() {
 }
 exports.race = race;
 
+<<<<<<< HEAD
+},{"../observable/race":242,"../operators/race":408}],309:[function(require,module,exports){
+=======
 },{"../observable/race":294,"../operators/race":460}],361:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var reduce_1 = require('../operators/reduce');
 /* tslint:enable:max-line-length */
@@ -70750,7 +71832,11 @@ function reduce(accumulator, seed) {
 }
 exports.reduce = reduce;
 
+<<<<<<< HEAD
+},{"../operators/reduce":409}],310:[function(require,module,exports){
+=======
 },{"../operators/reduce":461}],362:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var repeat_1 = require('../operators/repeat');
 /**
@@ -70771,7 +71857,11 @@ function repeat(count) {
 }
 exports.repeat = repeat;
 
+<<<<<<< HEAD
+},{"../operators/repeat":411}],311:[function(require,module,exports){
+=======
 },{"../operators/repeat":463}],363:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var repeatWhen_1 = require('../operators/repeatWhen');
 /**
@@ -70793,7 +71883,11 @@ function repeatWhen(notifier) {
 }
 exports.repeatWhen = repeatWhen;
 
+<<<<<<< HEAD
+},{"../operators/repeatWhen":412}],312:[function(require,module,exports){
+=======
 },{"../operators/repeatWhen":464}],364:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var retry_1 = require('../operators/retry');
 /**
@@ -70818,7 +71912,11 @@ function retry(count) {
 }
 exports.retry = retry;
 
+<<<<<<< HEAD
+},{"../operators/retry":413}],313:[function(require,module,exports){
+=======
 },{"../operators/retry":465}],365:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var retryWhen_1 = require('../operators/retryWhen');
 /**
@@ -70840,7 +71938,11 @@ function retryWhen(notifier) {
 }
 exports.retryWhen = retryWhen;
 
+<<<<<<< HEAD
+},{"../operators/retryWhen":414}],314:[function(require,module,exports){
+=======
 },{"../operators/retryWhen":466}],366:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var sample_1 = require('../operators/sample');
 /**
@@ -70882,7 +71984,11 @@ function sample(notifier) {
 }
 exports.sample = sample;
 
+<<<<<<< HEAD
+},{"../operators/sample":415}],315:[function(require,module,exports){
+=======
 },{"../operators/sample":467}],367:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var sampleTime_1 = require('../operators/sampleTime');
@@ -70928,7 +72034,11 @@ function sampleTime(period, scheduler) {
 }
 exports.sampleTime = sampleTime;
 
+<<<<<<< HEAD
+},{"../operators/sampleTime":416,"../scheduler/async":463}],316:[function(require,module,exports){
+=======
 },{"../operators/sampleTime":468,"../scheduler/async":515}],368:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var scan_1 = require('../operators/scan');
 /* tslint:enable:max-line-length */
@@ -70977,7 +72087,11 @@ function scan(accumulator, seed) {
 }
 exports.scan = scan;
 
+<<<<<<< HEAD
+},{"../operators/scan":417}],317:[function(require,module,exports){
+=======
 },{"../operators/scan":469}],369:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var sequenceEqual_1 = require('../operators/sequenceEqual');
 /**
@@ -71037,7 +72151,11 @@ function sequenceEqual(compareTo, comparor) {
 }
 exports.sequenceEqual = sequenceEqual;
 
+<<<<<<< HEAD
+},{"../operators/sequenceEqual":418}],318:[function(require,module,exports){
+=======
 },{"../operators/sequenceEqual":470}],370:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var share_1 = require('../operators/share');
 /**
@@ -71062,7 +72180,11 @@ function share() {
 exports.share = share;
 ;
 
+<<<<<<< HEAD
+},{"../operators/share":419}],319:[function(require,module,exports){
+=======
 },{"../operators/share":471}],371:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var shareReplay_1 = require('../operators/shareReplay');
 /**
@@ -71075,7 +72197,11 @@ function shareReplay(bufferSize, windowTime, scheduler) {
 exports.shareReplay = shareReplay;
 ;
 
+<<<<<<< HEAD
+},{"../operators/shareReplay":420}],320:[function(require,module,exports){
+=======
 },{"../operators/shareReplay":472}],372:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var single_1 = require('../operators/single');
 /**
@@ -71099,7 +72225,11 @@ function single(predicate) {
 }
 exports.single = single;
 
+<<<<<<< HEAD
+},{"../operators/single":421}],321:[function(require,module,exports){
+=======
 },{"../operators/single":473}],373:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var skip_1 = require('../operators/skip');
 /**
@@ -71118,7 +72248,11 @@ function skip(count) {
 }
 exports.skip = skip;
 
+<<<<<<< HEAD
+},{"../operators/skip":422}],322:[function(require,module,exports){
+=======
 },{"../operators/skip":474}],374:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var skipLast_1 = require('../operators/skipLast');
 /**
@@ -71158,7 +72292,11 @@ function skipLast(count) {
 }
 exports.skipLast = skipLast;
 
+<<<<<<< HEAD
+},{"../operators/skipLast":423}],323:[function(require,module,exports){
+=======
 },{"../operators/skipLast":475}],375:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var skipUntil_1 = require('../operators/skipUntil');
 /**
@@ -71178,7 +72316,11 @@ function skipUntil(notifier) {
 }
 exports.skipUntil = skipUntil;
 
+<<<<<<< HEAD
+},{"../operators/skipUntil":424}],324:[function(require,module,exports){
+=======
 },{"../operators/skipUntil":476}],376:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var skipWhile_1 = require('../operators/skipWhile');
 /**
@@ -71198,7 +72340,11 @@ function skipWhile(predicate) {
 }
 exports.skipWhile = skipWhile;
 
+<<<<<<< HEAD
+},{"../operators/skipWhile":425}],325:[function(require,module,exports){
+=======
 },{"../operators/skipWhile":477}],377:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var startWith_1 = require('../operators/startWith');
 /* tslint:enable:max-line-length */
@@ -71225,7 +72371,11 @@ function startWith() {
 }
 exports.startWith = startWith;
 
+<<<<<<< HEAD
+},{"../operators/startWith":426}],326:[function(require,module,exports){
+=======
 },{"../operators/startWith":478}],378:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var subscribeOn_1 = require('../operators/subscribeOn');
 /**
@@ -71245,7 +72395,11 @@ function subscribeOn(scheduler, delay) {
 }
 exports.subscribeOn = subscribeOn;
 
+<<<<<<< HEAD
+},{"../operators/subscribeOn":427}],327:[function(require,module,exports){
+=======
 },{"../operators/subscribeOn":479}],379:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var switchAll_1 = require('../operators/switchAll');
 /**
@@ -71295,7 +72449,11 @@ function _switch() {
 }
 exports._switch = _switch;
 
+<<<<<<< HEAD
+},{"../operators/switchAll":428}],328:[function(require,module,exports){
+=======
 },{"../operators/switchAll":480}],380:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var switchMap_1 = require('../operators/switchMap');
 /* tslint:enable:max-line-length */
@@ -71351,7 +72509,11 @@ function switchMap(project, resultSelector) {
 }
 exports.switchMap = switchMap;
 
+<<<<<<< HEAD
+},{"../operators/switchMap":429}],329:[function(require,module,exports){
+=======
 },{"../operators/switchMap":481}],381:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var switchMapTo_1 = require('../operators/switchMapTo');
 /* tslint:enable:max-line-length */
@@ -71402,7 +72564,11 @@ function switchMapTo(innerObservable, resultSelector) {
 }
 exports.switchMapTo = switchMapTo;
 
+<<<<<<< HEAD
+},{"../operators/switchMapTo":430}],330:[function(require,module,exports){
+=======
 },{"../operators/switchMapTo":482}],382:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var take_1 = require('../operators/take');
 /**
@@ -71443,7 +72609,11 @@ function take(count) {
 }
 exports.take = take;
 
+<<<<<<< HEAD
+},{"../operators/take":431}],331:[function(require,module,exports){
+=======
 },{"../operators/take":483}],383:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var takeLast_1 = require('../operators/takeLast');
 /**
@@ -71487,7 +72657,11 @@ function takeLast(count) {
 }
 exports.takeLast = takeLast;
 
+<<<<<<< HEAD
+},{"../operators/takeLast":432}],332:[function(require,module,exports){
+=======
 },{"../operators/takeLast":484}],384:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var takeUntil_1 = require('../operators/takeUntil');
 /**
@@ -71528,7 +72702,11 @@ function takeUntil(notifier) {
 }
 exports.takeUntil = takeUntil;
 
+<<<<<<< HEAD
+},{"../operators/takeUntil":433}],333:[function(require,module,exports){
+=======
 },{"../operators/takeUntil":485}],385:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var takeWhile_1 = require('../operators/takeWhile');
 /**
@@ -71572,7 +72750,11 @@ function takeWhile(predicate) {
 }
 exports.takeWhile = takeWhile;
 
+<<<<<<< HEAD
+},{"../operators/takeWhile":434}],334:[function(require,module,exports){
+=======
 },{"../operators/takeWhile":486}],386:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var throttle_1 = require('../operators/throttle');
 /**
@@ -71621,7 +72803,11 @@ function throttle(durationSelector, config) {
 }
 exports.throttle = throttle;
 
+<<<<<<< HEAD
+},{"../operators/throttle":436}],335:[function(require,module,exports){
+=======
 },{"../operators/throttle":488}],387:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var throttle_1 = require('../operators/throttle');
@@ -71672,7 +72858,11 @@ function throttleTime(duration, scheduler, config) {
 }
 exports.throttleTime = throttleTime;
 
+<<<<<<< HEAD
+},{"../operators/throttle":436,"../operators/throttleTime":437,"../scheduler/async":463}],336:[function(require,module,exports){
+=======
 },{"../operators/throttle":488,"../operators/throttleTime":489,"../scheduler/async":515}],388:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var timeInterval_1 = require('../operators/timeInterval');
@@ -71689,7 +72879,11 @@ function timeInterval(scheduler) {
 }
 exports.timeInterval = timeInterval;
 
+<<<<<<< HEAD
+},{"../operators/timeInterval":438,"../scheduler/async":463}],337:[function(require,module,exports){
+=======
 },{"../operators/timeInterval":490,"../scheduler/async":515}],389:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var timeout_1 = require('../operators/timeout');
@@ -71764,7 +72958,11 @@ function timeout(due, scheduler) {
 }
 exports.timeout = timeout;
 
+<<<<<<< HEAD
+},{"../operators/timeout":439,"../scheduler/async":463}],338:[function(require,module,exports){
+=======
 },{"../operators/timeout":491,"../scheduler/async":515}],390:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var timeoutWith_1 = require('../operators/timeoutWith');
@@ -71822,7 +73020,11 @@ function timeoutWith(due, withObservable, scheduler) {
 }
 exports.timeoutWith = timeoutWith;
 
+<<<<<<< HEAD
+},{"../operators/timeoutWith":440,"../scheduler/async":463}],339:[function(require,module,exports){
+=======
 },{"../operators/timeoutWith":492,"../scheduler/async":515}],391:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var timestamp_1 = require('../operators/timestamp');
@@ -71838,7 +73040,11 @@ function timestamp(scheduler) {
 }
 exports.timestamp = timestamp;
 
+<<<<<<< HEAD
+},{"../operators/timestamp":441,"../scheduler/async":463}],340:[function(require,module,exports){
+=======
 },{"../operators/timestamp":493,"../scheduler/async":515}],392:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var toArray_1 = require('../operators/toArray');
 /**
@@ -71869,7 +73075,11 @@ function toArray() {
 }
 exports.toArray = toArray;
 
+<<<<<<< HEAD
+},{"../operators/toArray":442}],341:[function(require,module,exports){
+=======
 },{"../operators/toArray":494}],393:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var window_1 = require('../operators/window');
 /**
@@ -71913,7 +73123,11 @@ function window(windowBoundaries) {
 }
 exports.window = window;
 
+<<<<<<< HEAD
+},{"../operators/window":443}],342:[function(require,module,exports){
+=======
 },{"../operators/window":495}],394:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var windowCount_1 = require('../operators/windowCount');
 /**
@@ -71970,7 +73184,11 @@ function windowCount(windowSize, startWindowEvery) {
 }
 exports.windowCount = windowCount;
 
+<<<<<<< HEAD
+},{"../operators/windowCount":444}],343:[function(require,module,exports){
+=======
 },{"../operators/windowCount":496}],395:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var isNumeric_1 = require('../util/isNumeric');
@@ -71999,7 +73217,11 @@ function windowTime(windowTimeSpan) {
 }
 exports.windowTime = windowTime;
 
+<<<<<<< HEAD
+},{"../operators/windowTime":445,"../scheduler/async":463,"../util/isNumeric":492,"../util/isScheduler":495}],344:[function(require,module,exports){
+=======
 },{"../operators/windowTime":497,"../scheduler/async":515,"../util/isNumeric":544,"../util/isScheduler":547}],396:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var windowToggle_1 = require('../operators/windowToggle');
 /**
@@ -72048,7 +73270,11 @@ function windowToggle(openings, closingSelector) {
 }
 exports.windowToggle = windowToggle;
 
+<<<<<<< HEAD
+},{"../operators/windowToggle":446}],345:[function(require,module,exports){
+=======
 },{"../operators/windowToggle":498}],397:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var windowWhen_1 = require('../operators/windowWhen');
 /**
@@ -72094,7 +73320,11 @@ function windowWhen(closingSelector) {
 }
 exports.windowWhen = windowWhen;
 
+<<<<<<< HEAD
+},{"../operators/windowWhen":447}],346:[function(require,module,exports){
+=======
 },{"../operators/windowWhen":499}],398:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var withLatestFrom_1 = require('../operators/withLatestFrom');
 /* tslint:enable:max-line-length */
@@ -72145,7 +73375,11 @@ function withLatestFrom() {
 }
 exports.withLatestFrom = withLatestFrom;
 
+<<<<<<< HEAD
+},{"../operators/withLatestFrom":448}],347:[function(require,module,exports){
+=======
 },{"../operators/withLatestFrom":500}],399:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var zip_1 = require('../operators/zip');
 /* tslint:enable:max-line-length */
@@ -72164,7 +73398,11 @@ function zipProto() {
 }
 exports.zipProto = zipProto;
 
+<<<<<<< HEAD
+},{"../operators/zip":449}],348:[function(require,module,exports){
+=======
 },{"../operators/zip":501}],400:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var zipAll_1 = require('../operators/zipAll');
 /**
@@ -72178,7 +73416,11 @@ function zipAll(project) {
 }
 exports.zipAll = zipAll;
 
+<<<<<<< HEAD
+},{"../operators/zipAll":450}],349:[function(require,module,exports){
+=======
 },{"../operators/zipAll":502}],401:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var audit_1 = require('./operators/audit');
 exports.audit = audit_1.audit;
@@ -72390,7 +73632,11 @@ exports.zip = zip_1.zip;
 var zipAll_1 = require('./operators/zipAll');
 exports.zipAll = zipAll_1.zipAll;
 
+<<<<<<< HEAD
+},{"./operators/audit":350,"./operators/auditTime":351,"./operators/buffer":352,"./operators/bufferCount":353,"./operators/bufferTime":354,"./operators/bufferToggle":355,"./operators/bufferWhen":356,"./operators/catchError":357,"./operators/combineAll":358,"./operators/combineLatest":359,"./operators/concat":360,"./operators/concatAll":361,"./operators/concatMap":362,"./operators/concatMapTo":363,"./operators/count":364,"./operators/debounce":365,"./operators/debounceTime":366,"./operators/defaultIfEmpty":367,"./operators/delay":368,"./operators/delayWhen":369,"./operators/dematerialize":370,"./operators/distinct":371,"./operators/distinctUntilChanged":372,"./operators/distinctUntilKeyChanged":373,"./operators/elementAt":374,"./operators/every":375,"./operators/exhaust":376,"./operators/exhaustMap":377,"./operators/expand":378,"./operators/filter":379,"./operators/finalize":380,"./operators/find":381,"./operators/findIndex":382,"./operators/first":383,"./operators/groupBy":384,"./operators/ignoreElements":385,"./operators/isEmpty":386,"./operators/last":387,"./operators/map":388,"./operators/mapTo":389,"./operators/materialize":390,"./operators/max":391,"./operators/merge":392,"./operators/mergeAll":393,"./operators/mergeMap":394,"./operators/mergeMapTo":395,"./operators/mergeScan":396,"./operators/min":397,"./operators/multicast":398,"./operators/observeOn":399,"./operators/onErrorResumeNext":400,"./operators/pairwise":401,"./operators/partition":402,"./operators/pluck":403,"./operators/publish":404,"./operators/publishBehavior":405,"./operators/publishLast":406,"./operators/publishReplay":407,"./operators/race":408,"./operators/reduce":409,"./operators/refCount":410,"./operators/repeat":411,"./operators/repeatWhen":412,"./operators/retry":413,"./operators/retryWhen":414,"./operators/sample":415,"./operators/sampleTime":416,"./operators/scan":417,"./operators/sequenceEqual":418,"./operators/share":419,"./operators/shareReplay":420,"./operators/single":421,"./operators/skip":422,"./operators/skipLast":423,"./operators/skipUntil":424,"./operators/skipWhile":425,"./operators/startWith":426,"./operators/switchAll":428,"./operators/switchMap":429,"./operators/switchMapTo":430,"./operators/take":431,"./operators/takeLast":432,"./operators/takeUntil":433,"./operators/takeWhile":434,"./operators/tap":435,"./operators/throttle":436,"./operators/throttleTime":437,"./operators/timeInterval":438,"./operators/timeout":439,"./operators/timeoutWith":440,"./operators/timestamp":441,"./operators/toArray":442,"./operators/window":443,"./operators/windowCount":444,"./operators/windowTime":445,"./operators/windowToggle":446,"./operators/windowWhen":447,"./operators/withLatestFrom":448,"./operators/zip":449,"./operators/zipAll":450}],350:[function(require,module,exports){
+=======
 },{"./operators/audit":402,"./operators/auditTime":403,"./operators/buffer":404,"./operators/bufferCount":405,"./operators/bufferTime":406,"./operators/bufferToggle":407,"./operators/bufferWhen":408,"./operators/catchError":409,"./operators/combineAll":410,"./operators/combineLatest":411,"./operators/concat":412,"./operators/concatAll":413,"./operators/concatMap":414,"./operators/concatMapTo":415,"./operators/count":416,"./operators/debounce":417,"./operators/debounceTime":418,"./operators/defaultIfEmpty":419,"./operators/delay":420,"./operators/delayWhen":421,"./operators/dematerialize":422,"./operators/distinct":423,"./operators/distinctUntilChanged":424,"./operators/distinctUntilKeyChanged":425,"./operators/elementAt":426,"./operators/every":427,"./operators/exhaust":428,"./operators/exhaustMap":429,"./operators/expand":430,"./operators/filter":431,"./operators/finalize":432,"./operators/find":433,"./operators/findIndex":434,"./operators/first":435,"./operators/groupBy":436,"./operators/ignoreElements":437,"./operators/isEmpty":438,"./operators/last":439,"./operators/map":440,"./operators/mapTo":441,"./operators/materialize":442,"./operators/max":443,"./operators/merge":444,"./operators/mergeAll":445,"./operators/mergeMap":446,"./operators/mergeMapTo":447,"./operators/mergeScan":448,"./operators/min":449,"./operators/multicast":450,"./operators/observeOn":451,"./operators/onErrorResumeNext":452,"./operators/pairwise":453,"./operators/partition":454,"./operators/pluck":455,"./operators/publish":456,"./operators/publishBehavior":457,"./operators/publishLast":458,"./operators/publishReplay":459,"./operators/race":460,"./operators/reduce":461,"./operators/refCount":462,"./operators/repeat":463,"./operators/repeatWhen":464,"./operators/retry":465,"./operators/retryWhen":466,"./operators/sample":467,"./operators/sampleTime":468,"./operators/scan":469,"./operators/sequenceEqual":470,"./operators/share":471,"./operators/shareReplay":472,"./operators/single":473,"./operators/skip":474,"./operators/skipLast":475,"./operators/skipUntil":476,"./operators/skipWhile":477,"./operators/startWith":478,"./operators/switchAll":480,"./operators/switchMap":481,"./operators/switchMapTo":482,"./operators/take":483,"./operators/takeLast":484,"./operators/takeUntil":485,"./operators/takeWhile":486,"./operators/tap":487,"./operators/throttle":488,"./operators/throttleTime":489,"./operators/timeInterval":490,"./operators/timeout":491,"./operators/timeoutWith":492,"./operators/timestamp":493,"./operators/toArray":494,"./operators/window":495,"./operators/windowCount":496,"./operators/windowTime":497,"./operators/windowToggle":498,"./operators/windowWhen":499,"./operators/withLatestFrom":500,"./operators/zip":501,"./operators/zipAll":502}],402:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72509,7 +73755,11 @@ var AuditSubscriber = (function (_super) {
     return AuditSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],351:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],403:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var audit_1 = require('./audit');
@@ -72562,7 +73812,11 @@ function auditTime(duration, scheduler) {
 }
 exports.auditTime = auditTime;
 
+<<<<<<< HEAD
+},{"../observable/timer":245,"../scheduler/async":463,"./audit":350}],352:[function(require,module,exports){
+=======
 },{"../observable/timer":297,"../scheduler/async":515,"./audit":402}],404:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72641,7 +73895,11 @@ var BufferSubscriber = (function (_super) {
     return BufferSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],353:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],405:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72784,7 +74042,11 @@ var BufferSkipCountSubscriber = (function (_super) {
     return BufferSkipCountSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],354:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],406:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72986,7 +74248,11 @@ function dispatchBufferClose(arg) {
     subscriber.closeContext(context);
 }
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../scheduler/async":463,"../util/isScheduler":495}],355:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../scheduler/async":515,"../util/isScheduler":547}],407:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73141,7 +74407,11 @@ var BufferToggleSubscriber = (function (_super) {
     return BufferToggleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subscription":65,"../util/subscribeToResult":500}],356:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subscription":117,"../util/subscribeToResult":552}],408:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73266,7 +74536,11 @@ var BufferWhenSubscriber = (function (_super) {
     return BufferWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subscription":65,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],357:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subscription":117,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],409:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73383,7 +74657,11 @@ var CatchSubscriber = (function (_super) {
     return CatchSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],358:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],410:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var combineLatest_1 = require('../operators/combineLatest');
 function combineAll(project) {
@@ -73391,7 +74669,11 @@ function combineAll(project) {
 }
 exports.combineAll = combineAll;
 
+<<<<<<< HEAD
+},{"../operators/combineLatest":359}],359:[function(require,module,exports){
+=======
 },{"../operators/combineLatest":411}],411:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73543,7 +74825,11 @@ var CombineLatestSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.CombineLatestSubscriber = CombineLatestSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../observable/ArrayObservable":196,"../util/isArray":488,"../util/subscribeToResult":500}],360:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../observable/ArrayObservable":248,"../util/isArray":540,"../util/subscribeToResult":552}],412:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var concat_1 = require('../observable/concat');
 var concat_2 = require('../observable/concat');
@@ -73607,7 +74893,11 @@ function concat() {
 }
 exports.concat = concat;
 
+<<<<<<< HEAD
+},{"../observable/concat":222}],361:[function(require,module,exports){
+=======
 },{"../observable/concat":274}],413:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeAll_1 = require('./mergeAll');
 /**
@@ -73663,7 +74953,11 @@ function concatAll() {
 }
 exports.concatAll = concatAll;
 
+<<<<<<< HEAD
+},{"./mergeAll":393}],362:[function(require,module,exports){
+=======
 },{"./mergeAll":445}],414:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeMap_1 = require('./mergeMap');
 /* tslint:enable:max-line-length */
@@ -73731,7 +75025,11 @@ function concatMap(project, resultSelector) {
 }
 exports.concatMap = concatMap;
 
+<<<<<<< HEAD
+},{"./mergeMap":394}],363:[function(require,module,exports){
+=======
 },{"./mergeMap":446}],415:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var concatMap_1 = require('./concatMap');
 /* tslint:enable:max-line-length */
@@ -73796,7 +75094,11 @@ function concatMapTo(innerObservable, resultSelector) {
 }
 exports.concatMapTo = concatMapTo;
 
+<<<<<<< HEAD
+},{"./concatMap":362}],364:[function(require,module,exports){
+=======
 },{"./concatMap":414}],416:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73908,7 +75210,11 @@ var CountSubscriber = (function (_super) {
     return CountSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],365:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],417:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74036,7 +75342,11 @@ var DebounceSubscriber = (function (_super) {
     return DebounceSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],366:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],418:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74153,7 +75463,11 @@ function dispatchNext(subscriber) {
     subscriber.debouncedNext();
 }
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../scheduler/async":463}],367:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../scheduler/async":515}],419:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74231,7 +75545,11 @@ var DefaultIfEmptySubscriber = (function (_super) {
     return DefaultIfEmptySubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],368:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],420:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74368,7 +75686,11 @@ var DelayMessage = (function () {
     return DelayMessage;
 }());
 
+<<<<<<< HEAD
+},{"../Notification":55,"../Subscriber":64,"../scheduler/async":463,"../util/isDate":490}],369:[function(require,module,exports){
+=======
 },{"../Notification":107,"../Subscriber":116,"../scheduler/async":515,"../util/isDate":542}],421:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74563,7 +75885,11 @@ var SubscriptionDelaySubscriber = (function (_super) {
     return SubscriptionDelaySubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../OuterSubscriber":58,"../Subscriber":64,"../util/subscribeToResult":500}],370:[function(require,module,exports){
+=======
 },{"../Observable":108,"../OuterSubscriber":110,"../Subscriber":116,"../util/subscribeToResult":552}],422:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74641,7 +75967,11 @@ var DeMaterializeSubscriber = (function (_super) {
     return DeMaterializeSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],371:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],423:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74762,7 +76092,11 @@ var DistinctSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.DistinctSubscriber = DistinctSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/Set":481,"../util/subscribeToResult":500}],372:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/Set":533,"../util/subscribeToResult":552}],424:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74871,7 +76205,11 @@ var DistinctUntilChangedSubscriber = (function (_super) {
     return DistinctUntilChangedSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/errorObject":486,"../util/tryCatch":502}],373:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/errorObject":538,"../util/tryCatch":554}],425:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var distinctUntilChanged_1 = require('./distinctUntilChanged');
 /* tslint:enable:max-line-length */
@@ -74937,7 +76275,11 @@ function distinctUntilKeyChanged(key, compare) {
 }
 exports.distinctUntilKeyChanged = distinctUntilKeyChanged;
 
+<<<<<<< HEAD
+},{"./distinctUntilChanged":372}],374:[function(require,module,exports){
+=======
 },{"./distinctUntilChanged":424}],426:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75038,7 +76380,11 @@ var ElementAtSubscriber = (function (_super) {
     return ElementAtSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/ArgumentOutOfRangeError":474}],375:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/ArgumentOutOfRangeError":526}],427:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75113,7 +76459,11 @@ var EverySubscriber = (function (_super) {
     return EverySubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],376:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],428:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75203,7 +76553,11 @@ var SwitchFirstSubscriber = (function (_super) {
     return SwitchFirstSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],377:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],429:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75342,7 +76696,11 @@ var SwitchFirstMapSubscriber = (function (_super) {
     return SwitchFirstMapSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],378:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],430:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75494,7 +76852,11 @@ var ExpandSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.ExpandSubscriber = ExpandSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],379:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],431:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75589,7 +76951,11 @@ var FilterSubscriber = (function (_super) {
     return FilterSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],380:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],432:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75633,7 +76999,11 @@ var FinallySubscriber = (function (_super) {
     return FinallySubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../Subscription":65}],381:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../Subscription":117}],433:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75734,7 +77104,11 @@ var FindValueSubscriber = (function (_super) {
 }(Subscriber_1.Subscriber));
 exports.FindValueSubscriber = FindValueSubscriber;
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],382:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],434:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var find_1 = require('../operators/find');
 /**
@@ -75776,7 +77150,11 @@ function findIndex(predicate, thisArg) {
 }
 exports.findIndex = findIndex;
 
+<<<<<<< HEAD
+},{"../operators/find":381}],383:[function(require,module,exports){
+=======
 },{"../operators/find":433}],435:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75929,7 +77307,11 @@ var FirstSubscriber = (function (_super) {
     return FirstSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/EmptyError":475}],384:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/EmptyError":527}],436:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76206,7 +77588,11 @@ var InnerRefCountSubscription = (function (_super) {
     return InnerRefCountSubscription;
 }(Subscription_1.Subscription));
 
+<<<<<<< HEAD
+},{"../Observable":56,"../Subject":62,"../Subscriber":64,"../Subscription":65,"../util/FastMap":476,"../util/Map":478}],385:[function(require,module,exports){
+=======
 },{"../Observable":108,"../Subject":114,"../Subscriber":116,"../Subscription":117,"../util/FastMap":528,"../util/Map":530}],437:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76255,7 +77641,11 @@ var IgnoreElementsSubscriber = (function (_super) {
     return IgnoreElementsSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/noop":496}],386:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/noop":548}],438:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76299,7 +77689,11 @@ var IsEmptySubscriber = (function (_super) {
     return IsEmptySubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],387:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],439:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76419,7 +77813,11 @@ var LastSubscriber = (function (_super) {
     return LastSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/EmptyError":475}],388:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/EmptyError":527}],440:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76509,7 +77907,11 @@ var MapSubscriber = (function (_super) {
     return MapSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],389:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],441:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76573,7 +77975,11 @@ var MapToSubscriber = (function (_super) {
     return MapToSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],390:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],442:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76666,7 +78072,11 @@ var MaterializeSubscriber = (function (_super) {
     return MaterializeSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Notification":55,"../Subscriber":64}],391:[function(require,module,exports){
+=======
 },{"../Notification":107,"../Subscriber":116}],443:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var reduce_1 = require('./reduce');
 /**
@@ -76708,7 +78118,11 @@ function max(comparer) {
 }
 exports.max = max;
 
+<<<<<<< HEAD
+},{"./reduce":409}],392:[function(require,module,exports){
+=======
 },{"./reduce":461}],444:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var merge_1 = require('../observable/merge');
 var merge_2 = require('../observable/merge');
@@ -76769,7 +78183,11 @@ function merge() {
 }
 exports.merge = merge;
 
+<<<<<<< HEAD
+},{"../observable/merge":237}],393:[function(require,module,exports){
+=======
 },{"../observable/merge":289}],445:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var mergeMap_1 = require('./mergeMap');
 var identity_1 = require('../util/identity');
@@ -76823,7 +78241,11 @@ function mergeAll(concurrent) {
 }
 exports.mergeAll = mergeAll;
 
+<<<<<<< HEAD
+},{"../util/identity":487,"./mergeMap":394}],394:[function(require,module,exports){
+=======
 },{"../util/identity":539,"./mergeMap":446}],446:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76997,7 +78419,11 @@ var MergeMapSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.MergeMapSubscriber = MergeMapSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],395:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],447:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77153,7 +78579,11 @@ var MergeMapToSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.MergeMapToSubscriber = MergeMapToSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],396:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],448:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77283,7 +78713,11 @@ var MergeScanSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.MergeScanSubscriber = MergeScanSubscriber;
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],397:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],449:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var reduce_1 = require('./reduce');
 /**
@@ -77325,7 +78759,11 @@ function min(comparer) {
 }
 exports.min = min;
 
+<<<<<<< HEAD
+},{"./reduce":409}],398:[function(require,module,exports){
+=======
 },{"./reduce":461}],450:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ConnectableObservable_1 = require('../observable/ConnectableObservable');
 /* tslint:enable:max-line-length */
@@ -77385,7 +78823,11 @@ var MulticastOperator = (function () {
 }());
 exports.MulticastOperator = MulticastOperator;
 
+<<<<<<< HEAD
+},{"../observable/ConnectableObservable":199}],399:[function(require,module,exports){
+=======
 },{"../observable/ConnectableObservable":251}],451:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77501,7 +78943,11 @@ var ObserveOnMessage = (function () {
 }());
 exports.ObserveOnMessage = ObserveOnMessage;
 
+<<<<<<< HEAD
+},{"../Notification":55,"../Subscriber":64}],400:[function(require,module,exports){
+=======
 },{"../Notification":107,"../Subscriber":116}],452:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77639,7 +79085,11 @@ var OnErrorResumeNextSubscriber = (function (_super) {
     return OnErrorResumeNextSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../observable/FromObservable":206,"../util/isArray":488,"../util/subscribeToResult":500}],401:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../observable/FromObservable":258,"../util/isArray":540,"../util/subscribeToResult":552}],453:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77717,7 +79167,11 @@ var PairwiseSubscriber = (function (_super) {
     return PairwiseSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],402:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],454:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var not_1 = require('../util/not');
 var filter_1 = require('./filter');
@@ -77770,7 +79224,11 @@ function partition(predicate, thisArg) {
 }
 exports.partition = partition;
 
+<<<<<<< HEAD
+},{"../util/not":497,"./filter":379}],403:[function(require,module,exports){
+=======
 },{"../util/not":549,"./filter":431}],455:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var map_1 = require('./map');
 /**
@@ -77828,7 +79286,11 @@ function plucker(props, length) {
     return mapper;
 }
 
+<<<<<<< HEAD
+},{"./map":388}],404:[function(require,module,exports){
+=======
 },{"./map":440}],456:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Subject_1 = require('../Subject');
 var multicast_1 = require('./multicast');
@@ -77853,7 +79315,11 @@ function publish(selector) {
 }
 exports.publish = publish;
 
+<<<<<<< HEAD
+},{"../Subject":62,"./multicast":398}],405:[function(require,module,exports){
+=======
 },{"../Subject":114,"./multicast":450}],457:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var BehaviorSubject_1 = require('../BehaviorSubject');
 var multicast_1 = require('./multicast');
@@ -77868,7 +79334,11 @@ function publishBehavior(value) {
 }
 exports.publishBehavior = publishBehavior;
 
+<<<<<<< HEAD
+},{"../BehaviorSubject":53,"./multicast":398}],406:[function(require,module,exports){
+=======
 },{"../BehaviorSubject":105,"./multicast":450}],458:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var AsyncSubject_1 = require('../AsyncSubject');
 var multicast_1 = require('./multicast');
@@ -77877,7 +79347,11 @@ function publishLast() {
 }
 exports.publishLast = publishLast;
 
+<<<<<<< HEAD
+},{"../AsyncSubject":52,"./multicast":398}],407:[function(require,module,exports){
+=======
 },{"../AsyncSubject":104,"./multicast":450}],459:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ReplaySubject_1 = require('../ReplaySubject');
 var multicast_1 = require('./multicast');
@@ -77892,7 +79366,11 @@ function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
 }
 exports.publishReplay = publishReplay;
 
+<<<<<<< HEAD
+},{"../ReplaySubject":59,"./multicast":398}],408:[function(require,module,exports){
+=======
 },{"../ReplaySubject":111,"./multicast":450}],460:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var isArray_1 = require('../util/isArray');
 var race_1 = require('../observable/race');
@@ -77921,7 +79399,11 @@ function race() {
 }
 exports.race = race;
 
+<<<<<<< HEAD
+},{"../observable/race":242,"../util/isArray":488}],409:[function(require,module,exports){
+=======
 },{"../observable/race":294,"../util/isArray":540}],461:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var scan_1 = require('./scan');
 var takeLast_1 = require('./takeLast');
@@ -77991,7 +79473,11 @@ function reduce(accumulator, seed) {
 }
 exports.reduce = reduce;
 
+<<<<<<< HEAD
+},{"../util/pipe":498,"./defaultIfEmpty":367,"./scan":417,"./takeLast":432}],410:[function(require,module,exports){
+=======
 },{"../util/pipe":550,"./defaultIfEmpty":419,"./scan":469,"./takeLast":484}],462:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78077,7 +79563,11 @@ var RefCountSubscriber = (function (_super) {
     return RefCountSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],411:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],463:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78150,7 +79640,11 @@ var RepeatSubscriber = (function (_super) {
     return RepeatSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../observable/EmptyObservable":201}],412:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../observable/EmptyObservable":253}],464:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78259,7 +79753,11 @@ var RepeatWhenSubscriber = (function (_super) {
     return RepeatWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subject":62,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],413:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subject":114,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],465:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78325,7 +79823,11 @@ var RetrySubscriber = (function (_super) {
     return RetrySubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],414:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],466:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78427,7 +79929,11 @@ var RetryWhenSubscriber = (function (_super) {
     return RetryWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subject":62,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],415:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subject":114,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],467:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78516,7 +80022,11 @@ var SampleSubscriber = (function (_super) {
     return SampleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],416:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],468:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78608,7 +80118,11 @@ function dispatchNotification(state) {
     this.schedule(state, period);
 }
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../scheduler/async":463}],417:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../scheduler/async":515}],469:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78730,7 +80244,11 @@ var ScanSubscriber = (function (_super) {
     return ScanSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],418:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],470:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78895,7 +80413,11 @@ var SequenceEqualCompareToSubscriber = (function (_super) {
     return SequenceEqualCompareToSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/errorObject":486,"../util/tryCatch":502}],419:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/errorObject":538,"../util/tryCatch":554}],471:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var multicast_1 = require('./multicast');
 var refCount_1 = require('./refCount');
@@ -78921,7 +80443,11 @@ function share() {
 exports.share = share;
 ;
 
+<<<<<<< HEAD
+},{"../Subject":62,"./multicast":398,"./refCount":410}],420:[function(require,module,exports){
+=======
 },{"../Subject":114,"./multicast":450,"./refCount":462}],472:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ReplaySubject_1 = require('../ReplaySubject');
 /**
@@ -78967,7 +80493,11 @@ function shareReplayOperator(bufferSize, windowTime, scheduler) {
 }
 ;
 
+<<<<<<< HEAD
+},{"../ReplaySubject":59}],421:[function(require,module,exports){
+=======
 },{"../ReplaySubject":111}],473:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79061,7 +80591,11 @@ var SingleSubscriber = (function (_super) {
     return SingleSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/EmptyError":475}],422:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/EmptyError":527}],474:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79113,7 +80647,11 @@ var SkipSubscriber = (function (_super) {
     return SkipSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],423:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],475:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79207,7 +80745,11 @@ var SkipLastSubscriber = (function (_super) {
     return SkipLastSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../util/ArgumentOutOfRangeError":474}],424:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../util/ArgumentOutOfRangeError":526}],476:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79279,7 +80821,11 @@ var SkipUntilSubscriber = (function (_super) {
     return SkipUntilSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],425:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],477:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79346,7 +80892,11 @@ var SkipWhileSubscriber = (function (_super) {
     return SkipWhileSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],426:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],478:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var ArrayObservable_1 = require('../observable/ArrayObservable');
 var ScalarObservable_1 = require('../observable/ScalarObservable');
@@ -79395,7 +80945,11 @@ function startWith() {
 }
 exports.startWith = startWith;
 
+<<<<<<< HEAD
+},{"../observable/ArrayObservable":196,"../observable/EmptyObservable":201,"../observable/ScalarObservable":215,"../observable/concat":222,"../util/isScheduler":495}],427:[function(require,module,exports){
+=======
 },{"../observable/ArrayObservable":248,"../observable/EmptyObservable":253,"../observable/ScalarObservable":267,"../observable/concat":274,"../util/isScheduler":547}],479:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var SubscribeOnObservable_1 = require('../observable/SubscribeOnObservable');
 /**
@@ -79427,7 +80981,11 @@ var SubscribeOnOperator = (function () {
     return SubscribeOnOperator;
 }());
 
+<<<<<<< HEAD
+},{"../observable/SubscribeOnObservable":216}],428:[function(require,module,exports){
+=======
 },{"../observable/SubscribeOnObservable":268}],480:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var switchMap_1 = require('./switchMap');
 var identity_1 = require('../util/identity');
@@ -79436,7 +80994,11 @@ function switchAll() {
 }
 exports.switchAll = switchAll;
 
+<<<<<<< HEAD
+},{"../util/identity":487,"./switchMap":429}],429:[function(require,module,exports){
+=======
 },{"../util/identity":539,"./switchMap":481}],481:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79579,7 +81141,11 @@ var SwitchMapSubscriber = (function (_super) {
     return SwitchMapSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],430:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],482:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79705,7 +81271,11 @@ var SwitchMapToSubscriber = (function (_super) {
     return SwitchMapToSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],431:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],483:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79797,7 +81367,11 @@ var TakeSubscriber = (function (_super) {
     return TakeSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../observable/EmptyObservable":201,"../util/ArgumentOutOfRangeError":474}],432:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../observable/EmptyObservable":253,"../util/ArgumentOutOfRangeError":526}],484:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79907,7 +81481,11 @@ var TakeLastSubscriber = (function (_super) {
     return TakeLastSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../observable/EmptyObservable":201,"../util/ArgumentOutOfRangeError":474}],433:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../observable/EmptyObservable":253,"../util/ArgumentOutOfRangeError":526}],485:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79983,7 +81561,11 @@ var TakeUntilSubscriber = (function (_super) {
     return TakeUntilSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],434:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],486:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80076,7 +81658,11 @@ var TakeWhileSubscriber = (function (_super) {
     return TakeWhileSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],435:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],487:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80190,7 +81776,11 @@ var DoSubscriber = (function (_super) {
     return DoSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64}],436:[function(require,module,exports){
+=======
 },{"../Subscriber":116}],488:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80333,7 +81923,11 @@ var ThrottleSubscriber = (function (_super) {
     return ThrottleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],437:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],489:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80450,7 +82044,11 @@ function dispatchNext(arg) {
     subscriber.clearThrottle();
 }
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../scheduler/async":463,"./throttle":436}],438:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../scheduler/async":515,"./throttle":488}],490:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80504,7 +82102,11 @@ var TimeIntervalSubscriber = (function (_super) {
     return TimeIntervalSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../scheduler/async":463}],439:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../scheduler/async":515}],491:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80646,7 +82248,11 @@ var TimeoutSubscriber = (function (_super) {
     return TimeoutSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subscriber":64,"../scheduler/async":463,"../util/TimeoutError":482,"../util/isDate":490}],440:[function(require,module,exports){
+=======
 },{"../Subscriber":116,"../scheduler/async":515,"../util/TimeoutError":534,"../util/isDate":542}],492:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80775,7 +82381,11 @@ var TimeoutWithSubscriber = (function (_super) {
     return TimeoutWithSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../scheduler/async":463,"../util/isDate":490,"../util/subscribeToResult":500}],441:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../scheduler/async":515,"../util/isDate":542,"../util/subscribeToResult":552}],493:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var async_1 = require('../scheduler/async');
 var map_1 = require('./map');
@@ -80801,7 +82411,11 @@ var Timestamp = (function () {
 exports.Timestamp = Timestamp;
 ;
 
+<<<<<<< HEAD
+},{"../scheduler/async":463,"./map":388}],442:[function(require,module,exports){
+=======
 },{"../scheduler/async":515,"./map":440}],494:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var reduce_1 = require('./reduce');
 function toArrayReducer(arr, item, index) {
@@ -80816,7 +82430,11 @@ function toArray() {
 }
 exports.toArray = toArray;
 
+<<<<<<< HEAD
+},{"./reduce":409}],443:[function(require,module,exports){
+=======
 },{"./reduce":461}],495:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80929,7 +82547,11 @@ var WindowSubscriber = (function (_super) {
     return WindowSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subject":62,"../util/subscribeToResult":500}],444:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subject":114,"../util/subscribeToResult":552}],496:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81063,7 +82685,11 @@ var WindowCountSubscriber = (function (_super) {
     return WindowCountSubscriber;
 }(Subscriber_1.Subscriber));
 
+<<<<<<< HEAD
+},{"../Subject":62,"../Subscriber":64}],445:[function(require,module,exports){
+=======
 },{"../Subject":114,"../Subscriber":116}],497:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81227,7 +82853,11 @@ function dispatchWindowClose(state) {
     subscriber.closeWindow(window);
 }
 
+<<<<<<< HEAD
+},{"../Subject":62,"../Subscriber":64,"../scheduler/async":463,"../util/isNumeric":492,"../util/isScheduler":495}],446:[function(require,module,exports){
+=======
 },{"../Subject":114,"../Subscriber":116,"../scheduler/async":515,"../util/isNumeric":544,"../util/isScheduler":547}],498:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81408,7 +83038,11 @@ var WindowToggleSubscriber = (function (_super) {
     return WindowToggleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subject":62,"../Subscription":65,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],447:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subject":114,"../Subscription":117,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],499:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81538,7 +83172,11 @@ var WindowSubscriber = (function (_super) {
     return WindowSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subject":62,"../util/errorObject":486,"../util/subscribeToResult":500,"../util/tryCatch":502}],448:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subject":114,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],500:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81671,7 +83309,11 @@ var WithLatestFromSubscriber = (function (_super) {
     return WithLatestFromSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../util/subscribeToResult":500}],449:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../util/subscribeToResult":552}],501:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81953,7 +83595,11 @@ var ZipBufferIterator = (function (_super) {
     return ZipBufferIterator;
 }(OuterSubscriber_1.OuterSubscriber));
 
+<<<<<<< HEAD
+},{"../OuterSubscriber":58,"../Subscriber":64,"../observable/ArrayObservable":196,"../symbol/iterator":465,"../util/isArray":488,"../util/subscribeToResult":500}],450:[function(require,module,exports){
+=======
 },{"../OuterSubscriber":110,"../Subscriber":116,"../observable/ArrayObservable":248,"../symbol/iterator":517,"../util/isArray":540,"../util/subscribeToResult":552}],502:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var zip_1 = require('./zip');
 function zipAll(project) {
@@ -81961,7 +83607,11 @@ function zipAll(project) {
 }
 exports.zipAll = zipAll;
 
+<<<<<<< HEAD
+},{"./zip":449}],451:[function(require,module,exports){
+=======
 },{"./zip":501}],503:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82006,7 +83656,11 @@ var Action = (function (_super) {
 }(Subscription_1.Subscription));
 exports.Action = Action;
 
+<<<<<<< HEAD
+},{"../Subscription":65}],452:[function(require,module,exports){
+=======
 },{"../Subscription":117}],504:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82062,7 +83716,11 @@ var AnimationFrameAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.AnimationFrameAction = AnimationFrameAction;
 
+<<<<<<< HEAD
+},{"../util/AnimationFrame":473,"./AsyncAction":456}],453:[function(require,module,exports){
+=======
 },{"../util/AnimationFrame":525,"./AsyncAction":508}],505:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82100,7 +83758,11 @@ var AnimationFrameScheduler = (function (_super) {
 }(AsyncScheduler_1.AsyncScheduler));
 exports.AnimationFrameScheduler = AnimationFrameScheduler;
 
+<<<<<<< HEAD
+},{"./AsyncScheduler":457}],454:[function(require,module,exports){
+=======
 },{"./AsyncScheduler":509}],506:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82156,7 +83818,11 @@ var AsapAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.AsapAction = AsapAction;
 
+<<<<<<< HEAD
+},{"../util/Immediate":477,"./AsyncAction":456}],455:[function(require,module,exports){
+=======
 },{"../util/Immediate":529,"./AsyncAction":508}],507:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82194,7 +83860,11 @@ var AsapScheduler = (function (_super) {
 }(AsyncScheduler_1.AsyncScheduler));
 exports.AsapScheduler = AsapScheduler;
 
+<<<<<<< HEAD
+},{"./AsyncScheduler":457}],456:[function(require,module,exports){
+=======
 },{"./AsyncScheduler":509}],508:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82337,7 +84007,11 @@ var AsyncAction = (function (_super) {
 }(Action_1.Action));
 exports.AsyncAction = AsyncAction;
 
+<<<<<<< HEAD
+},{"../util/root":499,"./Action":451}],457:[function(require,module,exports){
+=======
 },{"../util/root":551,"./Action":503}],509:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82389,7 +84063,11 @@ var AsyncScheduler = (function (_super) {
 }(Scheduler_1.Scheduler));
 exports.AsyncScheduler = AsyncScheduler;
 
+<<<<<<< HEAD
+},{"../Scheduler":61}],458:[function(require,module,exports){
+=======
 },{"../Scheduler":113}],510:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82439,7 +84117,11 @@ var QueueAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.QueueAction = QueueAction;
 
+<<<<<<< HEAD
+},{"./AsyncAction":456}],459:[function(require,module,exports){
+=======
 },{"./AsyncAction":508}],511:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82456,7 +84138,11 @@ var QueueScheduler = (function (_super) {
 }(AsyncScheduler_1.AsyncScheduler));
 exports.QueueScheduler = QueueScheduler;
 
+<<<<<<< HEAD
+},{"./AsyncScheduler":457}],460:[function(require,module,exports){
+=======
 },{"./AsyncScheduler":509}],512:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82570,7 +84256,11 @@ var VirtualAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.VirtualAction = VirtualAction;
 
+<<<<<<< HEAD
+},{"./AsyncAction":456,"./AsyncScheduler":457}],461:[function(require,module,exports){
+=======
 },{"./AsyncAction":508,"./AsyncScheduler":509}],513:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var AnimationFrameAction_1 = require('./AnimationFrameAction');
 var AnimationFrameScheduler_1 = require('./AnimationFrameScheduler');
@@ -82606,7 +84296,11 @@ var AnimationFrameScheduler_1 = require('./AnimationFrameScheduler');
  */
 exports.animationFrame = new AnimationFrameScheduler_1.AnimationFrameScheduler(AnimationFrameAction_1.AnimationFrameAction);
 
+<<<<<<< HEAD
+},{"./AnimationFrameAction":452,"./AnimationFrameScheduler":453}],462:[function(require,module,exports){
+=======
 },{"./AnimationFrameAction":504,"./AnimationFrameScheduler":505}],514:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var AsapAction_1 = require('./AsapAction');
 var AsapScheduler_1 = require('./AsapScheduler');
@@ -82646,7 +84340,11 @@ var AsapScheduler_1 = require('./AsapScheduler');
  */
 exports.asap = new AsapScheduler_1.AsapScheduler(AsapAction_1.AsapAction);
 
+<<<<<<< HEAD
+},{"./AsapAction":454,"./AsapScheduler":455}],463:[function(require,module,exports){
+=======
 },{"./AsapAction":506,"./AsapScheduler":507}],515:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var AsyncAction_1 = require('./AsyncAction');
 var AsyncScheduler_1 = require('./AsyncScheduler');
@@ -82694,7 +84392,11 @@ var AsyncScheduler_1 = require('./AsyncScheduler');
  */
 exports.async = new AsyncScheduler_1.AsyncScheduler(AsyncAction_1.AsyncAction);
 
+<<<<<<< HEAD
+},{"./AsyncAction":456,"./AsyncScheduler":457}],464:[function(require,module,exports){
+=======
 },{"./AsyncAction":508,"./AsyncScheduler":509}],516:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var QueueAction_1 = require('./QueueAction');
 var QueueScheduler_1 = require('./QueueScheduler');
@@ -82761,7 +84463,11 @@ var QueueScheduler_1 = require('./QueueScheduler');
  */
 exports.queue = new QueueScheduler_1.QueueScheduler(QueueAction_1.QueueAction);
 
+<<<<<<< HEAD
+},{"./QueueAction":458,"./QueueScheduler":459}],465:[function(require,module,exports){
+=======
 },{"./QueueAction":510,"./QueueScheduler":511}],517:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('../util/root');
 function symbolIteratorPonyfill(root) {
@@ -82800,7 +84506,11 @@ exports.iterator = symbolIteratorPonyfill(root_1.root);
  */
 exports.$$iterator = exports.iterator;
 
+<<<<<<< HEAD
+},{"../util/root":499}],466:[function(require,module,exports){
+=======
 },{"../util/root":551}],518:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('../util/root');
 function getSymbolObservable(context) {
@@ -82827,7 +84537,11 @@ exports.observable = getSymbolObservable(root_1.root);
  */
 exports.$$observable = exports.observable;
 
+<<<<<<< HEAD
+},{"../util/root":499}],467:[function(require,module,exports){
+=======
 },{"../util/root":551}],519:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('../util/root');
 var Symbol = root_1.root.Symbol;
@@ -82838,7 +84552,11 @@ exports.rxSubscriber = (typeof Symbol === 'function' && typeof Symbol.for === 'f
  */
 exports.$$rxSubscriber = exports.rxSubscriber;
 
+<<<<<<< HEAD
+},{"../util/root":499}],468:[function(require,module,exports){
+=======
 },{"../util/root":551}],520:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82885,7 +84603,11 @@ var ColdObservable = (function (_super) {
 exports.ColdObservable = ColdObservable;
 applyMixins_1.applyMixins(ColdObservable, [SubscriptionLoggable_1.SubscriptionLoggable]);
 
+<<<<<<< HEAD
+},{"../Observable":56,"../Subscription":65,"../util/applyMixins":484,"./SubscriptionLoggable":471}],469:[function(require,module,exports){
+=======
 },{"../Observable":108,"../Subscription":117,"../util/applyMixins":536,"./SubscriptionLoggable":523}],521:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82934,7 +84656,11 @@ var HotObservable = (function (_super) {
 exports.HotObservable = HotObservable;
 applyMixins_1.applyMixins(HotObservable, [SubscriptionLoggable_1.SubscriptionLoggable]);
 
+<<<<<<< HEAD
+},{"../Subject":62,"../Subscription":65,"../util/applyMixins":484,"./SubscriptionLoggable":471}],470:[function(require,module,exports){
+=======
 },{"../Subject":114,"../Subscription":117,"../util/applyMixins":536,"./SubscriptionLoggable":523}],522:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var SubscriptionLog = (function () {
     function SubscriptionLog(subscribedFrame, unsubscribedFrame) {
@@ -82946,7 +84672,11 @@ var SubscriptionLog = (function () {
 }());
 exports.SubscriptionLog = SubscriptionLog;
 
+<<<<<<< HEAD
+},{}],471:[function(require,module,exports){
+=======
 },{}],523:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var SubscriptionLog_1 = require('./SubscriptionLog');
 var SubscriptionLoggable = (function () {
@@ -82966,7 +84696,11 @@ var SubscriptionLoggable = (function () {
 }());
 exports.SubscriptionLoggable = SubscriptionLoggable;
 
+<<<<<<< HEAD
+},{"./SubscriptionLog":470}],472:[function(require,module,exports){
+=======
 },{"./SubscriptionLog":522}],524:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83190,7 +84924,11 @@ var TestScheduler = (function (_super) {
 }(VirtualTimeScheduler_1.VirtualTimeScheduler));
 exports.TestScheduler = TestScheduler;
 
+<<<<<<< HEAD
+},{"../Notification":55,"../Observable":56,"../scheduler/VirtualTimeScheduler":460,"./ColdObservable":468,"./HotObservable":469,"./SubscriptionLog":470}],473:[function(require,module,exports){
+=======
 },{"../Notification":107,"../Observable":108,"../scheduler/VirtualTimeScheduler":512,"./ColdObservable":520,"./HotObservable":521,"./SubscriptionLog":522}],525:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('./root');
 var RequestAnimationFrameDefinition = (function () {
@@ -83225,7 +84963,11 @@ var RequestAnimationFrameDefinition = (function () {
 exports.RequestAnimationFrameDefinition = RequestAnimationFrameDefinition;
 exports.AnimationFrame = new RequestAnimationFrameDefinition(root_1.root);
 
+<<<<<<< HEAD
+},{"./root":499}],474:[function(require,module,exports){
+=======
 },{"./root":551}],526:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83254,7 +84996,11 @@ var ArgumentOutOfRangeError = (function (_super) {
 }(Error));
 exports.ArgumentOutOfRangeError = ArgumentOutOfRangeError;
 
+<<<<<<< HEAD
+},{}],475:[function(require,module,exports){
+=======
 },{}],527:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83283,7 +85029,11 @@ var EmptyError = (function (_super) {
 }(Error));
 exports.EmptyError = EmptyError;
 
+<<<<<<< HEAD
+},{}],476:[function(require,module,exports){
+=======
 },{}],528:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var FastMap = (function () {
     function FastMap() {
@@ -83315,7 +85065,11 @@ var FastMap = (function () {
 }());
 exports.FastMap = FastMap;
 
+<<<<<<< HEAD
+},{}],477:[function(require,module,exports){
+=======
 },{}],529:[function(require,module,exports){
+>>>>>>> planck
 /**
 Some credit for this helper goes to http://github.com/YuzuJS/setImmediate
 */
@@ -83525,13 +85279,21 @@ var ImmediateDefinition = (function () {
 exports.ImmediateDefinition = ImmediateDefinition;
 exports.Immediate = new ImmediateDefinition(root_1.root);
 
+<<<<<<< HEAD
+},{"./root":499}],478:[function(require,module,exports){
+=======
 },{"./root":551}],530:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('./root');
 var MapPolyfill_1 = require('./MapPolyfill');
 exports.Map = root_1.root.Map || (function () { return MapPolyfill_1.MapPolyfill; })();
 
+<<<<<<< HEAD
+},{"./MapPolyfill":479,"./root":499}],479:[function(require,module,exports){
+=======
 },{"./MapPolyfill":531,"./root":551}],531:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var MapPolyfill = (function () {
     function MapPolyfill() {
@@ -83579,7 +85341,11 @@ var MapPolyfill = (function () {
 }());
 exports.MapPolyfill = MapPolyfill;
 
+<<<<<<< HEAD
+},{}],480:[function(require,module,exports){
+=======
 },{}],532:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83607,7 +85373,11 @@ var ObjectUnsubscribedError = (function (_super) {
 }(Error));
 exports.ObjectUnsubscribedError = ObjectUnsubscribedError;
 
+<<<<<<< HEAD
+},{}],481:[function(require,module,exports){
+=======
 },{}],533:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('./root');
 function minimalSetImpl() {
@@ -83641,7 +85411,11 @@ function minimalSetImpl() {
 exports.minimalSetImpl = minimalSetImpl;
 exports.Set = root_1.root.Set || minimalSetImpl();
 
+<<<<<<< HEAD
+},{"./root":499}],482:[function(require,module,exports){
+=======
 },{"./root":551}],534:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83667,7 +85441,11 @@ var TimeoutError = (function (_super) {
 }(Error));
 exports.TimeoutError = TimeoutError;
 
+<<<<<<< HEAD
+},{}],483:[function(require,module,exports){
+=======
 },{}],535:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83693,7 +85471,11 @@ var UnsubscriptionError = (function (_super) {
 }(Error));
 exports.UnsubscriptionError = UnsubscriptionError;
 
+<<<<<<< HEAD
+},{}],484:[function(require,module,exports){
+=======
 },{}],536:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function applyMixins(derivedCtor, baseCtors) {
     for (var i = 0, len = baseCtors.length; i < len; i++) {
@@ -83707,7 +85489,11 @@ function applyMixins(derivedCtor, baseCtors) {
 }
 exports.applyMixins = applyMixins;
 
+<<<<<<< HEAD
+},{}],485:[function(require,module,exports){
+=======
 },{}],537:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('./root');
 function assignImpl(target) {
@@ -83734,18 +85520,37 @@ function getAssign(root) {
 exports.getAssign = getAssign;
 exports.assign = getAssign(root_1.root);
 
+<<<<<<< HEAD
+},{"./root":499}],486:[function(require,module,exports){
+=======
 },{"./root":551}],538:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 // typeof any so that it we don't have to cast when comparing a result to the error object
 exports.errorObject = { e: {} };
 
+<<<<<<< HEAD
+},{}],487:[function(require,module,exports){
+=======
 },{}],539:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function identity(x) {
     return x;
 }
 exports.identity = identity;
 
+<<<<<<< HEAD
+},{}],488:[function(require,module,exports){
+"use strict";
+exports.isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
+
+},{}],489:[function(require,module,exports){
+"use strict";
+exports.isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
+
+},{}],490:[function(require,module,exports){
+=======
 },{}],540:[function(require,module,exports){
 "use strict";
 exports.isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
@@ -83755,20 +85560,29 @@ exports.isArray = Array.isArray || (function (x) { return x && typeof x.length =
 exports.isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 
 },{}],542:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function isDate(value) {
     return value instanceof Date && !isNaN(+value);
 }
 exports.isDate = isDate;
 
+<<<<<<< HEAD
+},{}],491:[function(require,module,exports){
+=======
 },{}],543:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function isFunction(x) {
     return typeof x === 'function';
 }
 exports.isFunction = isFunction;
 
+<<<<<<< HEAD
+},{}],492:[function(require,module,exports){
+=======
 },{}],544:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var isArray_1 = require('../util/isArray');
 function isNumeric(val) {
@@ -83781,34 +85595,54 @@ function isNumeric(val) {
 exports.isNumeric = isNumeric;
 ;
 
+<<<<<<< HEAD
+},{"../util/isArray":488}],493:[function(require,module,exports){
+=======
 },{"../util/isArray":540}],545:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function isObject(x) {
     return x != null && typeof x === 'object';
 }
 exports.isObject = isObject;
 
+<<<<<<< HEAD
+},{}],494:[function(require,module,exports){
+=======
 },{}],546:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function isPromise(value) {
     return value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
 }
 exports.isPromise = isPromise;
 
+<<<<<<< HEAD
+},{}],495:[function(require,module,exports){
+=======
 },{}],547:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function isScheduler(value) {
     return value && typeof value.schedule === 'function';
 }
 exports.isScheduler = isScheduler;
 
+<<<<<<< HEAD
+},{}],496:[function(require,module,exports){
+=======
 },{}],548:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 /* tslint:disable:no-empty */
 function noop() { }
 exports.noop = noop;
 
+<<<<<<< HEAD
+},{}],497:[function(require,module,exports){
+=======
 },{}],549:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 function not(pred, thisArg) {
     function notPred() {
@@ -83820,7 +85654,11 @@ function not(pred, thisArg) {
 }
 exports.not = not;
 
+<<<<<<< HEAD
+},{}],498:[function(require,module,exports){
+=======
 },{}],550:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var noop_1 = require('./noop');
 /* tslint:enable:max-line-length */
@@ -83846,7 +85684,11 @@ function pipeFromArray(fns) {
 }
 exports.pipeFromArray = pipeFromArray;
 
+<<<<<<< HEAD
+},{"./noop":496}],499:[function(require,module,exports){
+=======
 },{"./noop":548}],551:[function(require,module,exports){
+>>>>>>> planck
 (function (global){
 "use strict";
 // CommonJS / Node have global context exposed as "global" variable.
@@ -83868,7 +85710,11 @@ exports.root = _root;
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+<<<<<<< HEAD
+},{}],500:[function(require,module,exports){
+=======
 },{}],552:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var root_1 = require('./root');
 var isArrayLike_1 = require('./isArrayLike');
@@ -83948,7 +85794,11 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
 }
 exports.subscribeToResult = subscribeToResult;
 
+<<<<<<< HEAD
+},{"../InnerSubscriber":54,"../Observable":56,"../symbol/iterator":465,"../symbol/observable":466,"./isArrayLike":489,"./isObject":493,"./isPromise":494,"./root":499}],501:[function(require,module,exports){
+=======
 },{"../InnerSubscriber":106,"../Observable":108,"../symbol/iterator":517,"../symbol/observable":518,"./isArrayLike":541,"./isObject":545,"./isPromise":546,"./root":551}],553:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var Subscriber_1 = require('../Subscriber');
 var rxSubscriber_1 = require('../symbol/rxSubscriber');
@@ -83969,7 +85819,11 @@ function toSubscriber(nextOrObserver, error, complete) {
 }
 exports.toSubscriber = toSubscriber;
 
+<<<<<<< HEAD
+},{"../Observer":57,"../Subscriber":64,"../symbol/rxSubscriber":467}],502:[function(require,module,exports){
+=======
 },{"../Observer":109,"../Subscriber":116,"../symbol/rxSubscriber":519}],554:[function(require,module,exports){
+>>>>>>> planck
 "use strict";
 var errorObject_1 = require('./errorObject');
 var tryCatchTarget;
@@ -83989,7 +85843,11 @@ function tryCatch(fn) {
 exports.tryCatch = tryCatch;
 ;
 
+<<<<<<< HEAD
+},{"./errorObject":486}],503:[function(require,module,exports){
+=======
 },{"./errorObject":538}],555:[function(require,module,exports){
+>>>>>>> planck
 /**
  * This class is responsible for keeping track of all buttons and what actions are tied to them.
  *
@@ -84087,7 +85945,11 @@ class ActionRegistry {
 
 module.exports = ActionRegistry;
 
+<<<<<<< HEAD
+},{}],504:[function(require,module,exports){
+=======
 },{}],556:[function(require,module,exports){
+>>>>>>> planck
 const ActionRegistry = require('./ActionRegistry');
 const ActionEvent = require('./utils/ActionEvent');
 const Rx = require('rxjs/Rx');
@@ -84217,7 +86079,11 @@ class Manager {
 
 module.exports = Manager;
 
+<<<<<<< HEAD
+},{"./ActionRegistry":503,"./utils/ActionEvent":505,"rxjs/Rx":60}],505:[function(require,module,exports){
+=======
 },{"./ActionRegistry":555,"./utils/ActionEvent":557,"rxjs/Rx":112}],557:[function(require,module,exports){
+>>>>>>> planck
 /**
  * This class defines the packet that contains the ActionEvent
  * that is emitted when a button is pressed.
@@ -84364,7 +86230,11 @@ class ActionEvent {
 
 module.exports = ActionEvent;
 
+<<<<<<< HEAD
+},{}],506:[function(require,module,exports){
+=======
 },{}],558:[function(require,module,exports){
+>>>>>>> planck
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -85098,7 +86968,11 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
+<<<<<<< HEAD
+},{"./util":507,"punycode":45,"querystring":48}],507:[function(require,module,exports){
+=======
 },{"./util":559,"punycode":97,"querystring":100}],559:[function(require,module,exports){
+>>>>>>> planck
 'use strict';
 
 module.exports = {
@@ -85116,124 +86990,115 @@ module.exports = {
   }
 };
 
+<<<<<<< HEAD
+},{}],508:[function(require,module,exports){
+const PIXI = require("pixi.js");
+let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+let songFeatures = require("../../static/json/SmokeandGunsFeatures");
+=======
 },{}],560:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
+>>>>>>> planck
 
-const songAnal = {
-	"bars": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"beats": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"sections": [{
-		"start": 237.02356,
-		"duration": 18.32542,
-		"confidence": 1,
-		"loudness": -20.074,
-		"tempo": 98.253,
-		"tempo_confidence": 0.767,
-		"key": 5,
-		"key_confidence": 0.327,
-		"mode": 1,
-		"mode_confidence": 0.566,
-		"time_signature": 4,
-		"time_signature_confidence": 1
-	}],
-	"segments": [{
-		"start": 252.15601,
-		"duration": 3.19297,
-		"confidence": 0.522,
-		"loudness_start": -23.356,
-		"loudness_max_time": 0.06971,
-		"loudness_max": -18.121,
-		"loudness_end": -60,
-		"pitches": [
-			0.709,
-			0.092,
-			0.196,
-			0.084,
-			0.352,
-			0.134,
-			0.161,
-			1,
-			0.17,
-			0.161,
-			0.211,
-			0.15
-		],
-		"timbre": [
-			23.312,
-			-7.374,
-			-45.719,
-			294.874,
-			51.869,
-			-79.384,
-			-89.048,
-			143.322,
-			-4.676,
-			-51.303,
-			-33.274,
-			-19.037
-		]
-	}],
-	"tatums": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"track": {
-		"duration": 255.34898,
-		"sample_md5": "",
-		"offset_seconds": 0,
-		"window_seconds": 0,
-		"analysis_sample_rate": 22050,
-		"analysis_channels": 1,
-		"end_of_fade_in": 0,
-		"start_of_fade_out": 251.73333,
-		"loudness": -11.84,
-		"tempo": 98.002,
-		"tempo_confidence": 0.423,
-		"time_signature": 4,
-		"time_signature_confidence": 1,
-		"key": 5,
-		"key_confidence": 0.36,
-		"mode": 0,
-		"mode_confidence": 0.414,
-		"codestring": "eJxVnAmS5DgOBL-ST-B9_P9j4x7M6qoxW9tpsZQSCeI...",
-		"code_version": 3.15,
-		"echoprintstring": "eJzlvQmSHDmStHslxw4cB-v9j_A-tahhVKV0IH9...",
-		"echoprint_version": 4.12,
-		"synchstring": "eJx1mIlx7ToORFNRCCK455_YoE9Dtt-vmrKsK3EBsTY...",
-		"synch_version": 1,
-		"rhythmstring": "eJyNXAmOLT2r28pZQuZh_xv7g21Iqu_3pCd160xV...",
-		"rhythm_version": 1
-	}
-};
 
-function Bezier(game) {
+function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
+	const texture = PIXI.Texture.from("..//img/husky.png");
 
+<<<<<<< HEAD
+	// Initialize graphics elements
+	points.lineStyle(0);
+=======
 
 
 	// Initialize graphics elements
 	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
+>>>>>>> planck
 	points.beginFill(0xFFFFFF, 1);
 	bezier.lineStyle(5, 0xAA0000, 1);
-	bezier.position.x = 25;
-	bezier.position.y = 25;
+	bezier.beginTextureFill(texture);
+	bezier.position.x = 15;
+	bezier.position.y = 15;
+
+	drawCurves(bezier, points);
+
+	points.endFill();
+
+	viewport.addChild(bezier);
+	viewport.addChild(points);
+}
+
+/*
+function Bezier(viewport) {
+	console.log(songAnalysis);
+}
+*/
+
+module.exports = Bezier;
+
+
+function drawCurves(bezier, points) {
 
 	let currentPos = {
 		x: bezier.position.x,
 		y: bezier.position.y
 	};
+	let j = 0;
 
+	for (let i = 0; i < songAnalysis.bars.length; i++) {
+		/*
+		let barStart = songAnalysis.bars[i].start;
+		let barFinish = songAnalysis.bars[i].duration + barStart;
+		let segments = [];
+		let addedSegment = false;
+
+		for (j; j <= songAnalysis.segments.length; j++) {
+			let segmentStart = songAnalysis.segments[j].start;
+			let segmentFinish = songAnalysis.segments[j].duration + barStart;
+			if (segmentStart >= barStart && segmentFinish <= barFinish) {
+				segments.push(songAnalysis.segments[j]);
+
+				if (!addedSegment)
+					addedSegment = true;
+			}
+			else {
+				if (addedSegment)
+					break;
+			}
+		}
+		*/
+
+		const finalXVariation = songAnalysis.bars[i].duration;
+		const controlPoint1X = currentPos.x + featuretoPixel(songFeatures.acousticness, finalXVariation * 5);
+		const controlPoint1Y = currentPos.y + featuretoPixel(songFeatures.danceability, finalXVariation * 5);
+		const controlPoint2X = currentPos.x + featuretoPixel(songFeatures.valence, finalXVariation * 5);
+		const controlPoint2Y = currentPos.y + featuretoPixel(songFeatures.energy, finalXVariation * 5);
+		const finalPointX = currentPos.x + finalXVariation * 10;
+		const finalPointY = currentPos.y + loudnessToPixels(songFeatures.loudness, finalXVariation * 10);
+
+		/**  First two params: first control point
+			 Second two params: second control point
+			 Final params: destination point
+			 Draw curves
+			 MAX CPY change - 175 pixels
+			 MAX CPX change -
+		 */
+		bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
+			controlPoint2X, controlPoint2Y,
+			finalPointX, finalPointY);
+
+<<<<<<< HEAD
+		// Not necessary, just for viewing points
+		points.drawCircle(controlPoint1X, controlPoint1Y, 2);
+		points.drawCircle(controlPoint2X, controlPoint2Y, 2);
+		points.drawCircle(finalPointX, finalPointY, 2);
+
+		currentPos.x = finalPointX;
+		currentPos.y = finalPointY;
+	}
+=======
 	/**  First two params: first control point
 	 Second two params: second control point
 	 Final params: destination point
@@ -85252,43 +87117,94 @@ function Bezier(game) {
 	points.drawCircle(240, 250, 2);
 	points.drawCircle(700, 200, 2);
 	points.endFill();
+>>>>>>> planck
 
-	game.stage.addChild(bezier);
-	game.stage.addChild(points);
+	bezier.lineTo(15, currentPos.y);
+	bezier.lineTo(15, 15);
+	bezier.closePath();
+	bezier.endFill();
 }
 
-module.exports = Bezier;
 
-/**
-for (let i = 0; i <= songAnal.bars.length; i++) {
-	// What value from songAnal are we going to use to change the control points?
-	// Pitches from songAnal.segments[i].pitches[num] could be useful, I feel like we talked about it
-	// But so many pitches per segment, and segments per beat....how to handle
-	const controlPoint1X = currentPos.x + ;
-	const controlPoint1Y = currentPos.y + ;
-	const controlPoint2X = currentPos.x + ;
-	const controlPoint2Y = currentPos.y + ;
-	const finalPointX = currentPos.x + (songAnal.bars[i].duration * 100);
-	const finalPointY = currentPos.y + (songFeat.danceability * 100);
+function loudnessToPixels(loudness, xDistance) {
+	let finalY;
 
-	bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
-						 controlPoint2X, controlPoint2Y,
-						 finalPointX, finalPointY);
+	switch(true) {
+	case loudness > -10:
+		finalY = xDistance * 2;
+		break;
+	case (loudness > -30 && loudness <= -10):
+		finalY = xDistance * 1.5;
+		break;
+	case (loudness > -50 && loudness <= -30):
+		finalY = xDistance;
+		break;
+	case loudness <= -50:
+		finalY = xDistance * 0.5;
+		break;
+	}
 
-	// Not necessary, just for viewing points
-	points.drawCircle(controlPoint1X, controlPoint1Y, 2);
-	points.drawCircle(controlPoint2X, controlPoint2Y, 2);
-	points.drawCircle(finalPointX, finalPointY, 2);
+	return finalY;
+}
 
-	currentPos.x = finalPointX;
-	currentPos.y = finalPointY;
+function featuretoPixel(feature, finalXDistance) {
+	let distance;
+
+	switch(true) {
+	case feature > 0.9:
+		distance = finalXDistance * 2;
+		break;
+	case (feature > 0.6 && feature <= 0.9):
+		distance = finalXDistance * 1.5;
+		break;
+	case (feature > 0.3 && feature <= 0.6):
+		distance = finalXDistance;
+		break;
+	case feature <= 0.3:
+		distance = finalXDistance * 0.5;
+		break;
+	}
+
+	return distance;
+}
+
+/*
+// Dancability to determine vertical displacement between control points
+		// Valence to determine horizontal displacement
+		// Energy to determine max values for just vertical - max would be 175px
+function createControlPoint(point, currentPos) {
+	let maxY;
+	let xDisplacement;
+	let yDisplacement;
+
+	switch(true) {
+	case songFeatures.energy > 0.9:
+		maxY = 175;
+		break;
+	case (songFeatures.energy > 0.6 && songFeatures.energy <= 0.9):
+		maxY = 125;
+		break;
+	case (songFeatures.energy > 0.3 && songFeatures.energy <= 0.6):
+		maxY = 100;
+		break;
+	case songFeatures.energy <= 0.3:
+		maxY = 50;
+		break;
+	}
 }
  */
+<<<<<<< HEAD
+},{"../../static/json/SmokeandGunsAnalysis":512,"../../static/json/SmokeandGunsFeatures":513,"pixi.js":43}],509:[function(require,module,exports){
+=======
 },{"pixi.js":42,"planck-js":69}],561:[function(require,module,exports){
+>>>>>>> planck
 const PIXI = require("pixi.js");
 const InputManager = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
+<<<<<<< HEAD
+const Viewport = require("./Viewport");
+=======
 const Physics = require("./Physics");
 const Planck = require("planck-js");
 const GenerateCurve = require("./GenerationAlgorithm");
@@ -85440,28 +87356,85 @@ const exampleFeatures = {
 	"type" : "audio_features"
 }
 
+>>>>>>> planck
 
 
 // Game code
 const manager = new InputManager();
 
 // bind one or more actions (appends to existing actions)
-manager.bindAction("a", "Action1");
+manager.bindAction("a", "moveLeft");
+manager.bindAction("s", "moveDown");
+manager.bindAction("d", "moveRight");
+manager.bindAction("w", "moveUp");
 
 // get observable
 const observable = manager.getObservable();
-
-// this handler will simply print to the console the actions being performed
-const handler = ( action ) => console.log(action, " hello");
-
-// subscribe to handle events
-observable.subscribe(handler);
 
 const canvas = document.getElementById("mycanvas");
 
 const game = new PIXI.Application({
 	view: canvas,
 	width: window.innerWidth,
+<<<<<<< HEAD
+	height: window.innerHeight,
+	antialias: true
+});
+
+const actionState = {};
+
+const viewport = Viewport(game);
+Parallax(game);
+game.stage.addChild(viewport);
+Bezier(viewport);
+const character = addCharacter(game, viewport);
+
+// Adds the current action being sent to the actionState array
+const handler = (action => {
+	for (let i = 0; i < action.actions.length; i++) {
+		actionState[action.actions[i]] = action.type;
+	}
+});
+
+// subscribe to handle events
+observable.subscribe(handler);
+
+game.ticker.add(handleActions);
+
+function handleActions() {
+	if (actionState.moveLeft === "press")
+	{character.x -= 15;}
+	else if (actionState.moveRight === "press")
+	{character.x += 15;}
+	else if (actionState.moveUp === "press")
+	{character.y -= 15;}
+	else if (actionState.moveDown === "press")
+	{character.y += 15;}
+	else if (actionState.moveLeft === "release")
+	{character.x -= 0;}
+	else if (actionState.moveRight === "release")
+	{character.x += 0;}
+	else if (actionState.moveUp === "release")
+	{character.y -= 0;}
+	else if (actionState.moveDown === "release")
+	{character.y += 0;}
+}
+
+function addCharacter(game, viewport) {
+	const character = new PIXI.Sprite.from("../img/snowboarder.png");
+	character.anchor.set(0.5);
+
+	character.x = game.screen.width / 2;
+	character.y = game.screen.height / 2;
+
+	viewport.addChild(character);
+	viewport.follow(character);
+	viewport.zoomPercent(0.25);
+
+	return character;
+}
+},{"./Bezier":508,"./Parallax":510,"./Viewport":511,"pixi.js":43,"tune-mountain-input-manager":51}],510:[function(require,module,exports){
+=======
 	height: 384,
 	antialias: true,
 	backgroundColor: 0x333333
@@ -85603,6 +87576,7 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 module.exports = GenerationAlgoritm;
 },{"pixi.js":42,"planck-js":69}],564:[function(require,module,exports){
+>>>>>>> planck
 const PIXI = require("pixi.js");
 
 /**
@@ -85658,8 +87632,8 @@ class Old {
 
 function Parallax(game) {
 
-	const tilingSprite1 = createTiliingSprite(game, "../img/bg-far.png", 0);
-	const tilingSprite2 = createTiliingSprite(game, "../img/bg-mid.png", 128);
+	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", 0);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 128);
 
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
@@ -85668,7 +87642,7 @@ function Parallax(game) {
 
 }
 
-function createTiliingSprite(game, location, y) {
+function createTilingSprite(game, location, y) {
 	const texture = PIXI.Texture.from(location);
 
 	const tilingSprite = new PIXI.TilingSprite(
@@ -85690,6 +87664,33681 @@ module.exports = Parallax;
 
 
 
+<<<<<<< HEAD
+},{"pixi.js":43}],511:[function(require,module,exports){
+
+const Viewport = require("pixi-viewport").Viewport;
+
+function CreateViewport(game) {
+	// create viewport
+	const viewport = new Viewport({
+		screenWidth: window.innerWidth,
+		screenHeight: window.innerHeight,
+		worldWidth: 1000,
+		worldHeight: 1000,
+
+		interaction: game.renderer.plugins.interaction
+	});
+
+	// add the viewport to the stage
+	//game.stage.addChild(viewport);
+
+	// activate plugins
+	viewport
+		.drag()
+		.pinch()
+		.wheel()
+		.decelerate();
+
+	return viewport;
+}
+
+module.exports = CreateViewport;
+},{"pixi-viewport":42}],512:[function(require,module,exports){
+module.exports={
+  "meta": {
+    "analyzer_version": "4.0.0",
+    "platform": "Linux",
+    "detailed_status": "OK",
+    "status_code": 0,
+    "timestamp": 1569507794,
+    "analysis_time": 6.54179,
+    "input_process": "libvorbisfile L+R 44100->22050"
+  },
+  "track": {
+    "num_samples": 4326000,
+    "duration": 196.19048,
+    "sample_md5": "",
+    "offset_seconds": 0,
+    "window_seconds": 0,
+    "analysis_sample_rate": 22050,
+    "analysis_channels": 1,
+    "end_of_fade_in": 0,
+    "start_of_fade_out": 196.19048,
+    "loudness": -2.881,
+    "tempo": 125.921,
+    "tempo_confidence": 0.823,
+    "time_signature": 4,
+    "time_signature_confidence": 0.975,
+    "key": 3,
+    "key_confidence": 0.464,
+    "mode": 1,
+    "mode_confidence": 0.542,
+    "codestring": "eJxNmolx5DgQBF0ZE_A__ju2mYWRtBEXewKHBIF-qqsL7LWftso-n_JZ67RxGX86_50125lzfto5n1XXHaXOzfXxmauvs_dtn7XbZ_S-autrfG47n1rqYpJ5-6f2vT5t1lVa7wzPXJ9R5zj1lPrh2vrUWmZZrfVP260weT9nbV9fmHmOW8oZlfUwey2nTJbBj4OZTqt1lOm9c7ZPvWVeZufmXRmyYvbTHbKKXtnbPu1-RuGJ224fe_fDehYbZ8-tNlbXmJindu8Hk4xdBv8wwd0YYbi_xU-1MsdkMZ-921ltlP2Zbpb1jn73KJjoMpyNFTU2u8o4PMErx7xYc_vouGO3sT9rlMKS-ix9sc_FhJ_dFoYbbId3s9k-x7oYfDde3Qr3zs5fW0to8rbO2fezJ-4ZFSPeyiQXE2O6dlrBdaes-K7jsXs_GHZ97mrlDqc6cwzew27LuJ9bmQhrXGyG73C-rp3EyqiD8dQyt2xumwyvd3PvHrq2FrzJ_K1ht-p45AW1sXE2Ucsyptpla7hbz9YYr5fC3hhfXMhCefXivZj7fDBdwSaYmvGbZLVeEkQL6y7tvquBUo_BM3kp27gfgpMA2avjnbUmY7daB_-fbrM2_cwiz2Zmf-r69mJRdkRY1N4NqYtNFy4zsF3AxVqzE4_EIQsYbbCZUngBfxZ_n3ficsa69JAGc8yDPcbx_t72Zf-O9fFgBXXiuY8xUz7n6JKlAaYR3uYlJ1lEgrs4H77gEcbfrDzr3MrzhBG_1zuYojg-mqXVJDXP74L98XQlL3h8Z1NNg3KF8SomRe0Lj7N9zJDpd8Gy3H_IRKfjht356-jeizES8CY6_sL-4gSBxkMn9iUOFxlvrhJOd886QAP250J9gPcSvIxN4dbaIZlq15Ij--2sxIC_2I20Z-_ExzAfAI9FMoxdN8OBeVk8iVsyFqZYRHmB2MohOQ3NXgQWNuL6sCzPYP4W4Bq8imhgJw37ah9CwzkZi2RtLBYAALBQ3PCZG_st45OFJ1sKYYFFwLZgHSBWCME8MG_2hx_1T2s72TYLr15MLVyRTxgPD3AngWyar0q6VqGTABMxwalB_rQgIPPNNUzHFszDIQybb-raiw2WuwRMnKSDlgG4h2Ot2ivuObyQ8dDBCz-7CMbb9bMUMhb8AtObAUAUjZ6VY6LPPFd7LN5P3OZ5QTZj0ZCsAFsEXbbPeplbNGAYdORZwrnx4hZAJBzKnHldELHhwInn3Ljh0ybgw54d49dsH4TWfKy2CEKXECfdWlCxk6q4yJIUXCSmp35g-wFGnCr4MTKYCIFOrjhbgPEeXtoAE5ahLUEyMAGsapc0JNimRQ6swN5sRt-a62wmUEmAbTLZqL6UDLACLCKg_d1gutsKIwq0YCkJKrS3idUNJvAfT2C6DoQNsWzgI3KrV0OFN5NLhF4PNBIEi8DcFnJc_pnGIjHF77qW33cVy6YxaTzyMnzv7QIFVme31GXmFQixGXmGI3pwEGwDVa-zp15RlmpWy5iEoyYRxrOQtyzSxbLEuUklxhZ56MBMZjK-iVO8Mo37_nCPqOYd3j91nHVjbHFPVoHjilFgxuBm4ypVgTDrS5wn6JY4w3IDg9QGrIc9YQKBPRZRU6N7cA8YKdgc2OnBPepy8MixuOcmdI3UxzgloogbcQ_WYKUvt5t5R2rUk2wT27v94CDG6eYjxgY8cQ4ZxkwuPzAI4pI-ezgWBrEUC5uuP7DH5rpBUaEuxinLqTpTKiM1Oy5jX2B1BPcWtWnr2xHYox4skJHtm_QsmjIaOBhWCVe_kmeEZK0W6VU7mcXbHmhhe5J4SI2uP0_CeCaCrdlkJElILhjR-BJHNyhclxXWlyegePH5YJhByM8SL50dDLkTXGSMTRIhOJO9hKdRGC9ZQs0ByKQM4C_kcjiehqLAt5qb-4EoAhU-yfhK7AjUGa-Nqe_jAWJ3Ss2ELEAcKwypmpAFCXOb8B9y18gfbfUi2xvhbPBTAk3qszQOJrJkYlV5Rcgt3Pe0MMcwY2AEn0kihSQi24Ks8R9R4-_boIUUm0BQCEx1KMjAYtj11bgBmUmd6ksO-zBmXSCthDkZyOAUnsk6gjHwTjyKsT8jmMLb4I2QTJxuXrI2bAv5Y-xTlShif2DcDP_id5ZGAebFj3BJkIi5-ZlhXKYTVbF7g4yLH2ey46NxLch6vhDJMwxMdiNHhCyHccFKmRdOydiQcTV4jF9m11uHcJaCNcm1ZQyfG0Ys2NRIgVsgIe8fgh0RDf_frs-UFfHNu2otkTZTQO8BbXwB-VokufIPDD7DqGoXZ-T2ayS4yVWLNuOVTCRlqO0MhUmwygJ6-HlbD_HspLzjONBhPNwCKMCtGWChmAPyeJ7x44-XZijjE8KwIO3H4J_JsCqXppDwfAgUeYyt2eJnBjgEud3lk_Nme6QVjmf1wRGZ-dJkjNMRNUK32oaEPQkyPbR-BTY2EQkUMQ85VjTucQYyF5C17ynAG9g0SSrpEePZUo5xGa-7EA8YhQ1LgGNUgGeI2ivIwZiSVe2FmuxXdshM1oMgAxXwGlvMHDbj8xTddFyyGXLjVmLLpJS9yP12d6Ur7MVUpjqALCvQQLSzmCmRDTQQYFBxh-H8dmVbvsX4VQE7vuL2HlkpcsttMLPMMVLXQapLu_b6NTa3CSPbZukJPJTtCMMA5PHfjfmv6ws9kXkN85exWNBtP9_6HhZcGz7dESiw77D8bNvRaTuOExJs6zVqcE6DneUd-0LbdrodoGS93sxAwRHsJ8n_lwuYjJeSYPaM9lVJdsxlF8P29kt2eAfIZFKb6hXKVKnznXGaK-nBtriHYEjweCtQspPpphUATphtMkBcxneYkQY1mf7ehv2odlKKbgcI_tMVs1CdLYxs7w-laInl9LuW3G1rCLixWHFeas46SF6Lux6jkQSJ8MIOoxBNNpnM7-mkjjSJMsdQGEgskDK8feowlmywkfe825fybiqqCLcMLTvLg3-Z7jEMcn5jfO_XF_Qf5WQhkLDq7qkR6UQppPIOTHtIDaz3BQao552539hjjcvGWi4iA2GPMq9oBhJnUpc-Do4AF7EYQXrlE6oDYSDsx9Q5jsNAAC5zuTLOqqgc3C_XORqJqJEUkHBcSBWHExH8sM_9kIUYhFRokActrWzLmL-_QrCvZIMJgy3kAnXKzv6kM4MsAphFzSGchPmw5wqXsxXD1fS2Up5jioMF1KegyAlnSf9BLvq7rdgkWY9oagnBwKyM2KGyMDY-WGq17oLJzSC0U5bGiJliEdfkZBSSEywCApaFt4sS1wwlHGDI0u6ZzlGdZ8i1RFImAQzNmhNoGuIOC1bySBmnTyf1YYgn0GQXclaGhg-uABItWyfIxCvwK9XjY1AwCQx2lMeuosKYtmx4m1blJEUUP_x9BTkju-Do82QmoBXWRHiekBYZiftjqEmpKDaNmiWkhZoMkLrZ5RZZPAxuWM_SZtE6SKefHaouoRpVG3PpzIoOoPJh_Q6QkRiULeWns9N22tOTL1DK81jOMgoFj3PaTzSxQyYMtInsM7zm6GXqCysuOje0B-cbb_78aI9NhpWFseVjWlNDRk-QT3WMl8PTPje9lDrDCOjdp0sRXs2WmbF1ljsFGytumivQm_eZ8lzo38KN0W19nvK0zK4wkq_ydK1NOPg-3kNtwoT7fu5XaZL3ADBeOMGvgqcLLcxNw6W-p8zGigKPxjuM5qZqC4ck_zDK1OWMf8KvJpZuiFCX-A3R-kZ5gs6zH511x1MTYRXTYGChLf0g6Sz83ugx6QeJLYY7r__pB2_wEeAVsag1N7SJlKPp4Y0WudcgQkv86wYfX4MYB-yIpr8N4hXeyY9uqdpKQiud_4GykGVqNPM1iHSEwP2N8vRtEAWK8yMsvgbxhiiRRTJjm5_AGdnM7L2pU1oO8Ae0e9jVX5sQfIiZ2CBjG0xuIkUirJXgF95oCt4vmEe0B95YTu4Q0bz94LJc0KWvSySqjD_JLJOCEU-YeKDWgUWojPJoNa_TKB41dkPWsmUXqETsBQ0BP0th8kKA7fWKQ4mvRED_axaVP8b_3SK_JH1_28Xcaq2tUqPsJT2ZwY07o8tGHrdlxKXJBBP0r2fkgm3WX9NIB2DFW3ExDMMLljx7fotiRGRBixKjPvMVlUfURxU3txYUS6e4lddqCeGiP6SVU04swa1uFlO3Q-vrT69Yw93CuP6aRQscywTUQBrqjhdmhF_mgx6mBKbXph0hl0ouJBTUgJRxc_qw0kThWpkJF1r82gnu6BDlfOkoWF-UdUvaNhvmXaKolcjqR-nxJBLC1abM0b6OMWFi21iEg-vxyIgiAmtacncuZO9MREgT0bV-ezUpgjRZnqWS0u1V1VKfGt5UlPY2UuqjbOrlOs4L_Uc-BBV8pElE1e-BDfXrGtZmQ1mKlLU-Rdx2cSneeCGSHy_1yMO3fIkcUDHajYhv09MlzRZXLjyVHMtcq726_oiyQLhJTnPBoGYZALSmrE8p5-UwJNjvpz6pnH-UD8XmGs3IRsreyaWG451QwprTgqciWUf6W_uTy59cq34t33ntJqQyBw5p8ORttgHOofpnpZoKJD4ilQwz68qPwcgZcYme5r5DiajmrweVWdenk3f1I3zmJF9BCF_OPHItMorQBoxPPKFclUD2VZ9QjoMBgWjUTxm3EyWeI9IXFVKiZx2M6Vj84i4o6C375V15vagdoeW85KwL7sDKcmyQwx9KPBFm0j89fE1IKCnpecpDJ8CgvSahqoAbDqTgdPqngL-WdOUsIkTstydVJarrv6a0Ps37ryutT-T-a0vrU7lt4WEn0Jv6ZOwlkzUpvaArtod9N1DXQqiG3sLZ-50EldebwuhyNBRKJXaWRIsnFq8bHXdkpUGj145KKbnw1X6-_Wh9erSZwN6ySdFHuUb1PTfM14J2zzM1V7AFEgv_nh4gPdHZ46uS8K1PZk7TmU6lPp0Z03tKa349YVleClbv3JFmYSky3X7T0qXdLxDGK3Y8MRl-uOyfHKcVlHQEeFW4Bd5r0GrhJy-n96QZdsoHLhNkgUg45Y_SMwjK3BHoSPs5c9Zl7T6Rwspt6TQDDE8LG54T95AYl8sCfSJNXiCteYRbn46cDnRrhK5rvk3oEuK-QvJvF1o9ePu_DeVCBCAMmlNMQzUKUPLgTh_JoVpX0_Jk0wvJlLSmOVXrTwb66U1rD0qwBRkAdNIzhOcIUI9ilgPxNPzSrRFjnPBceQAt1_SC0aVBpxqhF9QYZICy2TwSkpqQloVzwSbOpnO8c8mnI3-7zmz2Rlv9bTvrU4p5sK132kE5V4knbd5hTH3icfVEut6eC-cBrYkQdSoyEF0YIdFaeIQ6UPWMBr85aRRlQJ2lj7zlScos4htPXxGZvgSjm34j5_6eZTPLzgUJqgWIrsLiPwIDsDG5opkx3gF_nxCGFOoRfQhKR2bUHPQGF9gocTNm7nC3SxgjZFxHTvohMNSssKknD7PMSWdrXA8VQxesdlqdNEDhmdgGBVxHZKJ7zNhQofGOrSgMpPG7kG57eM52r389ZSh8a0l9nkwMGQVClhn6dOIurox8Q_GEYqFFxh1YFikIOXu-d7YcbdWWwXLlhZNjjUnNGvG-WhJlRVLehY5xa85lyHvxwwtu33M2aHMOtN8pljggO3AhabZSC4qHI_WJzOQoy1BXkuHbfUIQpq_2gmzd3huSK7tWMCVAtg2gp975LADuY0HL6cAToq_tMrjCW-f3uGvbt-Sk3BrjpwILXzXnbJqFnL7rPfEO_6uMOeTQZgwbKw814XtGoZoTWuDnGV7QXteo2SFhXzVa5kxp8ZH-VIniqaAhPnMQRuZCrLt08gnWqh0jAnX9aWiVHo5n5k-yxkIK5K7zgZyFfdesKwqSn2vchCsXclpGWI-SU_T5UE4ZP23EE7V_PtrwiTAdD7RKSbmD4OUTHcWUHRI7g3J4eqom-9ol97t-P3KSCk_sBgZ4f7e2P7Ub-3T7bg22DQ4gcPGXSDBfm1Zg-CXfe8zoVEBUM19cyBnvRFupJ8Xpady8G2guznG_6sOriW43zZuwgNXi6vuEVJqUG976Fb6XBxNKpfUp3_h2W7FyR74cODK6INAqOQqn0WL95vVTw_EcKObRRl1BQu1ELtzcccNSDxRyuI6Vfg58sePojiOrk-cEiPYI0hiTyzMYtk-3OdLwAQM1R-3t9UZ-7FOVIoJNpnFJZ-2ucuivzqs86Tps_RRcKRHVkFo5M7PG0Hdrj6eM805IXpeo0WI97rJrmMlK-_aahWO2rHcs9iqrH46EH_1XWZ86TtH3WwcL5tItaQ2sL_n2JCdlKqDKm15YT8QkmbeYvp7QRLtnT-0ygoOUaEtY9MadT7oglNVWQC-kP6PUWBFE4q9MTuU59asq5YSwyCeXtXVFgjiYTWXdcT778FTrvK9mXnvG9ovftnkheW1RsgB6IZjWmnzBRnI_xuQHOURIvqQJQj3eb20h4EJWfnn_09PBPFaSj2lCmYZSH4C7hT8RKubzJJNxuq8cPkUNeJr57-kTvYcqip0PxDZPpBuT9Y8AkcdCtgFh_absDhz9x_p3DtD-Y_2qCOW_I6h8E1T-O4OyvcoBr6y_mTpPW_-f9cNZpLe_rP_J69AdOxrftwNI9j34NdCfIJIuYuuldUKyCJOOcQSXvU4OGDZvbtppB36q7U0JZ9hpvUL7Xb-fKwk_OZDKhyb1yeB_J1Jc2K8P-B5J0azJWP7OpOoTuv8Opapfyoz_TqXqk7pt0KdntH7j8cRudirxzwWxRB2ojPQOJ0dr72jq3lwQS37PpuAJ70M74KDmy7GTU_r37cocuXBekbTmbEnDCav6O5-qT-T-O6DigjTr74SKUAzN-j2iqk_3_jujqk_5niqxppgXsn_V4dDgJ22_Y6pk04k29HdOVZ-6_XdQVc-3-_IosVnwv_q1yUN998OxYMexT-srzd3KVwc9JMN1Bile8ux3Ie3Rb_J4iHc8Jjh-meeU76vHKgvXj09zDqJB7XNDztP-eoWTw3dg1AMww_q83ktx0w_AvDBzroeReiSrk95LNs--YuD0Xk_9KCLJk57TKxSVjSc9K7YDcCLvfd9EEjhsVnveIMv2oGYqBdd8nmZDRWpaqW4-GpnGgSKQF9KMFVftITdZWZ59V8tJZn16dD5brILVzec_RIGf4QpON1ATY61A4hOgh3FJuLjOKNBsFJf40Y3dQQKSGftQpq-S_fMPJE6jKg==",
+    "code_version": 3.15,
+    "echoprintstring": "eJzFnQuWLqmRpLcUvGE5PPe_hPmMVFdKdRq_raPpGZVkunUz__gjADc3A4f4vs-FzwDfLAjbghQsaM6C0S3YwwDntgXpWNC2Ab5lC3Y3INz2esJoFuxgQPTDgp4tmMWA5IMFqVpQkgG5LgtmNqB8zYLgLSjOgposaN2A-gUL1BVvSNGCsg1o6oo3xGXBbBacYEB304J8DBguWpCLBaKHN4ge3jCPAfNbFoRswZoGrC9Z4I8BW_TwhMPNGSBKe4Oo5Q3ne4P7vDfAhW5BCRaMbME6Bni3LIAADIjFAuWVN6xqQOB3DCCIDVifATFOC0q2oB0LIAADjjcgQQAGTGdA5rkMgAAMKNMCUuUbSm0WrGFAQygZELMFOVlQhwV7GtC_YUFuFlQTdjRgpGxBrhZ0E3YxYIoAnrBIwwaIAN6QhgVIAwP6tkD08ITtuwUigCccEcAbRABvUIi_QSH-F_ivVVmFbIHtIZTU3zCyBasZAGdYACkYIP_yBB-mBXlbsJwBgeA0oJjQggHRJQtitiAvA5IbFpg-IDUTxrTgbANyrBYcC4rE8Ruqt0BD7wk1ewvkbZ_wB6Uvy_0GkvobOiRogIzTG2TY3jAtGCFa0JYBMwYLyjFgpWKBCOAJm5RhQNoW3As8YRUDjk8W5G6Bhs8blgkKphf8wQd80QSl_DfUbYDr0QDvigU1W9AtQNBZAD0YYGr5cJIB0X0WxGPBsiCFZkHpFmxnQI7dAluP-2kBBPCG6rMF-vI37GxAc9GC_0jpbws0qJ_QgwnDhBUMGH5b0LsFK1mg5nzCjCakZcFOFsB4b1g-WpC2BbrxJ-xwLJCteoMmXJ5wUrPgnH8C_wVNkkvwvSFGC9q0YHUDXHYWNG_BmQZ4Sbo3FG_BHAYEXy0gOA0Yw4JTDIjeWRCSBb0YoEkYA3qz4EwDMsnGgO4sGMWCEw0oqVmgxn7DdgZUzLIBJxvQNHn7BojbAC0YPaG7YEEoFiRnwRoGDP9ZEE2oJsxowCTZGKBlrDfMacBCxLxhy8y_IZlgK_25LdjegFOLBQrEFyC7kwWaoHsDBGDAvfwLXNwW5GgB9PAGL6vwBomnN5xmQPDJAk38PiHmaUErFiipvUFTrG_Asb0hVROmCXsbkP2yoDgL1GBPKCkYUF23YBwDmvMWBGcBssKAnC1AChlwsgFdC0Zv0FLUG2YyQAuvBpRiga3lNcH-ht0NWDC4AT1ZMKsFJxiwv2mB5P4b9OVvWNOAE0zQcsM_gTLnH7S8nxaouOANbVig_z3BuWGBuVjgSrVgRQN88hbY8_JaT3_CH3yABMEbNLX7BrvyR4UJT4gqPXhDawakUC3owQI19hOymuQN6uQ3bAsK_xhQswV_8AHbgPp5C2Qz3lCCBWsb0DRA3oBceEPXdPQbSrNARvEN61gg-_qEgeB7w9T0xBtSskDW6AlLVuENeqw3KBCfsLVE8gbfLdDy2ROObNUbRGlvsF3CCG_ADCwLqrdAk3tPcBKab9CE5BN8CBbYPmBGA8Jngmaf3lCnBbsZEGO0YHYDtLRqAAncAN3aGyRT3nCGAZroeUOBLA1o1YA_KH3ZqjfcRYEX_MEHqMHekKsFWrh5Qtdk9RuaCTNYoInuJ4wvWGAr_bso8AK5fQNcssAfC8zannmqASt5C1YzYIdkQQ4WtG6BiPYJ5-sWyGb8E2gOFCqzQDL0DUoYbxjHAnvG_zsWSMS8QWU8b2Aov8F7E4oJsxsQfLFAU39vUBH5GySenmDP-KcvWmDP-EsAvUHly2-QEnlClmF7QzVBjf0G2yUEZ0FOFqhM_A3Lgir_-gYtZDzhD7U9ZvWOXcXfQ7fArNPv2k7zhOGOBQriN4xtgQpP3qBNL2_QvMgTptYqnvAHl3BXOJ8g6_sG0dIT_uQhPgtqtOAPawnVguEs0JB_gwbIC9yXqgUqQH-CU-p9g2TKG2z_sbYBXnLwDZrafUMtFkgQvEGS7gmhLAvs3QNQiwH23gJzf0DSdOUbVBj9hPwdCySs31COBTIwTyjpWGDuAKi-WWC7E3OVosooPuEP3mVUA7qM0xtsd7It-IPDsPcHlGSBrOAbxrRgeQOmrO8bVM72BgT4G_6jvQWrGLBVsPYGDcwnHLctUGO_QYunb9BkzQvU3P8CV7DZ3sVewxCTveEPzmZYYDqbb1vgJNreoILsN6Ruwc4GeNct-EOVlOmK_rA68r_milRW9gaVSzwhyim-wdw1nVSk84Y_7GkoFsiuPyFrY-YberJAW7bfsKcB5dsWrGRA1abdN8RuQFM52xu0uegJf9iBrCWDN5Rswb38E_o2YNzTC56gksM3yAo-YYrw3mDvePiDsxkW7GLAH_yHivveML0BUvwGqBz1DYgJA854g1OhqwES9G-4s14vcCofeIMmJN8gifMGUtYbvJZm3qCNt284xYDQvQVzG_An_2Gvjpj-Qxd4QxoWjGVAdscCFay9YSQLtOXzCUWFVG_oJvxh97LpIWT23qANM2_oJpju5A97myVS32B7F20lfoOGzxP-I2fTnAV_8C6fAfNLFqxlwFIZ3Rts_6ElsDfkbsGcBhwdBPEGbfd-wd3i8M9wHYYPFvzBQzgLWrBARRxPcJJHb5A4fkOJFkimPOEPLkGbo99g-gCvfYFP-INLkFx4w7QgqursDSp8f0M14TQDkqTGG-wTkOw6KJXhPOEPal3m9g26_hu6CTr75QnVJQs0MN-gSHvCH1ZH_rD-YfqA6Sywa5nsc4rMs4aGpt_fcC__gqkFlDeoPPMN24Il4nlDHRZI0D9hKyDeYHqI46oFKhx7g5Z1XnDPWzDA3ts8LXDfskBbCN5ganmnzXxP8NqI_IZkQp8WTG9A8M4CCYI32KsUX7PA9hD2CUi7GpC0tfYNuxuQVTT_BvuMo3tyyRP05U8onwl2hZXE4hu0MPeGPizQQQFPaD1YYLsEe7dEbBa0acBQiL8hOgsUpm9YzoCp-eE3_O-dcWSfYmT6gHUs-EOlkzehdgvatkAE_wZtAnmB2sOCmP4FfhxGtuA_WaXQhsE3KLk-4Q-byXK3QJsE3qAp5Sd4Hez0BhU3v-EPZ6ya6xD2fmxtXXiDDll5wh8chu0htJz0hnv5J2iP_xNS9BbY_sM-Acl2GL1bMKsBKvAwwD4n1TwJtapY_w3_ew7jDyehbgvsCivVmL_B9h-INgNsd2L7Dy1FvcGusLJPQjUdxtZy8BtiskDLhW_4w8lL3QId7PQGXf4F_5H_cCpaeYO9HpCKBVrkf4PY_w061vANZi3Tf3SKqu0w7CopHf3yhP_IYdirFPYeDk3PPuH_n8OYFtg1VBJeT_hPqqT-tIZxLLDPZdrVgD-csWqvQ2gnrLFbuxswtBT1BtNh_OEUVR369Qa7Ssqug3LVgv81d_KHU1S1FPUGLTY94Q_eRQWJb9Bk_BtU6PqGf8PZyKwmtzRbPWGstkde-4xYzwozD39acTosNcZdT9wr5b7amWmdMM7iMWNe0-8Tkw-lluhL7HPDmz1sHnO7ElD8Y622cvxCyiUGXxmjKvGfuWXiU7UpH7Yg4fddTi7VmE_e2eVaW6qVEb_8t73rOSTvT9Dm5ubTKf6bcH_5_Jy11pxz9374lE_qmR-cTlOGmPIM8XRHKoexV4yjhxJrXCqRLK3NuUP-elkp5bjbCC36mtbmq0pKw_deJyKwhq3_5uHCWBO6y272Mmc_Q5Use7i8ToonBxdCja347doaoZQde5zFpZ3j-kpuC2Wfj2un8FA-9DyqCzvNenKLQduvY5ikS37-ERqEh-ev0wktrKWDyPrxK-wYsht9l5BSLC66OX3mGmHzHRsRX79IL_qdYp6MKn6lq0CPa0R-k-s6rSxziRbO2SeVVecZ5KUiSRTIIxD-KqP0NnbjodIqMyV81mm1uxTSdmvTOE4q16eafHdqlfaNEk9hZNEBSzPHu2RGSOm-kgZ2n_zJlXVW3WSN2RmIfLm-adcYymCcIIB6XL1D_qmfUL81Q9llNM__YHWte27dfkitJAbGHY7DB98Tiap4twtf0-uoM6fJQ4Xcg45w9I3Bnd1KhYYfqTIuzl7RxYq82Wm4ETPPoVYZudUablvdrk0BD6qMsU7vebU6U6Px9wo5r9BpsHAYIJ1HpJfbjn6k5A7CdzPyoo69m90vnmkURntrobbu2wp0puycfsqDfF5xPOgTxnuj---Xc0eJ7hwrNX7c709n5x7ammneC9zf88r_MZ5N6IY6_tG6S_uE-KmrnmelRUqvwaV7Vz8XoGe6cypU4Af5fttt4nun92P3rqpjoBxfmrvPcX95tj4JvABh6HbvXd0wuF90H_Be7zt9MDD8qF7Hv2r7-3fvj8Ff6LA1CQ0_972r28m3B3_vD0L5ZmSk5Z_eb1DO_ekKNfwMJNSRK7-MxJ-INLXzfYQ7LKCfGFC6sJ0r_L-ObAmrh_i3XrhPfmoJ9T7Cbb_bsD99xMjascEzWbWV_2hJRi5DJK_uCUI_Vy9nuIkgbxMOQF9tRkR0X9JAnpu06RL00fk9qLI02nUv2JUHLEQpXFFu5321FS3Acg9JI5JWhSEhie0hXXVYYezSBDwZMZ17i4z4yVdCoyN_YbjD4MntEHGNhsDz7lYdCZRW9pfPaijwa3cyl7UzwnM9NK2DgyI8nzrUx0f6rRKupa7-jO6yB7wSod_bKbOPum907xD-OboP7e7-Ft19bD70iu7wwXo3sdyxcbhD9z-J7pW-f4ruybeSMxxEN0Jct1cJ4TV-Y1qBpH1ZROlXUtHu9sQwSKsVcuHXdcKpAnt5-vmOzhsQ91I3FhhU7icg7k9_BqEC4jfAbizsBGvez95xxX9C-h11f4vfRb7av9F9R91tqzvafyPlfuzf-ukd7ffLf4JdP71c8hPniv3fEL-RctliHX77_vSjZ35i_4df_nrAuTypvvBH-rbln4j_K9h_GSkSOf1G929M3-_4PELjXu8nsBXTPx_jL-ZlJBcH7aiYnrWn7duYZXnidYdJ1PR96m01uksHNH1nbxEMYqKmzR9IxDD9RNQfUmiVUDnnLNwwiQmeRAzWOQetl_fypzZpAh-_RnLOk8_m3O5aySQtB0bwQbIgsRhc3rX09UzyYORELjy6QrSW-WVkyd0CMmGbVvdPFiIaHM1WG9LA8e1j1oFf9NpF7Rl6UK2oEW3RyuIWelPhmiPJV26G24agT01lkCSqdr2J0qPqJMiG5PuVS4gZnVGQJIR5IawQw0ebbhlcp44d9-4MQGKWcR5hqi_q9MBV3XeIMUKTkV5EDcdnMjfKjRhPftB_XdzQSxuEiuubBHAWtFJh3UqGpWP4t09USDhoriORPwhkkki9hLyWuLwEJEQZ-Z6h8aHY9rwB8U9JRCPxdvwddf8XY8H-6R38N2pvXP5bObS4Rlaou_bRZxo3tn7DCtlJgMMGpR4tFv0tjvjSdj82tLvh3tovH_zG0Q9v6HvvXf2kxRtHcKL_iaP7lH-lxXu7zsXSfhhJD3hj386DvxQ0yoiYy-LpD7oKzcZthlXSZDBmaFdZYYeR84iNQfwlzyDfZNGM5dgMQwkhOIS0SXMRPzt9yPXp5Tw_BFg-81vknhxuGkqo3Iayk6CuqFbivs02sOwMPjQYfyynowMHyTJUd5JaN5NbnDvLrRaaNnujbedoqCx-nPgrEmtrjU5xRFEm13aCnKwSCpcnc2buA3tRCKDIkGec7lrvTN6ACDNU13Lg5uNOYTCsXakzLIgJFmlyCRAc8YOSpPVzyRrpjcGdilrkFIXPaDoNnoQjrY1eIaUQqDtzZ4j8ytc7BRkmw5GBPTQxNmbgniVUUfKefnTK1p0eIMa_QMypbj2tSkbO6xuZTneJ_0IRaplVA-SGknGdFENIHZdhRUKq8exh6S1VRHDgwUbTpFhuJOFJS6GVEHcZS1F0mjQ9Q6yTRRduLMPuGJb0wWsKF1RJTdqKdY-wYfTQQxAvPmLj5AZ_fTrUykDwnmSv60BgIW8aIWFAmoMsSfxB765aTktrxYeDEzkekZdJKDRKRuANOgvvh8jBsqCZYHLsE0_BlfmxQ53USq-kj5GS7gJpixB6qQ7JMjTGJhrTM7YZgxuyGoVkL-25yCyYN0YyF8dI1UhyQArQSxpcfcPgPTB0t07DqWhgfoDMC9uXgnTiifgSeo2MuLBrENxCn0HC-NYgYzVy5Bo0IWFEeGXpXj42g0YWzA534GSnpkX4_xqUKI6Iguijq_myUyTuHLSIzSVuWyRuyDoxMQrw5Qg-mgJzF10Tz2qQcYM9IYRqPIwjvhiWhW2GNsamwYhHt-RM32PAsToENjoBooBD0slwOXSB0pzyvMi_yv8I4SpPm0khnXy-80YT7ruFIsSWMgEBPyWCN97zt3MgGg8G_oMei7-HbynSRBBkau44QB9r7UWK9DRbro3fJiM37BZPxNeLNeGi8ikIZtN7URJGDKIl5DVxDo0G_TFIzOKzU5rxU9dggUe5a-xJ4xGp4FCy21cp-dyCXwrmQIOiCw9J0e_gA-NZNUhrk08912053nbkTldAOZN2Ky6FQKkkiDn41yZrjCgnejLBMVtcDq3wBa9z2ZA3aHothhHqpej1gP2gDWkxqBWFNGFp2CaJD7kTPWPvGI7tMAKV5-hf26hp2qMVPipGWchPD9WK1BAxd4_D1pDlNtZRYtg9wttwL4QRyd14FvJbG7kwACLyQhMcWpJiYBINgaG9KtFLsxEZa6D76eOt6StyBkFzKgJl0nETN4OcXhJPJIno1V4Edar4jMKQ4ItI-8OJ8O8FiNU9-AfVvrzoj0-TCTRxNsifXacAQJXbjTOHnENDsp1J3HSCcUp1-NSL4jkf-tt9Sp7pWgTZ007zoGFiVfgQzaQZ_YoCBd6AU6XwCoagE28br7V1iNQkmAkAeBK7k2IhAblEbHcGCxYFgec3GYpWO2QNEQPCBKsH_yB_7zsxyHyuY0oUSx3_r-Cj81BKuBuJX4Ji4vucFCg3RnK9K4ylRG4UbZD0GoK1-ADhRqKfmDQaEVUdBsowMtahQVzZxk9Ckz7KaHIbiLAD4dz4PUWO76_4RZI40WlPqcVIOAXGjCeD6ezWeOM3RURJUub6jV-PAGi67LzxuzLxCLcwoLgQIj0yAKGUhuX2fDG317GXfDGSA3mKAEEj09FktBkJm8IoogHGWjzhkE3s_Ab0vcjOOuVnhBU2wygrKEvqx8PPcoPk20NDqO_o34FoP3oPz8enYTxchuw29ht6aVJgGo1Jtpq-LHGejeTomA7F-TV4aHuuFBF1x0VoHm4NOVXGI3qTq_SJDkLHQYx1Q4UfP4woOH0BLj2QnLPCJ0VNi9E_eKQSeue_RUY_V0hC03phHti7yf99mD6-Tm64ywckqILLbGX9gGEQsTeaBwOPqTmN2B_IonHIYbhkflATkn2kHLO7lZ46vmrpCHQcbI4aPFBF3fTnqsQKohz7TyIIrhPvDCVixzm-LWglb8-Jt-fTiiOoLWKiDhmo4a3IXYwITOApCET89nQIks4o9QcnnpEPbnpViXDHpHR8wJcKsYsT0wxz0jchm0iT_eOh4fMt1joEU-emUapkgYXUghzKzDJH44PGuGfauLhIhiZZXo_Ho0AeB_ESYXFsgtP6CkFMSNGVi2Ym3H2EIYk3bisM7YnhxhaikVRNE0KKcEItZ_WEXWt8EZbxZiZJHVJHZ7B_-ouAwmxKSh-jCxcL5TN-FWXSzpPQaTqUg5bo6eN2lcy4NSKRsZZUUQ57ox3oqKY5FB5zEOf_TpbkceJBoMSOpOs_WTIuva1F0gUHqInHmWCQWrrWew9Pvh1JPfcrmPknam0Tl0eA7C9lrzn6RUYImK3m-WIHeXBHuOkaThNJIv02lycFyU664ybhDEnIt6IkUIkFGsAruFu9dXQShF9V8xvlyJySg3DJmHbNPMpPoerWnKIdeIJU5xVJeA8ZThIy-lcLEyfHBvkh56JmsHTCD4xJ1s3xHk6Mk0TGQwRQGPdDe6OOPlh2kcG7ZuILbAO139d4Op4pK7vJdiN9_YftqISorBP5lghOLs8ZfSNT81gwCNmvOq6MXusMeSc1sarKaZv2zkZiHZdFP3H3gSQ6RyR6SS5L2gWTgUjZCbqGC782CN6FesgIKySVjp5QWSDPwQikezBBjEbYgNiUEJt6pw2NTlLl20S5ELxDWWDbeUwCFE1E-lzjDvr7vieosutpEreACUAT0jS1dpTyujOxGcNX0JRRg5jg2prNHPhJbEHGNBVo63S-oemNWQM9Twpu8_7UIWh8Q3SV3987dQQ0Grx5fwVnhWWAUlAWbcKByjxVO_zRtwQgpmrXrVVQddeQYYMQEKYZdZED8Z35Fi3UQMDYoBMPsv1OD8zqEQJOR_B36R4kACQQSHhZr19Dd8G5Q9YDQiIjc6On0AJfljPAw1X0Ei2TNKkqx4pgxTYGnfkeV0YJDWw2dzrS0PbWTEoanXGMMHQ4dUazo0O_TVTzvXnojWKwIr-oE2zhQu4aIoOgoSpY5uMJyFGIQnR7ZcTuby9IGnUYx0cAoycj7AiVnCDNj9znw8gKVCxt4TFSLpAhIGyat9B-MBCDAI-pE2J0xKHIG6pDAaHNCeFCIGYCTc1dpEPd8h2iSwHR1LIW2uhQua0Prm7Dd0WIQxmg5-E2eeHgZN2JWMzSllZVWUqNtBZil1-MNCkKYUzJn8oQwKXUE2A2eQwUC-GNwEEBc9ksnTU0Da2PoFoZfWTV0yCQo1S0iWIU0CaXMRrijKqtIQfREnMwDBjZ0BGpDdVd-Wuv99XgjTO68eg0jKNMDMvGzvCDadZimNRI3HbNhTkGVUbVFC0G6b6WVrC8w3YSGXQKJpmol-TEE5_TSfQknBLE2lJlmHMsPfHF-BkNcaOVnQ4h0ZGk9EKyhs12QjittsjI7SNmd9dcnRpI_I7LLkX_6oJecOflUOFNufDQG9Ip6jR9T0fQvagGBoYnTvyGvrNkISE70eRR84xkhkmCxq3x1GEErc9uoojEFa6pIRgiOolBRqrSLD05Bqagl7mveTCfcIVMXXU6UHafv8X-3iTv_0Hs49N9_1vsxyJpzr0MgpjxrNj_jXhUneNB6MzZNMB-wp5r32An49OfkCmJURMhivjfYI-HEICdoZWe4rnRrRWQoGXP-hvdhShRd5Rzo5sxp-VIzVz1OeglhSyUtTR1Al3WHsldq9_o9mSu4Ah_lOXdZKIQgiWK3Bd6vPZOvke2IPvKjW5yKUr4r-jmOlFLTdgVaXE8labP0cXwXPZ_i-6wGZEVu7RJCbKIRDfy7NQEqaTf6CZ5YXBDIbspuiMDBmmwUDDe66E7DqRoydDL1rdETvuktmkCPCgsjkknGoNTWNVPy_9haKo8KVnABJmAR0EuulgT0xH_R_jmG90OqUL239qqjKWp5CYto5DsMoLvb9EdKwP8aEoCykEmKLpTb_g0HTh4RqOlsWA_5VmVvkE4Y5xQPSdj_JLS-NG5eITcnYuhwRGgkFHyU97eQTaJiPzJUTKK-IreNN8qV8WX6hFHJCXmikrDlvBtebb6oeo3Oqg2KA-txAdpWIw1f1w0TZKVRMXjWlGPmP5GFFVInOjePNGI6ZBflkQtVyVnOBfUDVnSNWkSMxGHY0DPjpAaOMKkyZdFYw1GCJo4ti2Sx0B3BLUE4K4TSbi6liFJmIewEKfJ43MNmJjccwh-FJBzA9PX75lGdCFGSW8Xw3RgMi97byTX5IIksOI1J1OJ-awEKNVZuOD28tiIOa1WxRgZIpopVn5E26AvNdFRGX-hySYWuptOvCv658bWGF7kO2gb9CPCYjOuqk7vgpE0JVAa8t4PboXEeTPnb9JE06vLSedLzaMs2Re6CyJs8TdLcilcTZUIVJaESYk9ZUnyOJJVDUjuJlFw1e8nS6rcqynbqE9UCOB81uoc5LVJrWilmGh_dAVPkP3kvqHEStSdG1FFjDfwnpM24A_0sCZX0F6ayouownBTJcMupw19OmRMokklsTVrJqsDn026kW7AM6GTpbmx93fd95t4HDLRTZ-uIfBu-kTkJr23kqDVLCySe4wtXzS2lqGItXAzGETBKMJe0Lt0Pf8QlpOnctvtqDyhl-0MzWNocwAaT_OGZ975IbqcpAQzB1INJOILF9QYxAivSbqRFNYqFAk06sifs2KK9OXCnyHe6cRNJol31UnNoR0aA2-FRVxIYE9oduii9IypTVfoHdJfn5sxrVKAjSUNH-YRod-J85DFcCRvrQBrItmllmk1aGxtLTYoS2XZzqlVoOrQiUSX9udowp2OgXF6kvCuctiMIMiHziHmcVZEMbp6ZnRFlqNAQmKnIKqviI34BkQ5H6xRk0W5MwbIst2TlIbmQclircBJCMu751LzbsiuOh2_3MivhFn9-BVPU6ZIRGFu0J41EDdnc-_EmNb7cVJZ6w5aE-T7815aZSRgtzaIaIMr8UtXerLa4NmilpinPNnQRFTNUE3RShh2lShfIcImJEwaEQ0C7WoVH8rHh8MFRCj-trqq0vPmiEkoC9JHq8RNr0-UXNheWRNbzjDf2BoPyUxNrd2rfFobj_m7U2-fJiMRe5hUFa9wLYd0dkd2iUgeqh6LGwZtVwoEWE_v6OxNS70BNlEhOyHGNSft0eVNEIZfDDU1FBc-rkIYtF1DBdGPB31FpGPsNTgd1pHI05DwDHzEFQN4FvKsh-_inalqX5FU2n16ctiGb10e5OqjaZyP8cFI0FQ_2WZEyIPIxa6Rze5qu4Q4REUmJ4t3cuKq6C_4K0cxJ-Pz05Qm8iBI5UkzVgIewhwMVkaJI2tCXJMuhRW3J-mHFSF-hEFUEBBNBKVSiCpdFjfltATul9wxojBjvfw-ksO0g9NRaAlbivZNH7nc08dLsQEp1l7QI04LvFxNi135-n7fPWHFcOg7nxhQLek0njtDhqRjxvoNKxqE_EJ7adJ2qK2gy6TFcXwaYdD1YHTXrrhQwh6FGIenOz7N8WuGArNIEDBWDrw2ND2EDOqiNhWt46QR5uMQAmRJ2ShIru8tVaGJU26O-9p0dUzDY5BxZCRDFMFgWBNfclEwiEru9PJwrUHjFMfNl7S491puE1MF1T3hHZHJ8BFJiGuQ_u8kgNaYY4Md0b74HRIPpmWq4FMvkbhtMJOWlBAykGfoyFSxHcYfBcNXkc_SIPzoXuz41rYUNNDIWgddyEm6nG_TNn4M1SR2G8oRR4oXQ5h_idgiLxHOXLupokfOLfSYsfB6YUjLeJOtNglpdJJuWzQ-3bWLVjpiF58RGKSk46bm1TR1IoeB7kXZba3U4SxUB8W4Ip9x42guvZxMcyV0wNQLhaZkGEE_GSeEPN2s1L_Uttyi69gUQnHLp6qoBc44qE_utpPWiXaaFwt_iBTPoC15ITonkpGhqmqYDXkgZGkCBhEPpJdARkJaHHNoCgLaaSYRY_5xPe3CKZrAZex1FZXijLhcYoDMQ9vsG91NoYCqYShFTRwTQQGbIu0SkO1wLc0XaB2lpJqQjIGRVk6XJMk6VyNrBhYpM_uUe8saeCgYPJzW91AKrZMz0bhbmtLlo2mVjMVHNk2Hq-Li6z45TNG1eltgSBqUf9GS9vh4nrr8T_ySS7csccZupMHHVRu8kpQval1zK4tBhBri1xEIfCOZ8uw7fXxg0Bu_OMLSb_wiQrz_iV-kPsy4NBEVtBaUPUzmJUabSgwQwxVRg4eRsCJ5YKaWit-UeFQoRd5VHfpggOJSYFqSP6FYJIgacYGyJC8woElPCG5pjji0aI7gV0hCnEhi7hYfxj3klcu1B_g9PJTmk6BbqUJ489u6nHb3QfPXncEJK-gcPgIeRS5zEUUg0olLC-VJDHe0kHxyvZUuMP9UpfHU4p1YAbeBnzuS6FEz8j5zbSKtS6hX_EvVxJdX-QsDCRnBCMqaD0RYQg4K33VfD6LJU3KSpo8-FAO_Q9vC1QHyGiRx17BsjGWai5ykNg6qWA40F7JtDozWqCrrwQZj_aNmfDQxO5pWTnkczGXaJLomjQQz8tBIiD2uCqla4_0OwU5KgZ4YRwzyGldu-FbuivHENYk4rS-5vKK7ryqm1zVJQFYcNyMyUI_q7zCsuGr0P_cEfzmU-iaz0mzjBs7Sex742oEzkmZ0mjlBx5Vw4IaijiqEuaTUV7VKjHPUkWtbixA3a0CpfbdbrkxEQaV1_FeWlM9FoSx5TdEnnMDVGSapQZBpaNVBC7b0xaJZ2_XHa3q0JCKJ6Jg8vbZQK0vCik5n0izIh-Anyddyo0yjMv5G2UxSvw0RR-64s_moD9pQ6-m53igbBLNHa6qS4r-iTCp6_j_LkjfK6twQiaLsZkkROqN7aR8o4ghxwXgkd3-4LYUbnQTVo0eVLxfu1yOYCpfiCW6obTIc8lUL7HoVlXYUEpDu2-FTdRrWEyFDxEsM0iF6MRTONfOX4zTVRGWVk6oiTvP9Q3WkDG4FHVHFWIf5ciU-quo1SfJaI2Xc09_q8PwVWBNmgZiOyr2HhA3MH3KC0j-HYGLU0Ettac2NTsRErfBTLeRUFthOUGERzaWVkZQ2A7Q30nXQejqO7cPUaNvZXcY562gYqDQGyq6BmKkINwIcd3MIPXeX7yom5sj-ZtUJ6kWvbosYdGjsIdEyDElB5HcENKNQy6ynf0Xn0BRXbxYgB3PXUJ8W7TF-U0ymKkE_rsdHa3sVz1duxSvePtX6r6CVlUjqov0Zu7mTHnHrg1xEGC5N4quGMav6jsdWbJC00CMOvT-T3u3svSrBQwzyW5-sAXq2pKADBIs20tBi80rPPbF9KX9ZWbFqyS0hfvGwpPEu_yaqqDrXHsKpsieeX521bZ9u3ciaWwdlMl4g35VpIiWLSARgL_IIjP-NPWLIHfEEif8rZCS4NS58HxYzdm1JCKrcC3BR4k4_1eNqEwuDUvME5UPmTpUYIVxDaKmQFlXL6VX4A2stmGHQiriuiNPwA28_VZ_EACg6IxT-ZJzAEKhHfDnuTxURGOtMflntNHgka1ogVh5Qkyj4OacijT7hKUfsSHypBFNHWXyNbAsH8y9HlyaPwZyaxENQSy1pK7mK-GkwGJiEWFUlXT9GKD5Qk-C6HQgGllhJ0xlL0kPlw19JhOmn2fWtOT4cio6FjDKfqstixOF0tKaKVYXHUQSoEPwzJJOmV5kR40WTuwxh8ikuDlIJ5BLSl6ZDzolazafjPtI5YpBfpHU0XelulSbKrfvztdEHQU20JZUvaW5MM1QoD6I2qdRuBe2-gYphhp82-PS3hUYm0mckb7XpVWXweYZxVR2gDuQJu6Skt2btu8qLVxq32PsfLYmqpuUZdw67uKDxXArmUifrMSpUrcBIY_gntJLmvI9jYOkNT1OTmgQI4XMGSQEvRaeNoPWHqZcm6wSxoZlaT_ZEmDGIh6wdF4TatOKF40-BJA4NDE0g3cdneC-vqU3uF8IhO7p45ymzI2rQ_-nrsdXA3yjfIgrg21VVaEc24KFxmPrNhSj7pvb9aHU-aZKbO4JPSFBoyh39na4ZaDGPPoRBP-W20yo3BLOoHIyQIqMS-5pPDrTxVDKQz90HCtcCodczJo-wQSNq_YPRHpqMEdGJ_XQO4YfYn0MpPviuSTvcjzJIzrcoexHN2migyV4IXJOFPjXuYd56Mb5EPAl9aEqQzOY1WXDJQ-9XSF7Dr2mJgQ9DHekjDImBuTM814MmilDk9L07xRPRMGGDaUUoXI9M8aH_Q1_EN3yDNiPVD83gMiDuNP4iaEm32PZJ9kL-fTr7O31aEZraKQSzoQ5VglpUkemczEONmIiQ9-USBJLvl0bWQG9woxhhJGm-vKFvxWCpCFG8sfQS-b_xBloXBV5VJbppVUaAS5c3aHCyLA8Zfnljloo4ksm4vIG8g7YW-qB39DZpyGvPDaMaiSdz2bQTbuTLIGpENGQlBetXmtafltc6Gyn4kxlGUE20AWqdDLr7R56e69IIKfHutPsC_kGHITGiCC9GO6zGTflEv6ggNigqtYzTtM_sh18YsfweFCY9E25Pq0ytX944qFt5OXyahCHqgVtGpuIMtD5WtgwyuqprYwYPg_hmwFRphag0jJRJDBJCiTh1WoNLKA6-wKkmlEvR8ps8HVXISvBU5BBERvJacoMJq8qoXFkeMxIgW5OqHhdJiOI14v6UNKLunH7Yt_IQa0krqpySxIBtJOFAjAQbCtAfbefRHitSPuk23ZZEGZPtUOpp6qv3d-7hwSo9zvgTlXP1uxCFAqiXGaqmP9GpqlOC21Uvos1xZUlPqfgRiRvREChnZWE9t5o94kzKwXaTv1BsqGjGt-bPtaM-S21iccgetMguxBVkIMojGWo5kF64HXVZ_vYRaR9Npo66MYgvkLn4tEAU8qiqwz5biVukXwbjFf2DDEdPY0kHhBjvfhVlD12FyxUeX35U2wP4CHYW1oDknNq1a1I4hPUzNjTBSXO0c--03FJTur53hBryhaeB5KWvS2r0sJYzNT2nzIRj0uuMGJt6p1_zJB8khBZztLERLpEJIOvTbm4XpB_ZgwjNSWsmhbQMs_NwyhB0DG2pQu-mXR8dccKvJD4B65MGltYrIIGpWvSiSeR7rEVnRJWfNIGEFl9XvVsA5lNVKlcY_R5iMJ22frROpixYuCwhE3fBvGnn5I0oFbsgQJamiIIs2tenNqt0ieau2clxw-qnRjYT4dUF1Xoe_eK4B-FAEHGmO6WflipxoJTuFqaqlnZd8r9Emd4JAcV4lVquHm-UBRWhMTrP_o0yLZvAXAvKUZSdu5KCTKMdGBLwGLcykeOuI0516qOOV1h6ddqB1hwKTDypxMp_4CisI92BM1i3PuY0TS2Tlmgwra6psl8lArMOVWp2afZOhu9eZe-avIxoVSIQkiLl0u4Kta6SzBtvaDz-hX4kPZINyAFkVSl_TMdGKS545Zs9bFRR6B5i86rB2VroXQxpzaTHoimTKWkUNWWIxihrqRCua88Mnk-6kUyiSjiiUVrEe9V1eI0D7csjnaqCS6_iPvwt1gaRoG0D6OhxRRLX_3bRqQHYriISRsQ1-BHF7d1WCXGFnIfHZeEdcDIzoyhRCwUa1lwObo7oIGPSHNofk7TlNGfRYKfLoA70i1NBI42tkjqMAF5H83NJdR9oja5NypqkcFrPrCpdTCr50q4eyAoV5aFo1CxDO-jtRNCiShKSFs66SqElaBnH2vKrmT8XtLu796DXo2WVGqF9k16ak0lkOjEWv4nLz3NLjAR6p1cvcRU1c3mytuLyDalqM1DkClP7I-Scs1K6qgenaii1nNHR-5-m-BEhKI26GSdDkyZtqSJPdEwu10SuTvXQamvTNmiaR8U94y7Va0L37oNwTTPDvX4kYr2ArUvYqdge_RW0beS-0lDrFyvj4g5iB8ujcTEx5pgxlRVox5PnYWaEg0latC7SByGMPs91Nh9UzxvnnVLkRuJU0kAg0BOL-ERzbE3SMPB4ur1V-6hF384Q8NxQhjhyVPmxUyNgSXFfOzLi1i1cwNOoCGVqFV_ZGC1SSElT85J0qU7V1Q06LWYTjT8lDD4u9ZLeeZ6k_BtyLuMFEaWafSLzam0FE6ONkmht2Ss5RNIzLO65LCGE8KrKs5qoPpXhvbxcN3b508qKg8CQRNpdlJQjNdOVN_mWW8xd-21uSpgqWdOsdd9auI8dmsLzITEI1a1t4Em7CyYhh372xCL_VkcnQvOQqCeDJm2H0VTI0RYxEgIpQZlwo2i1Bb050saRM9lt3P1eqvRHDzOSiwratMkeRYcNUO2b-zQGJZH5Si7V4Sc0Dx9eUedcbPJfRSUfFc9grx3eU9tUkYIMCzgIxzZ3mdieOyaJR9UTlZuziYLvlhBqE9rHWNCwiDeIl5eg4o6jtuEhAhgSh9_XuovygHLe0sb3PLPqClbTGg2ZEakp-Sz_RGTKJZPrg3ZR8RU8VtD7b7CLfJKGR6sEuRwSOAqx6CyZXc4o2CzcwNYwQqvtHbVbamVky9bk3C3L0IoHfycHv85YTlP42mSA70RiS9TjFjURr2r6vW7ZHJlLew2J8VAgRW15WJrHL58mR4L6E27WEuclcO5wqABeFrog_fvG0oyIi9famIaFP7Cw0-IaYYlzKSRgrQ0m7ahqTbPRivOwdB-MdG0YdyNphzQsNGQlGeZwPh6OYRSm4oEHU9GByroxvYy5KyY0IQ0nbJX9oQ7ozeRa0l5kp9FTNcMwiZCltRYugiaaqCYkEWNbJS3KVjAdbOKwGz2qaALuj57fluEJ2gzaycHufqJqST8PTfXtO2OKcfoN50AHuCMGn7CKNmE7Lasi1sRwN7pvTBO7Eqv4jsn4JYSw3k3l_DemMW0MZaVPTeWTCsuNFclMnROhcFZ9ECMvyS3AlUeryQgBOnJL2JHO22_89ra__Ru_k4y2p3xdRGqrOoWYTtIwaDW-Zd8yyyJ7Ro6qqZUbxFPz5FpvUNrXe-9O0wSUTo1ANIejNeigPUq4SK1saCVPB0oxYFEiQ2VfAWMnkxq1Ww5FA6jzxtJOG4yedlJpQk6zfEjQrm5SVuo8dTuqYOHHyKWoPaF1Qt60M83M4D-a1FSA8hvVFRV66HRwnbStKW9yE8lWm8QZ3RGS-mSFFM67VX6GRsmIBu14_Jf4RVGp3oVsq-L9ceO3MMC97Oz-jWRtMZ0HOgg3iOkx8blm6y6Z7a1pjqE1cX5Nb_l1qvnL2msFbefgVRusg5Kwo1F1CkkVW1qJUtFe7arJ14LWUj2SNp5gpAIeZ26t2quE1qumKuahaYSqfQLoSL2dzN11oXHLspW9JxQhKRQKHygZzze0q0-lmdyYDtMa2i2mqQdudWjOEPG88ZOacNLZJPgxNBoNXEnxCBYGvrbLqU4fqsIreAIEAveo9BpTd5r1SNPrWKQC4w6aasC3dx0NoUm4rBuws2mhTbsfm7ZSbG3HL_eAEdTVVnGOa1OVO2vRdZ6RiNuu-IKt7Y64CW2Ukt1PGH5VUJ2ZtG0QZtCSleYVfybYGPc4qUpq1Ua7MGM9twYP2aMXLiD54DvNCSgtapmeiEoD3bq1mZeuLCqnPWR42hF7JeLQHhVpsKBvwJJiopumxGFHLMnUcpH2ZMIMyDq6Au4umhwn_HTjRMg9d-BGoyr2228gLu5M5yR8qsOvquw_mCgdbaCSgBuc26XOmHG4KYZxuhm2aXfmjcabYTX9mfkZbJpx6W1r3VSRhychZ7qlMyWGeo2n0UkJqBlNxirKVAsWbpQl7ZC8UfaTSLWqdKPMOe1tLCrgrLDEzZK_uZGYVAkJYdF6VEBPLV9JcCgtQnLIQflpdG4IN6J-06K2cnzaUi75CyoPqq40Lp3PcUPIO0i2aZPwYCRjlnVXS9St15xgNtBX5GHiHu_DUNQbvjWRo9r6dF9Z2y4DI6BUTJtS14YoZRUScoLzmr8FSQ1xeaqeHCeRYCtVDmPc7u7Kom2pUxM8X9Dkv6pmvimpoFPZ8E1zI1C0BQS1hhr8uJOujXlRO_Gcipw3tu3rt14U4bu1MV_l703V-XCLymd0ipDqSZArbo2sWmfaQ5vDiagmIz-1gQo5KpUPZ9G82Ihva4MYqYDY1Jqm6lyX9t9prvvTVrd7rK7mmzUNq_0XrZ5xbnG0lghUQKy9bGkoaFQ67VfVGQtYZa3kb8TcDdatgMQNQXG5JdoGSUkW8bjHn7zdVVdOO37aRIg9xqpM1bF_2NlVpmx-vq8ajK1pggwGost0bGkkPiO_Fod2mwTtTChaMNNW6ILi06I6PAGL1ly0QQB5fFSG-82lldq0ndNBB2RlLcTNkBh2JAFV_uHo0dRNfRuVKxBFvqoSAPlNgGl7FbZjaaez1_k9nx88v8o7tnZqdJUGV1k7lfhrsnZi_tBS4dP8lNacNImOpEBEzKrlRQREVtFD9FknHJFQtU6LJOaa9D4jWHXEJB65yqWCTaQSUm-0WZMORJDl5GkK_Hi25sW-86kKXlsuMNIwwsI9Lbhc-VBZWTsRdHYdplAbyYKKBbqWPSsjFccX9f5H_hRVkqs94vgIrROSokO-TIS5yT5FlaYU2Bs_tnXmF-oqqMKa5EIcbZ0mF4fXRiBsus68cdCsSl0IT83a0joBW9_ozpy0QpU1Ba-THlEo2pWOUNIZFHr3QEfa6fCYgNih37UcIakqkVfU8FkbC-jsOwtc1dmkjRTRv1g-vCNBBFUzDBlTaM-mCWw4nAspUS_tfD2oZS0XajCmqp2nJHz8gY7gEh_jBc9ddEdy8UWalvOQokoWr1rWcmnTDi-IXvs-9Nbf3CCzhorFQ5d7kI-2L5Fvk7_T4DqRJ2FedQjIp_23h3Hb1a9EqF6KgfqKKleD8DX6HN3CJ4POTlORA88Bz-OBkCmORA35bNEpAV2jCrQ1KyqrmGW6SUckZk2cE8-xpqhaO23t6loThlT8PdRrQz6aOtGUYuV-dEQAgv6D-bSY2FXAiRKJt2yS3FS7VrI_8kPTZiGeNajkq2p3dO8VutaemazjqWA_PBfkzQMXr72cJKxN3tG8uc4c0ZkvRfVBRYurqnbgGXmwBXcfzEGHW6s2PKO2lQOgJYTR3dqQ8ZZ9ICLvAQH49bvhkIb0d_YLkkTaOeWhrS1N5CDspGb1g46ZcyrkJd0hQD2iVNylBbsSVWDJzR7trNT5aaobF8tqk61mCKY2cNxIJoXO9RvOCMcWtL2u4YB0FBu6snFVfgXBe6O7kl-OHd1euwNvdC8au_1G989-AkV3isiE_y66u-Z5b3Tr-ASVL9Lg_050N6dirFN1AkXSGQVEN8-OlOTP8Te6Z8AZFq1y3uhOWq1cUL_7ItlaM2_dl4ojGk4nGcDZqtWLxBY8rU3hHqeobe1w6VZXF5e0pwNH2Q5J8-hV86RGUgGhq3kCWgdheMMewaUdzzorh6aP_ha_wjdZ21ARWTqAiJGiTeJR878wBCqyfXiYdkkB_a7Z76PiDW1eFSnoDKClvZrnkkL2OjNZC5rxYwTuU7ELpCi99WZ9Wr5WtT05nzShDRO0niqJVNH2c8-TvJd44OUlxiODPzltByt4yijFSiMjMbCNyImWtddEDhWZeMhgFYId2mHTUMrnk1amq1V7GlGSfG0Ww0dulDF3dKoJw1A6yPsk5bo2lqZrwp4md2lrcxyKPxwEXLrzC14O8jZy4PG0fqfyVdSj9h7ojEYkpZ7jh4bpCAShXkggyr1U-vPTotLrgVHVQvWnnV9YKfTl_Zgmo5DTnw6A4PfQ2E4ScoWouaR70SpLdi-AXfDh_spXnI8HrTPvd6iyw_3ehvsYSW0jbrT217Aa2h9KcN8Kj5-7CjpJu0dtC_-v-8MYISWQIOdeqh-dfhOdxIEOlUtwEndfNePidRSOqq8ZmPjMkocO3xt3_MP4-8ZRCfK2f8WRDr38BnKULv-qismjpldnzfdwHcXRb_REJJYqw1WOpE2DP7OHuE4GAX4gd60Hna1aTG0B3infwIE19rqpkvSnqS869G-jTkbs-6e20qhTm6Ybak0VpWQpkmJBnt1P3HDZFZl3Y4ZcTjLXMEPdqzq83HMOh7-9f8PlaGcvja7JkHuOviZVtdyrRXCVQTRN4zv_m1KLDuM8WrA9mp7WMXIMTozNzaEoRLxGx2dOrH-6OTTf7fJQ7tbixKejdVQfrfm8iQgd2kDhYdibTbm20yLirWFf2lqmU6fQ0crcXrPJ2jsxy8ZR9HXfPgVREurKCEeTq6SUpncWBW1dVq2aDmvE7F9aQqgU7ZfRRF_k77yqeBCCHzkZ-lMZ2u2AG_E32G-IB5XM9qzd26otJlduFXeRiL3K54llFcYG7GRtU4vFiI4BJ2izj8o3YXingrmAsHG7wkre672f3DBfe7RfSRN4od8S9qKlGhWyO_6SsTVxu6jARc7n43q5UdFaA0ZSW-CRYUv7m-VlNT20aS3iCWbRiSUoHDweacwhXGLj46RzhD4_Hx5B7kRQy5esfc5NBxFVrAcuSUfMyDXL2yDzGRpNp2kzvnV0puabkhg5fKpt174kdeU9lW3gO7hr32QoNYd7j5vVwQQpB-l_xjGuUkvz6PdPhXFZhy5hrXXCn6ZTVIf1U8U4v4pvgyUIbG2y57ra0IZ0uOeXoMGgyNOVM45ONtWpFlsbVpRmESTD6TGxel1zufqpIlpH09U7_0QG_2IQOyDutOqOpN-bQYQCVDGhcqrOxjkYbx3Q9jEWAsYsXYPt3D2chiSiWf-T8H_aVEEW5jMf3wefawWU5JFVf-pC13EDWsbS_nC5KBK6RAXxGoMOTES9TLIsHBNvoXJOSplBp1So3vdoqxlMAb1rBbmqMg6RNMJKOvuOQFVZcT8eAep0_ELX5GXX_htuSGchaKll6tTtqNeT0Ip3irCgLbc2wEeV9C7dh8_3iJkypYaRmjxBijpjoQ6dORJk3VtRqRLjR2cMEtXr9n7VOQ50l3bz7NFV7pnuQGoSez3e49z4adYm4ETS4MtVVIu1__7xWZ1WW5HzXUSo42DavXLW_ILsp7a-T-0aYcxh-Mu91P3lrEGJ-kmEiaqQU13tXv5e5f40iVfF4kfHmrefG3IHytAY92UiPjUbC8WnpsXHCWnrWBfyz_0O7YOkndFCtdKZ9xGWlpdyV-WOlimK9oFCX5pgQfBqtUl_H-sdXGQkOoioJlynXDDJlnA-OhxJFTU61QxbOwvmCVMHVWlJoRTVCba-7sZ3HfDqRyciGfhT-y8HT60ZaFUCoDRxaV0GQaeGlKmENZT5q0r3tNdVVWgd-tmqJ206oXSjMm5r6PglLesjPZNThc5QRZA2xMVbk4hfQeHpy_Y-X1TlhHYq-h91UPe64dw0E-Pa0hkVZEGdRqOteFknmgyvAnNtCzlyl9ql4bWXM6tYXzP_8CuJrkQJY52JsVElhLPESaFp-3Zqayzb0ZIS5ErHYSnwlkNFRS6T1ElF2j2sKEsQoaYZ_EBT61yKT9s2vQ5b1gaInEhR8CzhXTfGpWpLXe16vw8Ds90lSh2FptX0TyvcqoFBQlSdjpZcuvGLONYpfH_Fr6pjqk5pOzo6ylWZU7hSp6j1-W_FLy3NXRA64vf13fjd-5pr7Xr-K5KjNo2PqM3UCmKdZ1iONkYRHVoC11ZXbDpmLqoca5PVAhroxrTOSfH3OIE2dLgDSU2nzyo17qld4EMLbk6noxBFNxqTJsT_CnZVU2ieWkTRW1BNZbsUqdOGwn8T--tG8g26G_uXLW68qf5h_MQ0Din_4zv46aWRywL3Y0fFyvd6vzTiVGT8G-z3Tn956JdB_vFZbuh-0f3sp4klFRAm1XD__FSbO2VUtAwBqxQdCY1BJlmG7fblA70ZzJPesdG0jE4OUYH8IRXQhbhtchjKrJOasjbs6lwRHcvRpmocnDZZ8SFGf55bGxP6vWfSN4F-K5bn6D8k8xP7qgy-zeTLuQd_R-0aV2mCIlnvRFF16S2zpznuGRJ_Pe-_xr5Ti2jhKOiMpO-HdxXdXkcf_sb-p-Mxbtq-P73bGe5PVcrk7k8hQx1rNtCY-qmW93dV8d_ULsJ7ZZWf6Ky54n5bnMzKYGn4-PsrVZNEqhkQZSILGJMdwkQbnitnVh993BDT2MDjVG2b4uHQ7VEFmZ9KnHTscb4PCPWn1nWS8v02pA0X_WtsaJMhmU0HGenwMh1wgUHGNWuu8fz0_iFKtCkvq9bjFO2kcarEzSLJvQfeBnEhfxyy0ynJ2m1bToV79JJgXHS6FRg81dHxclJBJzmf3Y0eBGLWOZE6JVtHi3UdKaMzG6HwNUPVgoaOVdvata4O1VRuuM97-1JRiNoflyL6zz3fjiIfaMBg8NDHpC8dM-fvwYY6Wm2oMPw2IozvUFfk6jqRXeOeRYi68TfZoOH7T1gFyWSvY7q08FsTbL7S1gE5SjGD4IBRVECh39S88k-R23QqOPrXKLuRonW6dQPir5-uG9O_8aazWsYd6DfUMNXlJ_-SSt24QXfz6g2NG283_zK4i3YLqPJfs18qsxVDXYmn03-XlvPpmlq0JU3zDpr4u9GodQs4bGdtTK062GJkniMi0b3O_MH93JDUQaRb1Tut3UNktfvxxvRSQS1qT7cOi24dzXJZtCEsteSDcNBprDdMb5zfWP0lqL_17x3PvwH7t5a8__p_AJ9QWOo=",
+    "echoprint_version": 4.12,
+    "synchstring": "eJx1WwmW3CgMvYqPYMR-_4uN-QtQSeZ1p-PCLEIb0hcV8db3yU_0Xp8UT6Qn9Wc8KeH3e8ho42_9eqayekR7Ip40n5yeeNGyGr7f8vTV63vO-C1r2OpS1nNgsXdNm9eU7Vvre3if-Q3Ma578jW-r5Vvim3-1r2W_dw2PfQ1D37mmaliw41X9_o7vX1mLlUX96je-draun_hm_NbnMGx5zV4w9tvT17OhF2dbbetptX1d21q9YGhbZGQMrou0j-BCBq3ejR_K2qd2MFdDA6Wk8uMVx7dH1KaOV5mMr9_Ixf1vyGJcInsWg7AHsFvrY3QjV9bePhoX59bO-TnW0AThDcgTmw0Is0IIKchZ_N-wDFiewKMMPpbVML-3GSzDvOQuJm9g4FyLZmykg6IK-YxHDOD8gwxahDUst6gdi9pFA7aBGZN2VB7O37ByxuQSS5cE08vtj01tpcxCIp2aBVJhr2ktnCCyYyKTvfpP6KMWCPau2DR5UETP1JiQIkI38b6KY1OMMA2UddW6XaIYYBX328Gp_JgbEzNmqWXfY6uo9uoT_B2gvkshs9SuQ6EzdlxEP5SRyhPWGJtFRt-QRUot5laAgb8ZTzKFSts-7QPDxcBCw-EMVMhCkSRQTj5yH20PLFoYOvpS1m0bfcae2iaO_KOEILDAdis237aFZjF5YhKLu-69QZ8CXNU8g7rSpVx0K2t7polMSGTu6hias2-dHFLbIhXg_pOllOV2ijo16dCQ9k_ttWLSgvYBdvJZE006t1euptsVcOdDLMtiUyFb-Tipb9mO_MVD0DNpp4FpoC2SbNKGyEjwpFGmS3erDhBbC_WrQDCcgi4iP6F92lWOi1DrOPWenCikwl26htGxdvEYnjqjm2ieakgeNuw866UdlZtsZs_YOuSNjKMT8A6Fn7sGU5rzESviMKPR2VFV5Ujht-nFEqkOyZqeqcnq51YgaifXGXpbdkvbHB5S72THaRdfRGjz1qv4z7PgJRmwW1DL41ln7Gsz5qboeffuivxX2TyY-kFQsTx_gp5-AzvX0xnz0rwbhmHaYiGmLE08HKI6d-w1hSwPvE6yjfUx0f3JIrKMnEYpArIYkHWilS3reSamztXDNJ1VicqymJi6XEcm-SsU-mat0uTPLuKlleM_HpCFKpo7W3Nsxa0rHvh6ZRrnR_w38qMMJsxlC-WQQX3SkYuDnA5_bgfSdbxUtTf5YO44uH17X6u7TYkMKnINfJvgsOE0YTW7Nb2bU-sTnEnVND54ikRQzeU1uoTUpcvg7a_5k8YOaTrZnmlpjMGGzkRutm0NrLu1auK--7IfXEFyH-pVI0m0mcEDUkt3GZwGTFHzcvf32wwdg_ZVNyS6jkgksFy0gKEQXwQtDiqUFOPlJeGxtCRjrYo48uV0NIl83D_lTyUcdmRDRKe8lxzS485IsMnqt2WD-mbzxlHYdP51RRnp3ZkDPQtD_GBos5aJQlVDOjChNaEouVIA6AXLjUR9oMNKy4xD_jlpq3P9QVhZluY2JAw0PwgyXR9jrt-l2swqVtPawjdDXn77-xCwgIaui0T0yOAtFI6RxHROtOiUTiyJwaRXiKTzUe4UyVPhn6E5eZAt-RY77OTZ1pMih4BIEvSVETt8Hj0wfYrO3qntd88ImkLsfNdTc2uibSHiGutN9XNipLI4gNlEmN6vpYLHEfcbu29df4LZ06EGQg65ybnn_Hn3O8Pp0cnQP0b_Pc9f_5czW5MM2579aj_9scdfan9p-5ndCUtmoptCwSMSymUYE1JAh66MuTCta0xVeThEpU3osUp3qLD19wF2Gp3JgfOxVOlRuj_Q_8HAmMUrqV5a_-rg1ClKJ84jSimrwiDmwGnKc2ebPPZclSPcp0G_zlGejEXnfbLTrVxpOFZI9GH7FBgKD_yZiQdX7QqoGadnBUNhuKAowyqbinJNXHn69sdJet6RG0S2202-Q9O244CpWMD0wlPcUUTdr-pz8rWuBJ1Ty8VVERbaDZPGzoA0ZKAmx8ubHWVvw4SQmLaDnayM01uNn3Ami56MyNxvGPl6TN9MKHtUFsOySG6bXfHkDapUySHvTLtsjnhk6InZdNMcFnbR2o7SGf9PMemEqTstG1sVx5aXEwUqwlC2WhW45b3BvLeUNyFmOsmZ13vnFnOPrHt8XGJxPFOl1U00nva831rAISHEZrkVmprSNm1H-M4Zs0zAlN5po0JKZbNtz3_PRFso0GcLtOrkrs8xqgoxnYTatB34w0IrstmTf9WLI0V8M8hyx3_uH3t_HNv_6DOkPkcd6jYz79lr5efw0RQcaZiacvU7dPD5qHF9fqV4esfjdPbI7ehH2dI7XDgOS8jWsbWbGB6nebPgiN3bDyFpdqN_Igf9Wvh3Xr-rj7PU9tzE2V3VrRgnUM-X6J1dlm3h9RLQMbSyM4osd297J53H4R7hGdPhjA7-D3KWNc6ow1lt7h0fuOdGiewMhA4nPi1uji-sjfXbtFOkLCvqQ7zdv6Orrkgfp75w5GAHRLIIOcPIZsGh3RVmJfZGiGCwfD3CxIn3Av548QjUMhMBneAyQ_vO85OBoRBxHLGIthVnMA4iLlpXskGIq4FGAXaJgXMAa26Povd3UdhiFiXaaYq3jHYQdyPOTKEYV1lbiKGJA-mXuZGq9JjZCjNlhbQ9FlsZiGJmg77IYFRVQJzfV2KZYBHFTMzMIrjvBA7XrEVX6vGi11AgBgaxQBHQs49X0HqcJSd_ZCCck6Iogg3h-CmQ3gQVmWIj65pD9KqojyE9zv6P9O-XLMRCCGFAaumSJQJqRXBGmV8VURLzwcHaycQCmIrh7lCsWCiMLrTmm1NILGsh1fIZK90EFh9D2XQC6rAWnsIDUtO5Sz1IygSjG7qZ0Oiy6EP2lB9nRgmNpCO9qjgsa1nbg0WUKZMrQ2hIsneHvkC-eo0EDimakjqjUQi6lRp3_zpuXlvp2pyqKWUzffGKCiWt5TY4GFabp9g9SE6wlpQJrgQRjWQfqPS1vDZ1qz43FVCPYQ0GHUdmK-xHg04K5MQxtQL8qmpPgoeQyEcRi4KKQIRprofW6Ua-T2smpLOIYQnc5ca8uSTaM8CbJHSNziyr5vQKwpUzIIuAVC0WgRlFZkjsE7N36YYgNyRyDZKXScztqbNoyMuqc6IWrKk8p_hAY0YqJKvG5DlIENwe4ZGV96B8lLdX2Do-WU2MLDTFSVSFisSUr07w0rG8FbO0LGgkQDQggXAgMMQEBkhLJFWaQ5bSA6X-7NkHHWMOWVFATDmu3oxd6f7oD3hmpPkczaKjiaT8sHiLMn8JcEkpqEFrIeSgWUeykCyh8kwwk5CplGVFK3pmSRj9mEnIz71Wz5zZq65FoI1Lnq92tY49DRFiQ8gpJfu8kG-mPRJGLnSUlO2ro4u-MnBqURP2y6bMWjxgwY2uASLpxODkJ4wPhRPnfrxyZmGWj1LMtGEwViezy7UhxU8WsFwrj_bBTQgdmgayix0APIJ0zgpCvzlUB7BGTIUJRf4uC4AH8mrAOb_K5kmjAORPzqjSV4YLAqTfR-gcXJpqH07wCDzw9GvM_fNO-BMXZ3hEA6FzIiT0yGKcW7F47ZJFqLy-EYihTPLEf-36V57qIHns0LAwZKg7cUouMjh0TU0xZidsyQA5lJ3cIa1zGUfwLrLyJoHRj6CZA4HPWlmAYCbix2KlQ-OTIwhcJyKkedL1voUISqceOcwbxrFULZGivMNQRF82nakbd1qbFRFO9AMWaSBctbC--4cOgRM_D52fjsPHwTBOyuCQm4ScjOhkxsEiYgVWrbN9PC7STo0tjl3KbjD773TeCaqrN8ZJhCmFlMNQzIEUksutEIBzMzC2XdlE3l7nTkjPp2Wi81HlaXM7hIqkk6Dx0D_aZUN9TrH1ltNJMbc8CNtmSUwI72_ybiAgbxTozrYOeLFZ_Lqa7dT97s9SoEMMyTk2R-40VKwQXpgO3nZyQudad0Ldr50bIDmLwYLKXvmy77w9gSXvPFPUGmJjWplcXhqXSp47MjQx10hVYisMimId3fE4xXmlGPH6qJabcvQwV-2NgXJbQ31UF-Iu0XkaJhazlt5V4b1wobGZMYjPos6wPRCiBNVGK6fjkQywGkcts7Gu_Ct0pmVGGtF8ioBCTjWIFyfGQTDr6gQ1VNkIFrbC5xsR5XCanJRkZEcI7fTYN8OGMG3mC9GdrQwxhGEXT8HuEo1vjEHfauIye6XscU0HdqjAKxKzAqvqFAE9drgPJVRdPSGuU7jDBxbqzru7jCSu7gBTxVuW3crjAKY72WxkRXEcmc0MnIMlO98wq9bp5hQ6Aatn9LkUBxZY9SYhxAp4hkiqQ0zj_T70kQKUV52iWsxkQ2OBiIlw0tEcStmZB2JfK2DsimGiEUcPRcxTGQjvmJSqTN3wxKsAgw9yswmR6PKfeSX_DNkGqsXUuVb35YDCq2IlVGiEuRQVY3l7YP2tnVUAlNyW0cWYM1e7Dtb7VNnKCEB4m4RiUWT37NuEDKuhI6phIoJNSmzT47Sa1cTXEU5TXiLdpAth_Jncntig304mXh_4wgXkK0pVgb6fKFbVu7NmZ5h5LZB3COG8N4cK2GmnFLucLUeqBJkck76FHVPyrZ-dUGUOVSGJi-iqVCh_VeDbNm-vcZxtKk_TfY56iMi0sfrHirzqxgQVIWj4Hfsxa3zdPz_71tM6wuo9IL_XIuN2FHTPGXwI8-Gnb8jUiwrSSo-aNlKdhRgQFKPqRSu2yPwXnwyvKXH1gP0-e6mwkB28qBjtbLJtxiZdzbg4y6Gd2aodnNcT0UUZSf1DhbKudGQxVpJQHtOshUV-6ejhVtKsSv5W5cyE9rcp3t1kM9t8lK4zGdvL9x8GJEdkbG6E6Zw_7NMjK5vf7QiwO4EsGgu8du68WmGMOoXu44zH9_gQpgpRdTfM1pSP-QYX3B1RDhe4hhZIvttWmT1K3wg0sSC5eG-mV94EabKGJiDltHRlx1xlDf2rD2MJuYPhnrhupEZWtpvhzVfISr36bjc0_lrKl3b-j8TGo-p3QoF6V3Mnbkhwof50f70He3S_6TQPjCn7XX98ry_TdHhqFb3ghYv-jzcHVEgykSKlmecFc3ML8ahmXEMuM2tSf8YuG521NHR3SheuBROcN_LdzS_5hviMqw-4kHC9E6zyz1fEGZMuB4isLnBIORRPyd9XfeNCejF-du57_qeZVxmyONmfenWuVtifJkR1Xd4qoHH7yqAuct89kzWMAXuh_XUKdjdX39X8eQFcQzeV_jFR_vsFRgAplAEQnM6F4aDvWRbPAofk1qt3fXw8qjvvyu6TQA5bqebUrZDmJEmBDS8vCUTrewTje_mU1BxlbOC7PGXfaisEGMMpRnJzPzdb2MgIfJyG7pwhFNtWHZPEHJHt86ITYzD6bD7AHnmduCPwy7zYWLLw2fawIvU9FihuXWuqJ8q7YHBFmkd7R8WODyxq1OmHgeHvb3t4SFyvkNC-eqx-rKuAsh4youTih7boq4g_1t-lkca2lBCoXow8IIvHzPo6MPLKNNyIwHiM1Mx9TSfzEDy1Z9efoVEn8w9lvr5V4cMufLpXndxMsrty6IDHjX0_2rDLgQtInuEjFlubzr4Q3MBSqy-aGFcYez7DAPUxSmMUyX19MeS-Z2Bgozq0zBty41NsjOhM4esVRALM23OT6SASnDqukr0BuYOy9Md3WsoP3FfF8fzDAF_xqJtG6s3P9LGjkIMJuM994YdfmvHNdF-sMTLjOcduiecAX0ZuutYwBFIu4ocUx5e6SHy_aDDb7nst1g6uMJ9zCye2b-LKVRT_Xl2Kzapzi6Nc83tvZiMxWcafxm1_AagDqh1Q0YAT9z7kZv39DN-jNA2-NnBjxEdbz2WJevXp12ffRjohkL-NlJ8bCjs3S7okXJ7zlYG6ZXwuWN0conTz5mF56nMg09O__nD0F9os1xO_5HFASt-BtxHQkv09Gcu7X_PUx1_g4GV_01n_oN2mMC563Cuem6-_Oza0eCzjl4uWjrl_rqfdsqybrpsjNyBZtoTLHuWe577Wfd3mxvtvALbufh57_9Tn3uPvigc-vS3i3k_-abWf_dfs9z2mU1jJP3Pe1vPLhfurVGfP-bKQeq1lSfIbRuc64dHFIzXrZv7Z29Eag7XnSwfn25hu8deH-Gyne-5bnotF-1uc_k7A50Q8-9A3iSZQKbjopJsjC1EIhUUrC268BMzbv_wCTBN2rCxuoam8lc7vL8Iogt9aYsW9_Qfptw_i",
+    "synch_version": 1,
+    "rhythmstring": "eJxlmwmWZDmrg7cSS_A87H9jD-nDN6v_d05nV1XkHWwsQAii1tLmr7ff-c29fnXOX909fuqvrhv_Pr9a9q-O_dvld-dv39_e-n_TTf2ni8r5nfE7cUsfv1b0mBY_cduJx5X2m_13yu_Ehzuet-L5NX7Zqu6JT44-3L-59IJz9fR4si5femZc3tovVjRq8wrv8uJiHbozfldjD3t41fHhjb_N8dvxrHjL0hLuTxtrXB1rfZ-UePY9_med1fs73kiLV9TBBfpljV-y9LBOXCbDzBLX9d-YvxVXt-GrZIJ4QOyijVhirK3HzqpNNWyYFuaKv4Z5Wpi0hm3iD304lh954mFb64m_x3Xxz3G5MQ5B5zD1Wazz-v81jDJk2WGLxp26Jpa7fyu3H0-5zYcRZpFlt3chK8aZVi9fK43f1lt0W9zfRvkdfnFs1qrL4kBOwQDDpzmvljdi4wEfgUMIGF5D3BJrjX3GUloDCb6TdXtlTcvQ4vQEr7fq4PWvmscbJyATF18WD1x5PPHJ8F5k9jgOGSDMHm-QORZIGsapt3p8S3x4wEY8RkgYwyZfic-hK3SzL8rz1R-txnn4wAb_DpzLkPH_aeTpj8kSveiAj9Zfr58g0C-bMm7SyjpXTu9L57042jjn6et0bHa_9e6Ug2oFhts05OLGhdt0bTaesVqid-E68eJ4nRy4aVVxBsOHok9wyrG9Sj1aEIn7Y6vaV_PnAVDDMl54CrCUVRqPD2u0eOA4Xrz_H8e9jeZY2ejEk4bR9MJYIqevmFGIE3r1sQUDzZOT0i8uhhJs46oSRglU1nDw4RBxq42hk18gwrFo2wu12rgZm2ZMEKgEv2V0ys5Fy9Wxg1P9bf-DTzu74NN34pOzmef_g9Mwng4xCQ4j04ekM25ar88PbM446c7ic8ex0NiHkblxifhTq7x-mg74GBfax1jfq8DjTM9pcqmhGHPjY1li2fLyS_mXwslypGth0VYdETeviHW2QI5CTTxF_q9IrWjh37fYRLrgKtwgz-jsyYGJlBHPjjuqDihMstnw9h2yWQBUHrMcVIWo7YscLxyZDPXDmS38MhaB9_wHB9vvjJO55KIXQyZ5q8cvAyhgeDgMtzDcPyEqbDbLX4gS2q4PKpPStc9on7WT65Q4CFP_wiCcYYOBWPuLUYqOfzGKbSm-7P_Fgc3K4u2vuPP_IuHqpfLmeJOv_TJQKz2j4iTk9M8UYc3ZSGPK6pGLmhy3Ax8nh0L8v6QQrVoZ-_hiQ1rrrlM2Pl8AbqVgkkOKqU3m8Tm1sN_1SmM3rZWXHxRnwWCm2QgbvWkTxRZqYSIdg-lD3Ikt9oNZdVAFn4pNDjJOzWQVnXhjmZO_9TiuOnoGbRMRb_YoyCj6xyKa8nshZngBlYgpS3ZStnx0ZujXR-FBYXodoUAe0TL-iK3odwJHJ5g68HV5wvZLZGJBtx9spbgrl4wEpYPcSUlIZlvL01oHZ6Y0IA5QnXIVJk0U4o2LzCq8Cn1ap-5rw-HFjtJmfr7lcPpY65ZD9YwdDkyiAtM2cZqIK7XxgRNknC0-wnjRdKq9xDtlUTOsQuKJYwpLxuk4rU_cJ459QuviyJaejufqmjJZ3TSuD64ZixAIhbP4_bABznAm3kQghzSd-HW6kEVbJiRIRLejpNdodYt8d_HYeHzXI-LxijKKDrsZXf4RKqrcc3Co8VnGH12pMxj8XDDSq1bZRCli0Uob5prNOBEi4pa2QN528jFlDGw4WsYSFugCIyJh8bNAtimgSIjwPOBics6mANKnKR1oj73KG-yP17Q3ENXk8OLiw84HJRyZEsMMwxxIYK5aeNsAy1TRwOoTV-lhdi0hDKOlKneYScSD478eHz1wXT9cN8m4WtIxTYs4LWTFfsQ2pxGytmMYBEZpQ54i3GrZhqHBkHHXkBoEwI4FRfX0sZiIAoWO8rhQcUICAYqSccF06WKkrpFAWr5H52b6iGMcA0lspgLl5TzjzKpLW5yRcC8H2Zkok6UegkjlkRXIbVigfszXOWVvw1kuTlhBXBHzfDjXg0U_9KLaH1HJWshVWi9GWlsgO-51bFlELEUUYqw8O5LDhf6YIULJh-sFo6XvD5eTFBHH2Ro2FP2o5KV4pAPaJMs73NR8qQsCebiLoubQPRq4wGFVHxUytt5ibzc1a4t490LOxDmnMPFPyDm4iH6dwCg-Ul1YCKvxSYabYnLR4tjCXS6sU-aWo9nOJlkPI8J1dcXzMOI4jqkVUcM17ABCqBagy45RrQh3TAfjsQvW4DsOL6wz61HD_tr2engx_9rYTNYhfuseZTvBQhHe8VFhZyu7hZEHMc6RW2BwvVHJT90nGmiaVKvXttAVcm-XA5isZ6ldfonQhS0cSai6JhF4QWDq8f1h59adqQZJkORmJubdNuoKBaWImqKB208LAMnFfDLHOxMqrldzlonsJvQokEHkz-DVjkqGfMOsWRo4vEPPvNkisGwSrcIdIVQoEOXVacuVXZoZQ53sMG8asAsROio9dJ3HnOASC0-T13UHBFccE4N7c6rnUtioAG1nsrdhmn1Gd8my3Vx7vfRJCReWDXMozCvgVJbVqJGcEBuhMf7uuMA5xxuSEzaj01WA3ysxo2LiS63OBwGg3gz8S_28yHHa7CMsLQ_T6XD7kT0Z14A1nJ-N015xBWleQH-yBIsUprVKNyV9S8xjvqBy0FFOpQymTieCKfvd8x2yAynnChRlJWSo_goNrbFuHu9VK-KoNsJZbMKZrLujy7iAb-TOeJyrRuJh_ChtqTx1IW4MLu9vz8x9KS5ZlOk-10Gu7_iQg17jl23lkRZTyeM8tjvn61Noyat83Aq8xUHUdcKB8pJgrTBBYNpfbTDTbwN7ZhAts9GEwP_xUdXfE6lLLp1KitY3UtJ6JKxRSl7rVxehh0x2iOqTcOLkWzMpDG9LL4EUvtSqKKTksZPBdpxXdLWQ_iaxXxRIf1Dv-LVNW2idhGx0VFwvtmRqclx4KGWYTDShv9tF_tB5soTItyQ6vVRzQkW02IyCWwMHD5vdMT_eMBEsDASVIch5J_nDsjo0WNIaqWnmAxShXAMdBB2XejP5jenWNcuTjXfS0PEFHMUWiErfTyER6z09ncfvQ3DISrC8hA4V8S4LSGHZfsbKytCVA0rhYLdIv4h1BQA5ro2_guamWFpqkliH2JURZHO6x4iTfPoHFqFNAgOBNQ7Rhp1_cBnAhWrM3NpIkM-cht0XRKab8lUili6hypFJFEzPJAVROjkVmV0kXFxtyc-84f8GtGWNWfUDS7G0ZfRPShY_Vcg2Dk0J-q93F-3S3qZL1EWlUfFGSIoIE3lh-bQBos5QErG2nGrupAKTQ6sEywJEC9_36YHKk5GaBgx_Ae1ZWK8VpGEKJK_WtSqWkM8VsMzxurCNLjpTnrr1EQLDzVRkZmGDoqfi1yFEC20UGgVZPtm_HLZViPhEWEBP3uakuqYnYdDBpDSk6qjRCxAZcuaMvx48eFPnHTI6tdGA7EJDFmqeIlSSN1nnIE5b7mI5ovIuySUdCM31IGajtKmCireLN8U2eud4TLq60Z8h1FlEy3ShCIwHtacjU3UJrz8V6XtWHtYaqoOJVS-ruhz9mo6ly8mwafmiPbt_9Z9uupR53vJN7fYfTr9Gdm9k2o3cNp3Jaoo4HRHDcXQZPGb-7am6dFy8GaRtAbJYTSiI3Nb5lpHQjCNfjIls10FFHLtPgb9AZXrDLzcBxRVE5R4x820JeNZkR18theDogjh-IXgpgiB0nOytLHuyTEBJdBxSXN44fpvRiIM2g4lSTw0D0yUrEdmaoVLQORt4iDsGHkI9O4RpmF_kRzoRB7riIKeFlfY6QVnYk-ghIkZhXTBV61v2RVCXTuvcsoy2g0yabOYPe0gNnxhIdrZOW-FbcRibFlzy_0vNNyg-Kotrhl8vaMYDyuqidb18jO5WtCWT6PqBcP8LQlPcDYdqGbY2fEDpZqBFO8KXFJ1dTNly7jGWFD2I3oMzui78pJydBGj2qVx4LsNGUnmq_wrUAfaLSvWabNTn7VIVWtQ2uBVU4OBtg0v56lpWkI8d2PLh-IDW3by4LUXwlrropud1U3A9pqYLMuU8H_e5-ep2jLIFVC-rlrWzSHaU3nZUF9fV3qTFjSzrRMTBigLjvF8lXN3baC9K1SSsNVnkwinvBxcFXTl1hy3qga7efbzjflihMJFqcx1Rjh3PNiR0T6jRSg12ov79E6_2fQnj0jiQzURwD_rPQAGZWYCtlmp0_eJVZrpA9-BBq9NMKBauIErQXser_cWr-kceRmrf90_I9lVhuwUKh4uvtkzO3SwXcK6zJAKE9ZtCVuMsldj6J5loj90C9-6fGolERwm_V3I0WqkZzzpSuXnGoa900rgoMgvH3K57xSgSwikDbXv-sPa7k90jCh_8AiFi4GWCNAxMIocKKqJaqo6N2udkpwKeUFxw3WTz5etbyIj3tZxdRojCDvdeFBUVo3TNcaRTZNSKUuAZGZus-GhLxdzDRQf-OZFTjpFuVr7xNrmZpxaO3-ZaZKHL6fxE0gTEVA6tPtVUElOSc_HhysiFsaxMT1M7mD5ALzUXbu3UFXWnyoQCrhSwR8qYXed_6Z8PoDF9du4b03kxm67ojOQqcdPhGuuu1zu1ouZei2vbbSkm3iUaTC9hW7RQK6mybjfqt9noQAehGoEEGt_MW1CQ6DSylpp4iuw0aHxvd3yP9f1BuFNh1mc2Ot3u6qkcuBJ5LXPr3q4e10edzLOz2dehgoXC6DreuBow4dfrjtd0vfZFN2PRmiIVH3KHvFdYeR5z0AEZ9Jjlw8uARQ2H4PtIHEEB4cmRz9YhhdGaoXFXoJSBg-skBBxp2N2UEhKMSTssGWqLd3lE5F8w_pUjmBDakDMui97VhB8KVBMF1IqPI-0mZ6xGu5epBuyreyw-tP0RuhSkZ_aRBu-7SFLi_odwpmgxcEgLtmi3ogPDHZsDtehu6raZIXkmHsXtjkvWLOjfaMHXhJPTULn6RGb2tvRaN0wXLa982rarGIiuTsfJhqlrwE5raDwgLofeAQAfDvvJAQK7erGPXCf7ON_eKfwVGrS6lfJawQurm-PMO20zsAPjOj65bF0OCudFvjdHyDkluw_l5ANsf-9xaZCDEBMIS2wcproeVHqAUA-053iFK0rlL0tDkJ9tprvJPZ5JKraXzq7XF9Y2RadImu1mOKsuVhNhoH8PcpxtQe_IPUKf4UyloNUnerxANV-gGhBWLe-6V3Jdy0j4dsS0GvnfaKUEMMtLnPLFF6iyKjCMyyNE5nrb7OUNB_yDj_51NF7GIAo72jL9NXIWinqAkGPymb2bDWfoSP6L5thGYEzBhcBa39zISQRV5nAOvf4L2Wg8R36SQzTKtZPhG2_7FGRbKJtes91e89GwRFnlMtykYKOu0SwpfO6dmznW-C91pSsTJhNGruJQxG6LLzP7SIWWxUUdSUIsKpE610AAbp4zozs9YGpwXO3i0L4vYJsimLzmJkJcqIyFPuahNXBQHK2uWdJieMOR0c2BS4YqFC8zy4GdXahBFwcaLJIlr-vQ_U1XC9LjPl4K3HIstahapdUv3PnwTiKCGavlNqKyz6KsrDerZ0_5Vax9OW-GYTxwxFDKgO2JeS7PgCxoNQo-ia9QaAzY8Mq-2dTWVlKX4pLDrRtG8AZiR03xdTuD3OdJqYpnJ9JcMc8WhX9QPjRImi15bQ84936NP5PoRo4ZBBQGFBiJS2lvvWmaF2Ar0lYc70TKsnTstH_cevCwDQNgDB-5v2RBYaE1bPJ-N_ezQXJcaP-1-KSiWArPaS46QuRtd_qYawNrunFk09V1z0yxqmVfq6zEmYSEmzxt7TfBqcy7bNVF7uhuMtlYG1lMMlI1_qVA3myJTnA-xofEgoLjaan2Xxg2miUTmWrQMZspRy90YXUyXfbbubfnDJ_TpxbRKDl29rynq7VLT3Ux21NNIK5V8Wx_Go-ImaLNGcsZ7wSAK3WnMh8cZ054DGsFg5qlguEzs1wdl4YFnTqZsOu0GdR6mocFI3TBk4pjm6m7MH4r73CkWhTbO5Oe-wh06FvKHv9kewjifL9MlXDTOHPLPPuXA3FpWXQ6I6u6qKROdhrWi8GEM4lPx5oRQNnJFkrW0E5wA9Gw3SRbroUOmTqF6WwBpyB-meWr2UZE6rV-iKsPptyU0AWa1X5Zv8zyNR2TWBW3CRhgvphKpbRB7vJ-5giTEWMp2lqO9bbr_OQxZZpEl9Gf7CjT1prIRllTCDTNsJrI-PXXV3lRy9p30gHP431ImZ9gZkRh8EJTkWbPKh9SmtWfp8M7ugqR2Tt0VmiDWU4qyEX7fqfgUimLEyTqeFiW_EdEUYYiab0i9tAEYVTMc6cXPWLnjE3PtyMJ6LSFgMH6X9ZPu0lBVHwwXM0fUjlrXhdCNZHSU5aM1mZjpjISZm5TvyywRv4wAjFmShyZoRv5dN8UpOCCNSfH3I-g5sgeILLroNVmhUqSW84Dql45MELKSEL_TeXtaTDDXNOjOPi0h9nctGiHDsoCsNtXa1PCdGzyWN9ycebp6kWr0YInCrukiWuI7hxyGaQQGuk3SWJ17Xc7bK2SzWr2yP3KU7_RHoZSujuCm5hXKcdzVvNZ98npWdemYrcofzuV_UUjtgjz5I_i0SZY7_Zm_b0FClta69nUyIH9nJ6RZU82QF9z3C288VUQLSXcU7MOPf-0IV9RjvF3yYJoZJ3EiMfI_DFev_dvaOtV7lnMu2JA6ErJYK-nFJzzpjFS0aA3nuO0Z7965-n4B8335tP74-_jlcU7ReF3GvRzLUBCXLev3OjRjZHwOt7AqcPdoQDGbzfdZ_2o_3logDH5uF3hPBkq9vfJMZnbjU_y2ElCCets3Z3QnFrWcNut7_sZbq0ShS-aEErolyFup0uRHarMIq-P62R4md4_FMoGy9eZzuHg17pElUu58TWXsoDKZSyo3iHENGtxqz3xxDOHfaTfX-acHcQp2ibczlUhLazzSUnHeXoQZ87j0sdqLhrdSbqclZiFhPF2elEb8_6NuqkZzZbN9xQjWn9VkcZXxKZODj-kmu7GcRKTm0OE_vfJ4cdX1StSXium5zk3ucR10koRv31Zo755g_yYzv2F5blFKXqZFf2lJdMm2t8mt5nQFHjU3ZQDKO73kCpoYDEPdxzk91cDXwAtGI9DI3Qww5DfcRp5eOPTFlA1rWmtb4Bh0kxbf86RYarbvTR_MjEY8mV_Vd1mqJeWj1vU1e4f-_ifQJXfYtlpKaYfnGA2xd4_cWr81ebjf0LUf2HhKXvZ7Jwv7TmZNRLyQQCdObrl3KyCBV-0FjfzyywoNTik5zZd6dcc2mWM1eNP-FhlTLtXNF22tE3iGoPfb9g5hbWde1vvy28-pvq-NUQptLO7adEzkO5c5skBz7dmFToZjhg7rXLqF8We-RZyU1ZTyWEnvar2bxBolGM5d3JvjnZAexj1Zcopw-mgvV89TAN_sE7mAX3C56Th0l0dDQrwYqAOlwQiWW7yMJ7k51MWz0wYFHNwfciQcrW-qDBdL14OvY5fBo-7shKjo5-eijhxU9tB2_iAwpcJ1vve0TW15zshX64c2QfO5Pjd2NNvchjJF6aKisajTm371J8UEETqNSyABY_rz2kpxXCw1J1Z-e992RsZ1HsCs7NkpyTb-cW-0-iglDdWlBGeHozKv2xQyz-k242_DWVme1Bt_UMuqf3b6kixs7y5kuWZTMzYECjya12vPtre_31f7SSIPNd_3ZbRHyd1CdZ--RWSkd1BnxSauhnHGW8qfM6EIDykuRuw33f0IPTTkXt6ItfsuLuEanQjB0x2rNc5seq1U1GnTCC_i6NbLG09k-kh_tq2Nwd2-M4E31r6F5GblnwlHo3zD57-fs77sqiC_t7fORS07oRj_ReOfJeqHVRl9-hmpjOG2fJY_502c58hq6uFPbNABTnLOgCq6PH8uL9x6_B01tcm_AeK_3lH-0qTBGJicWcRfVrOJ57zB0n8P-n0B8msYTLkZrAZNZ_6IJlRcb1vMNactbbynvX5IujhlN8M2Hldtfyuy87MlDLmZPpoNdpMTqltZ0AqRr68uSFs5ZQSdRgV1RKVWPV9GWMni0bU2fsbrWxv0JgGrXtDuehk3uu1DywBWZxfWa482YBj-VKltvrHcLPuI1q94mX83remnuE_RqDH21kQWbN9AlIY6HfMMhcd_dP9PBbXf_lFUcY31993iOhxIYYexg8-mHxDkuOL0ceMJDlihqH2iTqv_Tn-Yla6EpU4k9hfF8Ty3Jj_B2FBYkE=",
+    "rhythm_version": 1
+  },
+  "bars": [
+    {
+      "start": 0.43534,
+      "duration": 1.96764,
+      "confidence": 0.881
+    },
+    {
+      "start": 2.40298,
+      "duration": 1.88242,
+      "confidence": 0.557
+    },
+    {
+      "start": 4.2854,
+      "duration": 1.85162,
+      "confidence": 0.683
+    },
+    {
+      "start": 6.13702,
+      "duration": 1.94543,
+      "confidence": 0.424
+    },
+    {
+      "start": 8.08245,
+      "duration": 1.9558,
+      "confidence": 0.656
+    },
+    {
+      "start": 10.03825,
+      "duration": 1.90351,
+      "confidence": 0.77
+    },
+    {
+      "start": 11.94176,
+      "duration": 1.90704,
+      "confidence": 0.287
+    },
+    {
+      "start": 13.8488,
+      "duration": 1.89928,
+      "confidence": 0.726
+    },
+    {
+      "start": 15.74808,
+      "duration": 1.426,
+      "confidence": 0.762
+    },
+    {
+      "start": 17.17408,
+      "duration": 1.90648,
+      "confidence": 0.422
+    },
+    {
+      "start": 19.08057,
+      "duration": 1.91043,
+      "confidence": 0.657
+    },
+    {
+      "start": 20.991,
+      "duration": 1.90251,
+      "confidence": 0.688
+    },
+    {
+      "start": 22.89351,
+      "duration": 1.9046,
+      "confidence": 0.49
+    },
+    {
+      "start": 24.79811,
+      "duration": 1.91399,
+      "confidence": 0.488
+    },
+    {
+      "start": 26.7121,
+      "duration": 1.90756,
+      "confidence": 0.34
+    },
+    {
+      "start": 28.61966,
+      "duration": 1.90171,
+      "confidence": 0.409
+    },
+    {
+      "start": 30.52137,
+      "duration": 1.89679,
+      "confidence": 0.39
+    },
+    {
+      "start": 32.41816,
+      "duration": 1.90913,
+      "confidence": 0.694
+    },
+    {
+      "start": 34.32729,
+      "duration": 1.90685,
+      "confidence": 0.397
+    },
+    {
+      "start": 36.23414,
+      "duration": 1.90157,
+      "confidence": 0.494
+    },
+    {
+      "start": 38.13571,
+      "duration": 1.90313,
+      "confidence": 0.274
+    },
+    {
+      "start": 40.03884,
+      "duration": 1.91281,
+      "confidence": 0.729
+    },
+    {
+      "start": 41.95165,
+      "duration": 1.90709,
+      "confidence": 0.654
+    },
+    {
+      "start": 43.85874,
+      "duration": 1.8976,
+      "confidence": 0.319
+    },
+    {
+      "start": 45.75634,
+      "duration": 1.88945,
+      "confidence": 0.391
+    },
+    {
+      "start": 47.64579,
+      "duration": 1.91054,
+      "confidence": 0.412
+    },
+    {
+      "start": 49.55633,
+      "duration": 1.91224,
+      "confidence": 0.457
+    },
+    {
+      "start": 51.46856,
+      "duration": 1.89437,
+      "confidence": 0.691
+    },
+    {
+      "start": 53.36294,
+      "duration": 1.90432,
+      "confidence": 0.532
+    },
+    {
+      "start": 55.26726,
+      "duration": 1.90818,
+      "confidence": 0.723
+    },
+    {
+      "start": 57.17544,
+      "duration": 1.90911,
+      "confidence": 0.528
+    },
+    {
+      "start": 59.08455,
+      "duration": 1.9021,
+      "confidence": 0.245
+    },
+    {
+      "start": 60.98665,
+      "duration": 1.89767,
+      "confidence": 0.486
+    },
+    {
+      "start": 62.88432,
+      "duration": 1.90816,
+      "confidence": 0.209
+    },
+    {
+      "start": 64.79248,
+      "duration": 1.90492,
+      "confidence": 0.174
+    },
+    {
+      "start": 66.69739,
+      "duration": 1.89232,
+      "confidence": 0.108
+    },
+    {
+      "start": 68.58972,
+      "duration": 1.90415,
+      "confidence": 0.241
+    },
+    {
+      "start": 70.49387,
+      "duration": 1.91962,
+      "confidence": 0.535
+    },
+    {
+      "start": 72.41349,
+      "duration": 1.90606,
+      "confidence": 0.138
+    },
+    {
+      "start": 74.31955,
+      "duration": 1.89705,
+      "confidence": 0.759
+    },
+    {
+      "start": 76.2166,
+      "duration": 1.90684,
+      "confidence": 0.445
+    },
+    {
+      "start": 78.12344,
+      "duration": 1.91244,
+      "confidence": 0.333
+    },
+    {
+      "start": 80.03588,
+      "duration": 1.90538,
+      "confidence": 0.619
+    },
+    {
+      "start": 81.94127,
+      "duration": 1.90219,
+      "confidence": 0.862
+    },
+    {
+      "start": 83.84346,
+      "duration": 1.89355,
+      "confidence": 0.42
+    },
+    {
+      "start": 85.737,
+      "duration": 1.91375,
+      "confidence": 0.538
+    },
+    {
+      "start": 87.65075,
+      "duration": 1.91315,
+      "confidence": 0.587
+    },
+    {
+      "start": 89.56391,
+      "duration": 1.91455,
+      "confidence": 0.431
+    },
+    {
+      "start": 91.47846,
+      "duration": 1.89863,
+      "confidence": 0.351
+    },
+    {
+      "start": 93.37709,
+      "duration": 1.90137,
+      "confidence": 0.43
+    },
+    {
+      "start": 95.27846,
+      "duration": 1.90962,
+      "confidence": 0.552
+    },
+    {
+      "start": 97.18808,
+      "duration": 1.90161,
+      "confidence": 0.667
+    },
+    {
+      "start": 99.0897,
+      "duration": 1.89996,
+      "confidence": 0.112
+    },
+    {
+      "start": 100.98965,
+      "duration": 1.91046,
+      "confidence": 0.562
+    },
+    {
+      "start": 102.90011,
+      "duration": 1.91055,
+      "confidence": 0.736
+    },
+    {
+      "start": 104.81066,
+      "duration": 1.90505,
+      "confidence": 0.607
+    },
+    {
+      "start": 106.71571,
+      "duration": 1.88522,
+      "confidence": 0.299
+    },
+    {
+      "start": 108.60093,
+      "duration": 1.89658,
+      "confidence": 0.275
+    },
+    {
+      "start": 110.49751,
+      "duration": 1.91742,
+      "confidence": 0.759
+    },
+    {
+      "start": 112.41492,
+      "duration": 1.90764,
+      "confidence": 0.779
+    },
+    {
+      "start": 114.32256,
+      "duration": 1.89579,
+      "confidence": 0.445
+    },
+    {
+      "start": 116.21835,
+      "duration": 1.90204,
+      "confidence": 0.421
+    },
+    {
+      "start": 118.12039,
+      "duration": 1.91091,
+      "confidence": 0.828
+    },
+    {
+      "start": 120.0313,
+      "duration": 1.9084,
+      "confidence": 0.475
+    },
+    {
+      "start": 121.93971,
+      "duration": 1.89963,
+      "confidence": 0.287
+    },
+    {
+      "start": 123.83934,
+      "duration": 1.90093,
+      "confidence": 0.48
+    },
+    {
+      "start": 125.74027,
+      "duration": 1.9099,
+      "confidence": 0.278
+    },
+    {
+      "start": 127.65016,
+      "duration": 1.90491,
+      "confidence": 0.429
+    },
+    {
+      "start": 129.55507,
+      "duration": 1.90176,
+      "confidence": 0.53
+    },
+    {
+      "start": 131.45683,
+      "duration": 1.90506,
+      "confidence": 0.19
+    },
+    {
+      "start": 133.3619,
+      "duration": 1.90744,
+      "confidence": 0.522
+    },
+    {
+      "start": 135.26933,
+      "duration": 1.90596,
+      "confidence": 0.74
+    },
+    {
+      "start": 137.1753,
+      "duration": 1.89653,
+      "confidence": 0.499
+    },
+    {
+      "start": 139.07183,
+      "duration": 3.33487,
+      "confidence": 0.514
+    },
+    {
+      "start": 142.4067,
+      "duration": 1.89937,
+      "confidence": 0.839
+    },
+    {
+      "start": 144.30607,
+      "duration": 1.90315,
+      "confidence": 0.661
+    },
+    {
+      "start": 146.20923,
+      "duration": 1.90764,
+      "confidence": 0.41
+    },
+    {
+      "start": 148.11687,
+      "duration": 1.90897,
+      "confidence": 0.37
+    },
+    {
+      "start": 150.02583,
+      "duration": 1.90933,
+      "confidence": 0.37
+    },
+    {
+      "start": 151.93516,
+      "duration": 1.90546,
+      "confidence": 0.091
+    },
+    {
+      "start": 153.84062,
+      "duration": 1.90135,
+      "confidence": 0.764
+    },
+    {
+      "start": 155.74197,
+      "duration": 1.90644,
+      "confidence": 0.14
+    },
+    {
+      "start": 157.64842,
+      "duration": 1.91213,
+      "confidence": 0.652
+    },
+    {
+      "start": 159.56055,
+      "duration": 1.90109,
+      "confidence": 0.459
+    },
+    {
+      "start": 161.46164,
+      "duration": 1.89762,
+      "confidence": 0.063
+    },
+    {
+      "start": 163.35926,
+      "duration": 1.9103,
+      "confidence": 0.808
+    },
+    {
+      "start": 165.26956,
+      "duration": 1.90932,
+      "confidence": 0.325
+    },
+    {
+      "start": 167.17888,
+      "duration": 1.89985,
+      "confidence": 0.696
+    },
+    {
+      "start": 169.07873,
+      "duration": 1.89658,
+      "confidence": 0.263
+    },
+    {
+      "start": 170.97531,
+      "duration": 1.91061,
+      "confidence": 0.093
+    },
+    {
+      "start": 172.88593,
+      "duration": 1.91046,
+      "confidence": 0.496
+    },
+    {
+      "start": 174.79639,
+      "duration": 1.90505,
+      "confidence": 0.395
+    },
+    {
+      "start": 176.70144,
+      "duration": 1.89623,
+      "confidence": 0.183
+    },
+    {
+      "start": 178.59766,
+      "duration": 1.90514,
+      "confidence": 0.68
+    },
+    {
+      "start": 180.5028,
+      "duration": 1.90819,
+      "confidence": 0.317
+    },
+    {
+      "start": 182.41099,
+      "duration": 1.90094,
+      "confidence": 0.466
+    },
+    {
+      "start": 184.31193,
+      "duration": 1.90117,
+      "confidence": 0.765
+    },
+    {
+      "start": 186.2131,
+      "duration": 1.91079,
+      "confidence": 0.81
+    },
+    {
+      "start": 188.1239,
+      "duration": 1.90931,
+      "confidence": 0.693
+    },
+    {
+      "start": 190.0332,
+      "duration": 1.90626,
+      "confidence": 0.425
+    },
+    {
+      "start": 191.93947,
+      "duration": 2.86018,
+      "confidence": 0.137
+    }
+  ],
+  "beats": [
+    {
+      "start": 0.43534,
+      "duration": 0.50511,
+      "confidence": 0.671
+    },
+    {
+      "start": 0.94045,
+      "duration": 0.49515,
+      "confidence": 0.519
+    },
+    {
+      "start": 1.4356,
+      "duration": 0.48355,
+      "confidence": 0.494
+    },
+    {
+      "start": 1.91915,
+      "duration": 0.48383,
+      "confidence": 0.515
+    },
+    {
+      "start": 2.40298,
+      "duration": 0.48191,
+      "confidence": 0.371
+    },
+    {
+      "start": 2.88488,
+      "duration": 0.47316,
+      "confidence": 0.356
+    },
+    {
+      "start": 3.35805,
+      "duration": 0.46506,
+      "confidence": 0.395
+    },
+    {
+      "start": 3.82311,
+      "duration": 0.46229,
+      "confidence": 0.495
+    },
+    {
+      "start": 4.2854,
+      "duration": 0.46207,
+      "confidence": 0.39
+    },
+    {
+      "start": 4.74747,
+      "duration": 0.46227,
+      "confidence": 0.113
+    },
+    {
+      "start": 5.20974,
+      "duration": 0.46269,
+      "confidence": 0.14
+    },
+    {
+      "start": 5.67243,
+      "duration": 0.46459,
+      "confidence": 0.13
+    },
+    {
+      "start": 6.13702,
+      "duration": 0.47373,
+      "confidence": 0.142
+    },
+    {
+      "start": 6.61075,
+      "duration": 0.48691,
+      "confidence": 0.085
+    },
+    {
+      "start": 7.09765,
+      "duration": 0.49242,
+      "confidence": 0.224
+    },
+    {
+      "start": 7.59007,
+      "duration": 0.49238,
+      "confidence": 0.209
+    },
+    {
+      "start": 8.08245,
+      "duration": 0.49193,
+      "confidence": 0.146
+    },
+    {
+      "start": 8.57438,
+      "duration": 0.48998,
+      "confidence": 0.242
+    },
+    {
+      "start": 9.06436,
+      "duration": 0.48845,
+      "confidence": 0.167
+    },
+    {
+      "start": 9.55281,
+      "duration": 0.48544,
+      "confidence": 0.258
+    },
+    {
+      "start": 10.03825,
+      "duration": 0.47965,
+      "confidence": 0.242
+    },
+    {
+      "start": 10.5179,
+      "duration": 0.47515,
+      "confidence": 0.407
+    },
+    {
+      "start": 10.99305,
+      "duration": 0.47363,
+      "confidence": 0.346
+    },
+    {
+      "start": 11.46667,
+      "duration": 0.47509,
+      "confidence": 0.381
+    },
+    {
+      "start": 11.94176,
+      "duration": 0.47826,
+      "confidence": 0.272
+    },
+    {
+      "start": 12.42002,
+      "duration": 0.47846,
+      "confidence": 0.387
+    },
+    {
+      "start": 12.89848,
+      "duration": 0.47612,
+      "confidence": 0.338
+    },
+    {
+      "start": 13.37459,
+      "duration": 0.47421,
+      "confidence": 0.308
+    },
+    {
+      "start": 13.8488,
+      "duration": 0.47443,
+      "confidence": 0.326
+    },
+    {
+      "start": 14.32323,
+      "duration": 0.47614,
+      "confidence": 0.333
+    },
+    {
+      "start": 14.79937,
+      "duration": 0.47573,
+      "confidence": 0.254
+    },
+    {
+      "start": 15.2751,
+      "duration": 0.47298,
+      "confidence": 0.211
+    },
+    {
+      "start": 15.74808,
+      "duration": 0.4732,
+      "confidence": 0.109
+    },
+    {
+      "start": 16.22128,
+      "duration": 0.47597,
+      "confidence": 0.85
+    },
+    {
+      "start": 16.69725,
+      "duration": 0.47683,
+      "confidence": 0.802
+    },
+    {
+      "start": 17.17408,
+      "duration": 0.47704,
+      "confidence": 0.794
+    },
+    {
+      "start": 17.65112,
+      "duration": 0.47704,
+      "confidence": 0.706
+    },
+    {
+      "start": 18.12817,
+      "duration": 0.47577,
+      "confidence": 0.486
+    },
+    {
+      "start": 18.60394,
+      "duration": 0.47663,
+      "confidence": 0.477
+    },
+    {
+      "start": 19.08057,
+      "duration": 0.47791,
+      "confidence": 0.407
+    },
+    {
+      "start": 19.55848,
+      "duration": 0.47643,
+      "confidence": 0.562
+    },
+    {
+      "start": 20.03491,
+      "duration": 0.47751,
+      "confidence": 0.439
+    },
+    {
+      "start": 20.51242,
+      "duration": 0.47858,
+      "confidence": 0.54
+    },
+    {
+      "start": 20.991,
+      "duration": 0.47668,
+      "confidence": 0.486
+    },
+    {
+      "start": 21.46768,
+      "duration": 0.47669,
+      "confidence": 0.482
+    },
+    {
+      "start": 21.94437,
+      "duration": 0.47521,
+      "confidence": 0.501
+    },
+    {
+      "start": 22.41958,
+      "duration": 0.47393,
+      "confidence": 0.524
+    },
+    {
+      "start": 22.89351,
+      "duration": 0.47542,
+      "confidence": 0.369
+    },
+    {
+      "start": 23.36893,
+      "duration": 0.47541,
+      "confidence": 0.35
+    },
+    {
+      "start": 23.84434,
+      "duration": 0.47604,
+      "confidence": 0.355
+    },
+    {
+      "start": 24.32038,
+      "duration": 0.47773,
+      "confidence": 0.466
+    },
+    {
+      "start": 24.79811,
+      "duration": 0.47814,
+      "confidence": 0.452
+    },
+    {
+      "start": 25.27625,
+      "duration": 0.47898,
+      "confidence": 0.408
+    },
+    {
+      "start": 25.75523,
+      "duration": 0.47897,
+      "confidence": 0.377
+    },
+    {
+      "start": 26.2342,
+      "duration": 0.4779,
+      "confidence": 0.35
+    },
+    {
+      "start": 26.7121,
+      "duration": 0.47768,
+      "confidence": 0.342
+    },
+    {
+      "start": 27.18978,
+      "duration": 0.47723,
+      "confidence": 0.311
+    },
+    {
+      "start": 27.66701,
+      "duration": 0.47614,
+      "confidence": 0.3
+    },
+    {
+      "start": 28.14315,
+      "duration": 0.47651,
+      "confidence": 0.376
+    },
+    {
+      "start": 28.61966,
+      "duration": 0.47812,
+      "confidence": 0.367
+    },
+    {
+      "start": 29.09778,
+      "duration": 0.47716,
+      "confidence": 0.353
+    },
+    {
+      "start": 29.57494,
+      "duration": 0.47425,
+      "confidence": 0.372
+    },
+    {
+      "start": 30.0492,
+      "duration": 0.47217,
+      "confidence": 0.417
+    },
+    {
+      "start": 30.52137,
+      "duration": 0.47115,
+      "confidence": 0.355
+    },
+    {
+      "start": 30.99252,
+      "duration": 0.47435,
+      "confidence": 0.382
+    },
+    {
+      "start": 31.46686,
+      "duration": 0.47648,
+      "confidence": 0.271
+    },
+    {
+      "start": 31.94335,
+      "duration": 0.47481,
+      "confidence": 0.382
+    },
+    {
+      "start": 32.41816,
+      "duration": 0.47443,
+      "confidence": 0.216
+    },
+    {
+      "start": 32.89259,
+      "duration": 0.47597,
+      "confidence": 0.452
+    },
+    {
+      "start": 33.36855,
+      "duration": 0.47858,
+      "confidence": 0.347
+    },
+    {
+      "start": 33.84714,
+      "duration": 0.48015,
+      "confidence": 0.283
+    },
+    {
+      "start": 34.32729,
+      "duration": 0.47835,
+      "confidence": 0.361
+    },
+    {
+      "start": 34.80564,
+      "duration": 0.47699,
+      "confidence": 0.597
+    },
+    {
+      "start": 35.28263,
+      "duration": 0.47588,
+      "confidence": 0.597
+    },
+    {
+      "start": 35.75851,
+      "duration": 0.47563,
+      "confidence": 0.575
+    },
+    {
+      "start": 36.23414,
+      "duration": 0.47688,
+      "confidence": 0.363
+    },
+    {
+      "start": 36.71102,
+      "duration": 0.47581,
+      "confidence": 0.386
+    },
+    {
+      "start": 37.18683,
+      "duration": 0.47496,
+      "confidence": 0.264
+    },
+    {
+      "start": 37.66179,
+      "duration": 0.47392,
+      "confidence": 0.472
+    },
+    {
+      "start": 38.13571,
+      "duration": 0.47202,
+      "confidence": 0.543
+    },
+    {
+      "start": 38.60773,
+      "duration": 0.47478,
+      "confidence": 0.614
+    },
+    {
+      "start": 39.08251,
+      "duration": 0.47838,
+      "confidence": 0.543
+    },
+    {
+      "start": 39.56089,
+      "duration": 0.47795,
+      "confidence": 0.439
+    },
+    {
+      "start": 40.03884,
+      "duration": 0.47816,
+      "confidence": 0.244
+    },
+    {
+      "start": 40.51699,
+      "duration": 0.47836,
+      "confidence": 0.551
+    },
+    {
+      "start": 40.99536,
+      "duration": 0.47793,
+      "confidence": 0.401
+    },
+    {
+      "start": 41.47329,
+      "duration": 0.47836,
+      "confidence": 0.36
+    },
+    {
+      "start": 41.95165,
+      "duration": 0.47817,
+      "confidence": 0.445
+    },
+    {
+      "start": 42.42982,
+      "duration": 0.47716,
+      "confidence": 0.481
+    },
+    {
+      "start": 42.90698,
+      "duration": 0.47637,
+      "confidence": 0.621
+    },
+    {
+      "start": 43.38335,
+      "duration": 0.47539,
+      "confidence": 0.64
+    },
+    {
+      "start": 43.85874,
+      "duration": 0.47611,
+      "confidence": 0.525
+    },
+    {
+      "start": 44.33485,
+      "duration": 0.476,
+      "confidence": 0.517
+    },
+    {
+      "start": 44.81085,
+      "duration": 0.47397,
+      "confidence": 0.418
+    },
+    {
+      "start": 45.28482,
+      "duration": 0.47152,
+      "confidence": 0.558
+    },
+    {
+      "start": 45.75634,
+      "duration": 0.47012,
+      "confidence": 0.377
+    },
+    {
+      "start": 46.22646,
+      "duration": 0.4719,
+      "confidence": 0.333
+    },
+    {
+      "start": 46.69836,
+      "duration": 0.47368,
+      "confidence": 0.404
+    },
+    {
+      "start": 47.17204,
+      "duration": 0.47375,
+      "confidence": 0.491
+    },
+    {
+      "start": 47.64579,
+      "duration": 0.47529,
+      "confidence": 0.484
+    },
+    {
+      "start": 48.12108,
+      "duration": 0.47682,
+      "confidence": 0.311
+    },
+    {
+      "start": 48.59791,
+      "duration": 0.47835,
+      "confidence": 0.286
+    },
+    {
+      "start": 49.07625,
+      "duration": 0.48008,
+      "confidence": 0.423
+    },
+    {
+      "start": 49.55633,
+      "duration": 0.47968,
+      "confidence": 0.459
+    },
+    {
+      "start": 50.036,
+      "duration": 0.47842,
+      "confidence": 0.355
+    },
+    {
+      "start": 50.51442,
+      "duration": 0.47738,
+      "confidence": 0.403
+    },
+    {
+      "start": 50.9918,
+      "duration": 0.47676,
+      "confidence": 0.302
+    },
+    {
+      "start": 51.46856,
+      "duration": 0.47488,
+      "confidence": 0.289
+    },
+    {
+      "start": 51.94344,
+      "duration": 0.473,
+      "confidence": 0.234
+    },
+    {
+      "start": 52.41644,
+      "duration": 0.4726,
+      "confidence": 0.226
+    },
+    {
+      "start": 52.88904,
+      "duration": 0.4739,
+      "confidence": 0.32
+    },
+    {
+      "start": 53.36294,
+      "duration": 0.47605,
+      "confidence": 0.344
+    },
+    {
+      "start": 53.83898,
+      "duration": 0.47607,
+      "confidence": 0.309
+    },
+    {
+      "start": 54.31505,
+      "duration": 0.47503,
+      "confidence": 0.246
+    },
+    {
+      "start": 54.79008,
+      "duration": 0.47718,
+      "confidence": 0.232
+    },
+    {
+      "start": 55.26726,
+      "duration": 0.47955,
+      "confidence": 0.333
+    },
+    {
+      "start": 55.74681,
+      "duration": 0.47767,
+      "confidence": 0.41
+    },
+    {
+      "start": 56.22448,
+      "duration": 0.47557,
+      "confidence": 0.467
+    },
+    {
+      "start": 56.70005,
+      "duration": 0.47539,
+      "confidence": 0.249
+    },
+    {
+      "start": 57.17544,
+      "duration": 0.47606,
+      "confidence": 0.291
+    },
+    {
+      "start": 57.65151,
+      "duration": 0.47801,
+      "confidence": 0.322
+    },
+    {
+      "start": 58.12952,
+      "duration": 0.47825,
+      "confidence": 0.51
+    },
+    {
+      "start": 58.60776,
+      "duration": 0.47679,
+      "confidence": 0.542
+    },
+    {
+      "start": 59.08455,
+      "duration": 0.47724,
+      "confidence": 0.464
+    },
+    {
+      "start": 59.56179,
+      "duration": 0.4762,
+      "confidence": 0.31
+    },
+    {
+      "start": 60.038,
+      "duration": 0.4741,
+      "confidence": 0.279
+    },
+    {
+      "start": 60.5121,
+      "duration": 0.47455,
+      "confidence": 0.373
+    },
+    {
+      "start": 60.98665,
+      "duration": 0.47352,
+      "confidence": 0.419
+    },
+    {
+      "start": 61.46016,
+      "duration": 0.47333,
+      "confidence": 0.351
+    },
+    {
+      "start": 61.9335,
+      "duration": 0.47464,
+      "confidence": 0.359
+    },
+    {
+      "start": 62.40814,
+      "duration": 0.47617,
+      "confidence": 0.293
+    },
+    {
+      "start": 62.88432,
+      "duration": 0.47749,
+      "confidence": 0.211
+    },
+    {
+      "start": 63.36181,
+      "duration": 0.47712,
+      "confidence": 0.256
+    },
+    {
+      "start": 63.83892,
+      "duration": 0.47632,
+      "confidence": 0.227
+    },
+    {
+      "start": 64.31525,
+      "duration": 0.47723,
+      "confidence": 0.294
+    },
+    {
+      "start": 64.79248,
+      "duration": 0.47835,
+      "confidence": 0.189
+    },
+    {
+      "start": 65.27082,
+      "duration": 0.47712,
+      "confidence": 0.234
+    },
+    {
+      "start": 65.74794,
+      "duration": 0.47503,
+      "confidence": 0.218
+    },
+    {
+      "start": 66.22297,
+      "duration": 0.47442,
+      "confidence": 0.259
+    },
+    {
+      "start": 66.69739,
+      "duration": 0.47423,
+      "confidence": 0.295
+    },
+    {
+      "start": 67.17163,
+      "duration": 0.47339,
+      "confidence": 0.288
+    },
+    {
+      "start": 67.64502,
+      "duration": 0.47277,
+      "confidence": 0.224
+    },
+    {
+      "start": 68.11779,
+      "duration": 0.47193,
+      "confidence": 0.222
+    },
+    {
+      "start": 68.58972,
+      "duration": 0.47344,
+      "confidence": 0.187
+    },
+    {
+      "start": 69.06316,
+      "duration": 0.47517,
+      "confidence": 0.291
+    },
+    {
+      "start": 69.53833,
+      "duration": 0.47626,
+      "confidence": 0.304
+    },
+    {
+      "start": 70.01459,
+      "duration": 0.47928,
+      "confidence": 0.336
+    },
+    {
+      "start": 70.49387,
+      "duration": 0.48103,
+      "confidence": 0.3
+    },
+    {
+      "start": 70.9749,
+      "duration": 0.47957,
+      "confidence": 0.436
+    },
+    {
+      "start": 71.45447,
+      "duration": 0.47897,
+      "confidence": 0.554
+    },
+    {
+      "start": 71.93344,
+      "duration": 0.48006,
+      "confidence": 0.467
+    },
+    {
+      "start": 72.41349,
+      "duration": 0.48029,
+      "confidence": 0.427
+    },
+    {
+      "start": 72.89378,
+      "duration": 0.4771,
+      "confidence": 0.338
+    },
+    {
+      "start": 73.37088,
+      "duration": 0.47412,
+      "confidence": 0.357
+    },
+    {
+      "start": 73.84501,
+      "duration": 0.47454,
+      "confidence": 0.225
+    },
+    {
+      "start": 74.31955,
+      "duration": 0.47582,
+      "confidence": 0.181
+    },
+    {
+      "start": 74.79537,
+      "duration": 0.47517,
+      "confidence": 0.164
+    },
+    {
+      "start": 75.27054,
+      "duration": 0.47303,
+      "confidence": 0.164
+    },
+    {
+      "start": 75.74357,
+      "duration": 0.47303,
+      "confidence": 0.251
+    },
+    {
+      "start": 76.2166,
+      "duration": 0.47623,
+      "confidence": 0.265
+    },
+    {
+      "start": 76.69283,
+      "duration": 0.47665,
+      "confidence": 0.357
+    },
+    {
+      "start": 77.16948,
+      "duration": 0.47645,
+      "confidence": 0.618
+    },
+    {
+      "start": 77.64593,
+      "duration": 0.47752,
+      "confidence": 0.718
+    },
+    {
+      "start": 78.12344,
+      "duration": 0.47795,
+      "confidence": 0.825
+    },
+    {
+      "start": 78.60139,
+      "duration": 0.4788,
+      "confidence": 0.605
+    },
+    {
+      "start": 79.08019,
+      "duration": 0.47816,
+      "confidence": 0.362
+    },
+    {
+      "start": 79.55836,
+      "duration": 0.47753,
+      "confidence": 0.323
+    },
+    {
+      "start": 80.03588,
+      "duration": 0.47816,
+      "confidence": 0.291
+    },
+    {
+      "start": 80.51405,
+      "duration": 0.47645,
+      "confidence": 0.395
+    },
+    {
+      "start": 80.9905,
+      "duration": 0.47453,
+      "confidence": 0.269
+    },
+    {
+      "start": 81.46503,
+      "duration": 0.47623,
+      "confidence": 0.198
+    },
+    {
+      "start": 81.94127,
+      "duration": 0.47794,
+      "confidence": 0.251
+    },
+    {
+      "start": 82.4192,
+      "duration": 0.47687,
+      "confidence": 0.335
+    },
+    {
+      "start": 82.89608,
+      "duration": 0.47454,
+      "confidence": 0.344
+    },
+    {
+      "start": 83.37062,
+      "duration": 0.47284,
+      "confidence": 0.373
+    },
+    {
+      "start": 83.84346,
+      "duration": 0.47136,
+      "confidence": 0.386
+    },
+    {
+      "start": 84.31481,
+      "duration": 0.47349,
+      "confidence": 0.405
+    },
+    {
+      "start": 84.7883,
+      "duration": 0.4752,
+      "confidence": 0.28
+    },
+    {
+      "start": 85.26351,
+      "duration": 0.4735,
+      "confidence": 0.259
+    },
+    {
+      "start": 85.737,
+      "duration": 0.47477,
+      "confidence": 0.227
+    },
+    {
+      "start": 86.21177,
+      "duration": 0.47732,
+      "confidence": 0.34
+    },
+    {
+      "start": 86.6891,
+      "duration": 0.47966,
+      "confidence": 0.328
+    },
+    {
+      "start": 87.16876,
+      "duration": 0.48199,
+      "confidence": 0.339
+    },
+    {
+      "start": 87.65075,
+      "duration": 0.47985,
+      "confidence": 0.229
+    },
+    {
+      "start": 88.1306,
+      "duration": 0.47707,
+      "confidence": 0.328
+    },
+    {
+      "start": 88.60767,
+      "duration": 0.47812,
+      "confidence": 0.246
+    },
+    {
+      "start": 89.08579,
+      "duration": 0.47811,
+      "confidence": 0.275
+    },
+    {
+      "start": 89.56391,
+      "duration": 0.47747,
+      "confidence": 0.2
+    },
+    {
+      "start": 90.04137,
+      "duration": 0.47789,
+      "confidence": 0.247
+    },
+    {
+      "start": 90.51927,
+      "duration": 0.47917,
+      "confidence": 0.151
+    },
+    {
+      "start": 90.99843,
+      "duration": 0.48002,
+      "confidence": 0.211
+    },
+    {
+      "start": 91.47846,
+      "duration": 0.47769,
+      "confidence": 0.21
+    },
+    {
+      "start": 91.95615,
+      "duration": 0.47429,
+      "confidence": 0.208
+    },
+    {
+      "start": 92.43043,
+      "duration": 0.47301,
+      "confidence": 0.249
+    },
+    {
+      "start": 92.90344,
+      "duration": 0.47365,
+      "confidence": 0.246
+    },
+    {
+      "start": 93.37709,
+      "duration": 0.47535,
+      "confidence": 0.204
+    },
+    {
+      "start": 93.85244,
+      "duration": 0.47534,
+      "confidence": 0.303
+    },
+    {
+      "start": 94.32779,
+      "duration": 0.47449,
+      "confidence": 0.224
+    },
+    {
+      "start": 94.80227,
+      "duration": 0.47619,
+      "confidence": 0.343
+    },
+    {
+      "start": 95.27846,
+      "duration": 0.47725,
+      "confidence": 0.344
+    },
+    {
+      "start": 95.75571,
+      "duration": 0.47788,
+      "confidence": 0.366
+    },
+    {
+      "start": 96.23359,
+      "duration": 0.47831,
+      "confidence": 0.39
+    },
+    {
+      "start": 96.7119,
+      "duration": 0.47618,
+      "confidence": 0.505
+    },
+    {
+      "start": 97.18808,
+      "duration": 0.47576,
+      "confidence": 0.668
+    },
+    {
+      "start": 97.66385,
+      "duration": 0.47492,
+      "confidence": 0.459
+    },
+    {
+      "start": 98.13877,
+      "duration": 0.4745,
+      "confidence": 0.338
+    },
+    {
+      "start": 98.61327,
+      "duration": 0.47643,
+      "confidence": 0.458
+    },
+    {
+      "start": 99.0897,
+      "duration": 0.4756,
+      "confidence": 0.36
+    },
+    {
+      "start": 99.5653,
+      "duration": 0.47498,
+      "confidence": 0.375
+    },
+    {
+      "start": 100.04027,
+      "duration": 0.47521,
+      "confidence": 0.54
+    },
+    {
+      "start": 100.51549,
+      "duration": 0.47417,
+      "confidence": 0.663
+    },
+    {
+      "start": 100.98965,
+      "duration": 0.4761,
+      "confidence": 0.4
+    },
+    {
+      "start": 101.46576,
+      "duration": 0.47825,
+      "confidence": 0.513
+    },
+    {
+      "start": 101.94401,
+      "duration": 0.47762,
+      "confidence": 0.338
+    },
+    {
+      "start": 102.42163,
+      "duration": 0.47848,
+      "confidence": 0.362
+    },
+    {
+      "start": 102.90011,
+      "duration": 0.47848,
+      "confidence": 0.503
+    },
+    {
+      "start": 103.3786,
+      "duration": 0.47721,
+      "confidence": 0.365
+    },
+    {
+      "start": 103.8558,
+      "duration": 0.47742,
+      "confidence": 0.377
+    },
+    {
+      "start": 104.33323,
+      "duration": 0.47743,
+      "confidence": 0.548
+    },
+    {
+      "start": 104.81066,
+      "duration": 0.47679,
+      "confidence": 0.656
+    },
+    {
+      "start": 105.28745,
+      "duration": 0.47637,
+      "confidence": 0.637
+    },
+    {
+      "start": 105.76382,
+      "duration": 0.47616,
+      "confidence": 0.401
+    },
+    {
+      "start": 106.23998,
+      "duration": 0.47573,
+      "confidence": 0.522
+    },
+    {
+      "start": 106.71571,
+      "duration": 0.47318,
+      "confidence": 0.503
+    },
+    {
+      "start": 107.18889,
+      "duration": 0.47083,
+      "confidence": 0.344
+    },
+    {
+      "start": 107.65972,
+      "duration": 0.47061,
+      "confidence": 0.399
+    },
+    {
+      "start": 108.13033,
+      "duration": 0.4706,
+      "confidence": 0.439
+    },
+    {
+      "start": 108.60093,
+      "duration": 0.47166,
+      "confidence": 0.368
+    },
+    {
+      "start": 109.07259,
+      "duration": 0.47314,
+      "confidence": 0.441
+    },
+    {
+      "start": 109.54573,
+      "duration": 0.47398,
+      "confidence": 0.38
+    },
+    {
+      "start": 110.01971,
+      "duration": 0.4778,
+      "confidence": 0.3
+    },
+    {
+      "start": 110.49751,
+      "duration": 0.48034,
+      "confidence": 0.263
+    },
+    {
+      "start": 110.97784,
+      "duration": 0.47989,
+      "confidence": 0.395
+    },
+    {
+      "start": 111.45774,
+      "duration": 0.47903,
+      "confidence": 0.543
+    },
+    {
+      "start": 111.93676,
+      "duration": 0.47816,
+      "confidence": 0.456
+    },
+    {
+      "start": 112.41492,
+      "duration": 0.47793,
+      "confidence": 0.43
+    },
+    {
+      "start": 112.89286,
+      "duration": 0.4775,
+      "confidence": 0.342
+    },
+    {
+      "start": 113.37036,
+      "duration": 0.47643,
+      "confidence": 0.392
+    },
+    {
+      "start": 113.84678,
+      "duration": 0.47578,
+      "confidence": 0.307
+    },
+    {
+      "start": 114.32256,
+      "duration": 0.47407,
+      "confidence": 0.273
+    },
+    {
+      "start": 114.79663,
+      "duration": 0.47342,
+      "confidence": 0.198
+    },
+    {
+      "start": 115.27005,
+      "duration": 0.47405,
+      "confidence": 0.201
+    },
+    {
+      "start": 115.7441,
+      "duration": 0.47425,
+      "confidence": 0.308
+    },
+    {
+      "start": 116.21835,
+      "duration": 0.47446,
+      "confidence": 0.352
+    },
+    {
+      "start": 116.69281,
+      "duration": 0.47445,
+      "confidence": 0.333
+    },
+    {
+      "start": 117.16725,
+      "duration": 0.47508,
+      "confidence": 0.272
+    },
+    {
+      "start": 117.64233,
+      "duration": 0.47806,
+      "confidence": 0.245
+    },
+    {
+      "start": 118.12039,
+      "duration": 0.4804,
+      "confidence": 0.332
+    },
+    {
+      "start": 118.60079,
+      "duration": 0.47763,
+      "confidence": 0.398
+    },
+    {
+      "start": 119.07842,
+      "duration": 0.47549,
+      "confidence": 0.436
+    },
+    {
+      "start": 119.55391,
+      "duration": 0.4774,
+      "confidence": 0.251
+    },
+    {
+      "start": 120.0313,
+      "duration": 0.47845,
+      "confidence": 0.283
+    },
+    {
+      "start": 120.50976,
+      "duration": 0.4778,
+      "confidence": 0.326
+    },
+    {
+      "start": 120.98756,
+      "duration": 0.47672,
+      "confidence": 0.492
+    },
+    {
+      "start": 121.46428,
+      "duration": 0.47543,
+      "confidence": 0.523
+    },
+    {
+      "start": 121.93971,
+      "duration": 0.47583,
+      "confidence": 0.441
+    },
+    {
+      "start": 122.41554,
+      "duration": 0.47561,
+      "confidence": 0.303
+    },
+    {
+      "start": 122.89115,
+      "duration": 0.4741,
+      "confidence": 0.266
+    },
+    {
+      "start": 123.36525,
+      "duration": 0.47409,
+      "confidence": 0.352
+    },
+    {
+      "start": 123.83934,
+      "duration": 0.47429,
+      "confidence": 0.41
+    },
+    {
+      "start": 124.31363,
+      "duration": 0.47449,
+      "confidence": 0.34
+    },
+    {
+      "start": 124.78812,
+      "duration": 0.47491,
+      "confidence": 0.349
+    },
+    {
+      "start": 125.26303,
+      "duration": 0.47724,
+      "confidence": 0.315
+    },
+    {
+      "start": 125.74027,
+      "duration": 0.47893,
+      "confidence": 0.243
+    },
+    {
+      "start": 126.2192,
+      "duration": 0.47764,
+      "confidence": 0.257
+    },
+    {
+      "start": 126.69683,
+      "duration": 0.47635,
+      "confidence": 0.224
+    },
+    {
+      "start": 127.17318,
+      "duration": 0.47698,
+      "confidence": 0.264
+    },
+    {
+      "start": 127.65016,
+      "duration": 0.47804,
+      "confidence": 0.169
+    },
+    {
+      "start": 128.1282,
+      "duration": 0.47697,
+      "confidence": 0.218
+    },
+    {
+      "start": 128.60517,
+      "duration": 0.47527,
+      "confidence": 0.219
+    },
+    {
+      "start": 129.08044,
+      "duration": 0.47464,
+      "confidence": 0.256
+    },
+    {
+      "start": 129.55507,
+      "duration": 0.47529,
+      "confidence": 0.32
+    },
+    {
+      "start": 130.03036,
+      "duration": 0.47637,
+      "confidence": 0.306
+    },
+    {
+      "start": 130.50673,
+      "duration": 0.47577,
+      "confidence": 0.244
+    },
+    {
+      "start": 130.98251,
+      "duration": 0.47433,
+      "confidence": 0.227
+    },
+    {
+      "start": 131.45683,
+      "duration": 0.47588,
+      "confidence": 0.176
+    },
+    {
+      "start": 131.93271,
+      "duration": 0.47617,
+      "confidence": 0.275
+    },
+    {
+      "start": 132.40888,
+      "duration": 0.47582,
+      "confidence": 0.313
+    },
+    {
+      "start": 132.88471,
+      "duration": 0.47719,
+      "confidence": 0.356
+    },
+    {
+      "start": 133.3619,
+      "duration": 0.47749,
+      "confidence": 0.275
+    },
+    {
+      "start": 133.83939,
+      "duration": 0.47651,
+      "confidence": 0.435
+    },
+    {
+      "start": 134.3159,
+      "duration": 0.47637,
+      "confidence": 0.569
+    },
+    {
+      "start": 134.79226,
+      "duration": 0.47707,
+      "confidence": 0.472
+    },
+    {
+      "start": 135.26933,
+      "duration": 0.47798,
+      "confidence": 0.443
+    },
+    {
+      "start": 135.74731,
+      "duration": 0.47674,
+      "confidence": 0.335
+    },
+    {
+      "start": 136.22406,
+      "duration": 0.4755,
+      "confidence": 0.329
+    },
+    {
+      "start": 136.69955,
+      "duration": 0.47574,
+      "confidence": 0.197
+    },
+    {
+      "start": 137.1753,
+      "duration": 0.47598,
+      "confidence": 0.168
+    },
+    {
+      "start": 137.65127,
+      "duration": 0.4745,
+      "confidence": 0.126
+    },
+    {
+      "start": 138.12577,
+      "duration": 0.47259,
+      "confidence": 0.118
+    },
+    {
+      "start": 138.59837,
+      "duration": 0.47346,
+      "confidence": 0.17
+    },
+    {
+      "start": 139.07183,
+      "duration": 0.47518,
+      "confidence": 0.21
+    },
+    {
+      "start": 139.54701,
+      "duration": 0.47562,
+      "confidence": 0.25
+    },
+    {
+      "start": 140.02263,
+      "duration": 0.47585,
+      "confidence": 0.347
+    },
+    {
+      "start": 140.49848,
+      "duration": 0.47608,
+      "confidence": 0.325
+    },
+    {
+      "start": 140.97456,
+      "duration": 0.47758,
+      "confidence": 0.404
+    },
+    {
+      "start": 141.45214,
+      "duration": 0.47823,
+      "confidence": 0.393
+    },
+    {
+      "start": 141.93038,
+      "duration": 0.47632,
+      "confidence": 0.3
+    },
+    {
+      "start": 142.4067,
+      "duration": 0.47548,
+      "confidence": 0.194
+    },
+    {
+      "start": 142.88218,
+      "duration": 0.47463,
+      "confidence": 0.279
+    },
+    {
+      "start": 143.3568,
+      "duration": 0.4742,
+      "confidence": 0.309
+    },
+    {
+      "start": 143.83101,
+      "duration": 0.47507,
+      "confidence": 0.202
+    },
+    {
+      "start": 144.30607,
+      "duration": 0.47508,
+      "confidence": 0.274
+    },
+    {
+      "start": 144.78115,
+      "duration": 0.47509,
+      "confidence": 0.246
+    },
+    {
+      "start": 145.25623,
+      "duration": 0.47617,
+      "confidence": 0.38
+    },
+    {
+      "start": 145.7324,
+      "duration": 0.47682,
+      "confidence": 0.375
+    },
+    {
+      "start": 146.20923,
+      "duration": 0.47727,
+      "confidence": 0.44
+    },
+    {
+      "start": 146.68649,
+      "duration": 0.4775,
+      "confidence": 0.471
+    },
+    {
+      "start": 147.16399,
+      "duration": 0.47686,
+      "confidence": 0.447
+    },
+    {
+      "start": 147.64085,
+      "duration": 0.47602,
+      "confidence": 0.397
+    },
+    {
+      "start": 148.11687,
+      "duration": 0.47687,
+      "confidence": 0.457
+    },
+    {
+      "start": 148.59374,
+      "duration": 0.47772,
+      "confidence": 0.406
+    },
+    {
+      "start": 149.07146,
+      "duration": 0.47772,
+      "confidence": 0.436
+    },
+    {
+      "start": 149.54918,
+      "duration": 0.47665,
+      "confidence": 0.33
+    },
+    {
+      "start": 150.02583,
+      "duration": 0.47515,
+      "confidence": 0.428
+    },
+    {
+      "start": 150.50098,
+      "duration": 0.47664,
+      "confidence": 0.472
+    },
+    {
+      "start": 150.97762,
+      "duration": 0.47941,
+      "confidence": 0.392
+    },
+    {
+      "start": 151.45703,
+      "duration": 0.47813,
+      "confidence": 0.282
+    },
+    {
+      "start": 151.93516,
+      "duration": 0.47556,
+      "confidence": 0.4
+    },
+    {
+      "start": 152.41072,
+      "duration": 0.47556,
+      "confidence": 0.431
+    },
+    {
+      "start": 152.88629,
+      "duration": 0.47706,
+      "confidence": 0.27
+    },
+    {
+      "start": 153.36335,
+      "duration": 0.47727,
+      "confidence": 0.261
+    },
+    {
+      "start": 153.84062,
+      "duration": 0.47556,
+      "confidence": 0.314
+    },
+    {
+      "start": 154.31618,
+      "duration": 0.47449,
+      "confidence": 0.307
+    },
+    {
+      "start": 154.79067,
+      "duration": 0.47555,
+      "confidence": 0.34
+    },
+    {
+      "start": 155.26622,
+      "duration": 0.47575,
+      "confidence": 0.366
+    },
+    {
+      "start": 155.74197,
+      "duration": 0.4751,
+      "confidence": 0.496
+    },
+    {
+      "start": 156.21707,
+      "duration": 0.47635,
+      "confidence": 0.43
+    },
+    {
+      "start": 156.69343,
+      "duration": 0.47719,
+      "confidence": 0.305
+    },
+    {
+      "start": 157.17061,
+      "duration": 0.47781,
+      "confidence": 0.305
+    },
+    {
+      "start": 157.64842,
+      "duration": 0.47736,
+      "confidence": 0.452
+    },
+    {
+      "start": 158.12578,
+      "duration": 0.47713,
+      "confidence": 0.557
+    },
+    {
+      "start": 158.60291,
+      "duration": 0.4784,
+      "confidence": 0.499
+    },
+    {
+      "start": 159.08131,
+      "duration": 0.47924,
+      "confidence": 0.339
+    },
+    {
+      "start": 159.56055,
+      "duration": 0.47795,
+      "confidence": 0.458
+    },
+    {
+      "start": 160.03849,
+      "duration": 0.4756,
+      "confidence": 0.387
+    },
+    {
+      "start": 160.51409,
+      "duration": 0.47431,
+      "confidence": 0.317
+    },
+    {
+      "start": 160.9884,
+      "duration": 0.47324,
+      "confidence": 0.275
+    },
+    {
+      "start": 161.46164,
+      "duration": 0.47324,
+      "confidence": 0.35
+    },
+    {
+      "start": 161.93488,
+      "duration": 0.47537,
+      "confidence": 0.404
+    },
+    {
+      "start": 162.41024,
+      "duration": 0.47515,
+      "confidence": 0.537
+    },
+    {
+      "start": 162.88539,
+      "duration": 0.47387,
+      "confidence": 0.435
+    },
+    {
+      "start": 163.35926,
+      "duration": 0.47663,
+      "confidence": 0.359
+    },
+    {
+      "start": 163.83589,
+      "duration": 0.47833,
+      "confidence": 0.342
+    },
+    {
+      "start": 164.31422,
+      "duration": 0.47789,
+      "confidence": 0.333
+    },
+    {
+      "start": 164.79211,
+      "duration": 0.47746,
+      "confidence": 0.485
+    },
+    {
+      "start": 165.26956,
+      "duration": 0.47681,
+      "confidence": 0.447
+    },
+    {
+      "start": 165.74637,
+      "duration": 0.47723,
+      "confidence": 0.415
+    },
+    {
+      "start": 166.2236,
+      "duration": 0.47807,
+      "confidence": 0.312
+    },
+    {
+      "start": 166.70167,
+      "duration": 0.47721,
+      "confidence": 0.361
+    },
+    {
+      "start": 167.17888,
+      "duration": 0.47657,
+      "confidence": 0.298
+    },
+    {
+      "start": 167.65545,
+      "duration": 0.47593,
+      "confidence": 0.26
+    },
+    {
+      "start": 168.13138,
+      "duration": 0.47422,
+      "confidence": 0.197
+    },
+    {
+      "start": 168.60559,
+      "duration": 0.47314,
+      "confidence": 0.188
+    },
+    {
+      "start": 169.07873,
+      "duration": 0.47356,
+      "confidence": 0.26
+    },
+    {
+      "start": 169.5523,
+      "duration": 0.4742,
+      "confidence": 0.329
+    },
+    {
+      "start": 170.0265,
+      "duration": 0.47398,
+      "confidence": 0.301
+    },
+    {
+      "start": 170.50048,
+      "duration": 0.47483,
+      "confidence": 0.27
+    },
+    {
+      "start": 170.97531,
+      "duration": 0.47739,
+      "confidence": 0.27
+    },
+    {
+      "start": 171.4527,
+      "duration": 0.4793,
+      "confidence": 0.339
+    },
+    {
+      "start": 171.93201,
+      "duration": 0.4776,
+      "confidence": 0.409
+    },
+    {
+      "start": 172.4096,
+      "duration": 0.47632,
+      "confidence": 0.445
+    },
+    {
+      "start": 172.88593,
+      "duration": 0.47761,
+      "confidence": 0.261
+    },
+    {
+      "start": 173.36353,
+      "duration": 0.47825,
+      "confidence": 0.291
+    },
+    {
+      "start": 173.84178,
+      "duration": 0.47762,
+      "confidence": 0.342
+    },
+    {
+      "start": 174.3194,
+      "duration": 0.47699,
+      "confidence": 0.482
+    },
+    {
+      "start": 174.79639,
+      "duration": 0.47657,
+      "confidence": 0.515
+    },
+    {
+      "start": 175.27296,
+      "duration": 0.47679,
+      "confidence": 0.443
+    },
+    {
+      "start": 175.74975,
+      "duration": 0.47659,
+      "confidence": 0.294
+    },
+    {
+      "start": 176.22633,
+      "duration": 0.4751,
+      "confidence": 0.264
+    },
+    {
+      "start": 176.70144,
+      "duration": 0.47425,
+      "confidence": 0.35
+    },
+    {
+      "start": 177.17569,
+      "duration": 0.47341,
+      "confidence": 0.405
+    },
+    {
+      "start": 177.6491,
+      "duration": 0.47385,
+      "confidence": 0.338
+    },
+    {
+      "start": 178.12295,
+      "duration": 0.47471,
+      "confidence": 0.345
+    },
+    {
+      "start": 178.59766,
+      "duration": 0.47643,
+      "confidence": 0.288
+    },
+    {
+      "start": 179.0741,
+      "duration": 0.47687,
+      "confidence": 0.195
+    },
+    {
+      "start": 179.55096,
+      "duration": 0.4756,
+      "confidence": 0.225
+    },
+    {
+      "start": 180.02656,
+      "duration": 0.47624,
+      "confidence": 0.216
+    },
+    {
+      "start": 180.5028,
+      "duration": 0.47817,
+      "confidence": 0.274
+    },
+    {
+      "start": 180.98097,
+      "duration": 0.47838,
+      "confidence": 0.185
+    },
+    {
+      "start": 181.45935,
+      "duration": 0.47668,
+      "confidence": 0.22
+    },
+    {
+      "start": 181.93603,
+      "duration": 0.47497,
+      "confidence": 0.207
+    },
+    {
+      "start": 182.41099,
+      "duration": 0.47497,
+      "confidence": 0.242
+    },
+    {
+      "start": 182.88596,
+      "duration": 0.47561,
+      "confidence": 0.289
+    },
+    {
+      "start": 183.36157,
+      "duration": 0.47561,
+      "confidence": 0.288
+    },
+    {
+      "start": 183.83718,
+      "duration": 0.47476,
+      "confidence": 0.221
+    },
+    {
+      "start": 184.31193,
+      "duration": 0.47369,
+      "confidence": 0.213
+    },
+    {
+      "start": 184.78562,
+      "duration": 0.47454,
+      "confidence": 0.216
+    },
+    {
+      "start": 185.26017,
+      "duration": 0.47583,
+      "confidence": 0.293
+    },
+    {
+      "start": 185.73599,
+      "duration": 0.47711,
+      "confidence": 0.332
+    },
+    {
+      "start": 186.2131,
+      "duration": 0.4786,
+      "confidence": 0.372
+    },
+    {
+      "start": 186.6917,
+      "duration": 0.47839,
+      "confidence": 0.304
+    },
+    {
+      "start": 187.1701,
+      "duration": 0.47669,
+      "confidence": 0.414
+    },
+    {
+      "start": 187.64678,
+      "duration": 0.47711,
+      "confidence": 0.547
+    },
+    {
+      "start": 188.1239,
+      "duration": 0.47882,
+      "confidence": 0.476
+    },
+    {
+      "start": 188.60272,
+      "duration": 0.47925,
+      "confidence": 0.442
+    },
+    {
+      "start": 189.08196,
+      "duration": 0.47669,
+      "confidence": 0.348
+    },
+    {
+      "start": 189.55865,
+      "duration": 0.47455,
+      "confidence": 0.355
+    },
+    {
+      "start": 190.0332,
+      "duration": 0.47562,
+      "confidence": 0.201
+    },
+    {
+      "start": 190.50882,
+      "duration": 0.47772,
+      "confidence": 0.177
+    },
+    {
+      "start": 190.98654,
+      "duration": 0.47788,
+      "confidence": 0.115
+    },
+    {
+      "start": 191.46442,
+      "duration": 0.47505,
+      "confidence": 0.162
+    },
+    {
+      "start": 191.93947,
+      "duration": 0.47349,
+      "confidence": 0.267
+    },
+    {
+      "start": 192.41296,
+      "duration": 0.47893,
+      "confidence": 0.299
+    },
+    {
+      "start": 192.89189,
+      "duration": 0.48008,
+      "confidence": 0.302
+    },
+    {
+      "start": 193.37197,
+      "duration": 0.47618,
+      "confidence": 0.258
+    },
+    {
+      "start": 193.84814,
+      "duration": 0.47901,
+      "confidence": 0.143
+    },
+    {
+      "start": 194.32716,
+      "duration": 0.47249,
+      "confidence": 0.127
+    },
+    {
+      "start": 194.79965,
+      "duration": 0.46291,
+      "confidence": 0.074
+    },
+    {
+      "start": 195.26256,
+      "duration": 0.46291,
+      "confidence": 0.074
+    }
+  ],
+  "tatums": [
+    {
+      "start": 0.43534,
+      "duration": 0.25255,
+      "confidence": 0.671
+    },
+    {
+      "start": 0.68789,
+      "duration": 0.25255,
+      "confidence": 0.671
+    },
+    {
+      "start": 0.94045,
+      "duration": 0.24757,
+      "confidence": 0.519
+    },
+    {
+      "start": 1.18802,
+      "duration": 0.24757,
+      "confidence": 0.519
+    },
+    {
+      "start": 1.4356,
+      "duration": 0.24178,
+      "confidence": 0.494
+    },
+    {
+      "start": 1.67737,
+      "duration": 0.24178,
+      "confidence": 0.494
+    },
+    {
+      "start": 1.91915,
+      "duration": 0.24191,
+      "confidence": 0.515
+    },
+    {
+      "start": 2.16106,
+      "duration": 0.24191,
+      "confidence": 0.515
+    },
+    {
+      "start": 2.40298,
+      "duration": 0.24095,
+      "confidence": 0.371
+    },
+    {
+      "start": 2.64393,
+      "duration": 0.24095,
+      "confidence": 0.371
+    },
+    {
+      "start": 2.88488,
+      "duration": 0.23658,
+      "confidence": 0.356
+    },
+    {
+      "start": 3.12147,
+      "duration": 0.23658,
+      "confidence": 0.356
+    },
+    {
+      "start": 3.35805,
+      "duration": 0.23253,
+      "confidence": 0.395
+    },
+    {
+      "start": 3.59058,
+      "duration": 0.23253,
+      "confidence": 0.395
+    },
+    {
+      "start": 3.82311,
+      "duration": 0.23114,
+      "confidence": 0.495
+    },
+    {
+      "start": 4.05425,
+      "duration": 0.23114,
+      "confidence": 0.495
+    },
+    {
+      "start": 4.2854,
+      "duration": 0.23104,
+      "confidence": 0.39
+    },
+    {
+      "start": 4.51643,
+      "duration": 0.23104,
+      "confidence": 0.39
+    },
+    {
+      "start": 4.74747,
+      "duration": 0.23114,
+      "confidence": 0.113
+    },
+    {
+      "start": 4.97861,
+      "duration": 0.23114,
+      "confidence": 0.113
+    },
+    {
+      "start": 5.20974,
+      "duration": 0.23134,
+      "confidence": 0.14
+    },
+    {
+      "start": 5.44109,
+      "duration": 0.23134,
+      "confidence": 0.14
+    },
+    {
+      "start": 5.67243,
+      "duration": 0.23229,
+      "confidence": 0.13
+    },
+    {
+      "start": 5.90473,
+      "duration": 0.23229,
+      "confidence": 0.13
+    },
+    {
+      "start": 6.13702,
+      "duration": 0.23686,
+      "confidence": 0.142
+    },
+    {
+      "start": 6.37388,
+      "duration": 0.23686,
+      "confidence": 0.142
+    },
+    {
+      "start": 6.61075,
+      "duration": 0.24345,
+      "confidence": 0.085
+    },
+    {
+      "start": 6.8542,
+      "duration": 0.24345,
+      "confidence": 0.085
+    },
+    {
+      "start": 7.09765,
+      "duration": 0.24621,
+      "confidence": 0.224
+    },
+    {
+      "start": 7.34386,
+      "duration": 0.24621,
+      "confidence": 0.224
+    },
+    {
+      "start": 7.59007,
+      "duration": 0.24619,
+      "confidence": 0.209
+    },
+    {
+      "start": 7.83626,
+      "duration": 0.24619,
+      "confidence": 0.209
+    },
+    {
+      "start": 8.08245,
+      "duration": 0.24596,
+      "confidence": 0.146
+    },
+    {
+      "start": 8.32842,
+      "duration": 0.24596,
+      "confidence": 0.146
+    },
+    {
+      "start": 8.57438,
+      "duration": 0.24499,
+      "confidence": 0.242
+    },
+    {
+      "start": 8.81937,
+      "duration": 0.24499,
+      "confidence": 0.242
+    },
+    {
+      "start": 9.06436,
+      "duration": 0.24423,
+      "confidence": 0.167
+    },
+    {
+      "start": 9.30859,
+      "duration": 0.24423,
+      "confidence": 0.167
+    },
+    {
+      "start": 9.55281,
+      "duration": 0.24272,
+      "confidence": 0.258
+    },
+    {
+      "start": 9.79553,
+      "duration": 0.24272,
+      "confidence": 0.258
+    },
+    {
+      "start": 10.03825,
+      "duration": 0.23983,
+      "confidence": 0.242
+    },
+    {
+      "start": 10.27808,
+      "duration": 0.23983,
+      "confidence": 0.242
+    },
+    {
+      "start": 10.5179,
+      "duration": 0.23757,
+      "confidence": 0.407
+    },
+    {
+      "start": 10.75547,
+      "duration": 0.23757,
+      "confidence": 0.407
+    },
+    {
+      "start": 10.99305,
+      "duration": 0.23681,
+      "confidence": 0.346
+    },
+    {
+      "start": 11.22986,
+      "duration": 0.23681,
+      "confidence": 0.346
+    },
+    {
+      "start": 11.46667,
+      "duration": 0.23754,
+      "confidence": 0.381
+    },
+    {
+      "start": 11.70422,
+      "duration": 0.23754,
+      "confidence": 0.381
+    },
+    {
+      "start": 11.94176,
+      "duration": 0.23913,
+      "confidence": 0.272
+    },
+    {
+      "start": 12.18089,
+      "duration": 0.23913,
+      "confidence": 0.272
+    },
+    {
+      "start": 12.42002,
+      "duration": 0.23923,
+      "confidence": 0.387
+    },
+    {
+      "start": 12.65925,
+      "duration": 0.23923,
+      "confidence": 0.387
+    },
+    {
+      "start": 12.89848,
+      "duration": 0.23806,
+      "confidence": 0.338
+    },
+    {
+      "start": 13.13654,
+      "duration": 0.23806,
+      "confidence": 0.338
+    },
+    {
+      "start": 13.37459,
+      "duration": 0.2371,
+      "confidence": 0.308
+    },
+    {
+      "start": 13.6117,
+      "duration": 0.2371,
+      "confidence": 0.308
+    },
+    {
+      "start": 13.8488,
+      "duration": 0.23721,
+      "confidence": 0.326
+    },
+    {
+      "start": 14.08602,
+      "duration": 0.23721,
+      "confidence": 0.326
+    },
+    {
+      "start": 14.32323,
+      "duration": 0.23807,
+      "confidence": 0.333
+    },
+    {
+      "start": 14.5613,
+      "duration": 0.23807,
+      "confidence": 0.333
+    },
+    {
+      "start": 14.79937,
+      "duration": 0.23786,
+      "confidence": 0.254
+    },
+    {
+      "start": 15.03724,
+      "duration": 0.23786,
+      "confidence": 0.254
+    },
+    {
+      "start": 15.2751,
+      "duration": 0.23649,
+      "confidence": 0.211
+    },
+    {
+      "start": 15.51159,
+      "duration": 0.23649,
+      "confidence": 0.211
+    },
+    {
+      "start": 15.74808,
+      "duration": 0.2366,
+      "confidence": 0.109
+    },
+    {
+      "start": 15.98468,
+      "duration": 0.2366,
+      "confidence": 0.109
+    },
+    {
+      "start": 16.22128,
+      "duration": 0.23799,
+      "confidence": 0.85
+    },
+    {
+      "start": 16.45927,
+      "duration": 0.23799,
+      "confidence": 0.85
+    },
+    {
+      "start": 16.69725,
+      "duration": 0.23841,
+      "confidence": 0.802
+    },
+    {
+      "start": 16.93567,
+      "duration": 0.23841,
+      "confidence": 0.802
+    },
+    {
+      "start": 17.17408,
+      "duration": 0.23852,
+      "confidence": 0.794
+    },
+    {
+      "start": 17.4126,
+      "duration": 0.23852,
+      "confidence": 0.794
+    },
+    {
+      "start": 17.65112,
+      "duration": 0.23852,
+      "confidence": 0.706
+    },
+    {
+      "start": 17.88965,
+      "duration": 0.23852,
+      "confidence": 0.706
+    },
+    {
+      "start": 18.12817,
+      "duration": 0.23789,
+      "confidence": 0.486
+    },
+    {
+      "start": 18.36605,
+      "duration": 0.23789,
+      "confidence": 0.486
+    },
+    {
+      "start": 18.60394,
+      "duration": 0.23831,
+      "confidence": 0.477
+    },
+    {
+      "start": 18.84225,
+      "duration": 0.23831,
+      "confidence": 0.477
+    },
+    {
+      "start": 19.08057,
+      "duration": 0.23896,
+      "confidence": 0.407
+    },
+    {
+      "start": 19.31952,
+      "duration": 0.23896,
+      "confidence": 0.407
+    },
+    {
+      "start": 19.55848,
+      "duration": 0.23822,
+      "confidence": 0.562
+    },
+    {
+      "start": 19.79669,
+      "duration": 0.23822,
+      "confidence": 0.562
+    },
+    {
+      "start": 20.03491,
+      "duration": 0.23875,
+      "confidence": 0.439
+    },
+    {
+      "start": 20.27366,
+      "duration": 0.23875,
+      "confidence": 0.439
+    },
+    {
+      "start": 20.51242,
+      "duration": 0.23929,
+      "confidence": 0.54
+    },
+    {
+      "start": 20.75171,
+      "duration": 0.23929,
+      "confidence": 0.54
+    },
+    {
+      "start": 20.991,
+      "duration": 0.23834,
+      "confidence": 0.486
+    },
+    {
+      "start": 21.22934,
+      "duration": 0.23834,
+      "confidence": 0.486
+    },
+    {
+      "start": 21.46768,
+      "duration": 0.23835,
+      "confidence": 0.482
+    },
+    {
+      "start": 21.70603,
+      "duration": 0.23835,
+      "confidence": 0.482
+    },
+    {
+      "start": 21.94437,
+      "duration": 0.2376,
+      "confidence": 0.501
+    },
+    {
+      "start": 22.18197,
+      "duration": 0.2376,
+      "confidence": 0.501
+    },
+    {
+      "start": 22.41958,
+      "duration": 0.23697,
+      "confidence": 0.524
+    },
+    {
+      "start": 22.65654,
+      "duration": 0.23697,
+      "confidence": 0.524
+    },
+    {
+      "start": 22.89351,
+      "duration": 0.23771,
+      "confidence": 0.369
+    },
+    {
+      "start": 23.13122,
+      "duration": 0.23771,
+      "confidence": 0.369
+    },
+    {
+      "start": 23.36893,
+      "duration": 0.23771,
+      "confidence": 0.35
+    },
+    {
+      "start": 23.60663,
+      "duration": 0.23771,
+      "confidence": 0.35
+    },
+    {
+      "start": 23.84434,
+      "duration": 0.23802,
+      "confidence": 0.355
+    },
+    {
+      "start": 24.08236,
+      "duration": 0.23802,
+      "confidence": 0.355
+    },
+    {
+      "start": 24.32038,
+      "duration": 0.23886,
+      "confidence": 0.466
+    },
+    {
+      "start": 24.55924,
+      "duration": 0.23886,
+      "confidence": 0.466
+    },
+    {
+      "start": 24.79811,
+      "duration": 0.23907,
+      "confidence": 0.452
+    },
+    {
+      "start": 25.03718,
+      "duration": 0.23907,
+      "confidence": 0.452
+    },
+    {
+      "start": 25.27625,
+      "duration": 0.23949,
+      "confidence": 0.408
+    },
+    {
+      "start": 25.51574,
+      "duration": 0.23949,
+      "confidence": 0.408
+    },
+    {
+      "start": 25.75523,
+      "duration": 0.23949,
+      "confidence": 0.377
+    },
+    {
+      "start": 25.99472,
+      "duration": 0.23949,
+      "confidence": 0.377
+    },
+    {
+      "start": 26.2342,
+      "duration": 0.23895,
+      "confidence": 0.35
+    },
+    {
+      "start": 26.47315,
+      "duration": 0.23895,
+      "confidence": 0.35
+    },
+    {
+      "start": 26.7121,
+      "duration": 0.23884,
+      "confidence": 0.342
+    },
+    {
+      "start": 26.95094,
+      "duration": 0.23884,
+      "confidence": 0.342
+    },
+    {
+      "start": 27.18978,
+      "duration": 0.23862,
+      "confidence": 0.311
+    },
+    {
+      "start": 27.42839,
+      "duration": 0.23862,
+      "confidence": 0.311
+    },
+    {
+      "start": 27.66701,
+      "duration": 0.23807,
+      "confidence": 0.3
+    },
+    {
+      "start": 27.90508,
+      "duration": 0.23807,
+      "confidence": 0.3
+    },
+    {
+      "start": 28.14315,
+      "duration": 0.23825,
+      "confidence": 0.376
+    },
+    {
+      "start": 28.38141,
+      "duration": 0.23825,
+      "confidence": 0.376
+    },
+    {
+      "start": 28.61966,
+      "duration": 0.23906,
+      "confidence": 0.367
+    },
+    {
+      "start": 28.85872,
+      "duration": 0.23906,
+      "confidence": 0.367
+    },
+    {
+      "start": 29.09778,
+      "duration": 0.23858,
+      "confidence": 0.353
+    },
+    {
+      "start": 29.33636,
+      "duration": 0.23858,
+      "confidence": 0.353
+    },
+    {
+      "start": 29.57494,
+      "duration": 0.23713,
+      "confidence": 0.372
+    },
+    {
+      "start": 29.81207,
+      "duration": 0.23713,
+      "confidence": 0.372
+    },
+    {
+      "start": 30.0492,
+      "duration": 0.23609,
+      "confidence": 0.417
+    },
+    {
+      "start": 30.28528,
+      "duration": 0.23609,
+      "confidence": 0.417
+    },
+    {
+      "start": 30.52137,
+      "duration": 0.23557,
+      "confidence": 0.355
+    },
+    {
+      "start": 30.75694,
+      "duration": 0.23557,
+      "confidence": 0.355
+    },
+    {
+      "start": 30.99252,
+      "duration": 0.23717,
+      "confidence": 0.382
+    },
+    {
+      "start": 31.22969,
+      "duration": 0.23717,
+      "confidence": 0.382
+    },
+    {
+      "start": 31.46686,
+      "duration": 0.23824,
+      "confidence": 0.271
+    },
+    {
+      "start": 31.70511,
+      "duration": 0.23824,
+      "confidence": 0.271
+    },
+    {
+      "start": 31.94335,
+      "duration": 0.23741,
+      "confidence": 0.382
+    },
+    {
+      "start": 32.18075,
+      "duration": 0.23741,
+      "confidence": 0.382
+    },
+    {
+      "start": 32.41816,
+      "duration": 0.23721,
+      "confidence": 0.216
+    },
+    {
+      "start": 32.65537,
+      "duration": 0.23721,
+      "confidence": 0.216
+    },
+    {
+      "start": 32.89259,
+      "duration": 0.23798,
+      "confidence": 0.452
+    },
+    {
+      "start": 33.13057,
+      "duration": 0.23798,
+      "confidence": 0.452
+    },
+    {
+      "start": 33.36855,
+      "duration": 0.23929,
+      "confidence": 0.347
+    },
+    {
+      "start": 33.60785,
+      "duration": 0.23929,
+      "confidence": 0.347
+    },
+    {
+      "start": 33.84714,
+      "duration": 0.24008,
+      "confidence": 0.283
+    },
+    {
+      "start": 34.08721,
+      "duration": 0.24008,
+      "confidence": 0.283
+    },
+    {
+      "start": 34.32729,
+      "duration": 0.23917,
+      "confidence": 0.361
+    },
+    {
+      "start": 34.56646,
+      "duration": 0.23917,
+      "confidence": 0.361
+    },
+    {
+      "start": 34.80564,
+      "duration": 0.2385,
+      "confidence": 0.597
+    },
+    {
+      "start": 35.04413,
+      "duration": 0.2385,
+      "confidence": 0.597
+    },
+    {
+      "start": 35.28263,
+      "duration": 0.23794,
+      "confidence": 0.597
+    },
+    {
+      "start": 35.52057,
+      "duration": 0.23794,
+      "confidence": 0.597
+    },
+    {
+      "start": 35.75851,
+      "duration": 0.23782,
+      "confidence": 0.575
+    },
+    {
+      "start": 35.99632,
+      "duration": 0.23782,
+      "confidence": 0.575
+    },
+    {
+      "start": 36.23414,
+      "duration": 0.23844,
+      "confidence": 0.363
+    },
+    {
+      "start": 36.47258,
+      "duration": 0.23844,
+      "confidence": 0.363
+    },
+    {
+      "start": 36.71102,
+      "duration": 0.2379,
+      "confidence": 0.386
+    },
+    {
+      "start": 36.94892,
+      "duration": 0.2379,
+      "confidence": 0.386
+    },
+    {
+      "start": 37.18683,
+      "duration": 0.23748,
+      "confidence": 0.264
+    },
+    {
+      "start": 37.42431,
+      "duration": 0.23748,
+      "confidence": 0.264
+    },
+    {
+      "start": 37.66179,
+      "duration": 0.23696,
+      "confidence": 0.472
+    },
+    {
+      "start": 37.89875,
+      "duration": 0.23696,
+      "confidence": 0.472
+    },
+    {
+      "start": 38.13571,
+      "duration": 0.23601,
+      "confidence": 0.543
+    },
+    {
+      "start": 38.37172,
+      "duration": 0.23601,
+      "confidence": 0.543
+    },
+    {
+      "start": 38.60773,
+      "duration": 0.23739,
+      "confidence": 0.614
+    },
+    {
+      "start": 38.84512,
+      "duration": 0.23739,
+      "confidence": 0.614
+    },
+    {
+      "start": 39.08251,
+      "duration": 0.23919,
+      "confidence": 0.543
+    },
+    {
+      "start": 39.3217,
+      "duration": 0.23919,
+      "confidence": 0.543
+    },
+    {
+      "start": 39.56089,
+      "duration": 0.23897,
+      "confidence": 0.439
+    },
+    {
+      "start": 39.79986,
+      "duration": 0.23897,
+      "confidence": 0.439
+    },
+    {
+      "start": 40.03884,
+      "duration": 0.23908,
+      "confidence": 0.244
+    },
+    {
+      "start": 40.27791,
+      "duration": 0.23908,
+      "confidence": 0.244
+    },
+    {
+      "start": 40.51699,
+      "duration": 0.23918,
+      "confidence": 0.551
+    },
+    {
+      "start": 40.75618,
+      "duration": 0.23918,
+      "confidence": 0.551
+    },
+    {
+      "start": 40.99536,
+      "duration": 0.23897,
+      "confidence": 0.401
+    },
+    {
+      "start": 41.23432,
+      "duration": 0.23897,
+      "confidence": 0.401
+    },
+    {
+      "start": 41.47329,
+      "duration": 0.23918,
+      "confidence": 0.36
+    },
+    {
+      "start": 41.71247,
+      "duration": 0.23918,
+      "confidence": 0.36
+    },
+    {
+      "start": 41.95165,
+      "duration": 0.23909,
+      "confidence": 0.445
+    },
+    {
+      "start": 42.19074,
+      "duration": 0.23909,
+      "confidence": 0.445
+    },
+    {
+      "start": 42.42982,
+      "duration": 0.23858,
+      "confidence": 0.481
+    },
+    {
+      "start": 42.6684,
+      "duration": 0.23858,
+      "confidence": 0.481
+    },
+    {
+      "start": 42.90698,
+      "duration": 0.23819,
+      "confidence": 0.621
+    },
+    {
+      "start": 43.14517,
+      "duration": 0.23819,
+      "confidence": 0.621
+    },
+    {
+      "start": 43.38335,
+      "duration": 0.23769,
+      "confidence": 0.64
+    },
+    {
+      "start": 43.62105,
+      "duration": 0.23769,
+      "confidence": 0.64
+    },
+    {
+      "start": 43.85874,
+      "duration": 0.23806,
+      "confidence": 0.525
+    },
+    {
+      "start": 44.0968,
+      "duration": 0.23806,
+      "confidence": 0.525
+    },
+    {
+      "start": 44.33485,
+      "duration": 0.238,
+      "confidence": 0.517
+    },
+    {
+      "start": 44.57285,
+      "duration": 0.238,
+      "confidence": 0.517
+    },
+    {
+      "start": 44.81085,
+      "duration": 0.23699,
+      "confidence": 0.418
+    },
+    {
+      "start": 45.04783,
+      "duration": 0.23699,
+      "confidence": 0.418
+    },
+    {
+      "start": 45.28482,
+      "duration": 0.23576,
+      "confidence": 0.558
+    },
+    {
+      "start": 45.52058,
+      "duration": 0.23576,
+      "confidence": 0.558
+    },
+    {
+      "start": 45.75634,
+      "duration": 0.23506,
+      "confidence": 0.377
+    },
+    {
+      "start": 45.9914,
+      "duration": 0.23506,
+      "confidence": 0.377
+    },
+    {
+      "start": 46.22646,
+      "duration": 0.23595,
+      "confidence": 0.333
+    },
+    {
+      "start": 46.46241,
+      "duration": 0.23595,
+      "confidence": 0.333
+    },
+    {
+      "start": 46.69836,
+      "duration": 0.23684,
+      "confidence": 0.404
+    },
+    {
+      "start": 46.9352,
+      "duration": 0.23684,
+      "confidence": 0.404
+    },
+    {
+      "start": 47.17204,
+      "duration": 0.23687,
+      "confidence": 0.491
+    },
+    {
+      "start": 47.40892,
+      "duration": 0.23687,
+      "confidence": 0.491
+    },
+    {
+      "start": 47.64579,
+      "duration": 0.23765,
+      "confidence": 0.484
+    },
+    {
+      "start": 47.88344,
+      "duration": 0.23765,
+      "confidence": 0.484
+    },
+    {
+      "start": 48.12108,
+      "duration": 0.23841,
+      "confidence": 0.311
+    },
+    {
+      "start": 48.35949,
+      "duration": 0.23841,
+      "confidence": 0.311
+    },
+    {
+      "start": 48.59791,
+      "duration": 0.23917,
+      "confidence": 0.286
+    },
+    {
+      "start": 48.83708,
+      "duration": 0.23917,
+      "confidence": 0.286
+    },
+    {
+      "start": 49.07625,
+      "duration": 0.24004,
+      "confidence": 0.423
+    },
+    {
+      "start": 49.31629,
+      "duration": 0.24004,
+      "confidence": 0.423
+    },
+    {
+      "start": 49.55633,
+      "duration": 0.23984,
+      "confidence": 0.459
+    },
+    {
+      "start": 49.79617,
+      "duration": 0.23984,
+      "confidence": 0.459
+    },
+    {
+      "start": 50.036,
+      "duration": 0.23921,
+      "confidence": 0.355
+    },
+    {
+      "start": 50.27521,
+      "duration": 0.23921,
+      "confidence": 0.355
+    },
+    {
+      "start": 50.51442,
+      "duration": 0.23869,
+      "confidence": 0.403
+    },
+    {
+      "start": 50.75311,
+      "duration": 0.23869,
+      "confidence": 0.403
+    },
+    {
+      "start": 50.9918,
+      "duration": 0.23838,
+      "confidence": 0.302
+    },
+    {
+      "start": 51.23018,
+      "duration": 0.23838,
+      "confidence": 0.302
+    },
+    {
+      "start": 51.46856,
+      "duration": 0.23744,
+      "confidence": 0.289
+    },
+    {
+      "start": 51.706,
+      "duration": 0.23744,
+      "confidence": 0.289
+    },
+    {
+      "start": 51.94344,
+      "duration": 0.2365,
+      "confidence": 0.234
+    },
+    {
+      "start": 52.17994,
+      "duration": 0.2365,
+      "confidence": 0.234
+    },
+    {
+      "start": 52.41644,
+      "duration": 0.2363,
+      "confidence": 0.226
+    },
+    {
+      "start": 52.65274,
+      "duration": 0.2363,
+      "confidence": 0.226
+    },
+    {
+      "start": 52.88904,
+      "duration": 0.23695,
+      "confidence": 0.32
+    },
+    {
+      "start": 53.12599,
+      "duration": 0.23695,
+      "confidence": 0.32
+    },
+    {
+      "start": 53.36294,
+      "duration": 0.23802,
+      "confidence": 0.344
+    },
+    {
+      "start": 53.60096,
+      "duration": 0.23802,
+      "confidence": 0.344
+    },
+    {
+      "start": 53.83898,
+      "duration": 0.23803,
+      "confidence": 0.309
+    },
+    {
+      "start": 54.07702,
+      "duration": 0.23803,
+      "confidence": 0.309
+    },
+    {
+      "start": 54.31505,
+      "duration": 0.23751,
+      "confidence": 0.246
+    },
+    {
+      "start": 54.55256,
+      "duration": 0.23751,
+      "confidence": 0.246
+    },
+    {
+      "start": 54.79008,
+      "duration": 0.23859,
+      "confidence": 0.232
+    },
+    {
+      "start": 55.02867,
+      "duration": 0.23859,
+      "confidence": 0.232
+    },
+    {
+      "start": 55.26726,
+      "duration": 0.23977,
+      "confidence": 0.333
+    },
+    {
+      "start": 55.50703,
+      "duration": 0.23977,
+      "confidence": 0.333
+    },
+    {
+      "start": 55.74681,
+      "duration": 0.23883,
+      "confidence": 0.41
+    },
+    {
+      "start": 55.98564,
+      "duration": 0.23883,
+      "confidence": 0.41
+    },
+    {
+      "start": 56.22448,
+      "duration": 0.23779,
+      "confidence": 0.467
+    },
+    {
+      "start": 56.46226,
+      "duration": 0.23779,
+      "confidence": 0.467
+    },
+    {
+      "start": 56.70005,
+      "duration": 0.2377,
+      "confidence": 0.249
+    },
+    {
+      "start": 56.93775,
+      "duration": 0.2377,
+      "confidence": 0.249
+    },
+    {
+      "start": 57.17544,
+      "duration": 0.23803,
+      "confidence": 0.291
+    },
+    {
+      "start": 57.41348,
+      "duration": 0.23803,
+      "confidence": 0.291
+    },
+    {
+      "start": 57.65151,
+      "duration": 0.239,
+      "confidence": 0.322
+    },
+    {
+      "start": 57.89051,
+      "duration": 0.239,
+      "confidence": 0.322
+    },
+    {
+      "start": 58.12952,
+      "duration": 0.23912,
+      "confidence": 0.51
+    },
+    {
+      "start": 58.36864,
+      "duration": 0.23912,
+      "confidence": 0.51
+    },
+    {
+      "start": 58.60776,
+      "duration": 0.23839,
+      "confidence": 0.542
+    },
+    {
+      "start": 58.84616,
+      "duration": 0.23839,
+      "confidence": 0.542
+    },
+    {
+      "start": 59.08455,
+      "duration": 0.23862,
+      "confidence": 0.464
+    },
+    {
+      "start": 59.32317,
+      "duration": 0.23862,
+      "confidence": 0.464
+    },
+    {
+      "start": 59.56179,
+      "duration": 0.2381,
+      "confidence": 0.31
+    },
+    {
+      "start": 59.79989,
+      "duration": 0.2381,
+      "confidence": 0.31
+    },
+    {
+      "start": 60.038,
+      "duration": 0.23705,
+      "confidence": 0.279
+    },
+    {
+      "start": 60.27505,
+      "duration": 0.23705,
+      "confidence": 0.279
+    },
+    {
+      "start": 60.5121,
+      "duration": 0.23728,
+      "confidence": 0.373
+    },
+    {
+      "start": 60.74937,
+      "duration": 0.23728,
+      "confidence": 0.373
+    },
+    {
+      "start": 60.98665,
+      "duration": 0.23676,
+      "confidence": 0.419
+    },
+    {
+      "start": 61.22341,
+      "duration": 0.23676,
+      "confidence": 0.419
+    },
+    {
+      "start": 61.46016,
+      "duration": 0.23667,
+      "confidence": 0.351
+    },
+    {
+      "start": 61.69683,
+      "duration": 0.23667,
+      "confidence": 0.351
+    },
+    {
+      "start": 61.9335,
+      "duration": 0.23732,
+      "confidence": 0.359
+    },
+    {
+      "start": 62.17082,
+      "duration": 0.23732,
+      "confidence": 0.359
+    },
+    {
+      "start": 62.40814,
+      "duration": 0.23809,
+      "confidence": 0.293
+    },
+    {
+      "start": 62.64623,
+      "duration": 0.23809,
+      "confidence": 0.293
+    },
+    {
+      "start": 62.88432,
+      "duration": 0.23875,
+      "confidence": 0.211
+    },
+    {
+      "start": 63.12306,
+      "duration": 0.23875,
+      "confidence": 0.211
+    },
+    {
+      "start": 63.36181,
+      "duration": 0.23856,
+      "confidence": 0.256
+    },
+    {
+      "start": 63.60037,
+      "duration": 0.23856,
+      "confidence": 0.256
+    },
+    {
+      "start": 63.83892,
+      "duration": 0.23816,
+      "confidence": 0.227
+    },
+    {
+      "start": 64.07709,
+      "duration": 0.23816,
+      "confidence": 0.227
+    },
+    {
+      "start": 64.31525,
+      "duration": 0.23861,
+      "confidence": 0.294
+    },
+    {
+      "start": 64.55386,
+      "duration": 0.23861,
+      "confidence": 0.294
+    },
+    {
+      "start": 64.79248,
+      "duration": 0.23917,
+      "confidence": 0.189
+    },
+    {
+      "start": 65.03165,
+      "duration": 0.23917,
+      "confidence": 0.189
+    },
+    {
+      "start": 65.27082,
+      "duration": 0.23856,
+      "confidence": 0.234
+    },
+    {
+      "start": 65.50938,
+      "duration": 0.23856,
+      "confidence": 0.234
+    },
+    {
+      "start": 65.74794,
+      "duration": 0.23751,
+      "confidence": 0.218
+    },
+    {
+      "start": 65.98546,
+      "duration": 0.23751,
+      "confidence": 0.218
+    },
+    {
+      "start": 66.22297,
+      "duration": 0.23721,
+      "confidence": 0.259
+    },
+    {
+      "start": 66.46018,
+      "duration": 0.23721,
+      "confidence": 0.259
+    },
+    {
+      "start": 66.69739,
+      "duration": 0.23712,
+      "confidence": 0.295
+    },
+    {
+      "start": 66.93451,
+      "duration": 0.23712,
+      "confidence": 0.295
+    },
+    {
+      "start": 67.17163,
+      "duration": 0.2367,
+      "confidence": 0.288
+    },
+    {
+      "start": 67.40832,
+      "duration": 0.2367,
+      "confidence": 0.288
+    },
+    {
+      "start": 67.64502,
+      "duration": 0.23638,
+      "confidence": 0.224
+    },
+    {
+      "start": 67.8814,
+      "duration": 0.23638,
+      "confidence": 0.224
+    },
+    {
+      "start": 68.11779,
+      "duration": 0.23596,
+      "confidence": 0.222
+    },
+    {
+      "start": 68.35375,
+      "duration": 0.23596,
+      "confidence": 0.222
+    },
+    {
+      "start": 68.58972,
+      "duration": 0.23672,
+      "confidence": 0.187
+    },
+    {
+      "start": 68.82644,
+      "duration": 0.23672,
+      "confidence": 0.187
+    },
+    {
+      "start": 69.06316,
+      "duration": 0.23758,
+      "confidence": 0.291
+    },
+    {
+      "start": 69.30074,
+      "duration": 0.23758,
+      "confidence": 0.291
+    },
+    {
+      "start": 69.53833,
+      "duration": 0.23813,
+      "confidence": 0.304
+    },
+    {
+      "start": 69.77646,
+      "duration": 0.23813,
+      "confidence": 0.304
+    },
+    {
+      "start": 70.01459,
+      "duration": 0.23964,
+      "confidence": 0.336
+    },
+    {
+      "start": 70.25423,
+      "duration": 0.23964,
+      "confidence": 0.336
+    },
+    {
+      "start": 70.49387,
+      "duration": 0.24051,
+      "confidence": 0.3
+    },
+    {
+      "start": 70.73439,
+      "duration": 0.24051,
+      "confidence": 0.3
+    },
+    {
+      "start": 70.9749,
+      "duration": 0.23979,
+      "confidence": 0.436
+    },
+    {
+      "start": 71.21468,
+      "duration": 0.23979,
+      "confidence": 0.436
+    },
+    {
+      "start": 71.45447,
+      "duration": 0.23948,
+      "confidence": 0.554
+    },
+    {
+      "start": 71.69395,
+      "duration": 0.23948,
+      "confidence": 0.554
+    },
+    {
+      "start": 71.93344,
+      "duration": 0.24003,
+      "confidence": 0.467
+    },
+    {
+      "start": 72.17347,
+      "duration": 0.24003,
+      "confidence": 0.467
+    },
+    {
+      "start": 72.41349,
+      "duration": 0.24014,
+      "confidence": 0.427
+    },
+    {
+      "start": 72.65364,
+      "duration": 0.24014,
+      "confidence": 0.427
+    },
+    {
+      "start": 72.89378,
+      "duration": 0.23855,
+      "confidence": 0.338
+    },
+    {
+      "start": 73.13233,
+      "duration": 0.23855,
+      "confidence": 0.338
+    },
+    {
+      "start": 73.37088,
+      "duration": 0.23706,
+      "confidence": 0.357
+    },
+    {
+      "start": 73.60795,
+      "duration": 0.23706,
+      "confidence": 0.357
+    },
+    {
+      "start": 73.84501,
+      "duration": 0.23727,
+      "confidence": 0.225
+    },
+    {
+      "start": 74.08228,
+      "duration": 0.23727,
+      "confidence": 0.225
+    },
+    {
+      "start": 74.31955,
+      "duration": 0.23791,
+      "confidence": 0.181
+    },
+    {
+      "start": 74.55746,
+      "duration": 0.23791,
+      "confidence": 0.181
+    },
+    {
+      "start": 74.79537,
+      "duration": 0.23759,
+      "confidence": 0.164
+    },
+    {
+      "start": 75.03295,
+      "duration": 0.23759,
+      "confidence": 0.164
+    },
+    {
+      "start": 75.27054,
+      "duration": 0.23652,
+      "confidence": 0.164
+    },
+    {
+      "start": 75.50705,
+      "duration": 0.23652,
+      "confidence": 0.164
+    },
+    {
+      "start": 75.74357,
+      "duration": 0.23652,
+      "confidence": 0.251
+    },
+    {
+      "start": 75.98009,
+      "duration": 0.23652,
+      "confidence": 0.251
+    },
+    {
+      "start": 76.2166,
+      "duration": 0.23811,
+      "confidence": 0.265
+    },
+    {
+      "start": 76.45472,
+      "duration": 0.23811,
+      "confidence": 0.265
+    },
+    {
+      "start": 76.69283,
+      "duration": 0.23833,
+      "confidence": 0.357
+    },
+    {
+      "start": 76.93116,
+      "duration": 0.23833,
+      "confidence": 0.357
+    },
+    {
+      "start": 77.16948,
+      "duration": 0.23822,
+      "confidence": 0.618
+    },
+    {
+      "start": 77.40771,
+      "duration": 0.23822,
+      "confidence": 0.618
+    },
+    {
+      "start": 77.64593,
+      "duration": 0.23876,
+      "confidence": 0.718
+    },
+    {
+      "start": 77.88469,
+      "duration": 0.23876,
+      "confidence": 0.718
+    },
+    {
+      "start": 78.12344,
+      "duration": 0.23897,
+      "confidence": 0.825
+    },
+    {
+      "start": 78.36242,
+      "duration": 0.23897,
+      "confidence": 0.825
+    },
+    {
+      "start": 78.60139,
+      "duration": 0.2394,
+      "confidence": 0.605
+    },
+    {
+      "start": 78.84079,
+      "duration": 0.2394,
+      "confidence": 0.605
+    },
+    {
+      "start": 79.08019,
+      "duration": 0.23908,
+      "confidence": 0.362
+    },
+    {
+      "start": 79.31928,
+      "duration": 0.23908,
+      "confidence": 0.362
+    },
+    {
+      "start": 79.55836,
+      "duration": 0.23876,
+      "confidence": 0.323
+    },
+    {
+      "start": 79.79712,
+      "duration": 0.23876,
+      "confidence": 0.323
+    },
+    {
+      "start": 80.03588,
+      "duration": 0.23908,
+      "confidence": 0.291
+    },
+    {
+      "start": 80.27497,
+      "duration": 0.23908,
+      "confidence": 0.291
+    },
+    {
+      "start": 80.51405,
+      "duration": 0.23823,
+      "confidence": 0.395
+    },
+    {
+      "start": 80.75227,
+      "duration": 0.23823,
+      "confidence": 0.395
+    },
+    {
+      "start": 80.9905,
+      "duration": 0.23727,
+      "confidence": 0.269
+    },
+    {
+      "start": 81.22777,
+      "duration": 0.23727,
+      "confidence": 0.269
+    },
+    {
+      "start": 81.46503,
+      "duration": 0.23812,
+      "confidence": 0.198
+    },
+    {
+      "start": 81.70315,
+      "duration": 0.23812,
+      "confidence": 0.198
+    },
+    {
+      "start": 81.94127,
+      "duration": 0.23897,
+      "confidence": 0.251
+    },
+    {
+      "start": 82.18024,
+      "duration": 0.23897,
+      "confidence": 0.251
+    },
+    {
+      "start": 82.4192,
+      "duration": 0.23844,
+      "confidence": 0.335
+    },
+    {
+      "start": 82.65764,
+      "duration": 0.23844,
+      "confidence": 0.335
+    },
+    {
+      "start": 82.89608,
+      "duration": 0.23727,
+      "confidence": 0.344
+    },
+    {
+      "start": 83.13335,
+      "duration": 0.23727,
+      "confidence": 0.344
+    },
+    {
+      "start": 83.37062,
+      "duration": 0.23642,
+      "confidence": 0.373
+    },
+    {
+      "start": 83.60704,
+      "duration": 0.23642,
+      "confidence": 0.373
+    },
+    {
+      "start": 83.84346,
+      "duration": 0.23568,
+      "confidence": 0.386
+    },
+    {
+      "start": 84.07913,
+      "duration": 0.23568,
+      "confidence": 0.386
+    },
+    {
+      "start": 84.31481,
+      "duration": 0.23675,
+      "confidence": 0.405
+    },
+    {
+      "start": 84.55156,
+      "duration": 0.23675,
+      "confidence": 0.405
+    },
+    {
+      "start": 84.7883,
+      "duration": 0.2376,
+      "confidence": 0.28
+    },
+    {
+      "start": 85.0259,
+      "duration": 0.2376,
+      "confidence": 0.28
+    },
+    {
+      "start": 85.26351,
+      "duration": 0.23675,
+      "confidence": 0.259
+    },
+    {
+      "start": 85.50025,
+      "duration": 0.23675,
+      "confidence": 0.259
+    },
+    {
+      "start": 85.737,
+      "duration": 0.23739,
+      "confidence": 0.227
+    },
+    {
+      "start": 85.97439,
+      "duration": 0.23739,
+      "confidence": 0.227
+    },
+    {
+      "start": 86.21177,
+      "duration": 0.23866,
+      "confidence": 0.34
+    },
+    {
+      "start": 86.45044,
+      "duration": 0.23866,
+      "confidence": 0.34
+    },
+    {
+      "start": 86.6891,
+      "duration": 0.23983,
+      "confidence": 0.328
+    },
+    {
+      "start": 86.92893,
+      "duration": 0.23983,
+      "confidence": 0.328
+    },
+    {
+      "start": 87.16876,
+      "duration": 0.241,
+      "confidence": 0.339
+    },
+    {
+      "start": 87.40976,
+      "duration": 0.241,
+      "confidence": 0.339
+    },
+    {
+      "start": 87.65075,
+      "duration": 0.23993,
+      "confidence": 0.229
+    },
+    {
+      "start": 87.89068,
+      "duration": 0.23993,
+      "confidence": 0.229
+    },
+    {
+      "start": 88.1306,
+      "duration": 0.23853,
+      "confidence": 0.328
+    },
+    {
+      "start": 88.36914,
+      "duration": 0.23853,
+      "confidence": 0.328
+    },
+    {
+      "start": 88.60767,
+      "duration": 0.23906,
+      "confidence": 0.246
+    },
+    {
+      "start": 88.84673,
+      "duration": 0.23906,
+      "confidence": 0.246
+    },
+    {
+      "start": 89.08579,
+      "duration": 0.23906,
+      "confidence": 0.275
+    },
+    {
+      "start": 89.32485,
+      "duration": 0.23906,
+      "confidence": 0.275
+    },
+    {
+      "start": 89.56391,
+      "duration": 0.23873,
+      "confidence": 0.2
+    },
+    {
+      "start": 89.80264,
+      "duration": 0.23873,
+      "confidence": 0.2
+    },
+    {
+      "start": 90.04137,
+      "duration": 0.23895,
+      "confidence": 0.247
+    },
+    {
+      "start": 90.28032,
+      "duration": 0.23895,
+      "confidence": 0.247
+    },
+    {
+      "start": 90.51927,
+      "duration": 0.23958,
+      "confidence": 0.151
+    },
+    {
+      "start": 90.75885,
+      "duration": 0.23958,
+      "confidence": 0.151
+    },
+    {
+      "start": 90.99843,
+      "duration": 0.24001,
+      "confidence": 0.211
+    },
+    {
+      "start": 91.23845,
+      "duration": 0.24001,
+      "confidence": 0.211
+    },
+    {
+      "start": 91.47846,
+      "duration": 0.23884,
+      "confidence": 0.21
+    },
+    {
+      "start": 91.7173,
+      "duration": 0.23884,
+      "confidence": 0.21
+    },
+    {
+      "start": 91.95615,
+      "duration": 0.23714,
+      "confidence": 0.208
+    },
+    {
+      "start": 92.19329,
+      "duration": 0.23714,
+      "confidence": 0.208
+    },
+    {
+      "start": 92.43043,
+      "duration": 0.23651,
+      "confidence": 0.249
+    },
+    {
+      "start": 92.66694,
+      "duration": 0.23651,
+      "confidence": 0.249
+    },
+    {
+      "start": 92.90344,
+      "duration": 0.23682,
+      "confidence": 0.246
+    },
+    {
+      "start": 93.14027,
+      "duration": 0.23682,
+      "confidence": 0.246
+    },
+    {
+      "start": 93.37709,
+      "duration": 0.23768,
+      "confidence": 0.204
+    },
+    {
+      "start": 93.61477,
+      "duration": 0.23768,
+      "confidence": 0.204
+    },
+    {
+      "start": 93.85244,
+      "duration": 0.23767,
+      "confidence": 0.303
+    },
+    {
+      "start": 94.09012,
+      "duration": 0.23767,
+      "confidence": 0.303
+    },
+    {
+      "start": 94.32779,
+      "duration": 0.23724,
+      "confidence": 0.224
+    },
+    {
+      "start": 94.56503,
+      "duration": 0.23724,
+      "confidence": 0.224
+    },
+    {
+      "start": 94.80227,
+      "duration": 0.23809,
+      "confidence": 0.343
+    },
+    {
+      "start": 95.04037,
+      "duration": 0.23809,
+      "confidence": 0.343
+    },
+    {
+      "start": 95.27846,
+      "duration": 0.23862,
+      "confidence": 0.344
+    },
+    {
+      "start": 95.51708,
+      "duration": 0.23862,
+      "confidence": 0.344
+    },
+    {
+      "start": 95.75571,
+      "duration": 0.23894,
+      "confidence": 0.366
+    },
+    {
+      "start": 95.99465,
+      "duration": 0.23894,
+      "confidence": 0.366
+    },
+    {
+      "start": 96.23359,
+      "duration": 0.23915,
+      "confidence": 0.39
+    },
+    {
+      "start": 96.47275,
+      "duration": 0.23915,
+      "confidence": 0.39
+    },
+    {
+      "start": 96.7119,
+      "duration": 0.23809,
+      "confidence": 0.505
+    },
+    {
+      "start": 96.94999,
+      "duration": 0.23809,
+      "confidence": 0.505
+    },
+    {
+      "start": 97.18808,
+      "duration": 0.23788,
+      "confidence": 0.668
+    },
+    {
+      "start": 97.42597,
+      "duration": 0.23788,
+      "confidence": 0.668
+    },
+    {
+      "start": 97.66385,
+      "duration": 0.23746,
+      "confidence": 0.459
+    },
+    {
+      "start": 97.90131,
+      "duration": 0.23746,
+      "confidence": 0.459
+    },
+    {
+      "start": 98.13877,
+      "duration": 0.23725,
+      "confidence": 0.338
+    },
+    {
+      "start": 98.37602,
+      "duration": 0.23725,
+      "confidence": 0.338
+    },
+    {
+      "start": 98.61327,
+      "duration": 0.23822,
+      "confidence": 0.458
+    },
+    {
+      "start": 98.85148,
+      "duration": 0.23822,
+      "confidence": 0.458
+    },
+    {
+      "start": 99.0897,
+      "duration": 0.2378,
+      "confidence": 0.36
+    },
+    {
+      "start": 99.3275,
+      "duration": 0.2378,
+      "confidence": 0.36
+    },
+    {
+      "start": 99.5653,
+      "duration": 0.23749,
+      "confidence": 0.375
+    },
+    {
+      "start": 99.80278,
+      "duration": 0.23749,
+      "confidence": 0.375
+    },
+    {
+      "start": 100.04027,
+      "duration": 0.23761,
+      "confidence": 0.54
+    },
+    {
+      "start": 100.27788,
+      "duration": 0.23761,
+      "confidence": 0.54
+    },
+    {
+      "start": 100.51549,
+      "duration": 0.23708,
+      "confidence": 0.663
+    },
+    {
+      "start": 100.75257,
+      "duration": 0.23708,
+      "confidence": 0.663
+    },
+    {
+      "start": 100.98965,
+      "duration": 0.23805,
+      "confidence": 0.4
+    },
+    {
+      "start": 101.22771,
+      "duration": 0.23805,
+      "confidence": 0.4
+    },
+    {
+      "start": 101.46576,
+      "duration": 0.23912,
+      "confidence": 0.513
+    },
+    {
+      "start": 101.70488,
+      "duration": 0.23912,
+      "confidence": 0.513
+    },
+    {
+      "start": 101.94401,
+      "duration": 0.23881,
+      "confidence": 0.338
+    },
+    {
+      "start": 102.18282,
+      "duration": 0.23881,
+      "confidence": 0.338
+    },
+    {
+      "start": 102.42163,
+      "duration": 0.23924,
+      "confidence": 0.362
+    },
+    {
+      "start": 102.66087,
+      "duration": 0.23924,
+      "confidence": 0.362
+    },
+    {
+      "start": 102.90011,
+      "duration": 0.23924,
+      "confidence": 0.503
+    },
+    {
+      "start": 103.13935,
+      "duration": 0.23924,
+      "confidence": 0.503
+    },
+    {
+      "start": 103.3786,
+      "duration": 0.2386,
+      "confidence": 0.365
+    },
+    {
+      "start": 103.6172,
+      "duration": 0.2386,
+      "confidence": 0.365
+    },
+    {
+      "start": 103.8558,
+      "duration": 0.23871,
+      "confidence": 0.377
+    },
+    {
+      "start": 104.09452,
+      "duration": 0.23871,
+      "confidence": 0.377
+    },
+    {
+      "start": 104.33323,
+      "duration": 0.23871,
+      "confidence": 0.548
+    },
+    {
+      "start": 104.57194,
+      "duration": 0.23871,
+      "confidence": 0.548
+    },
+    {
+      "start": 104.81066,
+      "duration": 0.2384,
+      "confidence": 0.656
+    },
+    {
+      "start": 105.04905,
+      "duration": 0.2384,
+      "confidence": 0.656
+    },
+    {
+      "start": 105.28745,
+      "duration": 0.23818,
+      "confidence": 0.637
+    },
+    {
+      "start": 105.52563,
+      "duration": 0.23818,
+      "confidence": 0.637
+    },
+    {
+      "start": 105.76382,
+      "duration": 0.23808,
+      "confidence": 0.401
+    },
+    {
+      "start": 106.0019,
+      "duration": 0.23808,
+      "confidence": 0.401
+    },
+    {
+      "start": 106.23998,
+      "duration": 0.23787,
+      "confidence": 0.522
+    },
+    {
+      "start": 106.47784,
+      "duration": 0.23787,
+      "confidence": 0.522
+    },
+    {
+      "start": 106.71571,
+      "duration": 0.23659,
+      "confidence": 0.503
+    },
+    {
+      "start": 106.9523,
+      "duration": 0.23659,
+      "confidence": 0.503
+    },
+    {
+      "start": 107.18889,
+      "duration": 0.23542,
+      "confidence": 0.344
+    },
+    {
+      "start": 107.4243,
+      "duration": 0.23542,
+      "confidence": 0.344
+    },
+    {
+      "start": 107.65972,
+      "duration": 0.23531,
+      "confidence": 0.399
+    },
+    {
+      "start": 107.89502,
+      "duration": 0.23531,
+      "confidence": 0.399
+    },
+    {
+      "start": 108.13033,
+      "duration": 0.2353,
+      "confidence": 0.439
+    },
+    {
+      "start": 108.36563,
+      "duration": 0.2353,
+      "confidence": 0.439
+    },
+    {
+      "start": 108.60093,
+      "duration": 0.23583,
+      "confidence": 0.368
+    },
+    {
+      "start": 108.83676,
+      "duration": 0.23583,
+      "confidence": 0.368
+    },
+    {
+      "start": 109.07259,
+      "duration": 0.23657,
+      "confidence": 0.441
+    },
+    {
+      "start": 109.30916,
+      "duration": 0.23657,
+      "confidence": 0.441
+    },
+    {
+      "start": 109.54573,
+      "duration": 0.23699,
+      "confidence": 0.38
+    },
+    {
+      "start": 109.78272,
+      "duration": 0.23699,
+      "confidence": 0.38
+    },
+    {
+      "start": 110.01971,
+      "duration": 0.2389,
+      "confidence": 0.3
+    },
+    {
+      "start": 110.25861,
+      "duration": 0.2389,
+      "confidence": 0.3
+    },
+    {
+      "start": 110.49751,
+      "duration": 0.24017,
+      "confidence": 0.263
+    },
+    {
+      "start": 110.73768,
+      "duration": 0.24017,
+      "confidence": 0.263
+    },
+    {
+      "start": 110.97784,
+      "duration": 0.23995,
+      "confidence": 0.395
+    },
+    {
+      "start": 111.21779,
+      "duration": 0.23995,
+      "confidence": 0.395
+    },
+    {
+      "start": 111.45774,
+      "duration": 0.23951,
+      "confidence": 0.543
+    },
+    {
+      "start": 111.69725,
+      "duration": 0.23951,
+      "confidence": 0.543
+    },
+    {
+      "start": 111.93676,
+      "duration": 0.23908,
+      "confidence": 0.456
+    },
+    {
+      "start": 112.17584,
+      "duration": 0.23908,
+      "confidence": 0.456
+    },
+    {
+      "start": 112.41492,
+      "duration": 0.23897,
+      "confidence": 0.43
+    },
+    {
+      "start": 112.65389,
+      "duration": 0.23897,
+      "confidence": 0.43
+    },
+    {
+      "start": 112.89286,
+      "duration": 0.23875,
+      "confidence": 0.342
+    },
+    {
+      "start": 113.13161,
+      "duration": 0.23875,
+      "confidence": 0.342
+    },
+    {
+      "start": 113.37036,
+      "duration": 0.23821,
+      "confidence": 0.392
+    },
+    {
+      "start": 113.60857,
+      "duration": 0.23821,
+      "confidence": 0.392
+    },
+    {
+      "start": 113.84678,
+      "duration": 0.23789,
+      "confidence": 0.307
+    },
+    {
+      "start": 114.08467,
+      "duration": 0.23789,
+      "confidence": 0.307
+    },
+    {
+      "start": 114.32256,
+      "duration": 0.23703,
+      "confidence": 0.273
+    },
+    {
+      "start": 114.5596,
+      "duration": 0.23703,
+      "confidence": 0.273
+    },
+    {
+      "start": 114.79663,
+      "duration": 0.23671,
+      "confidence": 0.198
+    },
+    {
+      "start": 115.03334,
+      "duration": 0.23671,
+      "confidence": 0.198
+    },
+    {
+      "start": 115.27005,
+      "duration": 0.23702,
+      "confidence": 0.201
+    },
+    {
+      "start": 115.50707,
+      "duration": 0.23702,
+      "confidence": 0.201
+    },
+    {
+      "start": 115.7441,
+      "duration": 0.23713,
+      "confidence": 0.308
+    },
+    {
+      "start": 115.98122,
+      "duration": 0.23713,
+      "confidence": 0.308
+    },
+    {
+      "start": 116.21835,
+      "duration": 0.23723,
+      "confidence": 0.352
+    },
+    {
+      "start": 116.45558,
+      "duration": 0.23723,
+      "confidence": 0.352
+    },
+    {
+      "start": 116.69281,
+      "duration": 0.23722,
+      "confidence": 0.333
+    },
+    {
+      "start": 116.93003,
+      "duration": 0.23722,
+      "confidence": 0.333
+    },
+    {
+      "start": 117.16725,
+      "duration": 0.23754,
+      "confidence": 0.272
+    },
+    {
+      "start": 117.40479,
+      "duration": 0.23754,
+      "confidence": 0.272
+    },
+    {
+      "start": 117.64233,
+      "duration": 0.23903,
+      "confidence": 0.245
+    },
+    {
+      "start": 117.88136,
+      "duration": 0.23903,
+      "confidence": 0.245
+    },
+    {
+      "start": 118.12039,
+      "duration": 0.2402,
+      "confidence": 0.332
+    },
+    {
+      "start": 118.36059,
+      "duration": 0.2402,
+      "confidence": 0.332
+    },
+    {
+      "start": 118.60079,
+      "duration": 0.23881,
+      "confidence": 0.398
+    },
+    {
+      "start": 118.8396,
+      "duration": 0.23881,
+      "confidence": 0.398
+    },
+    {
+      "start": 119.07842,
+      "duration": 0.23774,
+      "confidence": 0.436
+    },
+    {
+      "start": 119.31616,
+      "duration": 0.23774,
+      "confidence": 0.436
+    },
+    {
+      "start": 119.55391,
+      "duration": 0.2387,
+      "confidence": 0.251
+    },
+    {
+      "start": 119.79261,
+      "duration": 0.2387,
+      "confidence": 0.251
+    },
+    {
+      "start": 120.0313,
+      "duration": 0.23923,
+      "confidence": 0.283
+    },
+    {
+      "start": 120.27053,
+      "duration": 0.23923,
+      "confidence": 0.283
+    },
+    {
+      "start": 120.50976,
+      "duration": 0.2389,
+      "confidence": 0.326
+    },
+    {
+      "start": 120.74866,
+      "duration": 0.2389,
+      "confidence": 0.326
+    },
+    {
+      "start": 120.98756,
+      "duration": 0.23836,
+      "confidence": 0.492
+    },
+    {
+      "start": 121.22592,
+      "duration": 0.23836,
+      "confidence": 0.492
+    },
+    {
+      "start": 121.46428,
+      "duration": 0.23771,
+      "confidence": 0.523
+    },
+    {
+      "start": 121.70199,
+      "duration": 0.23771,
+      "confidence": 0.523
+    },
+    {
+      "start": 121.93971,
+      "duration": 0.23792,
+      "confidence": 0.441
+    },
+    {
+      "start": 122.17762,
+      "duration": 0.23792,
+      "confidence": 0.441
+    },
+    {
+      "start": 122.41554,
+      "duration": 0.2378,
+      "confidence": 0.303
+    },
+    {
+      "start": 122.65334,
+      "duration": 0.2378,
+      "confidence": 0.303
+    },
+    {
+      "start": 122.89115,
+      "duration": 0.23705,
+      "confidence": 0.266
+    },
+    {
+      "start": 123.1282,
+      "duration": 0.23705,
+      "confidence": 0.266
+    },
+    {
+      "start": 123.36525,
+      "duration": 0.23704,
+      "confidence": 0.352
+    },
+    {
+      "start": 123.60229,
+      "duration": 0.23704,
+      "confidence": 0.352
+    },
+    {
+      "start": 123.83934,
+      "duration": 0.23715,
+      "confidence": 0.41
+    },
+    {
+      "start": 124.07648,
+      "duration": 0.23715,
+      "confidence": 0.41
+    },
+    {
+      "start": 124.31363,
+      "duration": 0.23725,
+      "confidence": 0.34
+    },
+    {
+      "start": 124.55088,
+      "duration": 0.23725,
+      "confidence": 0.34
+    },
+    {
+      "start": 124.78812,
+      "duration": 0.23745,
+      "confidence": 0.349
+    },
+    {
+      "start": 125.02558,
+      "duration": 0.23745,
+      "confidence": 0.349
+    },
+    {
+      "start": 125.26303,
+      "duration": 0.23862,
+      "confidence": 0.315
+    },
+    {
+      "start": 125.50165,
+      "duration": 0.23862,
+      "confidence": 0.315
+    },
+    {
+      "start": 125.74027,
+      "duration": 0.23946,
+      "confidence": 0.243
+    },
+    {
+      "start": 125.97973,
+      "duration": 0.23946,
+      "confidence": 0.243
+    },
+    {
+      "start": 126.2192,
+      "duration": 0.23882,
+      "confidence": 0.257
+    },
+    {
+      "start": 126.45802,
+      "duration": 0.23882,
+      "confidence": 0.257
+    },
+    {
+      "start": 126.69683,
+      "duration": 0.23818,
+      "confidence": 0.224
+    },
+    {
+      "start": 126.93501,
+      "duration": 0.23818,
+      "confidence": 0.224
+    },
+    {
+      "start": 127.17318,
+      "duration": 0.23849,
+      "confidence": 0.264
+    },
+    {
+      "start": 127.41167,
+      "duration": 0.23849,
+      "confidence": 0.264
+    },
+    {
+      "start": 127.65016,
+      "duration": 0.23902,
+      "confidence": 0.169
+    },
+    {
+      "start": 127.88918,
+      "duration": 0.23902,
+      "confidence": 0.169
+    },
+    {
+      "start": 128.1282,
+      "duration": 0.23848,
+      "confidence": 0.218
+    },
+    {
+      "start": 128.36669,
+      "duration": 0.23848,
+      "confidence": 0.218
+    },
+    {
+      "start": 128.60517,
+      "duration": 0.23763,
+      "confidence": 0.219
+    },
+    {
+      "start": 128.8428,
+      "duration": 0.23763,
+      "confidence": 0.219
+    },
+    {
+      "start": 129.08044,
+      "duration": 0.23732,
+      "confidence": 0.256
+    },
+    {
+      "start": 129.31775,
+      "duration": 0.23732,
+      "confidence": 0.256
+    },
+    {
+      "start": 129.55507,
+      "duration": 0.23764,
+      "confidence": 0.32
+    },
+    {
+      "start": 129.79272,
+      "duration": 0.23764,
+      "confidence": 0.32
+    },
+    {
+      "start": 130.03036,
+      "duration": 0.23819,
+      "confidence": 0.306
+    },
+    {
+      "start": 130.26855,
+      "duration": 0.23819,
+      "confidence": 0.306
+    },
+    {
+      "start": 130.50673,
+      "duration": 0.23789,
+      "confidence": 0.244
+    },
+    {
+      "start": 130.74462,
+      "duration": 0.23789,
+      "confidence": 0.244
+    },
+    {
+      "start": 130.98251,
+      "duration": 0.23716,
+      "confidence": 0.227
+    },
+    {
+      "start": 131.21967,
+      "duration": 0.23716,
+      "confidence": 0.227
+    },
+    {
+      "start": 131.45683,
+      "duration": 0.23794,
+      "confidence": 0.176
+    },
+    {
+      "start": 131.69477,
+      "duration": 0.23794,
+      "confidence": 0.176
+    },
+    {
+      "start": 131.93271,
+      "duration": 0.23808,
+      "confidence": 0.275
+    },
+    {
+      "start": 132.1708,
+      "duration": 0.23808,
+      "confidence": 0.275
+    },
+    {
+      "start": 132.40888,
+      "duration": 0.23791,
+      "confidence": 0.313
+    },
+    {
+      "start": 132.64679,
+      "duration": 0.23791,
+      "confidence": 0.313
+    },
+    {
+      "start": 132.88471,
+      "duration": 0.2386,
+      "confidence": 0.356
+    },
+    {
+      "start": 133.1233,
+      "duration": 0.2386,
+      "confidence": 0.356
+    },
+    {
+      "start": 133.3619,
+      "duration": 0.23875,
+      "confidence": 0.275
+    },
+    {
+      "start": 133.60064,
+      "duration": 0.23875,
+      "confidence": 0.275
+    },
+    {
+      "start": 133.83939,
+      "duration": 0.23825,
+      "confidence": 0.435
+    },
+    {
+      "start": 134.07764,
+      "duration": 0.23825,
+      "confidence": 0.435
+    },
+    {
+      "start": 134.3159,
+      "duration": 0.23818,
+      "confidence": 0.569
+    },
+    {
+      "start": 134.55408,
+      "duration": 0.23818,
+      "confidence": 0.569
+    },
+    {
+      "start": 134.79226,
+      "duration": 0.23854,
+      "confidence": 0.472
+    },
+    {
+      "start": 135.0308,
+      "duration": 0.23854,
+      "confidence": 0.472
+    },
+    {
+      "start": 135.26933,
+      "duration": 0.23899,
+      "confidence": 0.443
+    },
+    {
+      "start": 135.50832,
+      "duration": 0.23899,
+      "confidence": 0.443
+    },
+    {
+      "start": 135.74731,
+      "duration": 0.23837,
+      "confidence": 0.335
+    },
+    {
+      "start": 135.98568,
+      "duration": 0.23837,
+      "confidence": 0.335
+    },
+    {
+      "start": 136.22406,
+      "duration": 0.23775,
+      "confidence": 0.329
+    },
+    {
+      "start": 136.46181,
+      "duration": 0.23775,
+      "confidence": 0.329
+    },
+    {
+      "start": 136.69955,
+      "duration": 0.23787,
+      "confidence": 0.197
+    },
+    {
+      "start": 136.93742,
+      "duration": 0.23787,
+      "confidence": 0.197
+    },
+    {
+      "start": 137.1753,
+      "duration": 0.23799,
+      "confidence": 0.168
+    },
+    {
+      "start": 137.41328,
+      "duration": 0.23799,
+      "confidence": 0.168
+    },
+    {
+      "start": 137.65127,
+      "duration": 0.23725,
+      "confidence": 0.126
+    },
+    {
+      "start": 137.88852,
+      "duration": 0.23725,
+      "confidence": 0.126
+    },
+    {
+      "start": 138.12577,
+      "duration": 0.2363,
+      "confidence": 0.118
+    },
+    {
+      "start": 138.36207,
+      "duration": 0.2363,
+      "confidence": 0.118
+    },
+    {
+      "start": 138.59837,
+      "duration": 0.23673,
+      "confidence": 0.17
+    },
+    {
+      "start": 138.8351,
+      "duration": 0.23673,
+      "confidence": 0.17
+    },
+    {
+      "start": 139.07183,
+      "duration": 0.23759,
+      "confidence": 0.21
+    },
+    {
+      "start": 139.30942,
+      "duration": 0.23759,
+      "confidence": 0.21
+    },
+    {
+      "start": 139.54701,
+      "duration": 0.23781,
+      "confidence": 0.25
+    },
+    {
+      "start": 139.78482,
+      "duration": 0.23781,
+      "confidence": 0.25
+    },
+    {
+      "start": 140.02263,
+      "duration": 0.23793,
+      "confidence": 0.347
+    },
+    {
+      "start": 140.26056,
+      "duration": 0.23793,
+      "confidence": 0.347
+    },
+    {
+      "start": 140.49848,
+      "duration": 0.23804,
+      "confidence": 0.325
+    },
+    {
+      "start": 140.73652,
+      "duration": 0.23804,
+      "confidence": 0.325
+    },
+    {
+      "start": 140.97456,
+      "duration": 0.23879,
+      "confidence": 0.404
+    },
+    {
+      "start": 141.21335,
+      "duration": 0.23879,
+      "confidence": 0.404
+    },
+    {
+      "start": 141.45214,
+      "duration": 0.23912,
+      "confidence": 0.393
+    },
+    {
+      "start": 141.69126,
+      "duration": 0.23912,
+      "confidence": 0.393
+    },
+    {
+      "start": 141.93038,
+      "duration": 0.23816,
+      "confidence": 0.3
+    },
+    {
+      "start": 142.16854,
+      "duration": 0.23816,
+      "confidence": 0.3
+    },
+    {
+      "start": 142.4067,
+      "duration": 0.23774,
+      "confidence": 0.194
+    },
+    {
+      "start": 142.64444,
+      "duration": 0.23774,
+      "confidence": 0.194
+    },
+    {
+      "start": 142.88218,
+      "duration": 0.23731,
+      "confidence": 0.279
+    },
+    {
+      "start": 143.11949,
+      "duration": 0.23731,
+      "confidence": 0.279
+    },
+    {
+      "start": 143.3568,
+      "duration": 0.2371,
+      "confidence": 0.309
+    },
+    {
+      "start": 143.5939,
+      "duration": 0.2371,
+      "confidence": 0.309
+    },
+    {
+      "start": 143.83101,
+      "duration": 0.23753,
+      "confidence": 0.202
+    },
+    {
+      "start": 144.06854,
+      "duration": 0.23753,
+      "confidence": 0.202
+    },
+    {
+      "start": 144.30607,
+      "duration": 0.23754,
+      "confidence": 0.274
+    },
+    {
+      "start": 144.54361,
+      "duration": 0.23754,
+      "confidence": 0.274
+    },
+    {
+      "start": 144.78115,
+      "duration": 0.23754,
+      "confidence": 0.246
+    },
+    {
+      "start": 145.01869,
+      "duration": 0.23754,
+      "confidence": 0.246
+    },
+    {
+      "start": 145.25623,
+      "duration": 0.23808,
+      "confidence": 0.38
+    },
+    {
+      "start": 145.49432,
+      "duration": 0.23808,
+      "confidence": 0.38
+    },
+    {
+      "start": 145.7324,
+      "duration": 0.23841,
+      "confidence": 0.375
+    },
+    {
+      "start": 145.97081,
+      "duration": 0.23841,
+      "confidence": 0.375
+    },
+    {
+      "start": 146.20923,
+      "duration": 0.23863,
+      "confidence": 0.44
+    },
+    {
+      "start": 146.44786,
+      "duration": 0.23863,
+      "confidence": 0.44
+    },
+    {
+      "start": 146.68649,
+      "duration": 0.23875,
+      "confidence": 0.471
+    },
+    {
+      "start": 146.92524,
+      "duration": 0.23875,
+      "confidence": 0.471
+    },
+    {
+      "start": 147.16399,
+      "duration": 0.23843,
+      "confidence": 0.447
+    },
+    {
+      "start": 147.40242,
+      "duration": 0.23843,
+      "confidence": 0.447
+    },
+    {
+      "start": 147.64085,
+      "duration": 0.23801,
+      "confidence": 0.397
+    },
+    {
+      "start": 147.87886,
+      "duration": 0.23801,
+      "confidence": 0.397
+    },
+    {
+      "start": 148.11687,
+      "duration": 0.23844,
+      "confidence": 0.457
+    },
+    {
+      "start": 148.3553,
+      "duration": 0.23844,
+      "confidence": 0.457
+    },
+    {
+      "start": 148.59374,
+      "duration": 0.23886,
+      "confidence": 0.406
+    },
+    {
+      "start": 148.8326,
+      "duration": 0.23886,
+      "confidence": 0.406
+    },
+    {
+      "start": 149.07146,
+      "duration": 0.23886,
+      "confidence": 0.436
+    },
+    {
+      "start": 149.31032,
+      "duration": 0.23886,
+      "confidence": 0.436
+    },
+    {
+      "start": 149.54918,
+      "duration": 0.23832,
+      "confidence": 0.33
+    },
+    {
+      "start": 149.78751,
+      "duration": 0.23832,
+      "confidence": 0.33
+    },
+    {
+      "start": 150.02583,
+      "duration": 0.23757,
+      "confidence": 0.428
+    },
+    {
+      "start": 150.26341,
+      "duration": 0.23757,
+      "confidence": 0.428
+    },
+    {
+      "start": 150.50098,
+      "duration": 0.23832,
+      "confidence": 0.472
+    },
+    {
+      "start": 150.7393,
+      "duration": 0.23832,
+      "confidence": 0.472
+    },
+    {
+      "start": 150.97762,
+      "duration": 0.23971,
+      "confidence": 0.392
+    },
+    {
+      "start": 151.21733,
+      "duration": 0.23971,
+      "confidence": 0.392
+    },
+    {
+      "start": 151.45703,
+      "duration": 0.23906,
+      "confidence": 0.282
+    },
+    {
+      "start": 151.6961,
+      "duration": 0.23906,
+      "confidence": 0.282
+    },
+    {
+      "start": 151.93516,
+      "duration": 0.23778,
+      "confidence": 0.4
+    },
+    {
+      "start": 152.17294,
+      "duration": 0.23778,
+      "confidence": 0.4
+    },
+    {
+      "start": 152.41072,
+      "duration": 0.23778,
+      "confidence": 0.431
+    },
+    {
+      "start": 152.64851,
+      "duration": 0.23778,
+      "confidence": 0.431
+    },
+    {
+      "start": 152.88629,
+      "duration": 0.23853,
+      "confidence": 0.27
+    },
+    {
+      "start": 153.12482,
+      "duration": 0.23853,
+      "confidence": 0.27
+    },
+    {
+      "start": 153.36335,
+      "duration": 0.23864,
+      "confidence": 0.261
+    },
+    {
+      "start": 153.60199,
+      "duration": 0.23864,
+      "confidence": 0.261
+    },
+    {
+      "start": 153.84062,
+      "duration": 0.23778,
+      "confidence": 0.314
+    },
+    {
+      "start": 154.0784,
+      "duration": 0.23778,
+      "confidence": 0.314
+    },
+    {
+      "start": 154.31618,
+      "duration": 0.23724,
+      "confidence": 0.307
+    },
+    {
+      "start": 154.55343,
+      "duration": 0.23724,
+      "confidence": 0.307
+    },
+    {
+      "start": 154.79067,
+      "duration": 0.23777,
+      "confidence": 0.34
+    },
+    {
+      "start": 155.02845,
+      "duration": 0.23777,
+      "confidence": 0.34
+    },
+    {
+      "start": 155.26622,
+      "duration": 0.23788,
+      "confidence": 0.366
+    },
+    {
+      "start": 155.5041,
+      "duration": 0.23788,
+      "confidence": 0.366
+    },
+    {
+      "start": 155.74197,
+      "duration": 0.23755,
+      "confidence": 0.496
+    },
+    {
+      "start": 155.97952,
+      "duration": 0.23755,
+      "confidence": 0.496
+    },
+    {
+      "start": 156.21707,
+      "duration": 0.23818,
+      "confidence": 0.43
+    },
+    {
+      "start": 156.45525,
+      "duration": 0.23818,
+      "confidence": 0.43
+    },
+    {
+      "start": 156.69343,
+      "duration": 0.23859,
+      "confidence": 0.305
+    },
+    {
+      "start": 156.93202,
+      "duration": 0.23859,
+      "confidence": 0.305
+    },
+    {
+      "start": 157.17061,
+      "duration": 0.2389,
+      "confidence": 0.305
+    },
+    {
+      "start": 157.40952,
+      "duration": 0.2389,
+      "confidence": 0.305
+    },
+    {
+      "start": 157.64842,
+      "duration": 0.23868,
+      "confidence": 0.452
+    },
+    {
+      "start": 157.8871,
+      "duration": 0.23868,
+      "confidence": 0.452
+    },
+    {
+      "start": 158.12578,
+      "duration": 0.23857,
+      "confidence": 0.557
+    },
+    {
+      "start": 158.36435,
+      "duration": 0.23857,
+      "confidence": 0.557
+    },
+    {
+      "start": 158.60291,
+      "duration": 0.2392,
+      "confidence": 0.499
+    },
+    {
+      "start": 158.84211,
+      "duration": 0.2392,
+      "confidence": 0.499
+    },
+    {
+      "start": 159.08131,
+      "duration": 0.23962,
+      "confidence": 0.339
+    },
+    {
+      "start": 159.32093,
+      "duration": 0.23962,
+      "confidence": 0.339
+    },
+    {
+      "start": 159.56055,
+      "duration": 0.23897,
+      "confidence": 0.458
+    },
+    {
+      "start": 159.79952,
+      "duration": 0.23897,
+      "confidence": 0.458
+    },
+    {
+      "start": 160.03849,
+      "duration": 0.2378,
+      "confidence": 0.387
+    },
+    {
+      "start": 160.27629,
+      "duration": 0.2378,
+      "confidence": 0.387
+    },
+    {
+      "start": 160.51409,
+      "duration": 0.23716,
+      "confidence": 0.317
+    },
+    {
+      "start": 160.75124,
+      "duration": 0.23716,
+      "confidence": 0.317
+    },
+    {
+      "start": 160.9884,
+      "duration": 0.23662,
+      "confidence": 0.275
+    },
+    {
+      "start": 161.22502,
+      "duration": 0.23662,
+      "confidence": 0.275
+    },
+    {
+      "start": 161.46164,
+      "duration": 0.23662,
+      "confidence": 0.35
+    },
+    {
+      "start": 161.69826,
+      "duration": 0.23662,
+      "confidence": 0.35
+    },
+    {
+      "start": 161.93488,
+      "duration": 0.23768,
+      "confidence": 0.404
+    },
+    {
+      "start": 162.17256,
+      "duration": 0.23768,
+      "confidence": 0.404
+    },
+    {
+      "start": 162.41024,
+      "duration": 0.23758,
+      "confidence": 0.537
+    },
+    {
+      "start": 162.64782,
+      "duration": 0.23758,
+      "confidence": 0.537
+    },
+    {
+      "start": 162.88539,
+      "duration": 0.23693,
+      "confidence": 0.435
+    },
+    {
+      "start": 163.12233,
+      "duration": 0.23693,
+      "confidence": 0.435
+    },
+    {
+      "start": 163.35926,
+      "duration": 0.23832,
+      "confidence": 0.359
+    },
+    {
+      "start": 163.59757,
+      "duration": 0.23832,
+      "confidence": 0.359
+    },
+    {
+      "start": 163.83589,
+      "duration": 0.23916,
+      "confidence": 0.342
+    },
+    {
+      "start": 164.07505,
+      "duration": 0.23916,
+      "confidence": 0.342
+    },
+    {
+      "start": 164.31422,
+      "duration": 0.23895,
+      "confidence": 0.333
+    },
+    {
+      "start": 164.55316,
+      "duration": 0.23895,
+      "confidence": 0.333
+    },
+    {
+      "start": 164.79211,
+      "duration": 0.23873,
+      "confidence": 0.485
+    },
+    {
+      "start": 165.03084,
+      "duration": 0.23873,
+      "confidence": 0.485
+    },
+    {
+      "start": 165.26956,
+      "duration": 0.2384,
+      "confidence": 0.447
+    },
+    {
+      "start": 165.50797,
+      "duration": 0.2384,
+      "confidence": 0.447
+    },
+    {
+      "start": 165.74637,
+      "duration": 0.23861,
+      "confidence": 0.415
+    },
+    {
+      "start": 165.98498,
+      "duration": 0.23861,
+      "confidence": 0.415
+    },
+    {
+      "start": 166.2236,
+      "duration": 0.23904,
+      "confidence": 0.312
+    },
+    {
+      "start": 166.46263,
+      "duration": 0.23904,
+      "confidence": 0.312
+    },
+    {
+      "start": 166.70167,
+      "duration": 0.23861,
+      "confidence": 0.361
+    },
+    {
+      "start": 166.94027,
+      "duration": 0.23861,
+      "confidence": 0.361
+    },
+    {
+      "start": 167.17888,
+      "duration": 0.23828,
+      "confidence": 0.298
+    },
+    {
+      "start": 167.41716,
+      "duration": 0.23828,
+      "confidence": 0.298
+    },
+    {
+      "start": 167.65545,
+      "duration": 0.23796,
+      "confidence": 0.26
+    },
+    {
+      "start": 167.89341,
+      "duration": 0.23796,
+      "confidence": 0.26
+    },
+    {
+      "start": 168.13138,
+      "duration": 0.23711,
+      "confidence": 0.197
+    },
+    {
+      "start": 168.36848,
+      "duration": 0.23711,
+      "confidence": 0.197
+    },
+    {
+      "start": 168.60559,
+      "duration": 0.23657,
+      "confidence": 0.188
+    },
+    {
+      "start": 168.84216,
+      "duration": 0.23657,
+      "confidence": 0.188
+    },
+    {
+      "start": 169.07873,
+      "duration": 0.23678,
+      "confidence": 0.26
+    },
+    {
+      "start": 169.31552,
+      "duration": 0.23678,
+      "confidence": 0.26
+    },
+    {
+      "start": 169.5523,
+      "duration": 0.2371,
+      "confidence": 0.329
+    },
+    {
+      "start": 169.7894,
+      "duration": 0.2371,
+      "confidence": 0.329
+    },
+    {
+      "start": 170.0265,
+      "duration": 0.23699,
+      "confidence": 0.301
+    },
+    {
+      "start": 170.26349,
+      "duration": 0.23699,
+      "confidence": 0.301
+    },
+    {
+      "start": 170.50048,
+      "duration": 0.23742,
+      "confidence": 0.27
+    },
+    {
+      "start": 170.7379,
+      "duration": 0.23742,
+      "confidence": 0.27
+    },
+    {
+      "start": 170.97531,
+      "duration": 0.23869,
+      "confidence": 0.27
+    },
+    {
+      "start": 171.21401,
+      "duration": 0.23869,
+      "confidence": 0.27
+    },
+    {
+      "start": 171.4527,
+      "duration": 0.23965,
+      "confidence": 0.339
+    },
+    {
+      "start": 171.69235,
+      "duration": 0.23965,
+      "confidence": 0.339
+    },
+    {
+      "start": 171.93201,
+      "duration": 0.2388,
+      "confidence": 0.409
+    },
+    {
+      "start": 172.17081,
+      "duration": 0.2388,
+      "confidence": 0.409
+    },
+    {
+      "start": 172.4096,
+      "duration": 0.23816,
+      "confidence": 0.445
+    },
+    {
+      "start": 172.64777,
+      "duration": 0.23816,
+      "confidence": 0.445
+    },
+    {
+      "start": 172.88593,
+      "duration": 0.2388,
+      "confidence": 0.261
+    },
+    {
+      "start": 173.12473,
+      "duration": 0.2388,
+      "confidence": 0.261
+    },
+    {
+      "start": 173.36353,
+      "duration": 0.23913,
+      "confidence": 0.291
+    },
+    {
+      "start": 173.60266,
+      "duration": 0.23913,
+      "confidence": 0.291
+    },
+    {
+      "start": 173.84178,
+      "duration": 0.23881,
+      "confidence": 0.342
+    },
+    {
+      "start": 174.08059,
+      "duration": 0.23881,
+      "confidence": 0.342
+    },
+    {
+      "start": 174.3194,
+      "duration": 0.23849,
+      "confidence": 0.482
+    },
+    {
+      "start": 174.5579,
+      "duration": 0.23849,
+      "confidence": 0.482
+    },
+    {
+      "start": 174.79639,
+      "duration": 0.23828,
+      "confidence": 0.515
+    },
+    {
+      "start": 175.03467,
+      "duration": 0.23828,
+      "confidence": 0.515
+    },
+    {
+      "start": 175.27296,
+      "duration": 0.2384,
+      "confidence": 0.443
+    },
+    {
+      "start": 175.51135,
+      "duration": 0.2384,
+      "confidence": 0.443
+    },
+    {
+      "start": 175.74975,
+      "duration": 0.23829,
+      "confidence": 0.294
+    },
+    {
+      "start": 175.98804,
+      "duration": 0.23829,
+      "confidence": 0.294
+    },
+    {
+      "start": 176.22633,
+      "duration": 0.23755,
+      "confidence": 0.264
+    },
+    {
+      "start": 176.46389,
+      "duration": 0.23755,
+      "confidence": 0.264
+    },
+    {
+      "start": 176.70144,
+      "duration": 0.23713,
+      "confidence": 0.35
+    },
+    {
+      "start": 176.93856,
+      "duration": 0.23713,
+      "confidence": 0.35
+    },
+    {
+      "start": 177.17569,
+      "duration": 0.23671,
+      "confidence": 0.405
+    },
+    {
+      "start": 177.4124,
+      "duration": 0.23671,
+      "confidence": 0.405
+    },
+    {
+      "start": 177.6491,
+      "duration": 0.23692,
+      "confidence": 0.338
+    },
+    {
+      "start": 177.88603,
+      "duration": 0.23692,
+      "confidence": 0.338
+    },
+    {
+      "start": 178.12295,
+      "duration": 0.23736,
+      "confidence": 0.345
+    },
+    {
+      "start": 178.36031,
+      "duration": 0.23736,
+      "confidence": 0.345
+    },
+    {
+      "start": 178.59766,
+      "duration": 0.23822,
+      "confidence": 0.288
+    },
+    {
+      "start": 178.83588,
+      "duration": 0.23822,
+      "confidence": 0.288
+    },
+    {
+      "start": 179.0741,
+      "duration": 0.23843,
+      "confidence": 0.195
+    },
+    {
+      "start": 179.31253,
+      "duration": 0.23843,
+      "confidence": 0.195
+    },
+    {
+      "start": 179.55096,
+      "duration": 0.2378,
+      "confidence": 0.225
+    },
+    {
+      "start": 179.78876,
+      "duration": 0.2378,
+      "confidence": 0.225
+    },
+    {
+      "start": 180.02656,
+      "duration": 0.23812,
+      "confidence": 0.216
+    },
+    {
+      "start": 180.26468,
+      "duration": 0.23812,
+      "confidence": 0.216
+    },
+    {
+      "start": 180.5028,
+      "duration": 0.23908,
+      "confidence": 0.274
+    },
+    {
+      "start": 180.74188,
+      "duration": 0.23908,
+      "confidence": 0.274
+    },
+    {
+      "start": 180.98097,
+      "duration": 0.23919,
+      "confidence": 0.185
+    },
+    {
+      "start": 181.22016,
+      "duration": 0.23919,
+      "confidence": 0.185
+    },
+    {
+      "start": 181.45935,
+      "duration": 0.23834,
+      "confidence": 0.22
+    },
+    {
+      "start": 181.69769,
+      "duration": 0.23834,
+      "confidence": 0.22
+    },
+    {
+      "start": 181.93603,
+      "duration": 0.23748,
+      "confidence": 0.207
+    },
+    {
+      "start": 182.17351,
+      "duration": 0.23748,
+      "confidence": 0.207
+    },
+    {
+      "start": 182.41099,
+      "duration": 0.23748,
+      "confidence": 0.242
+    },
+    {
+      "start": 182.64848,
+      "duration": 0.23748,
+      "confidence": 0.242
+    },
+    {
+      "start": 182.88596,
+      "duration": 0.2378,
+      "confidence": 0.289
+    },
+    {
+      "start": 183.12377,
+      "duration": 0.2378,
+      "confidence": 0.289
+    },
+    {
+      "start": 183.36157,
+      "duration": 0.2378,
+      "confidence": 0.288
+    },
+    {
+      "start": 183.59938,
+      "duration": 0.2378,
+      "confidence": 0.288
+    },
+    {
+      "start": 183.83718,
+      "duration": 0.23738,
+      "confidence": 0.221
+    },
+    {
+      "start": 184.07456,
+      "duration": 0.23738,
+      "confidence": 0.221
+    },
+    {
+      "start": 184.31193,
+      "duration": 0.23684,
+      "confidence": 0.213
+    },
+    {
+      "start": 184.54878,
+      "duration": 0.23684,
+      "confidence": 0.213
+    },
+    {
+      "start": 184.78562,
+      "duration": 0.23727,
+      "confidence": 0.216
+    },
+    {
+      "start": 185.0229,
+      "duration": 0.23727,
+      "confidence": 0.216
+    },
+    {
+      "start": 185.26017,
+      "duration": 0.23791,
+      "confidence": 0.293
+    },
+    {
+      "start": 185.49808,
+      "duration": 0.23791,
+      "confidence": 0.293
+    },
+    {
+      "start": 185.73599,
+      "duration": 0.23855,
+      "confidence": 0.332
+    },
+    {
+      "start": 185.97455,
+      "duration": 0.23855,
+      "confidence": 0.332
+    },
+    {
+      "start": 186.2131,
+      "duration": 0.2393,
+      "confidence": 0.372
+    },
+    {
+      "start": 186.4524,
+      "duration": 0.2393,
+      "confidence": 0.372
+    },
+    {
+      "start": 186.6917,
+      "duration": 0.2392,
+      "confidence": 0.304
+    },
+    {
+      "start": 186.9309,
+      "duration": 0.2392,
+      "confidence": 0.304
+    },
+    {
+      "start": 187.1701,
+      "duration": 0.23834,
+      "confidence": 0.414
+    },
+    {
+      "start": 187.40844,
+      "duration": 0.23834,
+      "confidence": 0.414
+    },
+    {
+      "start": 187.64678,
+      "duration": 0.23856,
+      "confidence": 0.547
+    },
+    {
+      "start": 187.88534,
+      "duration": 0.23856,
+      "confidence": 0.547
+    },
+    {
+      "start": 188.1239,
+      "duration": 0.23941,
+      "confidence": 0.476
+    },
+    {
+      "start": 188.36331,
+      "duration": 0.23941,
+      "confidence": 0.476
+    },
+    {
+      "start": 188.60272,
+      "duration": 0.23962,
+      "confidence": 0.442
+    },
+    {
+      "start": 188.84234,
+      "duration": 0.23962,
+      "confidence": 0.442
+    },
+    {
+      "start": 189.08196,
+      "duration": 0.23834,
+      "confidence": 0.348
+    },
+    {
+      "start": 189.32031,
+      "duration": 0.23834,
+      "confidence": 0.348
+    },
+    {
+      "start": 189.55865,
+      "duration": 0.23728,
+      "confidence": 0.355
+    },
+    {
+      "start": 189.79593,
+      "duration": 0.23728,
+      "confidence": 0.355
+    },
+    {
+      "start": 190.0332,
+      "duration": 0.23781,
+      "confidence": 0.201
+    },
+    {
+      "start": 190.27101,
+      "duration": 0.23781,
+      "confidence": 0.201
+    },
+    {
+      "start": 190.50882,
+      "duration": 0.23886,
+      "confidence": 0.177
+    },
+    {
+      "start": 190.74768,
+      "duration": 0.23886,
+      "confidence": 0.177
+    },
+    {
+      "start": 190.98654,
+      "duration": 0.23894,
+      "confidence": 0.115
+    },
+    {
+      "start": 191.22548,
+      "duration": 0.23894,
+      "confidence": 0.115
+    },
+    {
+      "start": 191.46442,
+      "duration": 0.23752,
+      "confidence": 0.162
+    },
+    {
+      "start": 191.70194,
+      "duration": 0.23752,
+      "confidence": 0.162
+    },
+    {
+      "start": 191.93947,
+      "duration": 0.23675,
+      "confidence": 0.267
+    },
+    {
+      "start": 192.17621,
+      "duration": 0.23675,
+      "confidence": 0.267
+    },
+    {
+      "start": 192.41296,
+      "duration": 0.23947,
+      "confidence": 0.299
+    },
+    {
+      "start": 192.65242,
+      "duration": 0.23947,
+      "confidence": 0.299
+    },
+    {
+      "start": 192.89189,
+      "duration": 0.24004,
+      "confidence": 0.302
+    },
+    {
+      "start": 193.13193,
+      "duration": 0.24004,
+      "confidence": 0.302
+    },
+    {
+      "start": 193.37197,
+      "duration": 0.23809,
+      "confidence": 0.258
+    },
+    {
+      "start": 193.61005,
+      "duration": 0.23809,
+      "confidence": 0.258
+    },
+    {
+      "start": 193.84814,
+      "duration": 0.23951,
+      "confidence": 0.143
+    },
+    {
+      "start": 194.08765,
+      "duration": 0.23951,
+      "confidence": 0.143
+    },
+    {
+      "start": 194.32716,
+      "duration": 0.23624,
+      "confidence": 0.127
+    },
+    {
+      "start": 194.5634,
+      "duration": 0.23624,
+      "confidence": 0.127
+    },
+    {
+      "start": 194.79965,
+      "duration": 0.23146,
+      "confidence": 0.074
+    },
+    {
+      "start": 195.0311,
+      "duration": 0.23146,
+      "confidence": 0.074
+    },
+    {
+      "start": 195.26256,
+      "duration": 0.23146,
+      "confidence": 0.074
+    },
+    {
+      "start": 195.49401,
+      "duration": 0.23146,
+      "confidence": 0.074
+    }
+  ],
+  "sections": [
+    {
+      "start": 0,
+      "duration": 10.03825,
+      "confidence": 1,
+      "loudness": -7.359,
+      "tempo": 125.654,
+      "tempo_confidence": 0.303,
+      "key": 2,
+      "key_confidence": 0.19,
+      "mode": 0,
+      "mode_confidence": 0.478,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 10.03825,
+      "duration": 23.3303,
+      "confidence": 0.762,
+      "loudness": -5.226,
+      "tempo": 125.923,
+      "tempo_confidence": 0.408,
+      "key": 2,
+      "key_confidence": 0.147,
+      "mode": 1,
+      "mode_confidence": 0.457,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 33.36855,
+      "duration": 13.80349,
+      "confidence": 0.547,
+      "loudness": -7.158,
+      "tempo": 126.12,
+      "tempo_confidence": 0.457,
+      "key": 7,
+      "key_confidence": 0.507,
+      "mode": 0,
+      "mode_confidence": 0.632,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 47.17204,
+      "duration": 16.18977,
+      "confidence": 0.796,
+      "loudness": -1.888,
+      "tempo": 125.963,
+      "tempo_confidence": 0.35,
+      "key": 5,
+      "key_confidence": 0.108,
+      "mode": 0,
+      "mode_confidence": 0.4,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 63.36181,
+      "duration": 14.28412,
+      "confidence": 0.068,
+      "loudness": -1.28,
+      "tempo": 125.83,
+      "tempo_confidence": 0.298,
+      "key": 2,
+      "key_confidence": 0,
+      "mode": 1,
+      "mode_confidence": 0,
+      "time_signature": 4,
+      "time_signature_confidence": 0.846
+    },
+    {
+      "start": 77.64593,
+      "duration": 18.10978,
+      "confidence": 0.571,
+      "loudness": -5.353,
+      "tempo": 125.829,
+      "tempo_confidence": 0.318,
+      "key": 2,
+      "key_confidence": 0.137,
+      "mode": 1,
+      "mode_confidence": 0.414,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 95.75571,
+      "duration": 14.7418,
+      "confidence": 0.559,
+      "loudness": -6.558,
+      "tempo": 126.091,
+      "tempo_confidence": 0.449,
+      "key": 7,
+      "key_confidence": 0,
+      "mode": 0,
+      "mode_confidence": 0,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 110.49751,
+      "duration": 15.72169,
+      "confidence": 0.785,
+      "loudness": -1.918,
+      "tempo": 126.09,
+      "tempo_confidence": 0.344,
+      "key": 5,
+      "key_confidence": 0.003,
+      "mode": 0,
+      "mode_confidence": 0.144,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 126.2192,
+      "duration": 14.75536,
+      "confidence": 0.109,
+      "loudness": -1.412,
+      "tempo": 125.909,
+      "tempo_confidence": 0.277,
+      "key": 2,
+      "key_confidence": 0.579,
+      "mode": 1,
+      "mode_confidence": 0.457,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 140.97456,
+      "duration": 23.81755,
+      "confidence": 0.829,
+      "loudness": -6.611,
+      "tempo": 125.889,
+      "tempo_confidence": 0.372,
+      "key": 10,
+      "key_confidence": 0.199,
+      "mode": 1,
+      "mode_confidence": 0.321,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 164.79211,
+      "duration": 14.75885,
+      "confidence": 0.552,
+      "loudness": -1.935,
+      "tempo": 125.897,
+      "tempo_confidence": 0.336,
+      "key": 5,
+      "key_confidence": 0.052,
+      "mode": 0,
+      "mode_confidence": 0.334,
+      "time_signature": 4,
+      "time_signature_confidence": 1
+    },
+    {
+      "start": 179.55096,
+      "duration": 16.63951,
+      "confidence": 0.187,
+      "loudness": -1.454,
+      "tempo": 125.781,
+      "tempo_confidence": 0.261,
+      "key": 7,
+      "key_confidence": 0.717,
+      "mode": 1,
+      "mode_confidence": 0.636,
+      "time_signature": 4,
+      "time_signature_confidence": 0.786
+    }
+  ],
+  "segments": [
+    {
+      "start": 0,
+      "duration": 0.29596,
+      "confidence": 1,
+      "loudness_start": -60,
+      "loudness_max_time": 0.25665,
+      "loudness_max": -16.413,
+      "pitches": [
+        0.354,
+        0.343,
+        0.442,
+        0.331,
+        0.544,
+        0.564,
+        0.706,
+        1,
+        0.722,
+        0.706,
+        0.484,
+        0.49
+      ],
+      "timbre": [
+        15.578,
+        198.549,
+        197.354,
+        -357.929,
+        63.305,
+        -27.964,
+        58.106,
+        -31.133,
+        -42.012,
+        42.997,
+        90.901,
+        -1.9
+      ]
+    },
+    {
+      "start": 0.29596,
+      "duration": 0.0927,
+      "confidence": 0.296,
+      "loudness_start": -16.679,
+      "loudness_max_time": 0.04023,
+      "loudness_max": -13.432,
+      "pitches": [
+        0.854,
+        0.673,
+        0.208,
+        0.581,
+        0.561,
+        0.3,
+        0.233,
+        0.157,
+        0.158,
+        0.239,
+        0.265,
+        1
+      ],
+      "timbre": [
+        42.94,
+        136.356,
+        3.225,
+        40.293,
+        -3.706,
+        -30.879,
+        -53.006,
+        -33.253,
+        -36.843,
+        24.887,
+        -16.977,
+        12.605
+      ]
+    },
+    {
+      "start": 0.38866,
+      "duration": 0.29587,
+      "confidence": 0.925,
+      "loudness_start": -21.199,
+      "loudness_max_time": 0.1392,
+      "loudness_max": -5.821,
+      "pitches": [
+        0.333,
+        0.516,
+        0.439,
+        0.411,
+        0.467,
+        0.619,
+        1,
+        0.57,
+        0.249,
+        0.261,
+        0.291,
+        0.263
+      ],
+      "timbre": [
+        47.918,
+        150.275,
+        63.109,
+        -99.323,
+        34.821,
+        35.725,
+        -20.564,
+        -57.376,
+        2.483,
+        18.294,
+        27.016,
+        -3.529
+      ]
+    },
+    {
+      "start": 0.68454,
+      "duration": 0.19787,
+      "confidence": 0.054,
+      "loudness_start": -7.939,
+      "loudness_max_time": 0.03254,
+      "loudness_max": -5.318,
+      "pitches": [
+        0.266,
+        0.451,
+        0.587,
+        0.705,
+        0.6,
+        0.601,
+        0.983,
+        1,
+        0.497,
+        0.357,
+        0.349,
+        0.402
+      ],
+      "timbre": [
+        49.482,
+        159.895,
+        74.365,
+        79.37,
+        71.589,
+        -61.385,
+        -38.771,
+        70.192,
+        -5.065,
+        -12.635,
+        5.586,
+        0.476
+      ]
+    },
+    {
+      "start": 0.8824,
+      "duration": 0.51061,
+      "confidence": 0.939,
+      "loudness_start": -17.218,
+      "loudness_max_time": 0.09489,
+      "loudness_max": -3.598,
+      "pitches": [
+        0.143,
+        0.163,
+        0.08,
+        0.08,
+        0.415,
+        1,
+        0.648,
+        0.066,
+        0.054,
+        0.069,
+        0.05,
+        0.101
+      ],
+      "timbre": [
+        47.477,
+        96.046,
+        67.203,
+        -43.455,
+        73.813,
+        2.733,
+        -25.072,
+        -23.986,
+        -27.885,
+        75.955,
+        -28.355,
+        20.432
+      ]
+    },
+    {
+      "start": 1.39302,
+      "duration": 0.4781,
+      "confidence": 0.898,
+      "loudness_start": -21.359,
+      "loudness_max_time": 0.08262,
+      "loudness_max": -5.995,
+      "pitches": [
+        0.315,
+        0.385,
+        1,
+        0.1,
+        0.069,
+        0.068,
+        0.07,
+        0.138,
+        0.134,
+        0.417,
+        0.103,
+        0.115
+      ],
+      "timbre": [
+        49.528,
+        132.448,
+        53.829,
+        -33.541,
+        31.083,
+        3.471,
+        -31.109,
+        -62.839,
+        -11.789,
+        31.111,
+        -25.383,
+        9.27
+      ]
+    },
+    {
+      "start": 1.87111,
+      "duration": 0.50898,
+      "confidence": 0.858,
+      "loudness_start": -17.396,
+      "loudness_max_time": 0.08155,
+      "loudness_max": -5.084,
+      "pitches": [
+        0.854,
+        0.325,
+        0.489,
+        0.374,
+        0.469,
+        1,
+        0.701,
+        1,
+        0.268,
+        0.315,
+        0.798,
+        0.662
+      ],
+      "timbre": [
+        51.842,
+        126.889,
+        56.582,
+        -27.814,
+        40.505,
+        -2.912,
+        -24.022,
+        -35.722,
+        -2.153,
+        23.267,
+        1.72,
+        8.855
+      ]
+    },
+    {
+      "start": 2.38009,
+      "duration": 0.30889,
+      "confidence": 0.342,
+      "loudness_start": -8.637,
+      "loudness_max_time": 0.10663,
+      "loudness_max": -4.644,
+      "pitches": [
+        0.079,
+        0.108,
+        0.475,
+        0.102,
+        0.179,
+        0.423,
+        0.276,
+        1,
+        0.246,
+        0.24,
+        0.298,
+        0.236
+      ],
+      "timbre": [
+        53.381,
+        110.338,
+        81.477,
+        12.533,
+        47.852,
+        -20.247,
+        -13.157,
+        6.426,
+        -12.051,
+        -15.267,
+        -17.21,
+        20.554
+      ]
+    },
+    {
+      "start": 2.68898,
+      "duration": 0.37007,
+      "confidence": 0.505,
+      "loudness_start": -14.204,
+      "loudness_max_time": 0.11105,
+      "loudness_max": -7.794,
+      "pitches": [
+        0.228,
+        0.265,
+        0.535,
+        0.331,
+        0.285,
+        0.458,
+        0.525,
+        1,
+        0.623,
+        0.454,
+        0.652,
+        0.354
+      ],
+      "timbre": [
+        48.722,
+        86.165,
+        49.588,
+        -42.487,
+        -6.653,
+        -20.052,
+        -13.28,
+        50.248,
+        -13.841,
+        -23.493,
+        17.932,
+        -0.98
+      ]
+    },
+    {
+      "start": 3.05905,
+      "duration": 0.23846,
+      "confidence": 0.692,
+      "loudness_start": -13.03,
+      "loudness_max_time": 0.08938,
+      "loudness_max": -6.001,
+      "pitches": [
+        0.146,
+        0.104,
+        0.273,
+        0.142,
+        0.145,
+        0.266,
+        0.327,
+        1,
+        0.338,
+        0.15,
+        0.265,
+        0.277
+      ],
+      "timbre": [
+        50.465,
+        157.232,
+        61.32,
+        -3.03,
+        -2.487,
+        14.649,
+        -50.738,
+        -3.473,
+        -28.08,
+        1.935,
+        -13.064,
+        3.604
+      ]
+    },
+    {
+      "start": 3.29751,
+      "duration": 0.15642,
+      "confidence": 0.694,
+      "loudness_start": -13.202,
+      "loudness_max_time": 0.07511,
+      "loudness_max": -6.219,
+      "pitches": [
+        0.339,
+        0.213,
+        0.245,
+        0.104,
+        0.1,
+        0.289,
+        0.156,
+        0.191,
+        0.115,
+        0.336,
+        1,
+        0.426
+      ],
+      "timbre": [
+        51.409,
+        124.577,
+        40.076,
+        -4.904,
+        16.77,
+        9.105,
+        -36.867,
+        -10.522,
+        -24.282,
+        17.305,
+        -15.846,
+        12.807
+      ]
+    },
+    {
+      "start": 3.45392,
+      "duration": 0.11615,
+      "confidence": 0.327,
+      "loudness_start": -13.053,
+      "loudness_max_time": 0.04937,
+      "loudness_max": -8.695,
+      "pitches": [
+        0.265,
+        0.611,
+        0.749,
+        0.286,
+        0.463,
+        0.347,
+        0.417,
+        0.936,
+        0.839,
+        1,
+        0.968,
+        0.275
+      ],
+      "timbre": [
+        50.165,
+        92.598,
+        38.985,
+        -34.345,
+        -8.18,
+        -16.78,
+        -16.65,
+        30.656,
+        -7.588,
+        -26.279,
+        14.96,
+        13.733
+      ]
+    },
+    {
+      "start": 3.57007,
+      "duration": 0.10431,
+      "confidence": 0.258,
+      "loudness_start": -10.228,
+      "loudness_max_time": 0.04316,
+      "loudness_max": -6.041,
+      "pitches": [
+        0.047,
+        0.116,
+        0.23,
+        0.245,
+        0.133,
+        0.144,
+        0.31,
+        1,
+        0.371,
+        0.117,
+        0.085,
+        0.106
+      ],
+      "timbre": [
+        51.018,
+        71.814,
+        29.341,
+        22.059,
+        32.938,
+        -26.345,
+        -28.596,
+        -11.427,
+        -17.906,
+        1.212,
+        -16.689,
+        28.763
+      ]
+    },
+    {
+      "start": 3.67438,
+      "duration": 0.12785,
+      "confidence": 0.1,
+      "loudness_start": -12.401,
+      "loudness_max_time": 0.05417,
+      "loudness_max": -8.793,
+      "pitches": [
+        0.235,
+        0.317,
+        0.464,
+        0.315,
+        0.356,
+        0.281,
+        0.459,
+        0.661,
+        1,
+        0.937,
+        0.443,
+        0.235
+      ],
+      "timbre": [
+        48.901,
+        154.169,
+        25.49,
+        -22.124,
+        9.483,
+        -21.259,
+        0.893,
+        33.485,
+        -29.172,
+        -48.763,
+        2.133,
+        2.58
+      ]
+    },
+    {
+      "start": 3.80222,
+      "duration": 0.24961,
+      "confidence": 0.65,
+      "loudness_start": -13.948,
+      "loudness_max_time": 0.04858,
+      "loudness_max": -6.412,
+      "pitches": [
+        0.235,
+        0.406,
+        0.748,
+        0.245,
+        0.219,
+        0.327,
+        0.265,
+        0.594,
+        0.346,
+        0.435,
+        1,
+        0.492
+      ],
+      "timbre": [
+        50.202,
+        116.828,
+        50.171,
+        22.944,
+        18.859,
+        -5.954,
+        -30.702,
+        -5.14,
+        -23.284,
+        26.602,
+        -7.85,
+        -10.022
+      ]
+    },
+    {
+      "start": 4.05184,
+      "duration": 0.22644,
+      "confidence": 0.646,
+      "loudness_start": -15.924,
+      "loudness_max_time": 0.14302,
+      "loudness_max": -6.383,
+      "pitches": [
+        1,
+        0.209,
+        0.205,
+        0.117,
+        0.454,
+        0.12,
+        0.106,
+        0.421,
+        0.083,
+        0.116,
+        0.164,
+        0.199
+      ],
+      "timbre": [
+        51.567,
+        77.16,
+        78.373,
+        3.954,
+        41.872,
+        -23.478,
+        -31.809,
+        -9.52,
+        -22.841,
+        19.746,
+        -6.832,
+        10.507
+      ]
+    },
+    {
+      "start": 4.27828,
+      "duration": 0.24381,
+      "confidence": 0.611,
+      "loudness_start": -12.123,
+      "loudness_max_time": 0.0314,
+      "loudness_max": -5.457,
+      "pitches": [
+        0.914,
+        1,
+        0.905,
+        0.106,
+        0.189,
+        0.254,
+        0.192,
+        0.453,
+        0.401,
+        0.381,
+        0.373,
+        0.216
+      ],
+      "timbre": [
+        52.465,
+        90.992,
+        67.163,
+        -5.955,
+        31.651,
+        -13.879,
+        -33.259,
+        -7.14,
+        -13.795,
+        5.919,
+        10.4,
+        -19.19
+      ]
+    },
+    {
+      "start": 4.52209,
+      "duration": 0.18009,
+      "confidence": 0.069,
+      "loudness_start": -10.49,
+      "loudness_max_time": 0.09416,
+      "loudness_max": -8.171,
+      "pitches": [
+        0.255,
+        0.375,
+        1,
+        0.06,
+        0.044,
+        0.052,
+        0.062,
+        0.062,
+        0.079,
+        0.384,
+        0.082,
+        0.185
+      ],
+      "timbre": [
+        50.409,
+        86.466,
+        98.847,
+        17.429,
+        66.281,
+        -22.025,
+        -32.307,
+        -3.858,
+        -11.442,
+        -1.945,
+        -12.892,
+        -13.846
+      ]
+    },
+    {
+      "start": 4.70218,
+      "duration": 0.25515,
+      "confidence": 0.543,
+      "loudness_start": -14.047,
+      "loudness_max_time": 0.08242,
+      "loudness_max": -8.214,
+      "pitches": [
+        0.354,
+        0.513,
+        1,
+        0.73,
+        0.457,
+        0.694,
+        0.381,
+        0.704,
+        0.517,
+        0.895,
+        0.938,
+        0.681
+      ],
+      "timbre": [
+        48.376,
+        139.55,
+        105.048,
+        -17.657,
+        5.384,
+        -12.592,
+        2.582,
+        22.172,
+        -12.941,
+        -0.367,
+        -14.645,
+        -23.317
+      ]
+    },
+    {
+      "start": 4.95732,
+      "duration": 0.43533,
+      "confidence": 0.661,
+      "loudness_start": -12.891,
+      "loudness_max_time": 0.19542,
+      "loudness_max": -6.033,
+      "pitches": [
+        0.51,
+        0.853,
+        1,
+        0.177,
+        0.18,
+        0.236,
+        0.181,
+        0.41,
+        0.286,
+        0.462,
+        0.323,
+        0.258
+      ],
+      "timbre": [
+        52.385,
+        127.396,
+        127.82,
+        27.403,
+        35.022,
+        -8.765,
+        5.752,
+        -10.632,
+        -10.185,
+        4.744,
+        -10.186,
+        -1.518
+      ]
+    },
+    {
+      "start": 5.39265,
+      "duration": 0.18621,
+      "confidence": 0.46,
+      "loudness_start": -9.338,
+      "loudness_max_time": 0.01261,
+      "loudness_max": -4.414,
+      "pitches": [
+        0.479,
+        0.477,
+        0.769,
+        0.248,
+        0.372,
+        0.543,
+        0.233,
+        0.314,
+        0.194,
+        0.582,
+        1,
+        0.728
+      ],
+      "timbre": [
+        53.303,
+        95.555,
+        85.113,
+        25.554,
+        43.938,
+        -41.646,
+        -26.386,
+        8.123,
+        -7.665,
+        -4.614,
+        4.137,
+        -0.182
+      ]
+    },
+    {
+      "start": 5.57887,
+      "duration": 0.47592,
+      "confidence": 0.052,
+      "loudness_start": -8.98,
+      "loudness_max_time": 0.18478,
+      "loudness_max": -6.209,
+      "pitches": [
+        0.835,
+        0.365,
+        0.55,
+        0.332,
+        0.412,
+        0.407,
+        0.404,
+        1,
+        0.397,
+        0.41,
+        0.458,
+        0.318
+      ],
+      "timbre": [
+        52.145,
+        96.663,
+        101.17,
+        18.967,
+        55.789,
+        -32.662,
+        -9.01,
+        -8.843,
+        1.611,
+        14.868,
+        -21.959,
+        -26.647
+      ]
+    },
+    {
+      "start": 6.05478,
+      "duration": 0.13887,
+      "confidence": 0.209,
+      "loudness_start": -11.369,
+      "loudness_max_time": 0.03967,
+      "loudness_max": -8.598,
+      "pitches": [
+        0.095,
+        0.05,
+        0.095,
+        0.023,
+        0.032,
+        0.236,
+        0.049,
+        0.043,
+        0.03,
+        0.09,
+        1,
+        0.2
+      ],
+      "timbre": [
+        50.493,
+        66.945,
+        74.454,
+        -11.517,
+        50.334,
+        -18.177,
+        -57.499,
+        -17.603,
+        -9.84,
+        -12.535,
+        8.016,
+        -21.417
+      ]
+    },
+    {
+      "start": 6.19365,
+      "duration": 0.23238,
+      "confidence": 0.494,
+      "loudness_start": -10.776,
+      "loudness_max_time": 0.17053,
+      "loudness_max": -4.925,
+      "pitches": [
+        0.618,
+        0.175,
+        0.189,
+        0.057,
+        0.203,
+        0.176,
+        0.171,
+        1,
+        0.29,
+        0.219,
+        0.38,
+        0.118
+      ],
+      "timbre": [
+        53.516,
+        91.726,
+        88.779,
+        5.663,
+        38.812,
+        -24.631,
+        -17.971,
+        -2.621,
+        -2.692,
+        -4.203,
+        -7.96,
+        -18.193
+      ]
+    },
+    {
+      "start": 6.42603,
+      "duration": 0.24413,
+      "confidence": 0.319,
+      "loudness_start": -11.328,
+      "loudness_max_time": 0.04106,
+      "loudness_max": -6.244,
+      "pitches": [
+        0.513,
+        1,
+        0.887,
+        0.175,
+        0.142,
+        0.149,
+        0.074,
+        0.109,
+        0.13,
+        0.199,
+        0.213,
+        0.218
+      ],
+      "timbre": [
+        52.452,
+        96.527,
+        74.729,
+        -10.951,
+        13.645,
+        -10.66,
+        -35.198,
+        -1.864,
+        -10.313,
+        -29.024,
+        10.509,
+        -26.682
+      ]
+    },
+    {
+      "start": 6.67016,
+      "duration": 0.58735,
+      "confidence": 0.119,
+      "loudness_start": -8.248,
+      "loudness_max_time": 0.03552,
+      "loudness_max": -5.285,
+      "pitches": [
+        0.542,
+        0.166,
+        0.373,
+        0.179,
+        0.155,
+        0.226,
+        0.26,
+        1,
+        0.312,
+        0.336,
+        0.585,
+        0.473
+      ],
+      "timbre": [
+        53.03,
+        91.887,
+        96.88,
+        26.402,
+        47.15,
+        -24.465,
+        -13.122,
+        -10.214,
+        -0.677,
+        9.008,
+        -9.847,
+        -20.565
+      ]
+    },
+    {
+      "start": 7.25751,
+      "duration": 0.23692,
+      "confidence": 0.621,
+      "loudness_start": -12.12,
+      "loudness_max_time": 0.06659,
+      "loudness_max": -5.963,
+      "pitches": [
+        0.096,
+        0.212,
+        0.609,
+        0.116,
+        0.093,
+        0.088,
+        0.094,
+        1,
+        0.142,
+        0.176,
+        0.065,
+        0.125
+      ],
+      "timbre": [
+        51.238,
+        56.567,
+        83.04,
+        -10.109,
+        40.355,
+        -3.889,
+        -35.736,
+        19.885,
+        -7.785,
+        -21.6,
+        -0.931,
+        -6.056
+      ]
+    },
+    {
+      "start": 7.49442,
+      "duration": 0.10444,
+      "confidence": 0.437,
+      "loudness_start": -12.402,
+      "loudness_max_time": 0.05034,
+      "loudness_max": -7.584,
+      "pitches": [
+        0.091,
+        0.209,
+        1,
+        0.139,
+        0.106,
+        0.088,
+        0.219,
+        0.962,
+        0.199,
+        0.272,
+        0.113,
+        0.219
+      ],
+      "timbre": [
+        51.097,
+        98.009,
+        88.677,
+        -8.219,
+        47.762,
+        -8.615,
+        -39.674,
+        -19.231,
+        -13.778,
+        13.372,
+        -4.606,
+        -23.722
+      ]
+    },
+    {
+      "start": 7.59887,
+      "duration": 0.32476,
+      "confidence": 0.275,
+      "loudness_start": -8.956,
+      "loudness_max_time": 0.06937,
+      "loudness_max": -5.94,
+      "pitches": [
+        0.338,
+        0.421,
+        0.59,
+        0.207,
+        0.272,
+        0.407,
+        0.471,
+        1,
+        0.163,
+        0.239,
+        0.354,
+        0.348
+      ],
+      "timbre": [
+        51.642,
+        101.1,
+        60.126,
+        22.546,
+        33.848,
+        -16.748,
+        -47.48,
+        11.466,
+        -12.086,
+        -5.361,
+        -11.083,
+        -9.471
+      ]
+    },
+    {
+      "start": 7.92363,
+      "duration": 0.09873,
+      "confidence": 0.675,
+      "loudness_start": -16.171,
+      "loudness_max_time": 0.06423,
+      "loudness_max": -7.962,
+      "pitches": [
+        0.289,
+        0.331,
+        0.35,
+        0.178,
+        0.416,
+        1,
+        0.385,
+        0.321,
+        0.187,
+        0.321,
+        0.463,
+        0.319
+      ],
+      "timbre": [
+        49.098,
+        230.4,
+        20.932,
+        -47.06,
+        -2.96,
+        13.829,
+        -32.503,
+        -37.721,
+        -0.443,
+        -1.398,
+        -18.931,
+        17.121
+      ]
+    },
+    {
+      "start": 8.02236,
+      "duration": 0.4298,
+      "confidence": 0.512,
+      "loudness_start": -11.013,
+      "loudness_max_time": 0.23892,
+      "loudness_max": -5.046,
+      "pitches": [
+        0.166,
+        0.245,
+        0.389,
+        0.226,
+        0.225,
+        0.664,
+        0.666,
+        1,
+        0.277,
+        0.267,
+        0.32,
+        0.163
+      ],
+      "timbre": [
+        52.241,
+        143.735,
+        60.675,
+        -30.792,
+        15.645,
+        -9.713,
+        -16.032,
+        -29.409,
+        -25.312,
+        26.541,
+        1.192,
+        1.464
+      ]
+    },
+    {
+      "start": 8.45215,
+      "duration": 0.11596,
+      "confidence": 0.054,
+      "loudness_start": -16.3,
+      "loudness_max_time": 0.01933,
+      "loudness_max": -11.16,
+      "pitches": [
+        0.713,
+        0.359,
+        0.489,
+        0.193,
+        0.232,
+        0.374,
+        0.25,
+        0.484,
+        0.365,
+        0.566,
+        0.62,
+        1
+      ],
+      "timbre": [
+        47.637,
+        187.264,
+        66.906,
+        -6.715,
+        4.139,
+        -40.523,
+        -4.805,
+        23.09,
+        -28.982,
+        -28.2,
+        7.66,
+        -25.635
+      ]
+    },
+    {
+      "start": 8.56812,
+      "duration": 0.62748,
+      "confidence": 0.714,
+      "loudness_start": -12.358,
+      "loudness_max_time": 0.06628,
+      "loudness_max": -4.57,
+      "pitches": [
+        0.262,
+        0.228,
+        0.262,
+        0.177,
+        0.345,
+        1,
+        0.534,
+        0.162,
+        0.123,
+        0.168,
+        0.196,
+        0.164
+      ],
+      "timbre": [
+        52.304,
+        118.525,
+        73.842,
+        -15.905,
+        32.795,
+        -6.734,
+        -16.696,
+        -35.434,
+        -37.811,
+        29.484,
+        -6.331,
+        7.244
+      ]
+    },
+    {
+      "start": 9.1956,
+      "duration": 0.24317,
+      "confidence": 0.181,
+      "loudness_start": -7.267,
+      "loudness_max_time": 0.02353,
+      "loudness_max": -4.237,
+      "pitches": [
+        0.247,
+        0.382,
+        1,
+        0.21,
+        0.14,
+        0.131,
+        0.34,
+        0.099,
+        0.105,
+        0.295,
+        0.16,
+        0.281
+      ],
+      "timbre": [
+        52.314,
+        133.454,
+        74.779,
+        65.054,
+        24.85,
+        -30.425,
+        -8.562,
+        28.983,
+        -24.506,
+        3.32,
+        -23.212,
+        21.653
+      ]
+    },
+    {
+      "start": 9.43878,
+      "duration": 0.0873,
+      "confidence": 0.387,
+      "loudness_start": -13.54,
+      "loudness_max_time": 0.03511,
+      "loudness_max": -8.875,
+      "pitches": [
+        0.347,
+        0.559,
+        0.62,
+        0.196,
+        0.221,
+        0.224,
+        0.285,
+        0.149,
+        0.22,
+        1,
+        0.249,
+        0.189
+      ],
+      "timbre": [
+        49.725,
+        192.383,
+        96.893,
+        15.328,
+        -1.479,
+        -26.396,
+        -10.496,
+        -1.198,
+        -63.043,
+        -0.714,
+        -0.962,
+        -6.729
+      ]
+    },
+    {
+      "start": 9.52608,
+      "duration": 0.47016,
+      "confidence": 0.704,
+      "loudness_start": -11.594,
+      "loudness_max_time": 0.19623,
+      "loudness_max": -3.412,
+      "pitches": [
+        0.314,
+        0.285,
+        0.621,
+        0.472,
+        0.396,
+        0.278,
+        0.274,
+        1,
+        0.629,
+        0.288,
+        0.295,
+        0.213
+      ],
+      "timbre": [
+        54.425,
+        75.571,
+        42.304,
+        1.481,
+        1.97,
+        -19.51,
+        26.167,
+        7.486,
+        -10.411,
+        21.091,
+        -11.927,
+        5.1
+      ]
+    },
+    {
+      "start": 9.99624,
+      "duration": 0.31442,
+      "confidence": 0.456,
+      "loudness_start": -9.324,
+      "loudness_max_time": 0.01866,
+      "loudness_max": -4.076,
+      "pitches": [
+        0.292,
+        0.418,
+        0.349,
+        0.114,
+        0.069,
+        0.1,
+        0.175,
+        1,
+        0.183,
+        0.053,
+        0.044,
+        0.069
+      ],
+      "timbre": [
+        54.089,
+        59.83,
+        18.079,
+        -1.675,
+        -0.861,
+        -33.765,
+        4.417,
+        6.978,
+        -14.884,
+        15.283,
+        -20.709,
+        2.484
+      ]
+    },
+    {
+      "start": 10.31066,
+      "duration": 0.16159,
+      "confidence": 0.625,
+      "loudness_start": -15.333,
+      "loudness_max_time": 0.04911,
+      "loudness_max": -7.465,
+      "pitches": [
+        0.308,
+        0.224,
+        0.339,
+        0.277,
+        0.254,
+        0.365,
+        0.475,
+        1,
+        0.788,
+        0.261,
+        0.272,
+        0.254
+      ],
+      "timbre": [
+        48.742,
+        73.147,
+        33.261,
+        -4.033,
+        -20.848,
+        4.767,
+        -14.541,
+        35.998,
+        -10.373,
+        -39.66,
+        6.828,
+        -2.218
+      ]
+    },
+    {
+      "start": 10.47224,
+      "duration": 0.23202,
+      "confidence": 0.767,
+      "loudness_start": -14.574,
+      "loudness_max_time": 0.02811,
+      "loudness_max": -5.87,
+      "pitches": [
+        0.607,
+        0.375,
+        0.42,
+        0.124,
+        0.091,
+        0.109,
+        0.305,
+        1,
+        0.269,
+        0.044,
+        0.063,
+        0.182
+      ],
+      "timbre": [
+        51.735,
+        108.863,
+        -2.493,
+        -9.095,
+        -48.824,
+        -28.111,
+        7.055,
+        14.303,
+        -29.102,
+        18.311,
+        5.155,
+        -6.929
+      ]
+    },
+    {
+      "start": 10.70426,
+      "duration": 0.23832,
+      "confidence": 0.427,
+      "loudness_start": -9.137,
+      "loudness_max_time": 0.14241,
+      "loudness_max": -5.054,
+      "pitches": [
+        0.862,
+        1,
+        0.657,
+        0.504,
+        0.519,
+        0.554,
+        0.653,
+        0.755,
+        0.255,
+        0.359,
+        0.202,
+        0.747
+      ],
+      "timbre": [
+        53.128,
+        98.688,
+        9.572,
+        -21.075,
+        -33.241,
+        -19.852,
+        -33.212,
+        -10.511,
+        -21.906,
+        1.916,
+        -11.229,
+        -2.141
+      ]
+    },
+    {
+      "start": 10.94259,
+      "duration": 0.35519,
+      "confidence": 0.381,
+      "loudness_start": -9.516,
+      "loudness_max_time": 0.05501,
+      "loudness_max": -4.955,
+      "pitches": [
+        0.187,
+        0.247,
+        0.302,
+        0.122,
+        0.149,
+        0.175,
+        0.222,
+        1,
+        0.282,
+        0.14,
+        0.107,
+        0.156
+      ],
+      "timbre": [
+        53.248,
+        65.786,
+        21.549,
+        -26.588,
+        -17.246,
+        -30.538,
+        -5.55,
+        21.404,
+        -6.566,
+        12.003,
+        -8.379,
+        -10.623
+      ]
+    },
+    {
+      "start": 11.29778,
+      "duration": 0.12639,
+      "confidence": 0.149,
+      "loudness_start": -7.613,
+      "loudness_max_time": 0.06541,
+      "loudness_max": -5.012,
+      "pitches": [
+        1,
+        0.747,
+        0.577,
+        0.474,
+        0.165,
+        0.425,
+        0.236,
+        0.297,
+        0.242,
+        0.344,
+        0.109,
+        0.292
+      ],
+      "timbre": [
+        53.795,
+        105.637,
+        12.202,
+        -31.02,
+        -24.99,
+        -22.666,
+        -17.851,
+        -8.144,
+        -2.156,
+        -6.682,
+        -17.138,
+        -30.921
+      ]
+    },
+    {
+      "start": 11.42417,
+      "duration": 0.24376,
+      "confidence": 0.395,
+      "loudness_start": -7.635,
+      "loudness_max_time": 0.03866,
+      "loudness_max": -3.211,
+      "pitches": [
+        0.668,
+        0.427,
+        0.544,
+        0.134,
+        0.086,
+        0.24,
+        0.311,
+        1,
+        0.235,
+        0.058,
+        0.147,
+        0.194
+      ],
+      "timbre": [
+        54.705,
+        73.418,
+        14.343,
+        0.639,
+        -17.511,
+        -18.387,
+        -2.812,
+        -9.059,
+        9.944,
+        13.644,
+        -14.605,
+        -35.289
+      ]
+    },
+    {
+      "start": 11.66794,
+      "duration": 0.23247,
+      "confidence": 0.523,
+      "loudness_start": -11.715,
+      "loudness_max_time": 0.04261,
+      "loudness_max": -4.637,
+      "pitches": [
+        0.955,
+        0.354,
+        0.234,
+        0.144,
+        0.579,
+        0.209,
+        0.26,
+        1,
+        0.436,
+        0.425,
+        0.294,
+        0.245
+      ],
+      "timbre": [
+        53.266,
+        63.462,
+        79.173,
+        -7.374,
+        18.657,
+        -14.462,
+        9.765,
+        22.531,
+        -18.788,
+        -5.278,
+        12.169,
+        -5.869
+      ]
+    },
+    {
+      "start": 11.90041,
+      "duration": 0.47583,
+      "confidence": 0.418,
+      "loudness_start": -7.255,
+      "loudness_max_time": 0.01718,
+      "loudness_max": -3.36,
+      "pitches": [
+        0.091,
+        0.224,
+        0.72,
+        0.346,
+        0.265,
+        0.29,
+        0.269,
+        1,
+        0.721,
+        0.35,
+        0.123,
+        0.09
+      ],
+      "timbre": [
+        54.186,
+        71.544,
+        38.636,
+        23.203,
+        0.538,
+        -42.263,
+        8.598,
+        16.985,
+        -12.989,
+        8.341,
+        -13.761,
+        -6.068
+      ]
+    },
+    {
+      "start": 12.37624,
+      "duration": 0.15088,
+      "confidence": 0.766,
+      "loudness_start": -13.753,
+      "loudness_max_time": 0.02522,
+      "loudness_max": -5.185,
+      "pitches": [
+        0.554,
+        1,
+        0.857,
+        0.803,
+        0.905,
+        0.91,
+        0.879,
+        0.924,
+        0.758,
+        0.77,
+        0.445,
+        0.072
+      ],
+      "timbre": [
+        53.046,
+        109.007,
+        12.932,
+        -10.378,
+        -36.282,
+        -21.42,
+        23.363,
+        11.351,
+        -26.959,
+        20.592,
+        -2.059,
+        -2.406
+      ]
+    },
+    {
+      "start": 12.52712,
+      "duration": 0.20916,
+      "confidence": 0.629,
+      "loudness_start": -9.869,
+      "loudness_max_time": 0.0819,
+      "loudness_max": -3.671,
+      "pitches": [
+        0.203,
+        0.267,
+        0.31,
+        0.202,
+        0.212,
+        0.2,
+        0.333,
+        1,
+        0.89,
+        0.33,
+        0.174,
+        0.175
+      ],
+      "timbre": [
+        52.883,
+        92.198,
+        50.788,
+        -39.362,
+        -35.675,
+        -5.658,
+        14.729,
+        3.903,
+        -25.406,
+        13.984,
+        -11.292,
+        -0.875
+      ]
+    },
+    {
+      "start": 12.73628,
+      "duration": 0.16177,
+      "confidence": 0.222,
+      "loudness_start": -8.086,
+      "loudness_max_time": 0.0166,
+      "loudness_max": -3.426,
+      "pitches": [
+        0.383,
+        0.497,
+        0.522,
+        0.408,
+        0.297,
+        0.296,
+        0.785,
+        0.846,
+        0.994,
+        1,
+        0.498,
+        0.063
+      ],
+      "timbre": [
+        53.308,
+        88.695,
+        2.369,
+        5.055,
+        -33.749,
+        -61.222,
+        5.687,
+        0.611,
+        -24.046,
+        5.746,
+        -4.215,
+        -4.012
+      ]
+    },
+    {
+      "start": 12.89805,
+      "duration": 0.16259,
+      "confidence": 0.147,
+      "loudness_start": -8.754,
+      "loudness_max_time": 0.02665,
+      "loudness_max": -5.79,
+      "pitches": [
+        1,
+        0.432,
+        0.886,
+        0.282,
+        0.198,
+        0.149,
+        0.497,
+        0.763,
+        0.311,
+        0.32,
+        0.116,
+        0.427
+      ],
+      "timbre": [
+        52.902,
+        40.662,
+        26.986,
+        -17.576,
+        -11.019,
+        -33.413,
+        -12.88,
+        13.581,
+        -11.376,
+        0.379,
+        -5.252,
+        -16.352
+      ]
+    },
+    {
+      "start": 13.06063,
+      "duration": 0.17556,
+      "confidence": 0.421,
+      "loudness_start": -8.208,
+      "loudness_max_time": 0.07679,
+      "loudness_max": -3.734,
+      "pitches": [
+        0.772,
+        0.728,
+        0.453,
+        0.494,
+        0.932,
+        1,
+        0.993,
+        0.987,
+        0.795,
+        0.83,
+        0.721,
+        0.078
+      ],
+      "timbre": [
+        53.879,
+        59.382,
+        23.206,
+        -30.419,
+        -8.606,
+        -24.115,
+        32.212,
+        -20.453,
+        -4.582,
+        13.487,
+        -15.072,
+        15.626
+      ]
+    },
+    {
+      "start": 13.23619,
+      "duration": 0.09823,
+      "confidence": 0.069,
+      "loudness_start": -7.168,
+      "loudness_max_time": 0.05309,
+      "loudness_max": -4.29,
+      "pitches": [
+        0.952,
+        1,
+        0.886,
+        0.804,
+        0.624,
+        0.815,
+        0.363,
+        0.292,
+        0.111,
+        0.325,
+        0.465,
+        0.288
+      ],
+      "timbre": [
+        54.364,
+        40.359,
+        47.256,
+        -0.499,
+        -11.666,
+        -29.673,
+        0.544,
+        8.722,
+        -10.285,
+        -3.293,
+        -10.379,
+        -20.799
+      ]
+    },
+    {
+      "start": 13.33442,
+      "duration": 0.23782,
+      "confidence": 0.298,
+      "loudness_start": -7.341,
+      "loudness_max_time": 0.04423,
+      "loudness_max": -3.031,
+      "pitches": [
+        0.605,
+        0.897,
+        0.274,
+        1,
+        0.495,
+        0.107,
+        0.087,
+        0.23,
+        0.064,
+        0.137,
+        0.677,
+        0.385
+      ],
+      "timbre": [
+        54.954,
+        68.543,
+        23.282,
+        8.424,
+        -4.335,
+        -25.733,
+        12.418,
+        31.656,
+        -9.427,
+        12.016,
+        -19.049,
+        0.793
+      ]
+    },
+    {
+      "start": 13.57224,
+      "duration": 0.23823,
+      "confidence": 0.097,
+      "loudness_start": -9.028,
+      "loudness_max_time": 0.1088,
+      "loudness_max": -5.99,
+      "pitches": [
+        0.281,
+        0.313,
+        0.333,
+        0.18,
+        0.118,
+        0.246,
+        0.083,
+        0.066,
+        0.098,
+        0.27,
+        1,
+        0.255
+      ],
+      "timbre": [
+        53.043,
+        88.535,
+        40.862,
+        -29.357,
+        3.923,
+        -28.775,
+        -40.008,
+        11.811,
+        -7.425,
+        2.882,
+        1.52,
+        -14.954
+      ]
+    },
+    {
+      "start": 13.81048,
+      "duration": 0.23751,
+      "confidence": 0.392,
+      "loudness_start": -8.248,
+      "loudness_max_time": 0.05969,
+      "loudness_max": -3.779,
+      "pitches": [
+        0.583,
+        0.725,
+        0.252,
+        1,
+        0.455,
+        0.081,
+        0.055,
+        0.116,
+        0.11,
+        0.114,
+        0.555,
+        0.188
+      ],
+      "timbre": [
+        53.714,
+        77.077,
+        -3.502,
+        -0.631,
+        -7.663,
+        -38.697,
+        -13.652,
+        33.425,
+        -11.938,
+        18.455,
+        -21.998,
+        -16.81
+      ]
+    },
+    {
+      "start": 14.04798,
+      "duration": 0.23805,
+      "confidence": 0.385,
+      "loudness_start": -11.465,
+      "loudness_max_time": 0.12991,
+      "loudness_max": -6.608,
+      "pitches": [
+        0.562,
+        0.698,
+        1,
+        0.256,
+        0.167,
+        0.113,
+        0.069,
+        0.105,
+        0.205,
+        0.493,
+        0.23,
+        0.241
+      ],
+      "timbre": [
+        51.386,
+        74.817,
+        39.957,
+        -22.848,
+        17.352,
+        -14.674,
+        8.753,
+        -16.604,
+        -22.441,
+        37.463,
+        -7.667,
+        7.707
+      ]
+    },
+    {
+      "start": 14.28603,
+      "duration": 0.3307,
+      "confidence": 0.682,
+      "loudness_start": -9.24,
+      "loudness_max_time": 0.02595,
+      "loudness_max": -2.156,
+      "pitches": [
+        0.903,
+        0.833,
+        0.21,
+        0.124,
+        0.172,
+        1,
+        0.224,
+        0.195,
+        0.075,
+        0.18,
+        0.125,
+        0.157
+      ],
+      "timbre": [
+        54.908,
+        87.851,
+        20.913,
+        11.661,
+        -19.606,
+        -33.314,
+        12.392,
+        56.135,
+        -11.298,
+        18.753,
+        1.132,
+        7.554
+      ]
+    },
+    {
+      "start": 14.61673,
+      "duration": 0.26748,
+      "confidence": 0.555,
+      "loudness_start": -11.661,
+      "loudness_max_time": 0.04899,
+      "loudness_max": -6.1,
+      "pitches": [
+        0.77,
+        0.815,
+        0.109,
+        0.102,
+        0.191,
+        1,
+        0.22,
+        0.088,
+        0.082,
+        0.266,
+        0.463,
+        0.28
+      ],
+      "timbre": [
+        51.419,
+        131.167,
+        -10.844,
+        -19.95,
+        -15.034,
+        -5.682,
+        -6.896,
+        -23.878,
+        -25.564,
+        36.236,
+        -28.434,
+        -2.966
+      ]
+    },
+    {
+      "start": 14.88422,
+      "duration": 0.12177,
+      "confidence": 0.67,
+      "loudness_start": -12.982,
+      "loudness_max_time": 0.06051,
+      "loudness_max": -5.965,
+      "pitches": [
+        0.97,
+        1,
+        0.603,
+        0.346,
+        0.421,
+        0.643,
+        0.371,
+        0.341,
+        0.204,
+        0.397,
+        0.153,
+        0.428
+      ],
+      "timbre": [
+        52.577,
+        170.438,
+        -8.631,
+        -46.814,
+        -30.515,
+        -15.655,
+        14.58,
+        4.188,
+        -41.721,
+        -4.33,
+        -5.629,
+        -9.558
+      ]
+    },
+    {
+      "start": 15.00599,
+      "duration": 0.22612,
+      "confidence": 0.137,
+      "loudness_start": -8.034,
+      "loudness_max_time": 0.03742,
+      "loudness_max": -4.211,
+      "pitches": [
+        0.977,
+        1,
+        0.26,
+        0.182,
+        0.31,
+        0.906,
+        0.399,
+        0.126,
+        0.06,
+        0.134,
+        0.051,
+        0.186
+      ],
+      "timbre": [
+        54.494,
+        78.898,
+        8.973,
+        -28.952,
+        -23.195,
+        -35.242,
+        -18.036,
+        -1.718,
+        -15.973,
+        14.726,
+        -5.586,
+        -20.562
+      ]
+    },
+    {
+      "start": 15.23211,
+      "duration": 0.96385,
+      "confidence": 0.46,
+      "loudness_start": -6.871,
+      "loudness_max_time": 0.01211,
+      "loudness_max": -0.222,
+      "pitches": [
+        0.247,
+        0.275,
+        0.376,
+        0.302,
+        0.292,
+        0.329,
+        0.474,
+        1,
+        0.65,
+        0.559,
+        0.301,
+        0.339
+      ],
+      "timbre": [
+        47.347,
+        69.92,
+        -86.93,
+        213.84,
+        0.877,
+        -6.089,
+        -73.062,
+        59.693,
+        -9.974,
+        -19.119,
+        -141.814,
+        16.2
+      ]
+    },
+    {
+      "start": 16.19596,
+      "duration": 0.20943,
+      "confidence": 1,
+      "loudness_start": -52.548,
+      "loudness_max_time": 0.12464,
+      "loudness_max": -27.236,
+      "pitches": [
+        0.483,
+        0.469,
+        0.5,
+        0.486,
+        0.537,
+        0.659,
+        0.924,
+        0.756,
+        0.742,
+        0.662,
+        1,
+        0.838
+      ],
+      "timbre": [
+        25.966,
+        210.268,
+        74.577,
+        -21.463,
+        35.333,
+        67.576,
+        17.938,
+        -25.12,
+        -26.703,
+        -4.071,
+        -24.951,
+        13.955
+      ]
+    },
+    {
+      "start": 16.4054,
+      "duration": 0.24336,
+      "confidence": 1,
+      "loudness_start": -40.732,
+      "loudness_max_time": 0.05228,
+      "loudness_max": -6.697,
+      "pitches": [
+        0.074,
+        0.077,
+        0.111,
+        0.187,
+        0.257,
+        0.359,
+        0.303,
+        0.408,
+        1,
+        0.868,
+        0.603,
+        0.111
+      ],
+      "timbre": [
+        49.131,
+        27.239,
+        22.937,
+        -44.893,
+        30.021,
+        77.587,
+        14.927,
+        -15.286,
+        -14.237,
+        -3.452,
+        39.913,
+        -9.781
+      ]
+    },
+    {
+      "start": 16.64875,
+      "duration": 0.24363,
+      "confidence": 0.29,
+      "loudness_start": -12.015,
+      "loudness_max_time": 0.04762,
+      "loudness_max": -7.256,
+      "pitches": [
+        0.034,
+        0.034,
+        0.019,
+        0.012,
+        0.019,
+        0.024,
+        0.014,
+        0.018,
+        0.079,
+        1,
+        0.221,
+        0.042
+      ],
+      "timbre": [
+        50.46,
+        38.202,
+        -24.304,
+        -0.248,
+        39.777,
+        -46.614,
+        -2.108,
+        17.563,
+        -29.031,
+        -26.342,
+        -6.187,
+        25.481
+      ]
+    },
+    {
+      "start": 16.89238,
+      "duration": 0.22068,
+      "confidence": 0.526,
+      "loudness_start": -11.598,
+      "loudness_max_time": 0.06149,
+      "loudness_max": -7.055,
+      "pitches": [
+        0.025,
+        0.041,
+        0.213,
+        0.071,
+        0.078,
+        0.175,
+        0.14,
+        1,
+        0.299,
+        0.057,
+        0.024,
+        0.073
+      ],
+      "timbre": [
+        49.208,
+        46.615,
+        -29.401,
+        26.353,
+        48.211,
+        -6.298,
+        -2.291,
+        53.56,
+        -13.337,
+        -1.048,
+        -44.247,
+        25.426
+      ]
+    },
+    {
+      "start": 17.11306,
+      "duration": 0.37751,
+      "confidence": 1,
+      "loudness_start": -23.123,
+      "loudness_max_time": 0.05118,
+      "loudness_max": -5.419,
+      "pitches": [
+        0.16,
+        0.508,
+        1,
+        0.401,
+        0.188,
+        0.157,
+        0.295,
+        0.131,
+        0.134,
+        0.451,
+        0.112,
+        0.045
+      ],
+      "timbre": [
+        50.205,
+        99.235,
+        6.946,
+        -18.257,
+        26.106,
+        30.261,
+        16.946,
+        -52.391,
+        -39.948,
+        72.701,
+        -18.561,
+        10.214
+      ]
+    },
+    {
+      "start": 17.49057,
+      "duration": 0.09896,
+      "confidence": 0.777,
+      "loudness_start": -15.812,
+      "loudness_max_time": 0.04699,
+      "loudness_max": -7.08,
+      "pitches": [
+        0.143,
+        0.225,
+        0.252,
+        0.346,
+        1,
+        0.736,
+        0.463,
+        0.151,
+        0.104,
+        0.154,
+        0.095,
+        0.236
+      ],
+      "timbre": [
+        50.508,
+        73.861,
+        19.657,
+        -46.444,
+        12.092,
+        13.098,
+        -40.405,
+        -26.289,
+        -18.316,
+        3.965,
+        15.078,
+        -14.301
+      ]
+    },
+    {
+      "start": 17.58952,
+      "duration": 0.2542,
+      "confidence": 0.214,
+      "loudness_start": -8.609,
+      "loudness_max_time": 0.0423,
+      "loudness_max": -4.918,
+      "pitches": [
+        0.647,
+        0.946,
+        1,
+        0.213,
+        0.142,
+        0.181,
+        0.375,
+        0.054,
+        0.132,
+        0.611,
+        0.188,
+        0.245
+      ],
+      "timbre": [
+        51.768,
+        88.181,
+        -43.96,
+        -3.047,
+        5.691,
+        -22.869,
+        -41.787,
+        19.048,
+        -22.773,
+        -1.823,
+        -22.195,
+        -14.601
+      ]
+    },
+    {
+      "start": 17.84372,
+      "duration": 0.25646,
+      "confidence": 0.783,
+      "loudness_start": -16.394,
+      "loudness_max_time": 0.03552,
+      "loudness_max": -5.898,
+      "pitches": [
+        0.722,
+        0.823,
+        0.753,
+        0.658,
+        0.602,
+        0.687,
+        0.604,
+        0.295,
+        0.692,
+        1,
+        0.39,
+        0.513
+      ],
+      "timbre": [
+        51.991,
+        70.698,
+        34.19,
+        -29.52,
+        27.035,
+        -9.405,
+        8.931,
+        11.832,
+        -3.071,
+        22.419,
+        7.936,
+        -13.843
+      ]
+    },
+    {
+      "start": 18.10018,
+      "duration": 0.24222,
+      "confidence": 0.272,
+      "loudness_start": -8.199,
+      "loudness_max_time": 0.02174,
+      "loudness_max": -5.162,
+      "pitches": [
+        0.45,
+        1,
+        0.666,
+        0.178,
+        0.186,
+        0.132,
+        0.242,
+        0.044,
+        0.079,
+        0.536,
+        0.187,
+        0.071
+      ],
+      "timbre": [
+        53.669,
+        28.54,
+        17.133,
+        -5.622,
+        14.916,
+        -47.117,
+        39.285,
+        -2.586,
+        -5.619,
+        20.013,
+        -17.86,
+        7.389
+      ]
+    },
+    {
+      "start": 18.3424,
+      "duration": 0.21651,
+      "confidence": 0.24,
+      "loudness_start": -10.224,
+      "loudness_max_time": 0.05933,
+      "loudness_max": -6.014,
+      "pitches": [
+        0.992,
+        0.834,
+        0.561,
+        0.625,
+        0.415,
+        0.355,
+        1,
+        0.3,
+        0.401,
+        0.548,
+        0.365,
+        0.566
+      ],
+      "timbre": [
+        51.615,
+        35.292,
+        -11.389,
+        -19.802,
+        29.998,
+        -34.46,
+        -0.908,
+        30.917,
+        -10.18,
+        -16.544,
+        -4.692,
+        9.539
+      ]
+    },
+    {
+      "start": 18.55891,
+      "duration": 0.22599,
+      "confidence": 0.637,
+      "loudness_start": -9.304,
+      "loudness_max_time": 0.02828,
+      "loudness_max": -2.936,
+      "pitches": [
+        0.111,
+        0.686,
+        1,
+        0.335,
+        0.106,
+        0.045,
+        0.208,
+        0.054,
+        0.11,
+        0.513,
+        0.228,
+        0.035
+      ],
+      "timbre": [
+        54.049,
+        59.47,
+        -1.055,
+        9.81,
+        4.742,
+        -27.428,
+        6.383,
+        -7.944,
+        -14.455,
+        16.361,
+        -7.272,
+        9.276
+      ]
+    },
+    {
+      "start": 18.7849,
+      "duration": 0.26132,
+      "confidence": 0.63,
+      "loudness_start": -10.505,
+      "loudness_max_time": 0.04709,
+      "loudness_max": -3.929,
+      "pitches": [
+        0.72,
+        1,
+        0.939,
+        0.24,
+        0.156,
+        0.104,
+        0.295,
+        0.098,
+        0.129,
+        0.61,
+        0.218,
+        0.238
+      ],
+      "timbre": [
+        52.746,
+        35.329,
+        4.837,
+        -3.572,
+        9.886,
+        -4.714,
+        24.565,
+        18.534,
+        -8.273,
+        -0.175,
+        -7.681,
+        14.009
+      ]
+    },
+    {
+      "start": 19.04621,
+      "duration": 0.38902,
+      "confidence": 0.618,
+      "loudness_start": -11.282,
+      "loudness_max_time": 0.21065,
+      "loudness_max": -4.909,
+      "pitches": [
+        0.044,
+        0.156,
+        0.421,
+        0.29,
+        0.194,
+        0.253,
+        0.207,
+        1,
+        0.448,
+        0.113,
+        0.101,
+        0.11
+      ],
+      "timbre": [
+        53.43,
+        53.666,
+        20.221,
+        -23.668,
+        1.934,
+        -28.711,
+        15.823,
+        -1.704,
+        -7.01,
+        28.63,
+        0.054,
+        -3.735
+      ]
+    },
+    {
+      "start": 19.43524,
+      "duration": 0.30431,
+      "confidence": 0.355,
+      "loudness_start": -11.426,
+      "loudness_max_time": 0.1019,
+      "loudness_max": -4.846,
+      "pitches": [
+        0.636,
+        0.786,
+        0.605,
+        0.267,
+        0.159,
+        0.302,
+        0.478,
+        1,
+        0.237,
+        0.089,
+        0.08,
+        0.422
+      ],
+      "timbre": [
+        50.717,
+        79.765,
+        -19.587,
+        0.761,
+        12.572,
+        -13.824,
+        -52.757,
+        14.1,
+        -19.997,
+        -8.1,
+        -38.365,
+        -16.34
+      ]
+    },
+    {
+      "start": 19.73955,
+      "duration": 0.1419,
+      "confidence": 0.996,
+      "loudness_start": -19.549,
+      "loudness_max_time": 0.04351,
+      "loudness_max": -6.049,
+      "pitches": [
+        0.71,
+        0.675,
+        0.228,
+        0.244,
+        0.465,
+        1,
+        0.352,
+        0.188,
+        0.233,
+        0.225,
+        0.219,
+        0.205
+      ],
+      "timbre": [
+        50.745,
+        94.682,
+        -1.782,
+        -70.799,
+        21.304,
+        46.864,
+        -16.443,
+        -4.017,
+        -7.717,
+        0.267,
+        29.101,
+        -32.097
+      ]
+    },
+    {
+      "start": 19.88145,
+      "duration": 0.12231,
+      "confidence": 0.201,
+      "loudness_start": -8.202,
+      "loudness_max_time": 0.0881,
+      "loudness_max": -5.531,
+      "pitches": [
+        0.113,
+        0.085,
+        0.199,
+        0.057,
+        0.048,
+        0.092,
+        0.149,
+        1,
+        0.253,
+        0.041,
+        0.072,
+        0.071
+      ],
+      "timbre": [
+        53.772,
+        152.279,
+        12.828,
+        -41.762,
+        24.893,
+        -22.606,
+        -80.336,
+        -13.659,
+        7.204,
+        -5.955,
+        1.483,
+        -18.076
+      ]
+    },
+    {
+      "start": 20.00376,
+      "duration": 0.35424,
+      "confidence": 0.164,
+      "loudness_start": -6.342,
+      "loudness_max_time": 0.0144,
+      "loudness_max": -2.756,
+      "pitches": [
+        0.291,
+        0.452,
+        0.304,
+        0.102,
+        0.101,
+        0.134,
+        0.237,
+        1,
+        0.18,
+        0.091,
+        0.095,
+        0.129
+      ],
+      "timbre": [
+        53.774,
+        92.433,
+        -35.863,
+        -3.392,
+        -9.056,
+        -42.585,
+        -43.882,
+        -30.812,
+        2.874,
+        7.435,
+        -14.106,
+        -14.582
+      ]
+    },
+    {
+      "start": 20.358,
+      "duration": 0.10132,
+      "confidence": 0.035,
+      "loudness_start": -15.604,
+      "loudness_max_time": 0.01775,
+      "loudness_max": -7.827,
+      "pitches": [
+        0.646,
+        0.825,
+        0.575,
+        0.544,
+        0.825,
+        0.794,
+        0.985,
+        1,
+        0.935,
+        0.923,
+        0.646,
+        0.065
+      ],
+      "timbre": [
+        48.131,
+        70.776,
+        -70.528,
+        -10.142,
+        -15.784,
+        -64.194,
+        -12.008,
+        -7.886,
+        -24.974,
+        14.974,
+        -12.141,
+        -16.593
+      ]
+    },
+    {
+      "start": 20.45932,
+      "duration": 0.25311,
+      "confidence": 0.818,
+      "loudness_start": -15.022,
+      "loudness_max_time": 0.06173,
+      "loudness_max": -5.015,
+      "pitches": [
+        0.043,
+        0.095,
+        0.219,
+        0.039,
+        0.035,
+        0.063,
+        0.222,
+        1,
+        0.183,
+        0.035,
+        0.041,
+        0.072
+      ],
+      "timbre": [
+        51.39,
+        39.201,
+        19.321,
+        -42.279,
+        3.68,
+        9.404,
+        26.36,
+        19.77,
+        1.901,
+        28.146,
+        -15.779,
+        3.709
+      ]
+    },
+    {
+      "start": 20.71243,
+      "duration": 0.1971,
+      "confidence": 0.632,
+      "loudness_start": -11.279,
+      "loudness_max_time": 0.01531,
+      "loudness_max": -3.199,
+      "pitches": [
+        0.557,
+        0.946,
+        0.367,
+        0.126,
+        0.1,
+        0.067,
+        0.417,
+        1,
+        0.458,
+        0.497,
+        0.216,
+        0.283
+      ],
+      "timbre": [
+        52.783,
+        40.036,
+        -30.004,
+        21.36,
+        -0.104,
+        -54.914,
+        -7.086,
+        -3.303,
+        5.316,
+        28.15,
+        -7.01,
+        1.469
+      ]
+    },
+    {
+      "start": 20.90952,
+      "duration": 0.30254,
+      "confidence": 0.527,
+      "loudness_start": -11.642,
+      "loudness_max_time": 0.18855,
+      "loudness_max": -4.477,
+      "pitches": [
+        0.588,
+        0.55,
+        0.293,
+        1,
+        0.42,
+        0.215,
+        0.088,
+        0.133,
+        0.129,
+        0.205,
+        0.67,
+        0.303
+      ],
+      "timbre": [
+        53.215,
+        87.128,
+        11.192,
+        -35.24,
+        -7.173,
+        -23.736,
+        20.667,
+        -28.844,
+        -16.541,
+        10.412,
+        -11.083,
+        3.864
+      ]
+    },
+    {
+      "start": 21.21206,
+      "duration": 0.20721,
+      "confidence": 0.554,
+      "loudness_start": -8.47,
+      "loudness_max_time": 0.03928,
+      "loudness_max": -3.353,
+      "pitches": [
+        0.142,
+        0.151,
+        0.12,
+        0.093,
+        0.217,
+        0.072,
+        0.04,
+        0.14,
+        0.34,
+        1,
+        0.308,
+        0.155
+      ],
+      "timbre": [
+        54.507,
+        115.615,
+        -13.354,
+        -7.057,
+        28.856,
+        -11.843,
+        -22.471,
+        -3.743,
+        8.466,
+        -0.415,
+        -25.758,
+        0.818
+      ]
+    },
+    {
+      "start": 21.41927,
+      "duration": 0.23914,
+      "confidence": 0.34,
+      "loudness_start": -10.473,
+      "loudness_max_time": 0.02618,
+      "loudness_max": -5.963,
+      "pitches": [
+        0.56,
+        1,
+        0.135,
+        0.583,
+        0.247,
+        0.047,
+        0.151,
+        0.459,
+        0.204,
+        0.071,
+        0.396,
+        0.129
+      ],
+      "timbre": [
+        50.814,
+        50.206,
+        -65.279,
+        -2.175,
+        4.933,
+        -28.643,
+        -26.535,
+        -45.521,
+        6.375,
+        -3.396,
+        -15.817,
+        6.954
+      ]
+    },
+    {
+      "start": 21.65841,
+      "duration": 0.20354,
+      "confidence": 0.685,
+      "loudness_start": -16.397,
+      "loudness_max_time": 0.04824,
+      "loudness_max": -7.19,
+      "pitches": [
+        0.144,
+        0.231,
+        0.249,
+        0.171,
+        0.125,
+        0.056,
+        0.053,
+        0.083,
+        0.195,
+        1,
+        0.253,
+        0.138
+      ],
+      "timbre": [
+        50.75,
+        17.939,
+        -9.107,
+        -15.42,
+        7.47,
+        -28.395,
+        -24.638,
+        8.717,
+        -4.033,
+        1.689,
+        -5.953,
+        6.733
+      ]
+    },
+    {
+      "start": 21.86195,
+      "duration": 0.29556,
+      "confidence": 0.635,
+      "loudness_start": -11.575,
+      "loudness_max_time": 0.11936,
+      "loudness_max": -4.483,
+      "pitches": [
+        0.983,
+        0.783,
+        0.32,
+        0.172,
+        0.238,
+        1,
+        0.178,
+        0.189,
+        0.15,
+        0.168,
+        0.13,
+        0.231
+      ],
+      "timbre": [
+        51.812,
+        83.159,
+        -2.503,
+        -55.929,
+        32.123,
+        -11.072,
+        19.667,
+        -52.298,
+        -17.551,
+        11.327,
+        -29.683,
+        -16.075
+      ]
+    },
+    {
+      "start": 22.15751,
+      "duration": 0.20889,
+      "confidence": 0.495,
+      "loudness_start": -11.674,
+      "loudness_max_time": 0.10761,
+      "loudness_max": -4.741,
+      "pitches": [
+        1,
+        0.959,
+        0.62,
+        0.631,
+        0.851,
+        0.561,
+        0.328,
+        0.24,
+        0.485,
+        0.737,
+        0.156,
+        0.806
+      ],
+      "timbre": [
+        52.877,
+        96.246,
+        -20.24,
+        0.086,
+        35.726,
+        -16.081,
+        -14.452,
+        -15.351,
+        11.093,
+        -4.742,
+        -40.473,
+        -9.095
+      ]
+    },
+    {
+      "start": 22.36639,
+      "duration": 0.24921,
+      "confidence": 0.665,
+      "loudness_start": -12.386,
+      "loudness_max_time": 0.02485,
+      "loudness_max": -5.728,
+      "pitches": [
+        0.45,
+        0.234,
+        0.111,
+        0.063,
+        0.17,
+        1,
+        0.655,
+        0.405,
+        0.092,
+        0.083,
+        0.024,
+        0.067
+      ],
+      "timbre": [
+        52.401,
+        70.324,
+        -31.319,
+        -25.135,
+        -2.359,
+        -11.381,
+        -15.787,
+        -44.8,
+        3.96,
+        -18.28,
+        6.007,
+        3.558
+      ]
+    },
+    {
+      "start": 22.6156,
+      "duration": 0.57973,
+      "confidence": 0.568,
+      "loudness_start": -9.83,
+      "loudness_max_time": 0.0398,
+      "loudness_max": -4.239,
+      "pitches": [
+        0.324,
+        0.578,
+        1,
+        0.503,
+        0.385,
+        0.315,
+        0.442,
+        0.482,
+        0.566,
+        0.525,
+        0.385,
+        0.31
+      ],
+      "timbre": [
+        53.502,
+        62.534,
+        -16.094,
+        -6.008,
+        4,
+        -38.794,
+        -8.21,
+        16.855,
+        9.15,
+        0.363,
+        -4.406,
+        3.953
+      ]
+    },
+    {
+      "start": 23.19533,
+      "duration": 0.25433,
+      "confidence": 0.775,
+      "loudness_start": -14.299,
+      "loudness_max_time": 0.15165,
+      "loudness_max": -4.167,
+      "pitches": [
+        0.944,
+        1,
+        0.688,
+        0.541,
+        0.537,
+        0.469,
+        0.876,
+        0.319,
+        0.473,
+        0.615,
+        0.422,
+        0.837
+      ],
+      "timbre": [
+        51.968,
+        46.606,
+        15.038,
+        -37.889,
+        24.931,
+        11.665,
+        -1.361,
+        -3.258,
+        5.979,
+        -17.918,
+        -4.697,
+        -5.305
+      ]
+    },
+    {
+      "start": 23.44966,
+      "duration": 0.11342,
+      "confidence": 0.032,
+      "loudness_start": -14.125,
+      "loudness_max_time": 0.05432,
+      "loudness_max": -10.95,
+      "pitches": [
+        0.524,
+        1,
+        0.563,
+        0.465,
+        0.392,
+        0.415,
+        0.236,
+        0.183,
+        0.045,
+        0.073,
+        0.042,
+        0.023
+      ],
+      "timbre": [
+        48.211,
+        116.08,
+        -74.776,
+        -53.776,
+        32.492,
+        -45.739,
+        28.162,
+        5.772,
+        -37.527,
+        -18.171,
+        -6.133,
+        -19.129
+      ]
+    },
+    {
+      "start": 23.56308,
+      "duration": 0.18522,
+      "confidence": 0.623,
+      "loudness_start": -12.241,
+      "loudness_max_time": 0.14839,
+      "loudness_max": -5.478,
+      "pitches": [
+        0.419,
+        0.993,
+        1,
+        0.413,
+        0.207,
+        0.44,
+        0.866,
+        0.668,
+        0.207,
+        0.285,
+        0.307,
+        0.186
+      ],
+      "timbre": [
+        52.707,
+        97.832,
+        20.153,
+        -56.193,
+        20.694,
+        -18.178,
+        -30.992,
+        5.02,
+        -12.666,
+        33.072,
+        0.386,
+        -21.898
+      ]
+    },
+    {
+      "start": 23.7483,
+      "duration": 0.26091,
+      "confidence": 0.147,
+      "loudness_start": -6.252,
+      "loudness_max_time": 0.07677,
+      "loudness_max": -3.545,
+      "pitches": [
+        0.655,
+        1,
+        0.482,
+        0.141,
+        0.172,
+        0.238,
+        0.464,
+        0.479,
+        0.236,
+        0.118,
+        0.09,
+        0.293
+      ],
+      "timbre": [
+        53.779,
+        121.382,
+        -1.835,
+        -7.888,
+        20.293,
+        -19.883,
+        -50.448,
+        -21.424,
+        9.552,
+        6.805,
+        -32.498,
+        -17.591
+      ]
+    },
+    {
+      "start": 24.00921,
+      "duration": 0.15701,
+      "confidence": 0.603,
+      "loudness_start": -11.645,
+      "loudness_max_time": 0.117,
+      "loudness_max": -5.632,
+      "pitches": [
+        0.647,
+        0.891,
+        0.929,
+        0.551,
+        0.74,
+        0.805,
+        0.732,
+        0.677,
+        0.778,
+        0.662,
+        1,
+        0.502
+      ],
+      "timbre": [
+        53.361,
+        102.224,
+        56.825,
+        -18.59,
+        -10.846,
+        -24.505,
+        50.012,
+        26.122,
+        -3.472,
+        2.596,
+        5.017,
+        21.35
+      ]
+    },
+    {
+      "start": 24.16621,
+      "duration": 0.10721,
+      "confidence": 0.06,
+      "loudness_start": -7.333,
+      "loudness_max_time": 0.02302,
+      "loudness_max": -3.435,
+      "pitches": [
+        0.646,
+        0.886,
+        0.69,
+        0.542,
+        0.812,
+        0.82,
+        0.995,
+        1,
+        0.841,
+        0.933,
+        0.868,
+        0.079
+      ],
+      "timbre": [
+        53.971,
+        40.212,
+        -4.186,
+        4.04,
+        -8.22,
+        -51.145,
+        28.625,
+        -13.9,
+        -29.117,
+        17.141,
+        -3.982,
+        52.883
+      ]
+    },
+    {
+      "start": 24.27342,
+      "duration": 0.22925,
+      "confidence": 0.517,
+      "loudness_start": -8.158,
+      "loudness_max_time": 0.03923,
+      "loudness_max": -2.61,
+      "pitches": [
+        0.08,
+        0.149,
+        0.305,
+        0.056,
+        0.036,
+        0.151,
+        0.256,
+        1,
+        0.314,
+        0.052,
+        0.162,
+        0.104
+      ],
+      "timbre": [
+        54.217,
+        65.198,
+        9.23,
+        -4.82,
+        1.149,
+        1.475,
+        16.553,
+        12.617,
+        -8.251,
+        -18.723,
+        -16.741,
+        9.909
+      ]
+    },
+    {
+      "start": 24.50268,
+      "duration": 0.24404,
+      "confidence": 0.757,
+      "loudness_start": -11.233,
+      "loudness_max_time": 0.06512,
+      "loudness_max": -3.386,
+      "pitches": [
+        1,
+        0.878,
+        0.203,
+        0.157,
+        0.281,
+        0.84,
+        0.177,
+        0.068,
+        0.071,
+        0.379,
+        0.465,
+        0.368
+      ],
+      "timbre": [
+        53.139,
+        97.303,
+        -30.895,
+        -40.394,
+        4.453,
+        1.421,
+        -19.625,
+        -7.07,
+        -10.346,
+        20.438,
+        -15.77,
+        3.641
+      ]
+    },
+    {
+      "start": 24.74671,
+      "duration": 0.48794,
+      "confidence": 0.619,
+      "loudness_start": -8.239,
+      "loudness_max_time": 0.42353,
+      "loudness_max": -2.061,
+      "pitches": [
+        0.192,
+        0.494,
+        1,
+        0.331,
+        0.118,
+        0.082,
+        0.089,
+        0.068,
+        0.074,
+        0.354,
+        0.213,
+        0.09
+      ],
+      "timbre": [
+        56.052,
+        101.157,
+        4.347,
+        -32.618,
+        -8.046,
+        -14.161,
+        -22.973,
+        -12.91,
+        -12.969,
+        -5.361,
+        16.79,
+        3.437
+      ]
+    },
+    {
+      "start": 25.23465,
+      "duration": 0.22685,
+      "confidence": 0.162,
+      "loudness_start": -5.654,
+      "loudness_max_time": 0.01791,
+      "loudness_max": -2.094,
+      "pitches": [
+        0.39,
+        1,
+        0.98,
+        0.257,
+        0.091,
+        0.041,
+        0.116,
+        0.057,
+        0.144,
+        0.606,
+        0.206,
+        0.132
+      ],
+      "timbre": [
+        55.892,
+        53.685,
+        39.61,
+        22.855,
+        13.991,
+        -44.08,
+        41.872,
+        7.371,
+        -3.47,
+        13.781,
+        -11.504,
+        25.929
+      ]
+    },
+    {
+      "start": 25.4615,
+      "duration": 0.24277,
+      "confidence": 0.417,
+      "loudness_start": -8.131,
+      "loudness_max_time": 0.10534,
+      "loudness_max": -2.797,
+      "pitches": [
+        0.85,
+        1,
+        0.864,
+        0.239,
+        0.169,
+        0.133,
+        0.478,
+        0.247,
+        0.419,
+        0.39,
+        0.198,
+        0.347
+      ],
+      "timbre": [
+        55.214,
+        83.752,
+        63.094,
+        -24.564,
+        10.554,
+        -22.194,
+        -24.26,
+        19.258,
+        -2.366,
+        -8.578,
+        5.41,
+        -12
+      ]
+    },
+    {
+      "start": 25.70426,
+      "duration": 0.23732,
+      "confidence": 0.287,
+      "loudness_start": -5.636,
+      "loudness_max_time": 0.05528,
+      "loudness_max": -2.717,
+      "pitches": [
+        0.973,
+        1,
+        1,
+        0.27,
+        0.128,
+        0.073,
+        0.207,
+        0.185,
+        0.19,
+        0.773,
+        0.354,
+        0.415
+      ],
+      "timbre": [
+        55.755,
+        81.823,
+        17.817,
+        -2.817,
+        0.292,
+        -32.64,
+        8.645,
+        10.892,
+        -0.163,
+        10.014,
+        -12.942,
+        -4.792
+      ]
+    },
+    {
+      "start": 25.94159,
+      "duration": 0.22862,
+      "confidence": 0.431,
+      "loudness_start": -7.656,
+      "loudness_max_time": 0.05267,
+      "loudness_max": -3.083,
+      "pitches": [
+        1,
+        0.661,
+        0.306,
+        0.435,
+        0.278,
+        0.236,
+        0.341,
+        0.157,
+        0.295,
+        0.323,
+        0.25,
+        0.396
+      ],
+      "timbre": [
+        54.88,
+        71.731,
+        21.816,
+        -28.739,
+        11.735,
+        -14.085,
+        5.385,
+        -21.659,
+        -6.138,
+        4.187,
+        -15.045,
+        7.602
+      ]
+    },
+    {
+      "start": 26.1702,
+      "duration": 0.2541,
+      "confidence": 0.04,
+      "loudness_start": -6.193,
+      "loudness_max_time": 0.10945,
+      "loudness_max": -3.394,
+      "pitches": [
+        0.3,
+        0.604,
+        1,
+        0.283,
+        0.101,
+        0.026,
+        0.204,
+        0.129,
+        0.081,
+        0.503,
+        0.186,
+        0.058
+      ],
+      "timbre": [
+        55.05,
+        46.283,
+        28.656,
+        -10.283,
+        10.586,
+        -33.16,
+        14.659,
+        6.489,
+        10.568,
+        19.806,
+        -19.079,
+        13.659
+      ]
+    },
+    {
+      "start": 26.42431,
+      "duration": 0.23184,
+      "confidence": 0.516,
+      "loudness_start": -8.865,
+      "loudness_max_time": 0.04134,
+      "loudness_max": -3.538,
+      "pitches": [
+        0.41,
+        1,
+        0.628,
+        0.224,
+        0.073,
+        0.079,
+        0.137,
+        0.079,
+        0.109,
+        0.513,
+        0.51,
+        0.167
+      ],
+      "timbre": [
+        54.889,
+        83.897,
+        -8.952,
+        -20.553,
+        -13.127,
+        -17.437,
+        -22.487,
+        7.014,
+        -5.364,
+        -3.92,
+        -12.033,
+        -16.034
+      ]
+    },
+    {
+      "start": 26.65615,
+      "duration": 0.37769,
+      "confidence": 0.616,
+      "loudness_start": -9.806,
+      "loudness_max_time": 0.21036,
+      "loudness_max": -2.025,
+      "pitches": [
+        0.525,
+        0.34,
+        0.541,
+        0.45,
+        0.555,
+        0.521,
+        0.275,
+        1,
+        0.435,
+        0.131,
+        0.282,
+        0.174
+      ],
+      "timbre": [
+        55.313,
+        91.203,
+        29.293,
+        -28.946,
+        -4.561,
+        -16.993,
+        15.268,
+        -17.552,
+        -7.219,
+        22.472,
+        -10.227,
+        -1.29
+      ]
+    },
+    {
+      "start": 27.03383,
+      "duration": 0.11596,
+      "confidence": 0.588,
+      "loudness_start": -8.906,
+      "loudness_max_time": 0.02909,
+      "loudness_max": -2.925,
+      "pitches": [
+        0.247,
+        0.288,
+        0.157,
+        0.133,
+        0.192,
+        0.271,
+        1,
+        0.165,
+        0.056,
+        0.305,
+        0.1,
+        0.27
+      ],
+      "timbre": [
+        55.694,
+        123.259,
+        66.596,
+        -3.42,
+        8.038,
+        -15.158,
+        -58.219,
+        -5.574,
+        -28.862,
+        -0.45,
+        7.248,
+        0.186
+      ]
+    },
+    {
+      "start": 27.1498,
+      "duration": 0.22526,
+      "confidence": 0.294,
+      "loudness_start": -5.771,
+      "loudness_max_time": 0.02956,
+      "loudness_max": -2.118,
+      "pitches": [
+        0.537,
+        0.679,
+        0.378,
+        0.229,
+        0.134,
+        0.324,
+        0.315,
+        1,
+        0.271,
+        0.065,
+        0.025,
+        0.111
+      ],
+      "timbre": [
+        56.403,
+        101.865,
+        10.296,
+        -5.384,
+        -36.576,
+        -22.869,
+        -24.312,
+        -13.479,
+        -13.546,
+        7.913,
+        -9.449,
+        -0.378
+      ]
+    },
+    {
+      "start": 27.37506,
+      "duration": 0.09451,
+      "confidence": 0.176,
+      "loudness_start": -6.296,
+      "loudness_max_time": 0.0302,
+      "loudness_max": -2.371,
+      "pitches": [
+        1,
+        0.511,
+        0.329,
+        0.295,
+        0.297,
+        0.3,
+        0.183,
+        0.633,
+        0.263,
+        0.26,
+        0.492,
+        0.402
+      ],
+      "timbre": [
+        55.578,
+        82.344,
+        44.153,
+        -4.625,
+        18.202,
+        -21.734,
+        -26.114,
+        -5.602,
+        -12.478,
+        -23.849,
+        7.688,
+        -10.697
+      ]
+    },
+    {
+      "start": 27.46957,
+      "duration": 0.15002,
+      "confidence": 0.168,
+      "loudness_start": -6.128,
+      "loudness_max_time": 0.07727,
+      "loudness_max": -3.059,
+      "pitches": [
+        1,
+        0.072,
+        0.102,
+        0.035,
+        0.077,
+        0.11,
+        0.048,
+        0.415,
+        0.057,
+        0.056,
+        0.108,
+        0.147
+      ],
+      "timbre": [
+        55.657,
+        118.066,
+        66.844,
+        -1.965,
+        47.085,
+        -14.004,
+        -58.238,
+        -22.404,
+        -6.692,
+        -14.194,
+        -13.165,
+        -22.427
+      ]
+    },
+    {
+      "start": 27.61959,
+      "duration": 0.26068,
+      "confidence": 0.341,
+      "loudness_start": -6.507,
+      "loudness_max_time": 0.03615,
+      "loudness_max": -2.243,
+      "pitches": [
+        0.235,
+        0.504,
+        0.436,
+        0.1,
+        0.041,
+        0.04,
+        0.198,
+        1,
+        0.177,
+        0.118,
+        0.124,
+        0.145
+      ],
+      "timbre": [
+        56.145,
+        70.007,
+        15.037,
+        -6.741,
+        6.95,
+        -40.326,
+        -9.883,
+        23.628,
+        -6.484,
+        11.402,
+        -11.361,
+        -22.515
+      ]
+    },
+    {
+      "start": 27.88027,
+      "duration": 0.20431,
+      "confidence": 0.248,
+      "loudness_start": -6.482,
+      "loudness_max_time": 0.03083,
+      "loudness_max": -3.908,
+      "pitches": [
+        0.85,
+        1,
+        0.941,
+        0.625,
+        0.483,
+        0.522,
+        0.401,
+        0.38,
+        0.09,
+        0.233,
+        0.198,
+        0.675
+      ],
+      "timbre": [
+        54.477,
+        92.182,
+        -12.982,
+        -12.594,
+        -18.927,
+        -29.677,
+        -39.4,
+        -25.418,
+        -30.223,
+        5.484,
+        -13.597,
+        4.606
+      ]
+    },
+    {
+      "start": 28.08458,
+      "duration": 0.24249,
+      "confidence": 0.56,
+      "loudness_start": -8.8,
+      "loudness_max_time": 0.04427,
+      "loudness_max": -2.291,
+      "pitches": [
+        0.216,
+        0.364,
+        0.278,
+        0.045,
+        0.041,
+        0.05,
+        0.193,
+        1,
+        0.237,
+        0.039,
+        0.045,
+        0.058
+      ],
+      "timbre": [
+        54.829,
+        53.989,
+        25.976,
+        -0.084,
+        -2.136,
+        -11.748,
+        11.336,
+        -13.873,
+        -22.255,
+        12.053,
+        -5.025,
+        -8.186
+      ]
+    },
+    {
+      "start": 28.32707,
+      "duration": 0.25098,
+      "confidence": 0.507,
+      "loudness_start": -9,
+      "loudness_max_time": 0.05638,
+      "loudness_max": -3.379,
+      "pitches": [
+        0.64,
+        1,
+        0.393,
+        0.086,
+        0.054,
+        0.068,
+        0.24,
+        0.935,
+        0.217,
+        0.118,
+        0.258,
+        0.232
+      ],
+      "timbre": [
+        54.044,
+        86.587,
+        -22.806,
+        -19.83,
+        -5.129,
+        -20.443,
+        -21.859,
+        19.915,
+        -11.689,
+        -5.28,
+        -5.352,
+        -13.733
+      ]
+    },
+    {
+      "start": 28.57805,
+      "duration": 0.47016,
+      "confidence": 0.515,
+      "loudness_start": -8.531,
+      "loudness_max_time": 0.10977,
+      "loudness_max": -3.054,
+      "pitches": [
+        0.361,
+        0.282,
+        0.602,
+        1,
+        0.354,
+        0.192,
+        0.213,
+        0.233,
+        0.243,
+        0.238,
+        0.632,
+        0.18
+      ],
+      "timbre": [
+        55.532,
+        81.315,
+        31.652,
+        -22.165,
+        -5.805,
+        -29.153,
+        -3.379,
+        -0.46,
+        -14.718,
+        15.448,
+        -0.137,
+        -15.439
+      ]
+    },
+    {
+      "start": 29.04821,
+      "duration": 0.23778,
+      "confidence": 0.496,
+      "loudness_start": -8.765,
+      "loudness_max_time": 0.04081,
+      "loudness_max": -3.257,
+      "pitches": [
+        1,
+        0.783,
+        0.268,
+        0.937,
+        0.441,
+        0.07,
+        0.044,
+        0.157,
+        0.072,
+        0.107,
+        0.492,
+        0.156
+      ],
+      "timbre": [
+        55.607,
+        93.667,
+        3.354,
+        -26.594,
+        -15.08,
+        -25.198,
+        -5.427,
+        -1.884,
+        -16.768,
+        25.342,
+        -2.954,
+        19.15
+      ]
+    },
+    {
+      "start": 29.28599,
+      "duration": 0.23782,
+      "confidence": 0.049,
+      "loudness_start": -6.139,
+      "loudness_max_time": 0.02248,
+      "loudness_max": -3.091,
+      "pitches": [
+        0.431,
+        0.461,
+        0.618,
+        0.368,
+        0.275,
+        0.226,
+        0.13,
+        0.677,
+        0.162,
+        0.411,
+        1,
+        0.476
+      ],
+      "timbre": [
+        55.089,
+        106.053,
+        19.329,
+        1.501,
+        18.794,
+        -30.546,
+        -40.771,
+        11.908,
+        -12.364,
+        -0.162,
+        -7.202,
+        7.292
+      ]
+    },
+    {
+      "start": 29.52381,
+      "duration": 0.1917,
+      "confidence": 0.581,
+      "loudness_start": -10.184,
+      "loudness_max_time": 0.0688,
+      "loudness_max": -3.933,
+      "pitches": [
+        1,
+        0.55,
+        0.199,
+        0.138,
+        0.324,
+        0.718,
+        0.259,
+        0.095,
+        0.071,
+        0.137,
+        0.168,
+        0.303
+      ],
+      "timbre": [
+        55.077,
+        77.886,
+        8.892,
+        -35.927,
+        -15.031,
+        -26.391,
+        -11.838,
+        -7.333,
+        -16.415,
+        11.849,
+        -12.518,
+        -13.649
+      ]
+    },
+    {
+      "start": 29.71551,
+      "duration": 0.16245,
+      "confidence": 0.327,
+      "loudness_start": -7.7,
+      "loudness_max_time": 0.07138,
+      "loudness_max": -2.919,
+      "pitches": [
+        1,
+        0.822,
+        0.485,
+        0.369,
+        0.301,
+        0.362,
+        0.163,
+        0.192,
+        0.125,
+        0.145,
+        0.493,
+        0.261
+      ],
+      "timbre": [
+        54.619,
+        62.926,
+        33.138,
+        -38.754,
+        3.775,
+        -17.889,
+        -27.805,
+        -12.699,
+        -25.265,
+        -9.217,
+        -9.362,
+        -5.654
+      ]
+    },
+    {
+      "start": 29.87796,
+      "duration": 0.13374,
+      "confidence": 0.308,
+      "loudness_start": -6.456,
+      "loudness_max_time": 0.02318,
+      "loudness_max": -2.27,
+      "pitches": [
+        0.662,
+        0.908,
+        0.739,
+        0.645,
+        0.95,
+        1,
+        0.976,
+        0.954,
+        0.771,
+        0.842,
+        0.442,
+        0.113
+      ],
+      "timbre": [
+        55.2,
+        65.862,
+        4.905,
+        6.146,
+        3.401,
+        -40.919,
+        1.611,
+        19.819,
+        -12.769,
+        6.677,
+        -8.645,
+        -6.194
+      ]
+    },
+    {
+      "start": 30.0117,
+      "duration": 0.23206,
+      "confidence": 0.483,
+      "loudness_start": -8.154,
+      "loudness_max_time": 0.0825,
+      "loudness_max": -2.692,
+      "pitches": [
+        0.511,
+        0.235,
+        0.138,
+        0.102,
+        0.223,
+        1,
+        0.37,
+        0.318,
+        0.126,
+        0.141,
+        0.044,
+        0.118
+      ],
+      "timbre": [
+        55.534,
+        64.829,
+        31.488,
+        -2.334,
+        8.761,
+        -24.066,
+        10.439,
+        20.788,
+        -5.185,
+        19.65,
+        -3.936,
+        6.538
+      ]
+    },
+    {
+      "start": 30.24376,
+      "duration": 0.23882,
+      "confidence": 0.526,
+      "loudness_start": -8.403,
+      "loudness_max_time": 0.07747,
+      "loudness_max": -2.294,
+      "pitches": [
+        0.241,
+        1,
+        0.256,
+        0.031,
+        0.027,
+        0.034,
+        0.045,
+        0.109,
+        0.09,
+        0.163,
+        0.239,
+        0.167
+      ],
+      "timbre": [
+        55.225,
+        73.866,
+        -8.5,
+        -17.597,
+        -5.857,
+        -27.938,
+        -10.567,
+        9.576,
+        -7.3,
+        7.487,
+        -11.257,
+        17.569
+      ]
+    },
+    {
+      "start": 30.48259,
+      "duration": 0.36522,
+      "confidence": 0.56,
+      "loudness_start": -6.457,
+      "loudness_max_time": 0.04669,
+      "loudness_max": -1.408,
+      "pitches": [
+        0.681,
+        0.712,
+        1,
+        0.094,
+        0.097,
+        0.046,
+        0.176,
+        0.052,
+        0.05,
+        0.232,
+        0.201,
+        0.151
+      ],
+      "timbre": [
+        57.04,
+        103.632,
+        8.246,
+        -17.764,
+        -6.985,
+        -22.285,
+        -18.458,
+        3.356,
+        -7.17,
+        -5.762,
+        2.982,
+        8.824
+      ]
+    },
+    {
+      "start": 30.8478,
+      "duration": 0.33624,
+      "confidence": 0.003,
+      "loudness_start": -7.286,
+      "loudness_max_time": 0.02925,
+      "loudness_max": -3.275,
+      "pitches": [
+        0.822,
+        1,
+        0.781,
+        0.129,
+        0.214,
+        0.171,
+        0.199,
+        0.176,
+        0.186,
+        0.67,
+        0.306,
+        0.49
+      ],
+      "timbre": [
+        53.419,
+        103.727,
+        -8.414,
+        24.192,
+        16.938,
+        -25.39,
+        -48.539,
+        27.259,
+        -14.208,
+        -1.831,
+        -18.751,
+        -0.369
+      ]
+    },
+    {
+      "start": 31.18404,
+      "duration": 0.19143,
+      "confidence": 0.708,
+      "loudness_start": -11.862,
+      "loudness_max_time": 0.08384,
+      "loudness_max": -4.492,
+      "pitches": [
+        0.511,
+        0.454,
+        0.416,
+        0.333,
+        0.314,
+        1,
+        0.574,
+        0.329,
+        0.121,
+        0.239,
+        0.159,
+        0.201
+      ],
+      "timbre": [
+        53.867,
+        94.052,
+        22.912,
+        -30.326,
+        4.514,
+        -13.102,
+        -35.187,
+        -0.167,
+        -10.946,
+        10.945,
+        1.439,
+        -23.247
+      ]
+    },
+    {
+      "start": 31.37546,
+      "duration": 0.16898,
+      "confidence": 0.405,
+      "loudness_start": -7.186,
+      "loudness_max_time": 0.06715,
+      "loudness_max": -3.09,
+      "pitches": [
+        0.73,
+        0.855,
+        0.437,
+        0.271,
+        0.51,
+        0.522,
+        0.667,
+        1,
+        0.656,
+        0.645,
+        0.61,
+        0.113
+      ],
+      "timbre": [
+        55.155,
+        85.747,
+        26.449,
+        -35.092,
+        -2.856,
+        -13.745,
+        -37.502,
+        -17.946,
+        -13.692,
+        5.107,
+        -11.776,
+        -6.436
+      ]
+    },
+    {
+      "start": 31.54444,
+      "duration": 0.56308,
+      "confidence": 0.143,
+      "loudness_start": -5.464,
+      "loudness_max_time": 0.05187,
+      "loudness_max": -2.417,
+      "pitches": [
+        0.341,
+        0.428,
+        0.632,
+        0.389,
+        0.274,
+        0.394,
+        0.5,
+        1,
+        0.7,
+        0.55,
+        0.396,
+        0.348
+      ],
+      "timbre": [
+        55.254,
+        89.542,
+        10.398,
+        -0.879,
+        -11.035,
+        -27.94,
+        -23.124,
+        2.333,
+        0.424,
+        3.254,
+        -14.785,
+        -12.755
+      ]
+    },
+    {
+      "start": 32.10753,
+      "duration": 0.26712,
+      "confidence": 0.702,
+      "loudness_start": -10.01,
+      "loudness_max_time": 0.0412,
+      "loudness_max": -0.457,
+      "pitches": [
+        0.678,
+        0.358,
+        0.183,
+        0.112,
+        0.22,
+        1,
+        0.48,
+        0.211,
+        0.117,
+        0.119,
+        0.074,
+        0.328
+      ],
+      "timbre": [
+        53.324,
+        59.174,
+        -29.555,
+        -8.228,
+        4.82,
+        1.298,
+        -9.887,
+        8.894,
+        -6.307,
+        0.222,
+        -6.095,
+        -0.505
+      ]
+    },
+    {
+      "start": 32.37465,
+      "duration": 0.10789,
+      "confidence": 0.059,
+      "loudness_start": -9.987,
+      "loudness_max_time": 0.02072,
+      "loudness_max": -6.393,
+      "pitches": [
+        1,
+        0.895,
+        0.434,
+        0.49,
+        0.34,
+        0.529,
+        0.459,
+        0.44,
+        0.197,
+        0.181,
+        0.536,
+        0.838
+      ],
+      "timbre": [
+        48.542,
+        -48.317,
+        -36.674,
+        17.508,
+        -8.986,
+        -70.787,
+        -23.521,
+        -32.65,
+        -13.409,
+        26.17,
+        -2.314,
+        12.533
+      ]
+    },
+    {
+      "start": 32.48254,
+      "duration": 0.2122,
+      "confidence": 0.279,
+      "loudness_start": -14.898,
+      "loudness_max_time": 0.04431,
+      "loudness_max": -11.544,
+      "pitches": [
+        0.992,
+        0.974,
+        0.306,
+        1,
+        0.184,
+        0.186,
+        0.184,
+        0.566,
+        0.239,
+        0.158,
+        0.362,
+        0.385
+      ],
+      "timbre": [
+        46.508,
+        -45.832,
+        -11.261,
+        -14.349,
+        23.119,
+        -18.651,
+        -14.996,
+        -1.273,
+        -8.829,
+        -25.236,
+        -15.484,
+        -8.019
+      ]
+    },
+    {
+      "start": 32.69474,
+      "duration": 0.18476,
+      "confidence": 0.68,
+      "loudness_start": -18.588,
+      "loudness_max_time": 0.12755,
+      "loudness_max": -11.194,
+      "pitches": [
+        0.207,
+        0.081,
+        0.16,
+        0.526,
+        0.082,
+        0.165,
+        0.038,
+        0.15,
+        0.177,
+        0.313,
+        1,
+        0.117
+      ],
+      "timbre": [
+        47.505,
+        5.49,
+        -20.805,
+        -57.141,
+        99.048,
+        -38.903,
+        -15.599,
+        -4.226,
+        6.518,
+        -10.285,
+        14.126,
+        3.691
+      ]
+    },
+    {
+      "start": 32.8795,
+      "duration": 0.21433,
+      "confidence": 0.632,
+      "loudness_start": -11.56,
+      "loudness_max_time": 0.03798,
+      "loudness_max": -5.547,
+      "pitches": [
+        0.09,
+        0.128,
+        0.217,
+        0.542,
+        0.149,
+        0.267,
+        0.076,
+        0.348,
+        0.159,
+        0.452,
+        1,
+        0.23
+      ],
+      "timbre": [
+        50.952,
+        29.489,
+        13.562,
+        32.201,
+        56.465,
+        -11.713,
+        -3.553,
+        -3.635,
+        9.105,
+        -20.275,
+        -21.562,
+        19.298
+      ]
+    },
+    {
+      "start": 33.09383,
+      "duration": 0.24444,
+      "confidence": 0.742,
+      "loudness_start": -13.602,
+      "loudness_max_time": 0.07469,
+      "loudness_max": -6.424,
+      "pitches": [
+        0.077,
+        0.03,
+        0.091,
+        0.264,
+        0.062,
+        0.04,
+        0.066,
+        0.123,
+        0.049,
+        0.099,
+        1,
+        0.17
+      ],
+      "timbre": [
+        51.774,
+        76.217,
+        -5.677,
+        -54.445,
+        19.871,
+        -1.279,
+        -46.03,
+        37.414,
+        16.567,
+        -12.74,
+        15.308,
+        7.383
+      ]
+    },
+    {
+      "start": 33.33828,
+      "duration": 0.28485,
+      "confidence": 0.217,
+      "loudness_start": -9.352,
+      "loudness_max_time": 0.16252,
+      "loudness_max": -5.292,
+      "pitches": [
+        0.156,
+        0.097,
+        0.105,
+        1,
+        0.224,
+        0.332,
+        0.082,
+        0.289,
+        0.078,
+        0.093,
+        0.297,
+        0.2
+      ],
+      "timbre": [
+        51.947,
+        34.456,
+        50.142,
+        7.053,
+        23.941,
+        -6.547,
+        -38.84,
+        -15.487,
+        -21.223,
+        -12.891,
+        -35.964,
+        -7.757
+      ]
+    },
+    {
+      "start": 33.62313,
+      "duration": 0.19152,
+      "confidence": 1,
+      "loudness_start": -19.993,
+      "loudness_max_time": 0.09637,
+      "loudness_max": -5.193,
+      "pitches": [
+        0.134,
+        0.076,
+        0.148,
+        1,
+        0.346,
+        0.52,
+        0.155,
+        0.172,
+        0.057,
+        0.088,
+        0.614,
+        0.146
+      ],
+      "timbre": [
+        46.77,
+        -22.442,
+        54.986,
+        -139.369,
+        33.009,
+        -4.699,
+        -11.175,
+        17.743,
+        -39.827,
+        -34.504,
+        23.865,
+        18.567
+      ]
+    },
+    {
+      "start": 33.81465,
+      "duration": 0.49828,
+      "confidence": 0.402,
+      "loudness_start": -8.185,
+      "loudness_max_time": 0.0225,
+      "loudness_max": -3.888,
+      "pitches": [
+        0.496,
+        0.378,
+        0.426,
+        1,
+        0.441,
+        0.537,
+        0.265,
+        0.403,
+        0.183,
+        0.121,
+        0.569,
+        0.117
+      ],
+      "timbre": [
+        54.13,
+        35.7,
+        32.662,
+        0.133,
+        49.003,
+        -40.198,
+        12.017,
+        0.179,
+        -18.031,
+        -21.75,
+        6.228,
+        32.713
+      ]
+    },
+    {
+      "start": 34.31293,
+      "duration": 0.16354,
+      "confidence": 0.235,
+      "loudness_start": -10.527,
+      "loudness_max_time": 0.10248,
+      "loudness_max": -6.6,
+      "pitches": [
+        0.148,
+        0.222,
+        1,
+        0.797,
+        0.13,
+        0.038,
+        0.032,
+        0.21,
+        0.041,
+        0.08,
+        0.354,
+        0.128
+      ],
+      "timbre": [
+        51.155,
+        72.988,
+        -10.711,
+        -12.924,
+        -0.451,
+        -0.239,
+        -84.575,
+        -23.757,
+        -22.707,
+        -7.51,
+        -27.772,
+        -12.271
+      ]
+    },
+    {
+      "start": 34.47646,
+      "duration": 0.27746,
+      "confidence": 0.786,
+      "loudness_start": -15.591,
+      "loudness_max_time": 0.07434,
+      "loudness_max": -6.699,
+      "pitches": [
+        0.064,
+        0.185,
+        1,
+        0.877,
+        0.068,
+        0.049,
+        0.04,
+        0.131,
+        0.025,
+        0.075,
+        0.592,
+        0.05
+      ],
+      "timbre": [
+        47.593,
+        34.222,
+        -32.24,
+        -18.662,
+        62.992,
+        28.13,
+        -33.834,
+        -64.434,
+        -32.62,
+        0.649,
+        -49.175,
+        15.907
+      ]
+    },
+    {
+      "start": 34.75392,
+      "duration": 0.25642,
+      "confidence": 1,
+      "loudness_start": -20.151,
+      "loudness_max_time": 0.02518,
+      "loudness_max": -5.271,
+      "pitches": [
+        1,
+        0.652,
+        0.311,
+        0.657,
+        0.174,
+        0.128,
+        0.12,
+        0.133,
+        0.076,
+        0.07,
+        0.597,
+        0.338
+      ],
+      "timbre": [
+        51.833,
+        16.828,
+        -1.468,
+        -7.516,
+        12.667,
+        2.334,
+        -50.538,
+        0.987,
+        -20.905,
+        2.344,
+        21.371,
+        -19.498
+      ]
+    },
+    {
+      "start": 35.01034,
+      "duration": 0.22553,
+      "confidence": 0.263,
+      "loudness_start": -13.703,
+      "loudness_max_time": 0.01141,
+      "loudness_max": -7.585,
+      "pitches": [
+        0.088,
+        0.097,
+        0.309,
+        1,
+        0.131,
+        0.257,
+        0.045,
+        0.13,
+        0.027,
+        0.136,
+        0.544,
+        0.129
+      ],
+      "timbre": [
+        49.995,
+        112.597,
+        16.516,
+        13.691,
+        6.524,
+        -19.431,
+        -80.786,
+        -31.329,
+        19.463,
+        -3.008,
+        -22.555,
+        -2.962
+      ]
+    },
+    {
+      "start": 35.23587,
+      "duration": 0.37782,
+      "confidence": 0.869,
+      "loudness_start": -17.167,
+      "loudness_max_time": 0.10392,
+      "loudness_max": -6.237,
+      "pitches": [
+        0.326,
+        0.101,
+        0.172,
+        0.298,
+        0.137,
+        0.529,
+        0.112,
+        0.244,
+        0.095,
+        0.149,
+        1,
+        0.148
+      ],
+      "timbre": [
+        52.009,
+        43.845,
+        52.511,
+        0.587,
+        29.934,
+        -26.705,
+        7.383,
+        3.023,
+        -36.677,
+        10.483,
+        -9.78,
+        5.873
+      ]
+    },
+    {
+      "start": 35.6137,
+      "duration": 0.34245,
+      "confidence": 0.537,
+      "loudness_start": -13.618,
+      "loudness_max_time": 0.10153,
+      "loudness_max": -6.68,
+      "pitches": [
+        0.123,
+        0.084,
+        0.154,
+        0.272,
+        0.176,
+        0.57,
+        0.088,
+        0.138,
+        0.056,
+        0.078,
+        1,
+        0.062
+      ],
+      "timbre": [
+        49.366,
+        63.425,
+        29.852,
+        33.628,
+        35.997,
+        -16.223,
+        -22.672,
+        66.9,
+        -38.796,
+        -26.162,
+        -16.802,
+        36.32
+      ]
+    },
+    {
+      "start": 35.95615,
+      "duration": 0.16825,
+      "confidence": 0.82,
+      "loudness_start": -16.66,
+      "loudness_max_time": 0.04005,
+      "loudness_max": -7.641,
+      "pitches": [
+        1,
+        0.121,
+        0.217,
+        0.531,
+        0.408,
+        0.117,
+        0.117,
+        0.884,
+        0.178,
+        0.199,
+        0.945,
+        0.179
+      ],
+      "timbre": [
+        50.481,
+        45.828,
+        62.68,
+        -0.639,
+        39.951,
+        -11.919,
+        17.238,
+        5.863,
+        -44.297,
+        9.769,
+        11.758,
+        -9.665
+      ]
+    },
+    {
+      "start": 36.1244,
+      "duration": 0.55138,
+      "confidence": 0.152,
+      "loudness_start": -10.811,
+      "loudness_max_time": 0.27129,
+      "loudness_max": -5.282,
+      "pitches": [
+        0.366,
+        0.492,
+        1,
+        0.436,
+        0.309,
+        0.349,
+        0.291,
+        0.597,
+        0.301,
+        0.231,
+        0.36,
+        0.194
+      ],
+      "timbre": [
+        51.167,
+        14.043,
+        62.451,
+        -18.646,
+        9.208,
+        -22.606,
+        0.83,
+        17.174,
+        -21.592,
+        -19.458,
+        -7.548,
+        -4.476
+      ]
+    },
+    {
+      "start": 36.67578,
+      "duration": 0.4307,
+      "confidence": 0.829,
+      "loudness_start": -15.716,
+      "loudness_max_time": 0.07096,
+      "loudness_max": -6.688,
+      "pitches": [
+        0.804,
+        0.191,
+        0.525,
+        0.152,
+        0.07,
+        0.22,
+        0.055,
+        0.645,
+        0.107,
+        0.608,
+        1,
+        0.724
+      ],
+      "timbre": [
+        50.482,
+        54.044,
+        8.064,
+        -34.093,
+        23.333,
+        13.792,
+        -37.274,
+        -20.578,
+        -16.407,
+        -25.062,
+        12.197,
+        2.381
+      ]
+    },
+    {
+      "start": 37.10649,
+      "duration": 0.38844,
+      "confidence": 0.419,
+      "loudness_start": -10.958,
+      "loudness_max_time": 0.04161,
+      "loudness_max": -6.028,
+      "pitches": [
+        0.217,
+        0.256,
+        1,
+        0.124,
+        0.209,
+        0.441,
+        0.103,
+        0.499,
+        0.229,
+        0.492,
+        0.253,
+        0.048
+      ],
+      "timbre": [
+        50.018,
+        -3.41,
+        38.743,
+        36.441,
+        44.5,
+        -3.239,
+        14.868,
+        -9.797,
+        -32.524,
+        -26.102,
+        -25.79,
+        25.19
+      ]
+    },
+    {
+      "start": 37.49492,
+      "duration": 0.11537,
+      "confidence": 0.967,
+      "loudness_start": -20.818,
+      "loudness_max_time": 0.05744,
+      "loudness_max": -8.068,
+      "pitches": [
+        0.583,
+        1,
+        0.789,
+        0.134,
+        0.079,
+        0.178,
+        0.116,
+        0.462,
+        0.094,
+        0.047,
+        0.085,
+        0.214
+      ],
+      "timbre": [
+        50.258,
+        98.842,
+        0.287,
+        -48.701,
+        -5.104,
+        14.635,
+        -65.227,
+        -3.185,
+        -17.236,
+        -18.279,
+        17.517,
+        -13.092
+      ]
+    },
+    {
+      "start": 37.61029,
+      "duration": 0.23751,
+      "confidence": 0.334,
+      "loudness_start": -9.752,
+      "loudness_max_time": 0.02452,
+      "loudness_max": -5.316,
+      "pitches": [
+        1,
+        0.637,
+        0.47,
+        0.21,
+        0.164,
+        0.236,
+        0.131,
+        0.227,
+        0.092,
+        0.066,
+        0.094,
+        0.367
+      ],
+      "timbre": [
+        51,
+        69.485,
+        -41.748,
+        16.851,
+        -10.783,
+        -2.596,
+        -76.736,
+        -32.98,
+        -12.989,
+        -19.487,
+        -34.967,
+        -9.295
+      ]
+    },
+    {
+      "start": 37.8478,
+      "duration": 0.22853,
+      "confidence": 0.94,
+      "loudness_start": -19.212,
+      "loudness_max_time": 0.04626,
+      "loudness_max": -7.248,
+      "pitches": [
+        0.159,
+        0.161,
+        0.986,
+        0.104,
+        0.111,
+        0.668,
+        0.119,
+        0.895,
+        0.235,
+        0.151,
+        1,
+        0.212
+      ],
+      "timbre": [
+        49.398,
+        17.727,
+        22.409,
+        6.061,
+        55.468,
+        21.851,
+        -5.59,
+        -1.441,
+        -30.235,
+        -15.588,
+        -10.965,
+        5.899
+      ]
+    },
+    {
+      "start": 38.07633,
+      "duration": 0.13705,
+      "confidence": 0.954,
+      "loudness_start": -21.756,
+      "loudness_max_time": 0.05704,
+      "loudness_max": -6.665,
+      "pitches": [
+        0.561,
+        1,
+        0.549,
+        0.244,
+        0.086,
+        0.35,
+        0.196,
+        0.694,
+        0.141,
+        0.086,
+        0.409,
+        0.238
+      ],
+      "timbre": [
+        49.776,
+        40.192,
+        13.62,
+        -12.507,
+        29.436,
+        27.604,
+        -12.594,
+        -60.235,
+        -12.539,
+        -11.056,
+        12.586,
+        -11.517
+      ]
+    },
+    {
+      "start": 38.21338,
+      "duration": 0.23891,
+      "confidence": 0.229,
+      "loudness_start": -11.529,
+      "loudness_max_time": 0.09211,
+      "loudness_max": -8.32,
+      "pitches": [
+        0.24,
+        0.345,
+        1,
+        0.13,
+        0.057,
+        0.412,
+        0.155,
+        0.466,
+        0.101,
+        0.167,
+        0.355,
+        0.157
+      ],
+      "timbre": [
+        48.687,
+        25.14,
+        34.721,
+        15.374,
+        77.889,
+        -37.343,
+        3.567,
+        77.419,
+        -40.962,
+        -12.27,
+        -21.916,
+        32.478
+      ]
+    },
+    {
+      "start": 38.45229,
+      "duration": 0.11007,
+      "confidence": 0.816,
+      "loudness_start": -15.976,
+      "loudness_max_time": 0.03317,
+      "loudness_max": -7.139,
+      "pitches": [
+        0.296,
+        1,
+        0.961,
+        0.186,
+        0.082,
+        0.325,
+        0.205,
+        0.825,
+        0.296,
+        0.055,
+        0.141,
+        0.112
+      ],
+      "timbre": [
+        50.677,
+        34.581,
+        40.308,
+        -10.924,
+        35.803,
+        -6.651,
+        -23.95,
+        -21.364,
+        -22.102,
+        25.199,
+        13.035,
+        -20.298
+      ]
+    },
+    {
+      "start": 38.56236,
+      "duration": 0.22077,
+      "confidence": 0.374,
+      "loudness_start": -10.276,
+      "loudness_max_time": 0.03491,
+      "loudness_max": -6,
+      "pitches": [
+        1,
+        0.721,
+        0.569,
+        0.329,
+        0.297,
+        0.411,
+        0.243,
+        0.562,
+        0.235,
+        0.104,
+        0.098,
+        0.549
+      ],
+      "timbre": [
+        51.035,
+        3.043,
+        1.491,
+        32.056,
+        59.673,
+        -35.739,
+        6.542,
+        20.401,
+        -3.791,
+        -3.953,
+        -26.818,
+        22.251
+      ]
+    },
+    {
+      "start": 38.78313,
+      "duration": 0.23882,
+      "confidence": 0.862,
+      "loudness_start": -21.108,
+      "loudness_max_time": 0.04854,
+      "loudness_max": -9.766,
+      "pitches": [
+        0.096,
+        0.074,
+        0.451,
+        0.039,
+        0.019,
+        0.208,
+        0.038,
+        0.279,
+        0.051,
+        0.074,
+        1,
+        0.078
+      ],
+      "timbre": [
+        46.828,
+        24.347,
+        -0.673,
+        -40.89,
+        97.913,
+        8.942,
+        2.648,
+        -25.341,
+        -16.538,
+        24.79,
+        -3.294,
+        27.99
+      ]
+    },
+    {
+      "start": 39.02195,
+      "duration": 0.4054,
+      "confidence": 0.661,
+      "loudness_start": -13.303,
+      "loudness_max_time": 0.088,
+      "loudness_max": -6.588,
+      "pitches": [
+        0.225,
+        0.191,
+        1,
+        0.353,
+        0.341,
+        0.533,
+        0.277,
+        0.86,
+        0.11,
+        0.692,
+        0.407,
+        0.208
+      ],
+      "timbre": [
+        49.682,
+        -13.656,
+        49.845,
+        18.961,
+        64.399,
+        -3.272,
+        20.127,
+        16.556,
+        -28.6,
+        -24.559,
+        -14.605,
+        14.24
+      ]
+    },
+    {
+      "start": 39.42735,
+      "duration": 0.09841,
+      "confidence": 0.358,
+      "loudness_start": -14.646,
+      "loudness_max_time": 0.01868,
+      "loudness_max": -11.087,
+      "pitches": [
+        0.071,
+        0.074,
+        0.205,
+        0.402,
+        1,
+        0.175,
+        0.088,
+        0.167,
+        0.062,
+        0.019,
+        0.055,
+        0.03
+      ],
+      "timbre": [
+        47.297,
+        -14.881,
+        -20.374,
+        -30.01,
+        64.248,
+        -46.571,
+        -31.196,
+        -5.669,
+        -34.612,
+        -19.216,
+        12.586,
+        36.868
+      ]
+    },
+    {
+      "start": 39.52576,
+      "duration": 0.35438,
+      "confidence": 0.631,
+      "loudness_start": -13.769,
+      "loudness_max_time": 0.24587,
+      "loudness_max": -6.262,
+      "pitches": [
+        0.214,
+        0.049,
+        1,
+        0.073,
+        0.032,
+        0.234,
+        0.048,
+        0.116,
+        0.035,
+        0.254,
+        0.098,
+        0.044
+      ],
+      "timbre": [
+        52,
+        40.645,
+        100.946,
+        -12.853,
+        27.192,
+        -19.129,
+        -32.11,
+        6.94,
+        -29.955,
+        -17.386,
+        23.117,
+        -23.416
+      ]
+    },
+    {
+      "start": 39.88014,
+      "duration": 0.17646,
+      "confidence": 0.058,
+      "loudness_start": -8.427,
+      "loudness_max_time": 0.02925,
+      "loudness_max": -5.342,
+      "pitches": [
+        1,
+        0.773,
+        0.281,
+        0.353,
+        0.358,
+        0.288,
+        0.488,
+        0.574,
+        0.62,
+        0.596,
+        0.768,
+        0.151
+      ],
+      "timbre": [
+        51.362,
+        22.775,
+        -27.676,
+        24.537,
+        6.022,
+        -17.776,
+        -59.188,
+        -19.674,
+        6.437,
+        -21.935,
+        -31.232,
+        -2.891
+      ]
+    },
+    {
+      "start": 40.0566,
+      "duration": 0.24145,
+      "confidence": 0.328,
+      "loudness_start": -18.349,
+      "loudness_max_time": 0.04686,
+      "loudness_max": -13.23,
+      "pitches": [
+        0.772,
+        1,
+        0.134,
+        0.613,
+        0.044,
+        0.052,
+        0.019,
+        0.312,
+        0.019,
+        0.039,
+        0.324,
+        0.071
+      ],
+      "timbre": [
+        44.243,
+        -61.423,
+        -4.559,
+        -34.24,
+        34.457,
+        -26.974,
+        -26.75,
+        11.066,
+        21.482,
+        -13.216,
+        -13.395,
+        3.847
+      ]
+    },
+    {
+      "start": 40.29805,
+      "duration": 0.17401,
+      "confidence": 0.079,
+      "loudness_start": -18.328,
+      "loudness_max_time": 0.04262,
+      "loudness_max": -15.493,
+      "pitches": [
+        0.057,
+        0.062,
+        0.206,
+        1,
+        0.115,
+        0.073,
+        0.051,
+        0.375,
+        0.026,
+        0.056,
+        0.553,
+        0.024
+      ],
+      "timbre": [
+        41.914,
+        -40.725,
+        -15.58,
+        -1.722,
+        38.589,
+        -30.511,
+        -47.91,
+        -24.879,
+        6.87,
+        -1.641,
+        -1.435,
+        4.097
+      ]
+    },
+    {
+      "start": 40.47206,
+      "duration": 0.2381,
+      "confidence": 1,
+      "loudness_start": -21.424,
+      "loudness_max_time": 0.0597,
+      "loudness_max": -6.946,
+      "pitches": [
+        0.044,
+        0.054,
+        0.136,
+        0.667,
+        0.05,
+        0.095,
+        0.027,
+        0.136,
+        0.025,
+        0.086,
+        1,
+        0.121
+      ],
+      "timbre": [
+        50.595,
+        73.669,
+        15.984,
+        -25.335,
+        46.856,
+        16.865,
+        -74.272,
+        -18.909,
+        -5.159,
+        5.187,
+        -9.229,
+        -17.029
+      ]
+    },
+    {
+      "start": 40.71016,
+      "duration": 0.31964,
+      "confidence": 0.741,
+      "loudness_start": -13.283,
+      "loudness_max_time": 0.04124,
+      "loudness_max": -5.51,
+      "pitches": [
+        0.082,
+        0.029,
+        0.055,
+        0.279,
+        0.03,
+        0.147,
+        0.036,
+        0.07,
+        0.04,
+        0.075,
+        1,
+        0.1
+      ],
+      "timbre": [
+        52.425,
+        73.766,
+        7.306,
+        -43.014,
+        52.21,
+        10.904,
+        -38.266,
+        -14.43,
+        -10.328,
+        -9.686,
+        9.136,
+        -11.539
+      ]
+    },
+    {
+      "start": 41.0298,
+      "duration": 0.30181,
+      "confidence": 0.09,
+      "loudness_start": -9.366,
+      "loudness_max_time": 0.09175,
+      "loudness_max": -6.261,
+      "pitches": [
+        0.485,
+        0.05,
+        0.092,
+        1,
+        0.197,
+        0.512,
+        0.038,
+        0.175,
+        0.043,
+        0.06,
+        0.492,
+        0.111
+      ],
+      "timbre": [
+        51.067,
+        54.784,
+        54.494,
+        66.351,
+        75.669,
+        -19.66,
+        0.775,
+        -9.411,
+        -32.398,
+        -6.021,
+        -42.643,
+        55.494
+      ]
+    },
+    {
+      "start": 41.33161,
+      "duration": 0.36585,
+      "confidence": 0.967,
+      "loudness_start": -18.299,
+      "loudness_max_time": 0.13003,
+      "loudness_max": -4.875,
+      "pitches": [
+        0.656,
+        0.758,
+        0.484,
+        1,
+        0.425,
+        0.491,
+        0.429,
+        0.314,
+        0.282,
+        0.253,
+        0.335,
+        0.497
+      ],
+      "timbre": [
+        51.83,
+        74.619,
+        36.346,
+        -4.975,
+        26.436,
+        7.213,
+        -37.009,
+        44.903,
+        -44.15,
+        19.9,
+        3.749,
+        30.805
+      ]
+    },
+    {
+      "start": 41.69746,
+      "duration": 0.44027,
+      "confidence": 0.416,
+      "loudness_start": -10.431,
+      "loudness_max_time": 0.0257,
+      "loudness_max": -6.313,
+      "pitches": [
+        0.456,
+        0.649,
+        0.559,
+        0.997,
+        0.246,
+        0.102,
+        0.05,
+        0.366,
+        0.192,
+        0.361,
+        1,
+        0.07
+      ],
+      "timbre": [
+        51.03,
+        8.111,
+        44.061,
+        30.981,
+        42.287,
+        -31.143,
+        -7.899,
+        -8.432,
+        -35.907,
+        22.395,
+        -14.933,
+        27.59
+      ]
+    },
+    {
+      "start": 42.13773,
+      "duration": 0.20966,
+      "confidence": 0.883,
+      "loudness_start": -19.331,
+      "loudness_max_time": 0.12431,
+      "loudness_max": -5.527,
+      "pitches": [
+        0.068,
+        0.096,
+        1,
+        0.491,
+        0.061,
+        0.018,
+        0.026,
+        0.086,
+        0.015,
+        0.089,
+        0.547,
+        0.061
+      ],
+      "timbre": [
+        51.654,
+        71.31,
+        7.716,
+        -34.29,
+        -9.191,
+        16.22,
+        -58.596,
+        1.828,
+        -9.661,
+        -28.69,
+        14.054,
+        0.239
+      ]
+    },
+    {
+      "start": 42.34739,
+      "duration": 0.15088,
+      "confidence": 0.618,
+      "loudness_start": -13.906,
+      "loudness_max_time": 0.04167,
+      "loudness_max": -5.709,
+      "pitches": [
+        1,
+        0.907,
+        0.318,
+        0.454,
+        0.188,
+        0.164,
+        0.164,
+        0.201,
+        0.181,
+        0.196,
+        0.523,
+        0.463
+      ],
+      "timbre": [
+        51.501,
+        59.967,
+        17.623,
+        -39.6,
+        -4.121,
+        -0.785,
+        -29.053,
+        -34.877,
+        -39.009,
+        13.823,
+        5.975,
+        -4.013
+      ]
+    },
+    {
+      "start": 42.49828,
+      "duration": 0.12204,
+      "confidence": 0.112,
+      "loudness_start": -8.636,
+      "loudness_max_time": 0.03716,
+      "loudness_max": -5.559,
+      "pitches": [
+        0.834,
+        0.604,
+        0.645,
+        1,
+        0.399,
+        0.339,
+        0.148,
+        0.261,
+        0.081,
+        0.115,
+        0.303,
+        0.179
+      ],
+      "timbre": [
+        51.027,
+        46.987,
+        1.105,
+        34.718,
+        31.559,
+        -35.045,
+        -35.064,
+        44.916,
+        -56.56,
+        -10.148,
+        -11.743,
+        10.582
+      ]
+    },
+    {
+      "start": 42.62032,
+      "duration": 0.23333,
+      "confidence": 0.624,
+      "loudness_start": -14.708,
+      "loudness_max_time": 0.01974,
+      "loudness_max": -6.482,
+      "pitches": [
+        0.047,
+        0.065,
+        0.216,
+        0.54,
+        0.056,
+        0.219,
+        0.036,
+        0.088,
+        0.078,
+        0.352,
+        1,
+        0.218
+      ],
+      "timbre": [
+        48.846,
+        -5.987,
+        -8.222,
+        83.919,
+        39.634,
+        -8.476,
+        -14.895,
+        -10.836,
+        -35.98,
+        6.907,
+        -51.829,
+        33.837
+      ]
+    },
+    {
+      "start": 42.85365,
+      "duration": 0.13823,
+      "confidence": 1,
+      "loudness_start": -23.43,
+      "loudness_max_time": 0.05973,
+      "loudness_max": -4.855,
+      "pitches": [
+        0.065,
+        0.13,
+        0.187,
+        0.676,
+        0.208,
+        0.317,
+        0.584,
+        0.307,
+        0.059,
+        0.148,
+        1,
+        0.094
+      ],
+      "timbre": [
+        52.428,
+        56.828,
+        39.856,
+        -28.954,
+        11.739,
+        -8.953,
+        -7.674,
+        -11.744,
+        -61.339,
+        -12.2,
+        -0.972,
+        19.477
+      ]
+    },
+    {
+      "start": 42.99188,
+      "duration": 0.19819,
+      "confidence": 0.284,
+      "loudness_start": -8.035,
+      "loudness_max_time": 0.01964,
+      "loudness_max": -4.454,
+      "pitches": [
+        0.015,
+        0.037,
+        0.228,
+        0.334,
+        0.07,
+        0.047,
+        0.072,
+        0.552,
+        0.083,
+        0.134,
+        1,
+        0.083
+      ],
+      "timbre": [
+        53.055,
+        46.644,
+        35.386,
+        31.673,
+        17.147,
+        -13.708,
+        0.96,
+        13.291,
+        -33.33,
+        -26.937,
+        -28.739,
+        26.232
+      ]
+    },
+    {
+      "start": 43.19007,
+      "duration": 0.14458,
+      "confidence": 0.856,
+      "loudness_start": -19.011,
+      "loudness_max_time": 0.06962,
+      "loudness_max": -5.965,
+      "pitches": [
+        0.047,
+        0.066,
+        0.178,
+        0.324,
+        0.176,
+        0.29,
+        0.608,
+        0.147,
+        0.039,
+        0.164,
+        1,
+        0.091
+      ],
+      "timbre": [
+        49.651,
+        67.256,
+        18.294,
+        -90.665,
+        9.31,
+        5.838,
+        -29.056,
+        -15.229,
+        -58.063,
+        -8.422,
+        -6.905,
+        -1.961
+      ]
+    },
+    {
+      "start": 43.33465,
+      "duration": 0.21995,
+      "confidence": 0.112,
+      "loudness_start": -9.385,
+      "loudness_max_time": 0.06529,
+      "loudness_max": -6.058,
+      "pitches": [
+        0.24,
+        0.107,
+        0.163,
+        0.357,
+        0.274,
+        1,
+        0.098,
+        0.104,
+        0.028,
+        0.066,
+        0.422,
+        0.101
+      ],
+      "timbre": [
+        50.454,
+        42.889,
+        41.485,
+        49.658,
+        24.219,
+        -4.557,
+        -18.604,
+        -11.634,
+        -52.576,
+        -18.723,
+        -44.927,
+        41.622
+      ]
+    },
+    {
+      "start": 43.5546,
+      "duration": 0.26,
+      "confidence": 0.881,
+      "loudness_start": -21.861,
+      "loudness_max_time": 0.08255,
+      "loudness_max": -7.846,
+      "pitches": [
+        0.742,
+        0.233,
+        0.353,
+        0.799,
+        0.735,
+        0.178,
+        0.118,
+        1,
+        0.57,
+        0.363,
+        0.63,
+        0.405
+      ],
+      "timbre": [
+        49.772,
+        60.053,
+        45.616,
+        -26.651,
+        18.361,
+        -0.417,
+        10.334,
+        -50.559,
+        -41.603,
+        27.628,
+        -6.339,
+        9.208
+      ]
+    },
+    {
+      "start": 43.8146,
+      "duration": 0.25184,
+      "confidence": 0.069,
+      "loudness_start": -11.174,
+      "loudness_max_time": 0.14055,
+      "loudness_max": -7.126,
+      "pitches": [
+        0.621,
+        0.884,
+        1,
+        0.24,
+        0.128,
+        0.088,
+        0.212,
+        0.066,
+        0.071,
+        0.424,
+        0.138,
+        0.309
+      ],
+      "timbre": [
+        50.7,
+        -8.611,
+        -5.058,
+        -30.907,
+        70.783,
+        -44.4,
+        2.144,
+        56.614,
+        -7.198,
+        -11.115,
+        8.978,
+        23.301
+      ]
+    },
+    {
+      "start": 44.06644,
+      "duration": 0.21946,
+      "confidence": 0.535,
+      "loudness_start": -12.926,
+      "loudness_max_time": 0.04141,
+      "loudness_max": -7.235,
+      "pitches": [
+        0.047,
+        0.161,
+        1,
+        0.214,
+        0.051,
+        0.066,
+        0.273,
+        0.042,
+        0.041,
+        0.493,
+        0.089,
+        0.024
+      ],
+      "timbre": [
+        51.028,
+        20.748,
+        51.736,
+        14.711,
+        52.147,
+        -15.731,
+        -1.511,
+        -9.384,
+        -33.059,
+        5.326,
+        -11.842,
+        24.229
+      ]
+    },
+    {
+      "start": 44.2859,
+      "duration": 0.25011,
+      "confidence": 0.841,
+      "loudness_start": -16.611,
+      "loudness_max_time": 0.04063,
+      "loudness_max": -5.152,
+      "pitches": [
+        0.653,
+        0.864,
+        1,
+        0.305,
+        0.192,
+        0.118,
+        0.289,
+        0.093,
+        0.078,
+        0.418,
+        0.088,
+        0.353
+      ],
+      "timbre": [
+        51.701,
+        -0.673,
+        21.898,
+        -17.467,
+        33.706,
+        15.82,
+        6.417,
+        -11.578,
+        -21.234,
+        -21.754,
+        30.522,
+        -10.01
+      ]
+    },
+    {
+      "start": 44.53601,
+      "duration": 0.22005,
+      "confidence": 0.255,
+      "loudness_start": -11.128,
+      "loudness_max_time": 0.06522,
+      "loudness_max": -7.353,
+      "pitches": [
+        0.037,
+        0.415,
+        0.938,
+        0.102,
+        0.035,
+        0.276,
+        0.295,
+        0.057,
+        0.653,
+        1,
+        0.143,
+        0.05
+      ],
+      "timbre": [
+        51.47,
+        19.958,
+        81.059,
+        2.591,
+        61.804,
+        -39.297,
+        35.001,
+        -4.05,
+        -24.197,
+        -18.581,
+        14.019,
+        20.911
+      ]
+    },
+    {
+      "start": 44.75605,
+      "duration": 0.22721,
+      "confidence": 0.479,
+      "loudness_start": -8.985,
+      "loudness_max_time": 0.01408,
+      "loudness_max": -3.445,
+      "pitches": [
+        0.697,
+        0.86,
+        0.871,
+        0.378,
+        0.277,
+        0.226,
+        0.333,
+        0.164,
+        0.19,
+        1,
+        0.148,
+        0.537
+      ],
+      "timbre": [
+        53.373,
+        -8.426,
+        44.391,
+        14.248,
+        25.91,
+        -54.815,
+        12.258,
+        9.781,
+        -14.835,
+        -4.047,
+        10.633,
+        1.271
+      ]
+    },
+    {
+      "start": 44.98327,
+      "duration": 0.13302,
+      "confidence": 0.224,
+      "loudness_start": -10.35,
+      "loudness_max_time": 0.05634,
+      "loudness_max": -6.242,
+      "pitches": [
+        0.234,
+        0.539,
+        1,
+        0.112,
+        0.084,
+        0.132,
+        0.259,
+        0.116,
+        0.308,
+        0.715,
+        0.198,
+        0.08
+      ],
+      "timbre": [
+        51.27,
+        -2.01,
+        50.679,
+        20.011,
+        52.534,
+        -23.105,
+        16.72,
+        20.538,
+        -20.413,
+        -33.386,
+        -20.281,
+        22.067
+      ]
+    },
+    {
+      "start": 45.11628,
+      "duration": 0.11605,
+      "confidence": 0.637,
+      "loudness_start": -14.359,
+      "loudness_max_time": 0.0611,
+      "loudness_max": -5.541,
+      "pitches": [
+        0.07,
+        0.265,
+        0.793,
+        1,
+        0.112,
+        0.062,
+        0.265,
+        0.122,
+        0.161,
+        0.639,
+        0.298,
+        0.065
+      ],
+      "timbre": [
+        51.794,
+        34.864,
+        47.205,
+        -15.713,
+        40.157,
+        6.233,
+        -4.397,
+        -31.59,
+        -32.939,
+        5.525,
+        -3.927,
+        -22.097
+      ]
+    },
+    {
+      "start": 45.23234,
+      "duration": 0.23782,
+      "confidence": 0.343,
+      "loudness_start": -9.451,
+      "loudness_max_time": 0.03145,
+      "loudness_max": -4.177,
+      "pitches": [
+        0.758,
+        1,
+        0.902,
+        0.328,
+        0.265,
+        0.191,
+        0.3,
+        0.136,
+        0.152,
+        0.505,
+        0.091,
+        0.515
+      ],
+      "timbre": [
+        52.169,
+        7.871,
+        15.389,
+        23.231,
+        6.587,
+        -11.766,
+        -30.485,
+        28.504,
+        -7.655,
+        -13.309,
+        -12.652,
+        -6.844
+      ]
+    },
+    {
+      "start": 45.47016,
+      "duration": 0.38363,
+      "confidence": 0.933,
+      "loudness_start": -18.822,
+      "loudness_max_time": 0.06444,
+      "loudness_max": -4.155,
+      "pitches": [
+        0.075,
+        0.167,
+        0.554,
+        0.083,
+        0.058,
+        0.1,
+        0.474,
+        0.569,
+        0.226,
+        1,
+        0.148,
+        0.224
+      ],
+      "timbre": [
+        51.946,
+        83.007,
+        67.563,
+        -32.175,
+        35.354,
+        -1.094,
+        -31.306,
+        -7.424,
+        -21.621,
+        5.147,
+        6.288,
+        -12.426
+      ]
+    },
+    {
+      "start": 45.85379,
+      "duration": 0.33664,
+      "confidence": 0.136,
+      "loudness_start": -10.453,
+      "loudness_max_time": 0.28981,
+      "loudness_max": -6.96,
+      "pitches": [
+        0.481,
+        1,
+        0.402,
+        0.29,
+        0.351,
+        0.573,
+        0.764,
+        0.133,
+        0.155,
+        0.175,
+        0.198,
+        0.267
+      ],
+      "timbre": [
+        51.313,
+        133.563,
+        126.851,
+        15.192,
+        70.029,
+        -26.714,
+        12.731,
+        6.362,
+        -31.397,
+        -1.927,
+        -11.522,
+        28.43
+      ]
+    },
+    {
+      "start": 46.19043,
+      "duration": 0.15655,
+      "confidence": 0.556,
+      "loudness_start": -9.112,
+      "loudness_max_time": 0.0413,
+      "loudness_max": -2.435,
+      "pitches": [
+        0.165,
+        0.24,
+        0.366,
+        0.142,
+        0.167,
+        0.749,
+        0.57,
+        1,
+        0.137,
+        0.124,
+        0.119,
+        0.313
+      ],
+      "timbre": [
+        54.217,
+        96.105,
+        105.838,
+        43.458,
+        72.019,
+        -22.876,
+        -10.124,
+        1.891,
+        1.931,
+        -7.759,
+        2.628,
+        28.67
+      ]
+    },
+    {
+      "start": 46.34698,
+      "duration": 0.26698,
+      "confidence": 0.408,
+      "loudness_start": -9.352,
+      "loudness_max_time": 0.0581,
+      "loudness_max": -5.015,
+      "pitches": [
+        0.072,
+        0.107,
+        0.586,
+        0.103,
+        0.102,
+        0.147,
+        0.282,
+        1,
+        0.149,
+        0.051,
+        0.058,
+        0.318
+      ],
+      "timbre": [
+        52.537,
+        102.921,
+        122.118,
+        39.06,
+        104.937,
+        -19.32,
+        5.504,
+        22.015,
+        -25.591,
+        -8.905,
+        -14.012,
+        16.544
+      ]
+    },
+    {
+      "start": 46.61397,
+      "duration": 0.4698,
+      "confidence": 0.839,
+      "loudness_start": -12.916,
+      "loudness_max_time": 0.07895,
+      "loudness_max": -3.276,
+      "pitches": [
+        0.352,
+        0.109,
+        0.085,
+        0.069,
+        0.146,
+        1,
+        0.212,
+        0.142,
+        0.038,
+        0.12,
+        0.031,
+        0.067
+      ],
+      "timbre": [
+        50.883,
+        81.121,
+        110.962,
+        -23.921,
+        87.9,
+        -8.377,
+        6.704,
+        -3.101,
+        -14.332,
+        24.973,
+        -6.807,
+        12.742
+      ]
+    },
+    {
+      "start": 47.08376,
+      "duration": 0.28494,
+      "confidence": 0.848,
+      "loudness_start": -15.534,
+      "loudness_max_time": 0.06947,
+      "loudness_max": -3.284,
+      "pitches": [
+        0.571,
+        1,
+        0.782,
+        0.319,
+        0.199,
+        0.166,
+        0.36,
+        0.617,
+        0.326,
+        0.163,
+        0.057,
+        0.339
+      ],
+      "timbre": [
+        53.101,
+        78.865,
+        59.446,
+        -36.83,
+        27.982,
+        -7.705,
+        25.84,
+        -31.209,
+        11.935,
+        4.443,
+        0.454,
+        -1.348
+      ]
+    },
+    {
+      "start": 47.36871,
+      "duration": 0.20349,
+      "confidence": 0.205,
+      "loudness_start": -5.815,
+      "loudness_max_time": 0.05266,
+      "loudness_max": -2.283,
+      "pitches": [
+        0.522,
+        0.394,
+        0.581,
+        0.152,
+        0.453,
+        1,
+        0.355,
+        0.088,
+        0.068,
+        0.176,
+        0.067,
+        0.575
+      ],
+      "timbre": [
+        54.835,
+        34.5,
+        17.342,
+        47.474,
+        21.837,
+        -28.861,
+        10.007,
+        -35.883,
+        7.985,
+        7.253,
+        -52.574,
+        -5.41
+      ]
+    },
+    {
+      "start": 47.5722,
+      "duration": 1.21841,
+      "confidence": 0.769,
+      "loudness_start": -12.213,
+      "loudness_max_time": 0.53172,
+      "loudness_max": 0.596,
+      "pitches": [
+        0.216,
+        0.195,
+        0.366,
+        0.244,
+        0.228,
+        0.261,
+        0.401,
+        1,
+        0.475,
+        0.322,
+        0.246,
+        0.252
+      ],
+      "timbre": [
+        55.567,
+        94.363,
+        14.807,
+        -46.429,
+        21.317,
+        -11.479,
+        -0.913,
+        -6.548,
+        8.534,
+        27.216,
+        -30.583,
+        2.926
+      ]
+    },
+    {
+      "start": 48.79061,
+      "duration": 0.24957,
+      "confidence": 0.559,
+      "loudness_start": -8.226,
+      "loudness_max_time": 0.0927,
+      "loudness_max": -2.751,
+      "pitches": [
+        0.868,
+        1,
+        0.754,
+        0.459,
+        0.454,
+        0.711,
+        0.62,
+        0.828,
+        0.803,
+        0.382,
+        0.258,
+        0.885
+      ],
+      "timbre": [
+        54.904,
+        95.05,
+        -7.965,
+        -16.378,
+        -3.59,
+        -13.55,
+        -26.39,
+        -7.786,
+        -3.84,
+        14.59,
+        -9.386,
+        -16.803
+      ]
+    },
+    {
+      "start": 49.04018,
+      "duration": 0.22086,
+      "confidence": 0.742,
+      "loudness_start": -7.624,
+      "loudness_max_time": 0.13025,
+      "loudness_max": -0.063,
+      "pitches": [
+        0.383,
+        0.413,
+        0.426,
+        0.204,
+        0.188,
+        0.567,
+        0.589,
+        1,
+        0.455,
+        0.226,
+        0.49,
+        0.385
+      ],
+      "timbre": [
+        57.763,
+        74.553,
+        -5.342,
+        -17.195,
+        -4.337,
+        -27.775,
+        -18.935,
+        6.822,
+        -20.155,
+        5.826,
+        -9.468,
+        -5.273
+      ]
+    },
+    {
+      "start": 49.26104,
+      "duration": 0.25528,
+      "confidence": 0.494,
+      "loudness_start": -6.804,
+      "loudness_max_time": 0.10625,
+      "loudness_max": -0.644,
+      "pitches": [
+        0.428,
+        0.16,
+        0.172,
+        0.193,
+        0.167,
+        1,
+        0.254,
+        0.563,
+        0.308,
+        0.135,
+        0.115,
+        0.233
+      ],
+      "timbre": [
+        55.667,
+        56.682,
+        9.732,
+        -14.607,
+        15.024,
+        -12.408,
+        -8.941,
+        8.974,
+        1.723,
+        7.545,
+        -19.007,
+        -10.357
+      ]
+    },
+    {
+      "start": 49.51633,
+      "duration": 0.24993,
+      "confidence": 0.516,
+      "loudness_start": -6.626,
+      "loudness_max_time": 0.08751,
+      "loudness_max": -0.793,
+      "pitches": [
+        0.76,
+        0.899,
+        0.613,
+        0.326,
+        0.158,
+        0.165,
+        0.361,
+        1,
+        0.256,
+        0.193,
+        0.555,
+        0.425
+      ],
+      "timbre": [
+        55.53,
+        57.114,
+        -11.009,
+        -1.965,
+        18.256,
+        -21.392,
+        -6.233,
+        1.931,
+        -14.835,
+        15.273,
+        -31.818,
+        -6.721
+      ]
+    },
+    {
+      "start": 49.76626,
+      "duration": 0.23161,
+      "confidence": 0.782,
+      "loudness_start": -9,
+      "loudness_max_time": 0.10049,
+      "loudness_max": -0.377,
+      "pitches": [
+        0.281,
+        0.067,
+        0.153,
+        0.032,
+        0.061,
+        0.049,
+        0.191,
+        1,
+        0.214,
+        0.027,
+        0.055,
+        0.057
+      ],
+      "timbre": [
+        57.932,
+        87.337,
+        28.407,
+        -15.92,
+        22.142,
+        -25.295,
+        -0.627,
+        2.653,
+        -0.43,
+        5.245,
+        -7.361,
+        -3.186
+      ]
+    },
+    {
+      "start": 49.99787,
+      "duration": 0.44132,
+      "confidence": 0.283,
+      "loudness_start": -5.637,
+      "loudness_max_time": 0.00772,
+      "loudness_max": 0.61,
+      "pitches": [
+        0.237,
+        0.325,
+        0.71,
+        0.348,
+        0.307,
+        0.24,
+        0.318,
+        1,
+        0.335,
+        0.208,
+        0.182,
+        0.192
+      ],
+      "timbre": [
+        57.904,
+        61.455,
+        -3.858,
+        -12.764,
+        10.709,
+        -50.723,
+        -14.543,
+        6.428,
+        -7.883,
+        2.287,
+        -19.661,
+        -6.937
+      ]
+    },
+    {
+      "start": 50.43918,
+      "duration": 0.25533,
+      "confidence": 0.443,
+      "loudness_start": -9.37,
+      "loudness_max_time": 0.1749,
+      "loudness_max": -3.817,
+      "pitches": [
+        0.747,
+        1,
+        0.585,
+        0.256,
+        0.115,
+        0.143,
+        0.421,
+        0.598,
+        0.129,
+        0.094,
+        0.114,
+        0.402
+      ],
+      "timbre": [
+        53.68,
+        66.623,
+        21.482,
+        -45.012,
+        8.891,
+        -27.312,
+        18.672,
+        13.936,
+        10.914,
+        4.413,
+        -3.619,
+        -22.356
+      ]
+    },
+    {
+      "start": 50.69451,
+      "duration": 0.24993,
+      "confidence": 0.476,
+      "loudness_start": -7.759,
+      "loudness_max_time": 0.1534,
+      "loudness_max": -1.663,
+      "pitches": [
+        1,
+        0.892,
+        0.744,
+        0.475,
+        0.608,
+        0.78,
+        0.354,
+        0.778,
+        0.912,
+        0.439,
+        0.209,
+        0.687
+      ],
+      "timbre": [
+        56.48,
+        61.66,
+        49.659,
+        -1.799,
+        18.173,
+        -23.625,
+        42.995,
+        -1.594,
+        12.595,
+        -4.573,
+        -11.586,
+        1.143
+      ]
+    },
+    {
+      "start": 50.94444,
+      "duration": 0.24961,
+      "confidence": 0.579,
+      "loudness_start": -6.172,
+      "loudness_max_time": 0.01764,
+      "loudness_max": 0.53,
+      "pitches": [
+        0.472,
+        0.323,
+        0.375,
+        0.163,
+        0.199,
+        0.374,
+        0.458,
+        1,
+        0.332,
+        0.086,
+        0.074,
+        0.359
+      ],
+      "timbre": [
+        57.996,
+        36.973,
+        9.944,
+        -10.659,
+        28.934,
+        -51.411,
+        17.337,
+        12.464,
+        -4.167,
+        3.402,
+        9.842,
+        3.172
+      ]
+    },
+    {
+      "start": 51.19406,
+      "duration": 0.18077,
+      "confidence": 0.245,
+      "loudness_start": -4.516,
+      "loudness_max_time": 0.03573,
+      "loudness_max": -0.861,
+      "pitches": [
+        0.521,
+        0.385,
+        0.374,
+        0.376,
+        0.89,
+        1,
+        0.629,
+        0.667,
+        0.291,
+        0.331,
+        0.513,
+        0.149
+      ],
+      "timbre": [
+        57.507,
+        79.239,
+        -0.289,
+        -22.864,
+        14.061,
+        -25.124,
+        -19.654,
+        8.213,
+        3.498,
+        -9.734,
+        -7.996,
+        -11.838
+      ]
+    },
+    {
+      "start": 51.37483,
+      "duration": 0.30685,
+      "confidence": 0.423,
+      "loudness_start": -6.039,
+      "loudness_max_time": 0.08302,
+      "loudness_max": -1.442,
+      "pitches": [
+        0.698,
+        0.681,
+        0.43,
+        1,
+        0.408,
+        0.17,
+        0.222,
+        0.274,
+        0.094,
+        0.166,
+        0.616,
+        0.535
+      ],
+      "timbre": [
+        55.793,
+        61.574,
+        23.82,
+        -32.007,
+        8.733,
+        -30.74,
+        26.295,
+        -11.211,
+        -13.689,
+        -8.836,
+        -14.29,
+        -5.539
+      ]
+    },
+    {
+      "start": 51.68168,
+      "duration": 0.22653,
+      "confidence": 0.467,
+      "loudness_start": -6.429,
+      "loudness_max_time": 0.02617,
+      "loudness_max": -0.714,
+      "pitches": [
+        0.083,
+        0.097,
+        0.279,
+        1,
+        0.453,
+        0.423,
+        0.058,
+        0.057,
+        0.034,
+        0.109,
+        0.684,
+        0.12
+      ],
+      "timbre": [
+        58.027,
+        56.845,
+        51.12,
+        0.671,
+        33.803,
+        -36.65,
+        -4.916,
+        0.613,
+        1.402,
+        16.316,
+        -8.989,
+        -35.544
+      ]
+    },
+    {
+      "start": 51.90821,
+      "duration": 0.20853,
+      "confidence": 0.261,
+      "loudness_start": -4.58,
+      "loudness_max_time": 0.00608,
+      "loudness_max": 0.167,
+      "pitches": [
+        0.869,
+        0.837,
+        0.571,
+        1,
+        0.558,
+        0.43,
+        0.346,
+        0.285,
+        0.125,
+        0.172,
+        0.502,
+        0.41
+      ],
+      "timbre": [
+        58.062,
+        45.494,
+        10.356,
+        -9.575,
+        14.714,
+        -55.707,
+        11.207,
+        7.351,
+        -8.827,
+        5.917,
+        -11.76,
+        -13.684
+      ]
+    },
+    {
+      "start": 52.11673,
+      "duration": 0.23841,
+      "confidence": 0.438,
+      "loudness_start": -5.497,
+      "loudness_max_time": 0.09179,
+      "loudness_max": -0.902,
+      "pitches": [
+        0.146,
+        0.356,
+        0.444,
+        1,
+        0.423,
+        0.102,
+        0.075,
+        0.11,
+        0.047,
+        0.125,
+        0.414,
+        0.148
+      ],
+      "timbre": [
+        56.999,
+        81.733,
+        26.49,
+        -38.901,
+        5.878,
+        -17.255,
+        -26.413,
+        8.987,
+        17.996,
+        -5.983,
+        -3.418,
+        -22.388
+      ]
+    },
+    {
+      "start": 52.35515,
+      "duration": 0.38884,
+      "confidence": 0.025,
+      "loudness_start": -3.792,
+      "loudness_max_time": 0.04029,
+      "loudness_max": -0.622,
+      "pitches": [
+        0.682,
+        0.432,
+        0.5,
+        0.386,
+        0.281,
+        1,
+        0.395,
+        0.458,
+        0.405,
+        0.219,
+        0.165,
+        0.178
+      ],
+      "timbre": [
+        56.728,
+        64.955,
+        24.643,
+        4.405,
+        11.474,
+        -33.237,
+        -0.513,
+        -23.14,
+        3.402,
+        32.451,
+        -14.306,
+        -16.507
+      ]
+    },
+    {
+      "start": 52.74399,
+      "duration": 0.30889,
+      "confidence": 0.589,
+      "loudness_start": -7.03,
+      "loudness_max_time": 0.1208,
+      "loudness_max": -0.091,
+      "pitches": [
+        0.492,
+        0.324,
+        0.142,
+        0.245,
+        0.231,
+        1,
+        0.647,
+        0.376,
+        0.295,
+        0.247,
+        0.257,
+        0.308
+      ],
+      "timbre": [
+        57.559,
+        39.766,
+        8.426,
+        -10.02,
+        22.803,
+        -23.956,
+        -0.647,
+        -6.532,
+        -13.396,
+        8.811,
+        -8.07,
+        5.402
+      ]
+    },
+    {
+      "start": 53.05288,
+      "duration": 0.27714,
+      "confidence": 0.451,
+      "loudness_start": -6.821,
+      "loudness_max_time": 0.08509,
+      "loudness_max": -2.051,
+      "pitches": [
+        0.434,
+        0.151,
+        0.394,
+        0.147,
+        0.226,
+        1,
+        0.382,
+        0.534,
+        0.123,
+        0.137,
+        0.098,
+        0.181
+      ],
+      "timbre": [
+        55.09,
+        28.589,
+        17.18,
+        -50.788,
+        22.116,
+        -23.976,
+        -26.432,
+        6.543,
+        -6.362,
+        5.496,
+        -6.747,
+        -17.277
+      ]
+    },
+    {
+      "start": 53.33002,
+      "duration": 0.29066,
+      "confidence": 0.165,
+      "loudness_start": -6.361,
+      "loudness_max_time": 0.04447,
+      "loudness_max": -3.339,
+      "pitches": [
+        0.491,
+        0.607,
+        0.396,
+        0.227,
+        0.134,
+        0.165,
+        0.303,
+        1,
+        0.175,
+        0.062,
+        0.086,
+        0.266
+      ],
+      "timbre": [
+        54.731,
+        68.26,
+        -19.041,
+        -3.504,
+        3.127,
+        -34.73,
+        -29.266,
+        -1.18,
+        1.682,
+        9.151,
+        -27.981,
+        -18.751
+      ]
+    },
+    {
+      "start": 53.62068,
+      "duration": 0.12195,
+      "confidence": 0.396,
+      "loudness_start": -8.979,
+      "loudness_max_time": 0.05291,
+      "loudness_max": -4.981,
+      "pitches": [
+        0.087,
+        0.155,
+        0.328,
+        0.128,
+        0.21,
+        0.365,
+        0.414,
+        1,
+        0.274,
+        0.127,
+        0.127,
+        0.143
+      ],
+      "timbre": [
+        53.285,
+        91.858,
+        -22.474,
+        -42.195,
+        18.653,
+        -30.03,
+        -22.949,
+        13.382,
+        40.739,
+        -4.929,
+        -10.098,
+        -2.621
+      ]
+    },
+    {
+      "start": 53.74263,
+      "duration": 0.26077,
+      "confidence": 0.682,
+      "loudness_start": -7.829,
+      "loudness_max_time": 0.07589,
+      "loudness_max": 0.86,
+      "pitches": [
+        0.715,
+        0.873,
+        0.537,
+        0.341,
+        0.234,
+        0.726,
+        1,
+        0.847,
+        0.292,
+        0.179,
+        0.183,
+        0.477
+      ],
+      "timbre": [
+        56.661,
+        100.969,
+        1.154,
+        -60.297,
+        7.931,
+        -15.246,
+        -7.024,
+        -34.828,
+        -3.856,
+        30.305,
+        -5.415,
+        13.372
+      ]
+    },
+    {
+      "start": 54.0034,
+      "duration": 0.25578,
+      "confidence": 0.278,
+      "loudness_start": -3.644,
+      "loudness_max_time": 0.06371,
+      "loudness_max": 0.113,
+      "pitches": [
+        0.053,
+        0.05,
+        0.256,
+        0.049,
+        0.035,
+        0.059,
+        0.237,
+        1,
+        0.188,
+        0.076,
+        0.059,
+        0.118
+      ],
+      "timbre": [
+        56.58,
+        81.697,
+        25.772,
+        34.003,
+        31.584,
+        -33.758,
+        39.797,
+        16.783,
+        -11.448,
+        -1.059,
+        -31.845,
+        -4.013
+      ]
+    },
+    {
+      "start": 54.25918,
+      "duration": 0.46993,
+      "confidence": 0.528,
+      "loudness_start": -7.695,
+      "loudness_max_time": 0.28558,
+      "loudness_max": -1.804,
+      "pitches": [
+        0.272,
+        0.234,
+        0.411,
+        0.222,
+        0.373,
+        0.428,
+        0.586,
+        1,
+        0.373,
+        0.249,
+        0.38,
+        0.249
+      ],
+      "timbre": [
+        55.841,
+        85.262,
+        17.281,
+        -32.169,
+        23.064,
+        -21.534,
+        28.917,
+        -28.195,
+        -20.003,
+        13.225,
+        -16.061,
+        7.295
+      ]
+    },
+    {
+      "start": 54.72912,
+      "duration": 0.51111,
+      "confidence": 0.585,
+      "loudness_start": -6.858,
+      "loudness_max_time": 0.15998,
+      "loudness_max": -0.454,
+      "pitches": [
+        0.265,
+        0.247,
+        0.414,
+        0.163,
+        0.286,
+        0.663,
+        0.758,
+        0.789,
+        0.682,
+        0.753,
+        1,
+        0.284
+      ],
+      "timbre": [
+        57.287,
+        45.981,
+        -2.937,
+        -30.45,
+        20.412,
+        -16.785,
+        2.555,
+        7.487,
+        -7.253,
+        -4.262,
+        -6.459,
+        11.643
+      ]
+    },
+    {
+      "start": 55.24023,
+      "duration": 0.23247,
+      "confidence": 0.371,
+      "loudness_start": -6.429,
+      "loudness_max_time": 0.10134,
+      "loudness_max": -1.511,
+      "pitches": [
+        1,
+        0.928,
+        0.398,
+        0.128,
+        0.187,
+        0.139,
+        0.328,
+        0.779,
+        0.171,
+        0.047,
+        0.045,
+        0.26
+      ],
+      "timbre": [
+        56.816,
+        55.518,
+        29.602,
+        -21.081,
+        13.558,
+        -35.922,
+        34.472,
+        3.19,
+        -20.604,
+        12.902,
+        -3.744,
+        11.44
+      ]
+    },
+    {
+      "start": 55.4727,
+      "duration": 0.23855,
+      "confidence": 0.046,
+      "loudness_start": -4.783,
+      "loudness_max_time": 0.12085,
+      "loudness_max": -1.32,
+      "pitches": [
+        0.048,
+        0.032,
+        0.247,
+        0.034,
+        0.025,
+        0.212,
+        0.218,
+        1,
+        0.209,
+        0.053,
+        0.462,
+        0.089
+      ],
+      "timbre": [
+        56.843,
+        42.651,
+        38.467,
+        -21.573,
+        34.049,
+        -39.437,
+        20.04,
+        17.457,
+        4.735,
+        3.481,
+        -8.531,
+        9.469
+      ]
+    },
+    {
+      "start": 55.71125,
+      "duration": 0.45769,
+      "confidence": 0.358,
+      "loudness_start": -4.135,
+      "loudness_max_time": 0.00975,
+      "loudness_max": 0.488,
+      "pitches": [
+        0.145,
+        0.166,
+        0.37,
+        0.3,
+        0.248,
+        0.209,
+        0.332,
+        1,
+        0.369,
+        0.091,
+        0.125,
+        0.218
+      ],
+      "timbre": [
+        57.897,
+        59.644,
+        -4.409,
+        -10.262,
+        15.719,
+        -53.418,
+        -11.157,
+        19.389,
+        -7.067,
+        -1.282,
+        -16.128,
+        8.521
+      ]
+    },
+    {
+      "start": 56.16893,
+      "duration": 0.22086,
+      "confidence": 0.478,
+      "loudness_start": -9.59,
+      "loudness_max_time": 0.10402,
+      "loudness_max": -4.617,
+      "pitches": [
+        0.881,
+        1,
+        0.878,
+        0.497,
+        0.244,
+        0.218,
+        0.602,
+        0.954,
+        0.224,
+        0.079,
+        0.158,
+        0.648
+      ],
+      "timbre": [
+        53.243,
+        72.109,
+        -17.037,
+        -40.364,
+        8.36,
+        -22.824,
+        -3.216,
+        1.467,
+        -5.374,
+        4.516,
+        -4.117,
+        -29.967
+      ]
+    },
+    {
+      "start": 56.3898,
+      "duration": 0.26132,
+      "confidence": 0.635,
+      "loudness_start": -8.215,
+      "loudness_max_time": 0.11375,
+      "loudness_max": -1.016,
+      "pitches": [
+        0.283,
+        0.267,
+        0.357,
+        0.165,
+        0.147,
+        0.198,
+        0.238,
+        1,
+        0.383,
+        0.124,
+        0.11,
+        0.323
+      ],
+      "timbre": [
+        54.851,
+        87.786,
+        -6.215,
+        -46.883,
+        2.994,
+        -8.515,
+        -29.241,
+        -1.756,
+        4.706,
+        -4.154,
+        -29.997,
+        -10.294
+      ]
+    },
+    {
+      "start": 56.65111,
+      "duration": 0.2317,
+      "confidence": 0.778,
+      "loudness_start": -7.803,
+      "loudness_max_time": 0.02363,
+      "loudness_max": 1.167,
+      "pitches": [
+        0.402,
+        0.471,
+        0.506,
+        0.233,
+        0.192,
+        0.592,
+        0.661,
+        1,
+        0.52,
+        0.137,
+        0.272,
+        0.51
+      ],
+      "timbre": [
+        57.524,
+        60.952,
+        -0.824,
+        -0.168,
+        4.768,
+        -19.574,
+        3.608,
+        1.899,
+        -21.871,
+        14.016,
+        14.014,
+        -6.198
+      ]
+    },
+    {
+      "start": 56.88281,
+      "duration": 0.2556,
+      "confidence": 0.354,
+      "loudness_start": -6.756,
+      "loudness_max_time": 0.06979,
+      "loudness_max": -2.645,
+      "pitches": [
+        0.422,
+        0.19,
+        0.222,
+        0.151,
+        0.17,
+        1,
+        0.327,
+        0.485,
+        0.247,
+        0.139,
+        0.084,
+        0.207
+      ],
+      "timbre": [
+        56.263,
+        87.966,
+        14.502,
+        -29.778,
+        5.424,
+        -28.833,
+        -28.265,
+        -7.154,
+        -0.483,
+        11.635,
+        -6.443,
+        -22.186
+      ]
+    },
+    {
+      "start": 57.13841,
+      "duration": 0.25011,
+      "confidence": 0.271,
+      "loudness_start": -4.46,
+      "loudness_max_time": 0.10948,
+      "loudness_max": 0.097,
+      "pitches": [
+        0.687,
+        1,
+        0.426,
+        0.14,
+        0.09,
+        0.227,
+        0.299,
+        0.817,
+        0.201,
+        0.108,
+        0.558,
+        0.302
+      ],
+      "timbre": [
+        57.049,
+        72.906,
+        9.381,
+        -24.167,
+        -1.737,
+        -31.81,
+        -13.001,
+        2.017,
+        -2.867,
+        5.718,
+        -18.069,
+        -9.565
+      ]
+    },
+    {
+      "start": 57.38853,
+      "duration": 0.22576,
+      "confidence": 0.451,
+      "loudness_start": -6.534,
+      "loudness_max_time": 0.10689,
+      "loudness_max": -0.829,
+      "pitches": [
+        0.321,
+        0.062,
+        0.147,
+        0.028,
+        0.169,
+        0.046,
+        0.19,
+        1,
+        0.218,
+        0.025,
+        0.051,
+        0.041
+      ],
+      "timbre": [
+        57.761,
+        60.622,
+        44.173,
+        -9.933,
+        26.789,
+        -35.34,
+        27.492,
+        -13.024,
+        -13.76,
+        -11.523,
+        1.625,
+        10.899
+      ]
+    },
+    {
+      "start": 57.61429,
+      "duration": 0.18639,
+      "confidence": 0.303,
+      "loudness_start": -3.475,
+      "loudness_max_time": 0.0121,
+      "loudness_max": 1.384,
+      "pitches": [
+        0.989,
+        1,
+        0.641,
+        0.457,
+        0.322,
+        0.671,
+        0.806,
+        0.749,
+        0.265,
+        0.163,
+        0.242,
+        0.443
+      ],
+      "timbre": [
+        58.89,
+        53.985,
+        11.891,
+        -10.248,
+        10.39,
+        -56.457,
+        6.059,
+        5.43,
+        -15.511,
+        0.211,
+        -3.061,
+        1.513
+      ]
+    },
+    {
+      "start": 57.80068,
+      "duration": 0.4458,
+      "confidence": 0.164,
+      "loudness_start": -3.46,
+      "loudness_max_time": 0.05329,
+      "loudness_max": -0.234,
+      "pitches": [
+        0.287,
+        0.231,
+        0.533,
+        0.202,
+        0.21,
+        0.327,
+        0.517,
+        1,
+        0.448,
+        0.351,
+        0.297,
+        0.343
+      ],
+      "timbre": [
+        56.49,
+        62.442,
+        14.7,
+        28.862,
+        22.644,
+        -33.661,
+        2.299,
+        16.378,
+        7.853,
+        -11.264,
+        -22.999,
+        -14.81
+      ]
+    },
+    {
+      "start": 58.24649,
+      "duration": 0.17506,
+      "confidence": 0.496,
+      "loudness_start": -8.579,
+      "loudness_max_time": 0.11258,
+      "loudness_max": -2.122,
+      "pitches": [
+        0.286,
+        0.217,
+        0.5,
+        0.274,
+        0.435,
+        0.526,
+        0.788,
+        1,
+        0.71,
+        0.786,
+        0.469,
+        0.335
+      ],
+      "timbre": [
+        55.262,
+        66.857,
+        20.776,
+        -54.059,
+        9.583,
+        -22.388,
+        3.179,
+        -7.091,
+        -9.616,
+        8.86,
+        4.461,
+        1.398
+      ]
+    },
+    {
+      "start": 58.42154,
+      "duration": 0.14485,
+      "confidence": 0.073,
+      "loudness_start": -4.569,
+      "loudness_max_time": 0.04815,
+      "loudness_max": -1.729,
+      "pitches": [
+        0.802,
+        1,
+        0.608,
+        0.48,
+        0.763,
+        0.716,
+        0.936,
+        0.946,
+        0.937,
+        0.966,
+        0.755,
+        0.127
+      ],
+      "timbre": [
+        55.942,
+        86.19,
+        19.36,
+        14.584,
+        12.159,
+        -31.172,
+        28.638,
+        6.388,
+        -4.366,
+        2.644,
+        -30.496,
+        -15.689
+      ]
+    },
+    {
+      "start": 58.56639,
+      "duration": 0.23238,
+      "confidence": 0.527,
+      "loudness_start": -7.924,
+      "loudness_max_time": 0.01304,
+      "loudness_max": -0.918,
+      "pitches": [
+        0.688,
+        0.328,
+        0.396,
+        0.156,
+        0.179,
+        0.363,
+        0.49,
+        1,
+        0.358,
+        0.104,
+        0.12,
+        0.416
+      ],
+      "timbre": [
+        56.781,
+        51.588,
+        -13.34,
+        -15.932,
+        16.734,
+        -41.318,
+        -9.748,
+        -7.185,
+        -19.027,
+        11.116,
+        -18.718,
+        -5.332
+      ]
+    },
+    {
+      "start": 58.79878,
+      "duration": 0.23764,
+      "confidence": 0.701,
+      "loudness_start": -8.396,
+      "loudness_max_time": 0.10709,
+      "loudness_max": -1.003,
+      "pitches": [
+        0.967,
+        0.866,
+        0.322,
+        0.169,
+        0.25,
+        1,
+        0.212,
+        0.128,
+        0.106,
+        0.171,
+        0.468,
+        0.288
+      ],
+      "timbre": [
+        56.226,
+        55.093,
+        2.595,
+        -16.9,
+        24.081,
+        -2.416,
+        6.41,
+        -17.61,
+        8.167,
+        9.709,
+        -9.02,
+        -2.112
+      ]
+    },
+    {
+      "start": 59.03642,
+      "duration": 0.22717,
+      "confidence": 0.535,
+      "loudness_start": -7.568,
+      "loudness_max_time": 0.04702,
+      "loudness_max": -1.632,
+      "pitches": [
+        0.854,
+        0.798,
+        0.472,
+        1,
+        0.46,
+        0.125,
+        0.164,
+        0.302,
+        0.093,
+        0.16,
+        0.585,
+        0.55
+      ],
+      "timbre": [
+        56.359,
+        39.857,
+        13.349,
+        -4.218,
+        34.594,
+        -25.637,
+        17.737,
+        11.355,
+        -1.349,
+        4.205,
+        -6.057,
+        -8.147
+      ]
+    },
+    {
+      "start": 59.26358,
+      "duration": 0.24299,
+      "confidence": 0.597,
+      "loudness_start": -8.166,
+      "loudness_max_time": 0.13069,
+      "loudness_max": -1.903,
+      "pitches": [
+        0.113,
+        0.079,
+        0.256,
+        1,
+        0.417,
+        0.233,
+        0.039,
+        0.075,
+        0.044,
+        0.106,
+        0.689,
+        0.165
+      ],
+      "timbre": [
+        55.597,
+        78.108,
+        14.776,
+        -31.728,
+        22.486,
+        -4.485,
+        -8.815,
+        -4.045,
+        -16.233,
+        18.377,
+        -23.855,
+        -27.415
+      ]
+    },
+    {
+      "start": 59.50658,
+      "duration": 0.25578,
+      "confidence": 0.734,
+      "loudness_start": -9.588,
+      "loudness_max_time": 0.02444,
+      "loudness_max": 0.504,
+      "pitches": [
+        0.773,
+        1,
+        0.331,
+        0.766,
+        0.309,
+        0.456,
+        0.328,
+        0.235,
+        0.15,
+        0.166,
+        0.534,
+        0.415
+      ],
+      "timbre": [
+        56.438,
+        64.92,
+        -22.627,
+        -4.555,
+        3.972,
+        -12.375,
+        -14.113,
+        21.581,
+        -22.542,
+        7.628,
+        20.463,
+        -13.215
+      ]
+    },
+    {
+      "start": 59.76236,
+      "duration": 0.23719,
+      "confidence": 0.393,
+      "loudness_start": -5.976,
+      "loudness_max_time": 0.0334,
+      "loudness_max": -2.387,
+      "pitches": [
+        0.236,
+        0.24,
+        0.49,
+        1,
+        0.445,
+        0.083,
+        0.096,
+        0.111,
+        0.115,
+        0.201,
+        0.402,
+        0.176
+      ],
+      "timbre": [
+        56.061,
+        37.109,
+        21.857,
+        -5.158,
+        30.102,
+        -31.365,
+        11.723,
+        -16.072,
+        -19.999,
+        25.796,
+        -10.805,
+        2.876
+      ]
+    },
+    {
+      "start": 59.99955,
+      "duration": 0.2327,
+      "confidence": 0.401,
+      "loudness_start": -5.44,
+      "loudness_max_time": 0.08968,
+      "loudness_max": -1.403,
+      "pitches": [
+        1,
+        0.796,
+        0.367,
+        0.322,
+        0.361,
+        0.534,
+        0.245,
+        0.205,
+        0.093,
+        0.117,
+        0.075,
+        0.289
+      ],
+      "timbre": [
+        56.861,
+        42.917,
+        27.136,
+        -14.834,
+        15.372,
+        -25.394,
+        21.724,
+        14.176,
+        -12.701,
+        3.252,
+        -13.488,
+        8.037
+      ]
+    },
+    {
+      "start": 60.23224,
+      "duration": 0.21556,
+      "confidence": 0.135,
+      "loudness_start": -6.985,
+      "loudness_max_time": 0.02493,
+      "loudness_max": -2.602,
+      "pitches": [
+        0.615,
+        0.498,
+        0.336,
+        0.249,
+        0.354,
+        1,
+        0.4,
+        0.196,
+        0.134,
+        0.184,
+        0.163,
+        0.334
+      ],
+      "timbre": [
+        55.983,
+        117.357,
+        1.315,
+        -17.433,
+        28.857,
+        -45.88,
+        11.918,
+        -17.762,
+        16.452,
+        15.282,
+        -13.461,
+        -13.5
+      ]
+    },
+    {
+      "start": 60.4478,
+      "duration": 0.27723,
+      "confidence": 0.324,
+      "loudness_start": -4.618,
+      "loudness_max_time": 0.03752,
+      "loudness_max": -0.643,
+      "pitches": [
+        0.459,
+        0.366,
+        0.168,
+        0.158,
+        0.196,
+        1,
+        0.376,
+        0.108,
+        0.104,
+        0.125,
+        0.203,
+        0.234
+      ],
+      "timbre": [
+        56.494,
+        77.612,
+        -36.618,
+        -13.177,
+        20.941,
+        -50.056,
+        -29.463,
+        18.668,
+        -9.89,
+        3.221,
+        0.205,
+        -13.683
+      ]
+    },
+    {
+      "start": 60.72503,
+      "duration": 0.22757,
+      "confidence": 0.51,
+      "loudness_start": -6.736,
+      "loudness_max_time": 0.042,
+      "loudness_max": -1.907,
+      "pitches": [
+        0.413,
+        0.143,
+        0.145,
+        0.088,
+        0.219,
+        1,
+        0.347,
+        0.495,
+        0.081,
+        0.137,
+        0.121,
+        0.183
+      ],
+      "timbre": [
+        56.563,
+        66.603,
+        25.816,
+        -10.231,
+        5.162,
+        -28.454,
+        -13.089,
+        0.088,
+        -17.354,
+        15.098,
+        -0.163,
+        -12.737
+      ]
+    },
+    {
+      "start": 60.95261,
+      "duration": 0.45374,
+      "confidence": 0.092,
+      "loudness_start": -5.203,
+      "loudness_max_time": 0.04711,
+      "loudness_max": -2.548,
+      "pitches": [
+        0.079,
+        0.09,
+        0.271,
+        0.174,
+        0.127,
+        0.146,
+        0.219,
+        1,
+        0.31,
+        0.1,
+        0.119,
+        0.101
+      ],
+      "timbre": [
+        54.935,
+        55.311,
+        -10.81,
+        10.232,
+        -4.75,
+        -38.333,
+        -36.291,
+        10.66,
+        1.513,
+        3.92,
+        -24.963,
+        -19.4
+      ]
+    },
+    {
+      "start": 61.40635,
+      "duration": 0.16145,
+      "confidence": 0.825,
+      "loudness_start": -10.946,
+      "loudness_max_time": 0.03055,
+      "loudness_max": -0.364,
+      "pitches": [
+        0.529,
+        0.703,
+        0.593,
+        0.582,
+        0.682,
+        0.887,
+        0.998,
+        1,
+        0.658,
+        0.609,
+        0.469,
+        0.168
+      ],
+      "timbre": [
+        55.12,
+        55.378,
+        -34.936,
+        -19.735,
+        6.073,
+        -6.315,
+        -2.513,
+        0.669,
+        -6.43,
+        2.331,
+        31.794,
+        -6.293
+      ]
+    },
+    {
+      "start": 61.5678,
+      "duration": 0.3361,
+      "confidence": 0.298,
+      "loudness_start": -6.624,
+      "loudness_max_time": 0.10497,
+      "loudness_max": -2.938,
+      "pitches": [
+        0.057,
+        0.044,
+        0.241,
+        0.033,
+        0.031,
+        0.063,
+        0.133,
+        1,
+        0.115,
+        0.055,
+        0.39,
+        0.171
+      ],
+      "timbre": [
+        55.276,
+        85.364,
+        -13.349,
+        -20.694,
+        5.609,
+        -20.454,
+        -33.045,
+        -28.518,
+        5.613,
+        4.418,
+        -16.319,
+        1.518
+      ]
+    },
+    {
+      "start": 61.9039,
+      "duration": 0.16376,
+      "confidence": 0.585,
+      "loudness_start": -7.233,
+      "loudness_max_time": 0.11207,
+      "loudness_max": -2.356,
+      "pitches": [
+        0.865,
+        0.758,
+        0.538,
+        0.475,
+        0.263,
+        0.284,
+        0.87,
+        1,
+        0.931,
+        0.943,
+        0.596,
+        0.178
+      ],
+      "timbre": [
+        57,
+        53.263,
+        14.678,
+        -32.075,
+        15.808,
+        -40.066,
+        -3.894,
+        10.863,
+        -2.812,
+        3.25,
+        2.751,
+        -9.469
+      ]
+    },
+    {
+      "start": 62.06766,
+      "duration": 0.27714,
+      "confidence": 0.034,
+      "loudness_start": -3.207,
+      "loudness_max_time": 0.0457,
+      "loudness_max": -1.453,
+      "pitches": [
+        0.44,
+        0.322,
+        0.279,
+        0.118,
+        0.103,
+        0.23,
+        0.293,
+        1,
+        0.333,
+        0.091,
+        0.158,
+        0.214
+      ],
+      "timbre": [
+        57.225,
+        83.881,
+        20.616,
+        4.24,
+        40.743,
+        -39.664,
+        17.016,
+        9.487,
+        -8.099,
+        -0.835,
+        -25.39,
+        -3.094
+      ]
+    },
+    {
+      "start": 62.34481,
+      "duration": 0.25619,
+      "confidence": 0.742,
+      "loudness_start": -9.141,
+      "loudness_max_time": 0.04294,
+      "loudness_max": -0.405,
+      "pitches": [
+        0.519,
+        0.361,
+        0.191,
+        0.185,
+        0.278,
+        1,
+        0.547,
+        0.323,
+        0.202,
+        0.181,
+        0.29,
+        0.417
+      ],
+      "timbre": [
+        55.624,
+        61.918,
+        -15.209,
+        -35.565,
+        24.21,
+        -1.051,
+        1.997,
+        -12.621,
+        -18.358,
+        18.267,
+        -8.275,
+        -12.392
+      ]
+    },
+    {
+      "start": 62.601,
+      "duration": 0.2556,
+      "confidence": 0.476,
+      "loudness_start": -5.24,
+      "loudness_max_time": 0.14031,
+      "loudness_max": 0.015,
+      "pitches": [
+        0.347,
+        0.186,
+        0.15,
+        0.125,
+        0.197,
+        1,
+        0.594,
+        0.46,
+        0.282,
+        0.293,
+        0.347,
+        0.24
+      ],
+      "timbre": [
+        57.839,
+        46.464,
+        -0.531,
+        -39.873,
+        10.893,
+        -29.884,
+        -21.208,
+        9.902,
+        -7.668,
+        5.35,
+        11.642,
+        -12.595
+      ]
+    },
+    {
+      "start": 62.8566,
+      "duration": 0.43556,
+      "confidence": 0.413,
+      "loudness_start": -3.534,
+      "loudness_max_time": 0.04103,
+      "loudness_max": 0.631,
+      "pitches": [
+        0.269,
+        0.348,
+        0.552,
+        1,
+        0.59,
+        0.416,
+        0.379,
+        0.483,
+        0.524,
+        0.41,
+        0.965,
+        0.272
+      ],
+      "timbre": [
+        58.592,
+        74.883,
+        20.389,
+        -1.206,
+        7.207,
+        -23.522,
+        -34.157,
+        -6.874,
+        -1.365,
+        12.636,
+        -9.701,
+        -16.83
+      ]
+    },
+    {
+      "start": 63.29215,
+      "duration": 0.29007,
+      "confidence": 0.317,
+      "loudness_start": -3.819,
+      "loudness_max_time": 0.04905,
+      "loudness_max": 0.055,
+      "pitches": [
+        0.168,
+        0.213,
+        0.269,
+        1,
+        0.478,
+        0.697,
+        0.624,
+        0.281,
+        0.215,
+        0.269,
+        0.692,
+        0.276
+      ],
+      "timbre": [
+        57.707,
+        82.691,
+        17.654,
+        -15.574,
+        23.331,
+        -38.668,
+        1.03,
+        19.556,
+        -3.792,
+        3.4,
+        0.712,
+        0.553
+      ]
+    },
+    {
+      "start": 63.58222,
+      "duration": 0.22626,
+      "confidence": 0.396,
+      "loudness_start": -3.575,
+      "loudness_max_time": 0.02532,
+      "loudness_max": 1.434,
+      "pitches": [
+        0.121,
+        0.223,
+        0.479,
+        1,
+        0.641,
+        0.835,
+        0.442,
+        0.246,
+        0.185,
+        0.262,
+        0.741,
+        0.275
+      ],
+      "timbre": [
+        58.905,
+        71.495,
+        45.598,
+        10.348,
+        20.502,
+        -40.136,
+        18.469,
+        0.97,
+        -22.718,
+        0.075,
+        7.373,
+        14.111
+      ]
+    },
+    {
+      "start": 63.80848,
+      "duration": 0.34204,
+      "confidence": 0.111,
+      "loudness_start": -2.648,
+      "loudness_max_time": 0.25589,
+      "loudness_max": 0.702,
+      "pitches": [
+        1,
+        0.913,
+        0.533,
+        0.94,
+        0.433,
+        0.257,
+        0.228,
+        0.292,
+        0.091,
+        0.16,
+        0.661,
+        0.353
+      ],
+      "timbre": [
+        59.183,
+        89.194,
+        51.416,
+        -1.807,
+        12.232,
+        -44.929,
+        43.976,
+        4.135,
+        -17.249,
+        5.595,
+        -6.022,
+        12.429
+      ]
+    },
+    {
+      "start": 64.15052,
+      "duration": 0.09247,
+      "confidence": 0.214,
+      "loudness_start": -4.608,
+      "loudness_max_time": 0.0224,
+      "loudness_max": -0.786,
+      "pitches": [
+        0.704,
+        0.926,
+        1,
+        0.904,
+        0.644,
+        0.695,
+        0.416,
+        0.396,
+        0.608,
+        0.627,
+        0.943,
+        0.663
+      ],
+      "timbre": [
+        58.268,
+        72.751,
+        49.788,
+        -9.117,
+        8.937,
+        -33.055,
+        -9.187,
+        1.193,
+        -7.985,
+        8.527,
+        0.338,
+        -11.84
+      ]
+    },
+    {
+      "start": 64.24299,
+      "duration": 0.29107,
+      "confidence": 0.189,
+      "loudness_start": -2.546,
+      "loudness_max_time": 0.05173,
+      "loudness_max": 0.764,
+      "pitches": [
+        0.331,
+        0.319,
+        0.395,
+        1,
+        0.489,
+        0.828,
+        0.744,
+        0.487,
+        0.265,
+        0.274,
+        0.701,
+        0.284
+      ],
+      "timbre": [
+        58.005,
+        84.893,
+        17.19,
+        -7.315,
+        0.951,
+        -26.623,
+        -14.399,
+        18.407,
+        -13.23,
+        -2.193,
+        -10.57,
+        -0.183
+      ]
+    },
+    {
+      "start": 64.53406,
+      "duration": 0.2322,
+      "confidence": 0.529,
+      "loudness_start": -4.863,
+      "loudness_max_time": 0.03967,
+      "loudness_max": 0.776,
+      "pitches": [
+        0.363,
+        0.193,
+        0.32,
+        1,
+        0.562,
+        0.447,
+        0.206,
+        0.181,
+        0.083,
+        0.2,
+        0.817,
+        0.203
+      ],
+      "timbre": [
+        58.373,
+        103.881,
+        30.75,
+        -15.968,
+        -2.148,
+        -15.272,
+        -39.245,
+        -17.519,
+        -9.485,
+        6.132,
+        12.553,
+        -22.891
+      ]
+    },
+    {
+      "start": 64.76626,
+      "duration": 0.44127,
+      "confidence": 0.315,
+      "loudness_start": -2.531,
+      "loudness_max_time": 0.05357,
+      "loudness_max": 1.328,
+      "pitches": [
+        0.144,
+        0.156,
+        0.349,
+        0.118,
+        0.097,
+        0.166,
+        0.329,
+        1,
+        0.572,
+        0.141,
+        0.283,
+        0.168
+      ],
+      "timbre": [
+        59.7,
+        109.533,
+        42.192,
+        -12.076,
+        -30.359,
+        -22.112,
+        -29.219,
+        7.001,
+        -7.366,
+        3.792,
+        -10.789,
+        -22.955
+      ]
+    },
+    {
+      "start": 65.20753,
+      "duration": 0.28422,
+      "confidence": 0.201,
+      "loudness_start": -3.293,
+      "loudness_max_time": 0.03595,
+      "loudness_max": 0.069,
+      "pitches": [
+        0.1,
+        0.094,
+        0.284,
+        0.103,
+        0.092,
+        0.534,
+        0.512,
+        1,
+        0.238,
+        0.155,
+        0.114,
+        0.121
+      ],
+      "timbre": [
+        57.882,
+        95.118,
+        9.495,
+        -11.693,
+        3.425,
+        -36.576,
+        2.772,
+        2.703,
+        -19.037,
+        18.162,
+        -1.455,
+        10.68
+      ]
+    },
+    {
+      "start": 65.49175,
+      "duration": 0.18567,
+      "confidence": 0.321,
+      "loudness_start": -3.734,
+      "loudness_max_time": 0.12073,
+      "loudness_max": -0.3,
+      "pitches": [
+        0.189,
+        0.258,
+        0.529,
+        0.216,
+        0.433,
+        0.842,
+        1,
+        0.652,
+        0.452,
+        0.722,
+        0.597,
+        0.321
+      ],
+      "timbre": [
+        58.302,
+        52.273,
+        27.685,
+        -5.549,
+        11.413,
+        -36.588,
+        -19.595,
+        -9.736,
+        -14.638,
+        5.933,
+        -9.118,
+        10.759
+      ]
+    },
+    {
+      "start": 65.67741,
+      "duration": 0.50544,
+      "confidence": 0.257,
+      "loudness_start": -4.193,
+      "loudness_max_time": 0.28627,
+      "loudness_max": 1.015,
+      "pitches": [
+        0.305,
+        0.373,
+        0.623,
+        0.391,
+        0.511,
+        0.325,
+        0.473,
+        1,
+        0.398,
+        0.212,
+        0.262,
+        0.309
+      ],
+      "timbre": [
+        58.903,
+        79.532,
+        43.343,
+        -32.33,
+        27.543,
+        -35.52,
+        5.579,
+        11.29,
+        -7.502,
+        9.726,
+        -3.733,
+        4.703
+      ]
+    },
+    {
+      "start": 66.18286,
+      "duration": 0.25515,
+      "confidence": 0.223,
+      "loudness_start": -2.261,
+      "loudness_max_time": 0.01621,
+      "loudness_max": 1.125,
+      "pitches": [
+        0.135,
+        0.122,
+        0.466,
+        0.123,
+        0.082,
+        0.301,
+        0.482,
+        1,
+        0.216,
+        0.167,
+        0.081,
+        0.255
+      ],
+      "timbre": [
+        59.203,
+        82.815,
+        14.043,
+        -3.431,
+        1.549,
+        -41.412,
+        -6.224,
+        19.621,
+        -24.466,
+        -2.504,
+        -12.03,
+        -1.343
+      ]
+    },
+    {
+      "start": 66.438,
+      "duration": 0.47034,
+      "confidence": 0.212,
+      "loudness_start": -4.377,
+      "loudness_max_time": 0.2838,
+      "loudness_max": -0.21,
+      "pitches": [
+        0.525,
+        0.518,
+        0.442,
+        0.414,
+        0.386,
+        0.603,
+        0.573,
+        1,
+        0.442,
+        0.394,
+        0.388,
+        0.514
+      ],
+      "timbre": [
+        58.402,
+        59.806,
+        45.407,
+        -20.643,
+        -1.733,
+        -38.115,
+        3.826,
+        9.631,
+        -14.269,
+        2.928,
+        6.008,
+        -7.638
+      ]
+    },
+    {
+      "start": 66.90834,
+      "duration": 0.21492,
+      "confidence": 0.259,
+      "loudness_start": -2.072,
+      "loudness_max_time": 0.11113,
+      "loudness_max": 1.121,
+      "pitches": [
+        0.632,
+        1,
+        0.601,
+        0.21,
+        0.088,
+        0.041,
+        0.148,
+        0.095,
+        0.1,
+        0.297,
+        0.156,
+        0.09
+      ],
+      "timbre": [
+        59.707,
+        90.556,
+        45.015,
+        -2.146,
+        25.724,
+        -38.509,
+        24.116,
+        8.476,
+        1.745,
+        0.743,
+        -10.679,
+        -14.853
+      ]
+    },
+    {
+      "start": 67.12327,
+      "duration": 0.26113,
+      "confidence": 0.165,
+      "loudness_start": -3.279,
+      "loudness_max_time": 0.02835,
+      "loudness_max": 0.505,
+      "pitches": [
+        0.221,
+        0.676,
+        1,
+        0.317,
+        0.116,
+        0.441,
+        0.578,
+        0.261,
+        0.188,
+        0.546,
+        0.227,
+        0.193
+      ],
+      "timbre": [
+        58.689,
+        55.866,
+        11.661,
+        -13.345,
+        46.193,
+        -48.134,
+        22.039,
+        18.313,
+        5.287,
+        7.335,
+        6.923,
+        11.781
+      ]
+    },
+    {
+      "start": 67.3844,
+      "duration": 0.18562,
+      "confidence": 0.367,
+      "loudness_start": -3.187,
+      "loudness_max_time": 0.02417,
+      "loudness_max": 1.186,
+      "pitches": [
+        0.539,
+        1,
+        0.775,
+        0.515,
+        0.107,
+        0.084,
+        0.613,
+        0.684,
+        0.73,
+        0.738,
+        0.303,
+        0.119
+      ],
+      "timbre": [
+        58.659,
+        86.191,
+        27.822,
+        17.154,
+        24.586,
+        -29.912,
+        30.794,
+        5.777,
+        -8.409,
+        -7.208,
+        -5.567,
+        3.643
+      ]
+    },
+    {
+      "start": 67.57002,
+      "duration": 0.51687,
+      "confidence": 0.423,
+      "loudness_start": -4.61,
+      "loudness_max_time": 0.43036,
+      "loudness_max": -0.303,
+      "pitches": [
+        0.691,
+        0.679,
+        0.992,
+        0.272,
+        0.491,
+        0.401,
+        1,
+        0.587,
+        0.359,
+        0.573,
+        0.469,
+        0.452
+      ],
+      "timbre": [
+        57.523,
+        65.674,
+        53.724,
+        -34.753,
+        11.195,
+        -25.251,
+        4.201,
+        -2.447,
+        -5.74,
+        -1.739,
+        -2.341,
+        -11.463
+      ]
+    },
+    {
+      "start": 68.08689,
+      "duration": 0.21447,
+      "confidence": 0.292,
+      "loudness_start": -2.365,
+      "loudness_max_time": 0.01355,
+      "loudness_max": 1.713,
+      "pitches": [
+        0.525,
+        1,
+        0.962,
+        0.499,
+        0.19,
+        0.731,
+        0.776,
+        0.318,
+        0.226,
+        0.728,
+        0.373,
+        0.18
+      ],
+      "timbre": [
+        58.938,
+        45.497,
+        18.842,
+        7.594,
+        24.825,
+        -49.931,
+        10.933,
+        11.381,
+        -12.155,
+        7.14,
+        -11.018,
+        21.079
+      ]
+    },
+    {
+      "start": 68.30136,
+      "duration": 0.20907,
+      "confidence": 0.488,
+      "loudness_start": -5.461,
+      "loudness_max_time": 0.09107,
+      "loudness_max": -0.467,
+      "pitches": [
+        0.469,
+        1,
+        0.42,
+        0.171,
+        0.089,
+        0.112,
+        0.107,
+        0.251,
+        0.156,
+        0.075,
+        0.057,
+        0.269
+      ],
+      "timbre": [
+        56.912,
+        69.954,
+        42.245,
+        -37.235,
+        14.651,
+        -23.421,
+        10.273,
+        -1.424,
+        -14.204,
+        5.692,
+        -1.185,
+        -5.943
+      ]
+    },
+    {
+      "start": 68.51043,
+      "duration": 0.16213,
+      "confidence": 0.213,
+      "loudness_start": -2.749,
+      "loudness_max_time": 0.06828,
+      "loudness_max": 0.463,
+      "pitches": [
+        0.602,
+        0.851,
+        0.213,
+        0.332,
+        0.632,
+        0.455,
+        0.596,
+        0.614,
+        0.758,
+        1,
+        0.785,
+        0.221
+      ],
+      "timbre": [
+        58.924,
+        94.975,
+        66.307,
+        -10.469,
+        -20.666,
+        -22.642,
+        -11.562,
+        5.354,
+        -12.915,
+        4.031,
+        -11.456,
+        -25.937
+      ]
+    },
+    {
+      "start": 68.67256,
+      "duration": 0.28481,
+      "confidence": 0.12,
+      "loudness_start": -1.548,
+      "loudness_max_time": 0.06447,
+      "loudness_max": 1.017,
+      "pitches": [
+        0.641,
+        1,
+        0.46,
+        0.381,
+        0.412,
+        0.284,
+        0.235,
+        0.243,
+        0.284,
+        0.447,
+        0.322,
+        0.352
+      ],
+      "timbre": [
+        59.255,
+        103.783,
+        44.989,
+        8.987,
+        -7.105,
+        -25.724,
+        -22.913,
+        -6.821,
+        -11.192,
+        -11.474,
+        -19.721,
+        -21.668
+      ]
+    },
+    {
+      "start": 68.95737,
+      "duration": 0.26154,
+      "confidence": 0.283,
+      "loudness_start": -3.911,
+      "loudness_max_time": 0.09842,
+      "loudness_max": 0.484,
+      "pitches": [
+        0.248,
+        0.489,
+        0.423,
+        0.342,
+        0.348,
+        0.925,
+        1,
+        0.652,
+        0.375,
+        0.414,
+        0.261,
+        0.28
+      ],
+      "timbre": [
+        58.258,
+        97.308,
+        31.827,
+        -35.368,
+        8.931,
+        -20.788,
+        -5.784,
+        -25.422,
+        -2.446,
+        -0.173,
+        0.255,
+        9.11
+      ]
+    },
+    {
+      "start": 69.21891,
+      "duration": 0.30122,
+      "confidence": 0.047,
+      "loudness_start": -1.777,
+      "loudness_max_time": 0.06391,
+      "loudness_max": 0.328,
+      "pitches": [
+        0.541,
+        1,
+        0.807,
+        0.157,
+        0.115,
+        0.173,
+        0.162,
+        0.223,
+        0.102,
+        0.201,
+        0.273,
+        0.265
+      ],
+      "timbre": [
+        58,
+        93.143,
+        38.092,
+        5.243,
+        33.243,
+        -35.918,
+        8.927,
+        10.362,
+        -22.56,
+        10.441,
+        -17.936,
+        1.926
+      ]
+    },
+    {
+      "start": 69.52014,
+      "duration": 0.42503,
+      "confidence": 0.491,
+      "loudness_start": -5.078,
+      "loudness_max_time": 0.11037,
+      "loudness_max": 0.317,
+      "pitches": [
+        0.732,
+        0.661,
+        0.737,
+        0.623,
+        0.557,
+        1,
+        0.71,
+        0.652,
+        0.508,
+        0.716,
+        0.405,
+        0.52
+      ],
+      "timbre": [
+        58.845,
+        45.943,
+        28.832,
+        -7.463,
+        17.536,
+        -41.154,
+        9.321,
+        -1.909,
+        4.045,
+        5.487,
+        -13.037,
+        16.896
+      ]
+    },
+    {
+      "start": 69.94517,
+      "duration": 0.48172,
+      "confidence": 0.521,
+      "loudness_start": -4.65,
+      "loudness_max_time": 0.0637,
+      "loudness_max": 0.707,
+      "pitches": [
+        0.259,
+        0.22,
+        0.439,
+        0.17,
+        0.193,
+        0.45,
+        0.356,
+        0.247,
+        0.219,
+        0.607,
+        1,
+        0.429
+      ],
+      "timbre": [
+        56.93,
+        73.67,
+        31.011,
+        0.912,
+        26.901,
+        -9.786,
+        0.549,
+        -17.785,
+        1.348,
+        -0.999,
+        -18.814,
+        3.801
+      ]
+    },
+    {
+      "start": 70.42689,
+      "duration": 0.42916,
+      "confidence": 0.836,
+      "loudness_start": -13.471,
+      "loudness_max_time": 0.09947,
+      "loudness_max": -1.536,
+      "pitches": [
+        0.368,
+        0.302,
+        0.509,
+        0.303,
+        0.168,
+        0.149,
+        0.183,
+        1,
+        0.465,
+        0.124,
+        0.12,
+        0.175
+      ],
+      "timbre": [
+        55.333,
+        96.94,
+        19.624,
+        -52.575,
+        26.261,
+        -13.361,
+        12.916,
+        -27.449,
+        20.128,
+        11.767,
+        -0.088,
+        5.527
+      ]
+    },
+    {
+      "start": 70.85605,
+      "duration": 0.09197,
+      "confidence": 0.033,
+      "loudness_start": -2.96,
+      "loudness_max_time": 0.00113,
+      "loudness_max": -0.954,
+      "pitches": [
+        0.081,
+        0.199,
+        0.182,
+        0.072,
+        0.382,
+        0.602,
+        1,
+        0.998,
+        0.576,
+        0.591,
+        0.25,
+        0.063
+      ],
+      "timbre": [
+        57.457,
+        72.4,
+        26.108,
+        -7.64,
+        45.211,
+        -57.606,
+        6.869,
+        -4.332,
+        18.39,
+        14.416,
+        -10.268,
+        23.865
+      ]
+    },
+    {
+      "start": 70.94803,
+      "duration": 0.45433,
+      "confidence": 0.175,
+      "loudness_start": -3.568,
+      "loudness_max_time": 0.01098,
+      "loudness_max": 0.225,
+      "pitches": [
+        0.17,
+        0.179,
+        0.424,
+        0.311,
+        0.281,
+        0.248,
+        0.33,
+        1,
+        0.376,
+        0.108,
+        0.142,
+        0.187
+      ],
+      "timbre": [
+        57.77,
+        71.748,
+        -6.59,
+        -6.88,
+        18.745,
+        -45.562,
+        -12.24,
+        16.497,
+        1.06,
+        4.601,
+        -21.77,
+        11.203
+      ]
+    },
+    {
+      "start": 71.40236,
+      "duration": 0.24281,
+      "confidence": 0.225,
+      "loudness_start": -7.954,
+      "loudness_max_time": 0.04629,
+      "loudness_max": -4.231,
+      "pitches": [
+        0.703,
+        0.875,
+        0.758,
+        0.337,
+        0.143,
+        0.187,
+        0.527,
+        1,
+        0.241,
+        0.094,
+        0.18,
+        0.655
+      ],
+      "timbre": [
+        53.537,
+        80.332,
+        -20.26,
+        -30.321,
+        20.435,
+        -36.604,
+        -10.841,
+        2.759,
+        -0.499,
+        13.243,
+        -8.204,
+        -28.153
+      ]
+    },
+    {
+      "start": 71.64517,
+      "duration": 0.25519,
+      "confidence": 0.628,
+      "loudness_start": -9.095,
+      "loudness_max_time": 0.02902,
+      "loudness_max": -3.169,
+      "pitches": [
+        0.772,
+        0.724,
+        0.609,
+        0.394,
+        0.382,
+        0.526,
+        0.334,
+        1,
+        0.719,
+        0.313,
+        0.235,
+        0.759
+      ],
+      "timbre": [
+        54.416,
+        98.251,
+        -14.668,
+        -16.587,
+        -3.229,
+        -6.534,
+        -20.809,
+        -12.053,
+        0.278,
+        12.184,
+        -5.551,
+        -18.171
+      ]
+    },
+    {
+      "start": 71.90036,
+      "duration": 0.23238,
+      "confidence": 0.76,
+      "loudness_start": -7.744,
+      "loudness_max_time": 0.01294,
+      "loudness_max": 0.16,
+      "pitches": [
+        0.342,
+        0.371,
+        0.412,
+        0.174,
+        0.159,
+        0.487,
+        0.543,
+        1,
+        0.404,
+        0.226,
+        0.596,
+        0.447
+      ],
+      "timbre": [
+        57.641,
+        61.445,
+        -13.877,
+        -6.462,
+        -7.094,
+        -34.005,
+        -22.57,
+        10.088,
+        -16.986,
+        -7.291,
+        -16.75,
+        2.967
+      ]
+    },
+    {
+      "start": 72.13274,
+      "duration": 0.2498,
+      "confidence": 0.501,
+      "loudness_start": -6.957,
+      "loudness_max_time": 0.08762,
+      "loudness_max": -1.987,
+      "pitches": [
+        0.453,
+        0.148,
+        0.152,
+        0.158,
+        0.151,
+        1,
+        0.29,
+        0.359,
+        0.289,
+        0.111,
+        0.086,
+        0.214
+      ],
+      "timbre": [
+        55.941,
+        67.793,
+        13.93,
+        1.043,
+        10.601,
+        -23.205,
+        -10.126,
+        12.401,
+        -8.459,
+        8.508,
+        -23.827,
+        -7.866
+      ]
+    },
+    {
+      "start": 72.38254,
+      "duration": 0.23769,
+      "confidence": 0.565,
+      "loudness_start": -7.584,
+      "loudness_max_time": 0.07649,
+      "loudness_max": -0.118,
+      "pitches": [
+        0.818,
+        0.526,
+        0.515,
+        0.168,
+        0.08,
+        0.22,
+        0.335,
+        1,
+        0.257,
+        0.184,
+        0.558,
+        0.446
+      ],
+      "timbre": [
+        55.288,
+        62.338,
+        -17.902,
+        -1.043,
+        15.182,
+        -25.798,
+        -13.173,
+        1.785,
+        -6.804,
+        13.812,
+        -38.192,
+        -9.95
+      ]
+    },
+    {
+      "start": 72.62023,
+      "duration": 0.23252,
+      "confidence": 0.762,
+      "loudness_start": -9.483,
+      "loudness_max_time": 0.08207,
+      "loudness_max": -0.766,
+      "pitches": [
+        0.414,
+        0.087,
+        0.145,
+        0.025,
+        0.052,
+        0.038,
+        0.173,
+        1,
+        0.195,
+        0.022,
+        0.047,
+        0.063
+      ],
+      "timbre": [
+        57.503,
+        78.805,
+        31.607,
+        -24.742,
+        24.632,
+        -20.493,
+        8.466,
+        -5.067,
+        1.109,
+        12.874,
+        -8.385,
+        -3.613
+      ]
+    },
+    {
+      "start": 72.85274,
+      "duration": 0.45347,
+      "confidence": 0.161,
+      "loudness_start": -5.403,
+      "loudness_max_time": 0.01129,
+      "loudness_max": 0.278,
+      "pitches": [
+        0.165,
+        0.226,
+        0.58,
+        0.217,
+        0.143,
+        0.172,
+        0.27,
+        1,
+        0.383,
+        0.23,
+        0.204,
+        0.25
+      ],
+      "timbre": [
+        57.857,
+        64.36,
+        -5.318,
+        -6.585,
+        11.602,
+        -39.115,
+        -11.394,
+        3.659,
+        -9.813,
+        3.154,
+        -20.369,
+        -13.373
+      ]
+    },
+    {
+      "start": 73.30621,
+      "duration": 0.24295,
+      "confidence": 0.507,
+      "loudness_start": -9.712,
+      "loudness_max_time": 0.16387,
+      "loudness_max": -4.511,
+      "pitches": [
+        0.763,
+        1,
+        0.521,
+        0.236,
+        0.115,
+        0.132,
+        0.384,
+        0.605,
+        0.146,
+        0.098,
+        0.098,
+        0.385
+      ],
+      "timbre": [
+        53.852,
+        62.12,
+        18.7,
+        -35.964,
+        9.169,
+        -30.519,
+        27.466,
+        22.19,
+        9.029,
+        5.254,
+        7.837,
+        -16.439
+      ]
+    },
+    {
+      "start": 73.54916,
+      "duration": 0.24408,
+      "confidence": 0.612,
+      "loudness_start": -6.873,
+      "loudness_max_time": 0.03796,
+      "loudness_max": -0.278,
+      "pitches": [
+        1,
+        0.731,
+        0.731,
+        0.467,
+        0.512,
+        0.6,
+        0.273,
+        0.973,
+        0.804,
+        0.438,
+        0.244,
+        0.687
+      ],
+      "timbre": [
+        57.636,
+        84.046,
+        42.862,
+        -7.3,
+        25.8,
+        -17.983,
+        38.095,
+        2.421,
+        21.062,
+        -1.219,
+        -0.967,
+        9.554
+      ]
+    },
+    {
+      "start": 73.79324,
+      "duration": 0.26091,
+      "confidence": 0.454,
+      "loudness_start": -4.645,
+      "loudness_max_time": 0.02273,
+      "loudness_max": 1.154,
+      "pitches": [
+        0.431,
+        0.441,
+        0.285,
+        0.14,
+        0.176,
+        0.396,
+        0.457,
+        1,
+        0.302,
+        0.095,
+        0.089,
+        0.294
+      ],
+      "timbre": [
+        58.701,
+        57.813,
+        12.551,
+        -9.791,
+        30.285,
+        -41.804,
+        22.867,
+        15.462,
+        -2.34,
+        13.863,
+        16.128,
+        10.626
+      ]
+    },
+    {
+      "start": 74.05415,
+      "duration": 0.22068,
+      "confidence": 0.193,
+      "loudness_start": -2.918,
+      "loudness_max_time": 0.04785,
+      "loudness_max": -0.537,
+      "pitches": [
+        0.916,
+        0.765,
+        0.178,
+        0.158,
+        0.277,
+        1,
+        0.268,
+        0.123,
+        0.085,
+        0.124,
+        0.504,
+        0.251
+      ],
+      "timbre": [
+        58.102,
+        89.113,
+        14.388,
+        -22.323,
+        14.312,
+        -28.009,
+        -20.985,
+        12.672,
+        14.395,
+        -6.616,
+        -14.262,
+        -27.408
+      ]
+    },
+    {
+      "start": 74.27483,
+      "duration": 0.26113,
+      "confidence": 0.248,
+      "loudness_start": -6.175,
+      "loudness_max_time": 0.11815,
+      "loudness_max": -1.639,
+      "pitches": [
+        0.848,
+        1,
+        0.309,
+        0.906,
+        0.415,
+        0.084,
+        0.118,
+        0.187,
+        0.074,
+        0.113,
+        0.417,
+        0.288
+      ],
+      "timbre": [
+        56.68,
+        65.892,
+        38.373,
+        -5.727,
+        -2.113,
+        -25.198,
+        29.427,
+        -5.422,
+        -10.838,
+        1.222,
+        -8.103,
+        -10.119
+      ]
+    },
+    {
+      "start": 74.53596,
+      "duration": 0.22639,
+      "confidence": 0.394,
+      "loudness_start": -7.108,
+      "loudness_max_time": 0.16702,
+      "loudness_max": -1.904,
+      "pitches": [
+        0.1,
+        0.089,
+        0.276,
+        1,
+        0.448,
+        0.297,
+        0.063,
+        0.064,
+        0.035,
+        0.109,
+        0.704,
+        0.13
+      ],
+      "timbre": [
+        56.98,
+        65.63,
+        29.177,
+        -19.675,
+        26.634,
+        -35.425,
+        -6.619,
+        -14.977,
+        -3.19,
+        10.139,
+        4.351,
+        -18.821
+      ]
+    },
+    {
+      "start": 74.76236,
+      "duration": 0.24971,
+      "confidence": 0.283,
+      "loudness_start": -4.095,
+      "loudness_max_time": 0.00823,
+      "loudness_max": 0.988,
+      "pitches": [
+        0.662,
+        0.65,
+        0.308,
+        1,
+        0.366,
+        0.464,
+        0.325,
+        0.311,
+        0.138,
+        0.169,
+        0.658,
+        0.567
+      ],
+      "timbre": [
+        58.517,
+        47.072,
+        10.565,
+        -9.248,
+        19.134,
+        -61.58,
+        11.258,
+        9.226,
+        -6.142,
+        8.675,
+        -10.419,
+        -5.829
+      ]
+    },
+    {
+      "start": 75.01206,
+      "duration": 0.1859,
+      "confidence": 0.167,
+      "loudness_start": -4.656,
+      "loudness_max_time": 0.07045,
+      "loudness_max": -1.036,
+      "pitches": [
+        0.455,
+        0.474,
+        0.682,
+        1,
+        0.505,
+        0.1,
+        0.127,
+        0.149,
+        0.047,
+        0.151,
+        0.437,
+        0.262
+      ],
+      "timbre": [
+        57.04,
+        61.927,
+        18.24,
+        -10.135,
+        8.287,
+        -25.989,
+        -33.448,
+        -16.263,
+        11.466,
+        -2.647,
+        -11.063,
+        -18.195
+      ]
+    },
+    {
+      "start": 75.19796,
+      "duration": 0.36544,
+      "confidence": 0.361,
+      "loudness_start": -5.821,
+      "loudness_max_time": 0.19581,
+      "loudness_max": -1.368,
+      "pitches": [
+        1,
+        0.692,
+        0.34,
+        0.283,
+        0.211,
+        0.823,
+        0.202,
+        0.34,
+        0.092,
+        0.119,
+        0.091,
+        0.254
+      ],
+      "timbre": [
+        57.199,
+        49.19,
+        37.835,
+        -7.265,
+        22.478,
+        -27.499,
+        0.291,
+        -1.613,
+        6.202,
+        17.724,
+        -8.888,
+        -20.974
+      ]
+    },
+    {
+      "start": 75.5634,
+      "duration": 0.37143,
+      "confidence": 0.459,
+      "loudness_start": -6.765,
+      "loudness_max_time": 0.15746,
+      "loudness_max": -0.626,
+      "pitches": [
+        0.491,
+        0.347,
+        0.16,
+        0.182,
+        0.212,
+        1,
+        0.554,
+        0.44,
+        0.305,
+        0.182,
+        0.159,
+        0.204
+      ],
+      "timbre": [
+        56.564,
+        49.605,
+        -2.173,
+        -11.447,
+        34.263,
+        -19.434,
+        -11.455,
+        -6.971,
+        -7.518,
+        19.012,
+        -6.422,
+        -0.556
+      ]
+    },
+    {
+      "start": 75.93483,
+      "duration": 0.09927,
+      "confidence": 0.421,
+      "loudness_start": -7.379,
+      "loudness_max_time": 0.0372,
+      "loudness_max": -3.301,
+      "pitches": [
+        0.627,
+        0.482,
+        0.424,
+        0.151,
+        0.312,
+        0.637,
+        0.713,
+        1,
+        0.601,
+        0.544,
+        0.425,
+        0.515
+      ],
+      "timbre": [
+        55.45,
+        26.2,
+        25.396,
+        -20.505,
+        19.482,
+        -19.346,
+        -1.306,
+        -15.936,
+        -7.225,
+        5.065,
+        1.288,
+        -4.553
+      ]
+    },
+    {
+      "start": 76.0341,
+      "duration": 0.44154,
+      "confidence": 0.311,
+      "loudness_start": -4.983,
+      "loudness_max_time": 0.04429,
+      "loudness_max": -0.378,
+      "pitches": [
+        0.381,
+        0.418,
+        0.761,
+        0.561,
+        0.352,
+        0.418,
+        0.747,
+        1,
+        0.54,
+        0.236,
+        0.252,
+        0.486
+      ],
+      "timbre": [
+        56.84,
+        50.788,
+        1.6,
+        -22.103,
+        9.634,
+        -25.751,
+        -28.922,
+        14.969,
+        9.359,
+        -1.872,
+        -7.032,
+        -18.071
+      ]
+    },
+    {
+      "start": 76.47565,
+      "duration": 0.17288,
+      "confidence": 0.254,
+      "loudness_start": -6.014,
+      "loudness_max_time": 0.0685,
+      "loudness_max": -2.408,
+      "pitches": [
+        0.123,
+        0.201,
+        0.448,
+        0.167,
+        0.173,
+        0.234,
+        0.364,
+        1,
+        0.157,
+        0.107,
+        0.168,
+        0.263
+      ],
+      "timbre": [
+        54.896,
+        82.718,
+        11.392,
+        -18.508,
+        12.819,
+        -22.794,
+        -0.675,
+        14.093,
+        0.109,
+        -5.273,
+        -24.356,
+        3.51
+      ]
+    },
+    {
+      "start": 76.64853,
+      "duration": 0.37175,
+      "confidence": 0.655,
+      "loudness_start": -9.779,
+      "loudness_max_time": 0.02625,
+      "loudness_max": 0,
+      "pitches": [
+        0.219,
+        0.238,
+        0.427,
+        0.212,
+        0.13,
+        0.155,
+        0.237,
+        1,
+        0.54,
+        0.148,
+        0.117,
+        0.233
+      ],
+      "timbre": [
+        54.962,
+        65.883,
+        -29.91,
+        9.572,
+        -0.122,
+        -20.388,
+        3.583,
+        7.631,
+        -21.204,
+        2.355,
+        24.438,
+        0.046
+      ]
+    },
+    {
+      "start": 77.02027,
+      "duration": 0.21887,
+      "confidence": 0.673,
+      "loudness_start": -9.617,
+      "loudness_max_time": 0.00896,
+      "loudness_max": -1.625,
+      "pitches": [
+        0.489,
+        0.51,
+        0.366,
+        0.2,
+        0.197,
+        0.678,
+        1,
+        0.437,
+        0.469,
+        0.259,
+        0.247,
+        0.59
+      ],
+      "timbre": [
+        54.004,
+        53.704,
+        -47.353,
+        -10.406,
+        -5.908,
+        -64.486,
+        -26.166,
+        16.648,
+        -16.786,
+        -6.617,
+        -24.927,
+        9.46
+      ]
+    },
+    {
+      "start": 77.23914,
+      "duration": 0.23537,
+      "confidence": 0.367,
+      "loudness_start": -12.346,
+      "loudness_max_time": 0.1538,
+      "loudness_max": -7.502,
+      "pitches": [
+        0.417,
+        0.534,
+        0.392,
+        0.257,
+        0.233,
+        0.204,
+        0.233,
+        1,
+        0.317,
+        0.132,
+        0.12,
+        0.35
+      ],
+      "timbre": [
+        50.565,
+        81.775,
+        -20.124,
+        -37.028,
+        -27.078,
+        -22.489,
+        12.363,
+        7.776,
+        -13.646,
+        -1.787,
+        -4.463,
+        -1.586
+      ]
+    },
+    {
+      "start": 77.47451,
+      "duration": 0.14522,
+      "confidence": 0.267,
+      "loudness_start": -11.532,
+      "loudness_max_time": 0.04088,
+      "loudness_max": -7.622,
+      "pitches": [
+        1,
+        0.766,
+        0.358,
+        0.281,
+        0.567,
+        0.579,
+        0.964,
+        0.99,
+        0.881,
+        0.887,
+        0.777,
+        0.152
+      ],
+      "timbre": [
+        50.712,
+        85.525,
+        -9.045,
+        -34.225,
+        -37.796,
+        -29.509,
+        5.457,
+        1.288,
+        -7.343,
+        11.722,
+        -0.796,
+        -10.724
+      ]
+    },
+    {
+      "start": 77.61973,
+      "duration": 0.10943,
+      "confidence": 0.762,
+      "loudness_start": -9.995,
+      "loudness_max_time": 0.00724,
+      "loudness_max": -0.265,
+      "pitches": [
+        0.439,
+        0.35,
+        0.35,
+        0.29,
+        0.285,
+        1,
+        0.909,
+        0.446,
+        0.668,
+        0.455,
+        0.474,
+        0.45
+      ],
+      "timbre": [
+        55.071,
+        54.651,
+        -43.623,
+        -15.374,
+        -7.651,
+        -77.347,
+        -24.164,
+        -6.785,
+        -16.561,
+        3.077,
+        -13.326,
+        9.785
+      ]
+    },
+    {
+      "start": 77.72916,
+      "duration": 0.12789,
+      "confidence": 0.217,
+      "loudness_start": -7.914,
+      "loudness_max_time": 0.01657,
+      "loudness_max": -2.964,
+      "pitches": [
+        0.314,
+        0.077,
+        0.065,
+        0.1,
+        0.203,
+        0.757,
+        1,
+        0.575,
+        0.892,
+        0.821,
+        0.63,
+        0.279
+      ],
+      "timbre": [
+        54.389,
+        48.781,
+        -30.996,
+        -26.811,
+        6.591,
+        -49.684,
+        -13.937,
+        -1.904,
+        -10.43,
+        4.163,
+        4.523,
+        0.292
+      ]
+    },
+    {
+      "start": 77.85705,
+      "duration": 0.11556,
+      "confidence": 0.306,
+      "loudness_start": -7.584,
+      "loudness_max_time": 0.00679,
+      "loudness_max": -2.027,
+      "pitches": [
+        0.237,
+        0.262,
+        0.226,
+        0.168,
+        0.448,
+        0.656,
+        1,
+        0.833,
+        0.833,
+        0.553,
+        0.41,
+        0.168
+      ],
+      "timbre": [
+        54.673,
+        35.388,
+        -32.065,
+        -21.105,
+        -0.145,
+        -65.986,
+        -17.555,
+        1.74,
+        -11.43,
+        -10.958,
+        -7.618,
+        2.692
+      ]
+    },
+    {
+      "start": 77.97261,
+      "duration": 0.35483,
+      "confidence": 0.3,
+      "loudness_start": -7.558,
+      "loudness_max_time": 0.01163,
+      "loudness_max": -2.413,
+      "pitches": [
+        0.173,
+        0.205,
+        0.208,
+        0.146,
+        0.302,
+        1,
+        0.881,
+        0.562,
+        0.456,
+        0.797,
+        0.527,
+        0.179
+      ],
+      "timbre": [
+        50.596,
+        55.147,
+        -38.709,
+        76.148,
+        1.967,
+        -44.427,
+        -35.52,
+        27.683,
+        3.664,
+        -10.406,
+        -43.54,
+        -0.407
+      ]
+    },
+    {
+      "start": 78.32744,
+      "duration": 0.11556,
+      "confidence": 0.982,
+      "loudness_start": -37.004,
+      "loudness_max_time": 0.03143,
+      "loudness_max": -16.527,
+      "pitches": [
+        0.631,
+        1,
+        0.725,
+        0.54,
+        0.558,
+        0.415,
+        0.658,
+        0.777,
+        0.57,
+        0.631,
+        0.767,
+        0.785
+      ],
+      "timbre": [
+        38.016,
+        88.312,
+        74.123,
+        86.639,
+        38.084,
+        -31.28,
+        -12.966,
+        1.198,
+        -11.136,
+        29.467,
+        -4.043,
+        -11.985
+      ]
+    },
+    {
+      "start": 78.44299,
+      "duration": 0.10381,
+      "confidence": 0.482,
+      "loudness_start": -29.193,
+      "loudness_max_time": 0.01605,
+      "loudness_max": -16.682,
+      "pitches": [
+        0.264,
+        0.327,
+        0.639,
+        1,
+        0.488,
+        0.366,
+        0.404,
+        0.597,
+        0.414,
+        0.223,
+        0.244,
+        0.406
+      ],
+      "timbre": [
+        33.181,
+        24.56,
+        -14.324,
+        136.303,
+        7.774,
+        -54.701,
+        -10.151,
+        -30.251,
+        -6.996,
+        40.738,
+        -20.635,
+        -9.623
+      ]
+    },
+    {
+      "start": 78.5468,
+      "duration": 0.2444,
+      "confidence": 1,
+      "loudness_start": -38.13,
+      "loudness_max_time": 0.05207,
+      "loudness_max": -12.386,
+      "pitches": [
+        0.102,
+        0.108,
+        0.491,
+        0.103,
+        0.12,
+        0.134,
+        0.281,
+        1,
+        0.245,
+        0.177,
+        0.09,
+        0.106
+      ],
+      "timbre": [
+        43.804,
+        119.011,
+        80.323,
+        51.018,
+        32.655,
+        14.829,
+        -9.255,
+        8.917,
+        7.273,
+        -4.993,
+        -1.755,
+        -14.389
+      ]
+    },
+    {
+      "start": 78.7912,
+      "duration": 0.10408,
+      "confidence": 0.538,
+      "loudness_start": -26.93,
+      "loudness_max_time": 0.02175,
+      "loudness_max": -15.373,
+      "pitches": [
+        0.863,
+        0.902,
+        0.73,
+        0.787,
+        0.681,
+        1,
+        0.962,
+        0.652,
+        0.752,
+        0.673,
+        0.674,
+        0.984
+      ],
+      "timbre": [
+        38.76,
+        48.49,
+        65.618,
+        106.748,
+        38.529,
+        -31.296,
+        29.317,
+        1.035,
+        -6.117,
+        6.299,
+        -25.631,
+        -9.315
+      ]
+    },
+    {
+      "start": 78.89528,
+      "duration": 0.11646,
+      "confidence": 0.687,
+      "loudness_start": -30.191,
+      "loudness_max_time": 0.04355,
+      "loudness_max": -17.205,
+      "pitches": [
+        0.267,
+        0.305,
+        0.259,
+        0.177,
+        0.195,
+        0.244,
+        0.497,
+        1,
+        0.255,
+        0.152,
+        0.144,
+        0.222
+      ],
+      "timbre": [
+        34.456,
+        90.807,
+        72.962,
+        44.247,
+        37.186,
+        42.545,
+        19.046,
+        -7.284,
+        29.639,
+        7.496,
+        -63.236,
+        -30.109
+      ]
+    },
+    {
+      "start": 79.01175,
+      "duration": 0.16259,
+      "confidence": 1,
+      "loudness_start": -32.787,
+      "loudness_max_time": 0.04888,
+      "loudness_max": -11.7,
+      "pitches": [
+        0.286,
+        0.261,
+        0.445,
+        0.241,
+        0.278,
+        0.42,
+        0.439,
+        1,
+        0.42,
+        0.347,
+        0.24,
+        0.308
+      ],
+      "timbre": [
+        44.453,
+        118.867,
+        104.955,
+        3.195,
+        48.567,
+        14.937,
+        11.677,
+        20.263,
+        9.544,
+        6.135,
+        -3.568,
+        -10.283
+      ]
+    },
+    {
+      "start": 79.17433,
+      "duration": 0.08689,
+      "confidence": 0.523,
+      "loudness_start": -16.209,
+      "loudness_max_time": 0.03025,
+      "loudness_max": -11.317,
+      "pitches": [
+        1,
+        0.258,
+        0.222,
+        0.048,
+        0.214,
+        0.227,
+        0.159,
+        0.486,
+        0.409,
+        0.488,
+        0.735,
+        0.825
+      ],
+      "timbre": [
+        47.364,
+        69.262,
+        -1.435,
+        -35.162,
+        5.945,
+        -30.259,
+        -35.047,
+        -0.033,
+        6.014,
+        20.581,
+        12.644,
+        -6.272
+      ]
+    },
+    {
+      "start": 79.26122,
+      "duration": 0.2619,
+      "confidence": 0.707,
+      "loudness_start": -13.359,
+      "loudness_max_time": 0.17342,
+      "loudness_max": -5.705,
+      "pitches": [
+        0.079,
+        0.196,
+        0.228,
+        0.174,
+        0.396,
+        0.327,
+        0.284,
+        0.39,
+        0.422,
+        1,
+        0.488,
+        0.136
+      ],
+      "timbre": [
+        51.995,
+        73.48,
+        49.956,
+        -19.254,
+        23.307,
+        -0.279,
+        3.523,
+        -18.695,
+        -14.878,
+        12.712,
+        -0.008,
+        6.485
+      ]
+    },
+    {
+      "start": 79.52313,
+      "duration": 0.1093,
+      "confidence": 0.054,
+      "loudness_start": -11.449,
+      "loudness_max_time": 0.06831,
+      "loudness_max": -8.154,
+      "pitches": [
+        0.036,
+        0.079,
+        0.038,
+        0.046,
+        0.503,
+        0.109,
+        0.119,
+        0.163,
+        0.345,
+        1,
+        0.248,
+        0.034
+      ],
+      "timbre": [
+        50.98,
+        18.723,
+        86.393,
+        -10.419,
+        32.196,
+        -37.601,
+        2.622,
+        20.147,
+        1.006,
+        -8.107,
+        -6.066,
+        -3.174
+      ]
+    },
+    {
+      "start": 79.63243,
+      "duration": 0.11061,
+      "confidence": 0.178,
+      "loudness_start": -9.469,
+      "loudness_max_time": 0.04583,
+      "loudness_max": -6.374,
+      "pitches": [
+        0.112,
+        0.124,
+        0.18,
+        0.223,
+        0.409,
+        0.251,
+        0.331,
+        0.547,
+        0.851,
+        1,
+        0.329,
+        0.117
+      ],
+      "timbre": [
+        52.14,
+        71.603,
+        40.798,
+        -4.486,
+        46.426,
+        -33.699,
+        -33.631,
+        26.107,
+        -3.832,
+        2.537,
+        -6.358,
+        -6.563
+      ]
+    },
+    {
+      "start": 79.74304,
+      "duration": 0.18009,
+      "confidence": 0.121,
+      "loudness_start": -9.578,
+      "loudness_max_time": 0.0459,
+      "loudness_max": -6.072,
+      "pitches": [
+        0.134,
+        0.197,
+        0.504,
+        0.398,
+        0.21,
+        0.56,
+        0.735,
+        1,
+        0.223,
+        0.169,
+        0.093,
+        0.132
+      ],
+      "timbre": [
+        51.667,
+        47.917,
+        35.581,
+        5.072,
+        30.706,
+        -18.245,
+        -15.495,
+        -37.371,
+        -24.195,
+        21.946,
+        -23.415,
+        2.625
+      ]
+    },
+    {
+      "start": 79.92313,
+      "duration": 0.41782,
+      "confidence": 0.583,
+      "loudness_start": -11.486,
+      "loudness_max_time": 0.08761,
+      "loudness_max": -4.606,
+      "pitches": [
+        0.22,
+        0.594,
+        1,
+        0.439,
+        0.241,
+        0.182,
+        0.419,
+        0.277,
+        0.263,
+        0.54,
+        0.16,
+        0.097
+      ],
+      "timbre": [
+        51.032,
+        60.513,
+        -3.27,
+        -47.893,
+        22.374,
+        -25.317,
+        -36.243,
+        26.142,
+        6.78,
+        6.802,
+        -20.388,
+        21.877
+      ]
+    },
+    {
+      "start": 80.34095,
+      "duration": 0.35991,
+      "confidence": 0.823,
+      "loudness_start": -14.99,
+      "loudness_max_time": 0.14656,
+      "loudness_max": -4.439,
+      "pitches": [
+        0.576,
+        1,
+        0.811,
+        0.189,
+        0.196,
+        0.217,
+        0.393,
+        0.093,
+        0.149,
+        0.561,
+        0.18,
+        0.379
+      ],
+      "timbre": [
+        51.07,
+        114.726,
+        -26.239,
+        -37.277,
+        38.563,
+        13.363,
+        -35.206,
+        -4.92,
+        -23.253,
+        20.986,
+        -21.976,
+        -3.154
+      ]
+    },
+    {
+      "start": 80.70086,
+      "duration": 0.20898,
+      "confidence": 0.694,
+      "loudness_start": -14.596,
+      "loudness_max_time": 0.08134,
+      "loudness_max": -6.164,
+      "pitches": [
+        0.485,
+        0.416,
+        0.453,
+        0.275,
+        0.405,
+        1,
+        0.471,
+        0.141,
+        0.272,
+        0.272,
+        0.125,
+        0.315
+      ],
+      "timbre": [
+        52.131,
+        74.064,
+        4.457,
+        -64.266,
+        -5.35,
+        -10.653,
+        -45.057,
+        1.105,
+        -13.571,
+        -11.618,
+        10.618,
+        0.294
+      ]
+    },
+    {
+      "start": 80.90984,
+      "duration": 0.27805,
+      "confidence": 0.387,
+      "loudness_start": -7.814,
+      "loudness_max_time": 0.05336,
+      "loudness_max": -4.358,
+      "pitches": [
+        0.524,
+        1,
+        0.737,
+        0.19,
+        0.185,
+        0.16,
+        0.172,
+        0.043,
+        0.124,
+        0.542,
+        0.155,
+        0.308
+      ],
+      "timbre": [
+        53.039,
+        83.28,
+        -20.007,
+        -18.318,
+        5.758,
+        -11.9,
+        -48.271,
+        -11.371,
+        -8.206,
+        -0.911,
+        -23.097,
+        -3.771
+      ]
+    },
+    {
+      "start": 81.18789,
+      "duration": 0.0819,
+      "confidence": 0.614,
+      "loudness_start": -11.786,
+      "loudness_max_time": 0.02632,
+      "loudness_max": -4.676,
+      "pitches": [
+        0.741,
+        0.58,
+        0.492,
+        0.531,
+        0.469,
+        0.382,
+        0.738,
+        0.691,
+        0.951,
+        0.921,
+        1,
+        0.705
+      ],
+      "timbre": [
+        52.866,
+        76.637,
+        14.286,
+        -4.601,
+        32.469,
+        -32.555,
+        25.241,
+        2.413,
+        19.588,
+        -5.387,
+        15.084,
+        2.344
+      ]
+    },
+    {
+      "start": 81.2698,
+      "duration": 0.40068,
+      "confidence": 0.503,
+      "loudness_start": -8.674,
+      "loudness_max_time": 0.18933,
+      "loudness_max": -2.62,
+      "pitches": [
+        0.121,
+        0.369,
+        1,
+        0.324,
+        0.128,
+        0.082,
+        0.263,
+        0.116,
+        0.112,
+        0.405,
+        0.1,
+        0.036
+      ],
+      "timbre": [
+        54.222,
+        85.483,
+        47.823,
+        -18.449,
+        21.141,
+        -22.186,
+        35.963,
+        -2.297,
+        -7.994,
+        3.472,
+        -14.751,
+        6.458
+      ]
+    },
+    {
+      "start": 81.67048,
+      "duration": 0.1205,
+      "confidence": 0.27,
+      "loudness_start": -9.742,
+      "loudness_max_time": 0.01098,
+      "loudness_max": -4.279,
+      "pitches": [
+        0.59,
+        1,
+        0.527,
+        0.491,
+        0.788,
+        0.793,
+        0.939,
+        0.817,
+        0.611,
+        0.629,
+        0.403,
+        0.031
+      ],
+      "timbre": [
+        53.943,
+        69.199,
+        -7.613,
+        -16.958,
+        -4.784,
+        -41.261,
+        -20.091,
+        13.375,
+        -9.502,
+        1.675,
+        -15.951,
+        -7.436
+      ]
+    },
+    {
+      "start": 81.79098,
+      "duration": 0.25669,
+      "confidence": 0.22,
+      "loudness_start": -8.806,
+      "loudness_max_time": 0.07406,
+      "loudness_max": -5.04,
+      "pitches": [
+        0.749,
+        1,
+        0.652,
+        0.132,
+        0.255,
+        0.351,
+        0.332,
+        0.201,
+        0.19,
+        0.26,
+        0.093,
+        0.38
+      ],
+      "timbre": [
+        53.709,
+        124.114,
+        -15.798,
+        -39.364,
+        -5.048,
+        -25.708,
+        -14.803,
+        -30.626,
+        14.877,
+        -1.975,
+        -19.182,
+        0.22
+      ]
+    },
+    {
+      "start": 82.04766,
+      "duration": 0.22054,
+      "confidence": 0.259,
+      "loudness_start": -7.5,
+      "loudness_max_time": 0.06572,
+      "loudness_max": -4.389,
+      "pitches": [
+        0.111,
+        0.15,
+        0.232,
+        0.083,
+        0.064,
+        0.1,
+        0.2,
+        1,
+        0.573,
+        0.138,
+        0.119,
+        0.143
+      ],
+      "timbre": [
+        53.573,
+        103.117,
+        -15.264,
+        -10.158,
+        -3.336,
+        -15.645,
+        -29.081,
+        -7.778,
+        13.226,
+        -10.146,
+        -30.278,
+        -4.896
+      ]
+    },
+    {
+      "start": 82.26821,
+      "duration": 0.11619,
+      "confidence": 0.705,
+      "loudness_start": -13.011,
+      "loudness_max_time": 0.04627,
+      "loudness_max": -4.695,
+      "pitches": [
+        0.251,
+        0.201,
+        0.08,
+        0.047,
+        0.083,
+        1,
+        0.855,
+        0.142,
+        0.128,
+        0.09,
+        0.097,
+        0.236
+      ],
+      "timbre": [
+        53.342,
+        118.482,
+        -5.72,
+        -31.816,
+        29.027,
+        -10.409,
+        -64.884,
+        -16.039,
+        -3.489,
+        -27.884,
+        3.384,
+        2.716
+      ]
+    },
+    {
+      "start": 82.3844,
+      "duration": 0.23243,
+      "confidence": 0.098,
+      "loudness_start": -7.819,
+      "loudness_max_time": 0.02083,
+      "loudness_max": -3.782,
+      "pitches": [
+        0.411,
+        0.57,
+        0.357,
+        0.138,
+        0.084,
+        0.087,
+        0.275,
+        1,
+        0.201,
+        0.028,
+        0.015,
+        0.092
+      ],
+      "timbre": [
+        53.605,
+        64.319,
+        -34.911,
+        -13.833,
+        11.391,
+        -43.464,
+        -22.785,
+        -23.499,
+        -4.313,
+        5.417,
+        -9.566,
+        13.31
+      ]
+    },
+    {
+      "start": 82.61683,
+      "duration": 0.21483,
+      "confidence": 0.35,
+      "loudness_start": -10.204,
+      "loudness_max_time": 0.01821,
+      "loudness_max": -5.217,
+      "pitches": [
+        0.079,
+        0.143,
+        0.08,
+        0.051,
+        0.086,
+        0.248,
+        1,
+        0.761,
+        0.161,
+        0.097,
+        0.116,
+        0.103
+      ],
+      "timbre": [
+        53.314,
+        76.986,
+        4.957,
+        -36.152,
+        3.529,
+        -24.875,
+        -67.653,
+        -0.89,
+        -13.748,
+        -15.466,
+        12.437,
+        -15.007
+      ]
+    },
+    {
+      "start": 82.83166,
+      "duration": 0.26122,
+      "confidence": 0.333,
+      "loudness_start": -7.355,
+      "loudness_max_time": 0.04807,
+      "loudness_max": -4.193,
+      "pitches": [
+        0.522,
+        0.406,
+        0.528,
+        0.117,
+        0.122,
+        0.142,
+        0.338,
+        1,
+        0.174,
+        0.066,
+        0.104,
+        0.28
+      ],
+      "timbre": [
+        53.722,
+        74.883,
+        -10.587,
+        -15.823,
+        -3.276,
+        -21.727,
+        -33.562,
+        -27.066,
+        -20.537,
+        12.748,
+        -13.363,
+        -20.527
+      ]
+    },
+    {
+      "start": 83.09288,
+      "duration": 0.18735,
+      "confidence": 0.247,
+      "loudness_start": -7.961,
+      "loudness_max_time": 0.02245,
+      "loudness_max": -5.044,
+      "pitches": [
+        0.875,
+        1,
+        0.777,
+        0.654,
+        0.651,
+        0.732,
+        0.368,
+        0.821,
+        0.455,
+        0.581,
+        0.32,
+        0.629
+      ],
+      "timbre": [
+        52.714,
+        99.291,
+        16.428,
+        12.834,
+        -0.092,
+        -49.633,
+        24.096,
+        13.601,
+        4.433,
+        2.996,
+        -21.469,
+        7.496
+      ]
+    },
+    {
+      "start": 83.28023,
+      "duration": 0.29424,
+      "confidence": 0.436,
+      "loudness_start": -9.54,
+      "loudness_max_time": 0.13181,
+      "loudness_max": -4.018,
+      "pitches": [
+        0.058,
+        0.152,
+        0.226,
+        0.036,
+        0.024,
+        0.05,
+        0.165,
+        1,
+        0.157,
+        0.04,
+        0.04,
+        0.066
+      ],
+      "timbre": [
+        52.323,
+        108.738,
+        -24.881,
+        -56.113,
+        15.1,
+        -24.079,
+        1.297,
+        -8.797,
+        -23.749,
+        3.32,
+        -24.005,
+        -9.53
+      ]
+    },
+    {
+      "start": 83.57447,
+      "duration": 0.16245,
+      "confidence": 0.423,
+      "loudness_start": -9.435,
+      "loudness_max_time": 0.01431,
+      "loudness_max": -3.546,
+      "pitches": [
+        0.536,
+        1,
+        0.933,
+        0.826,
+        0.669,
+        0.679,
+        0.621,
+        0.691,
+        0.611,
+        0.709,
+        0.285,
+        0.083
+      ],
+      "timbre": [
+        52.443,
+        50.923,
+        -43.045,
+        -3.262,
+        -0.142,
+        -52.651,
+        -38.201,
+        0.34,
+        -1.113,
+        28.515,
+        -9.266,
+        -10.824
+      ]
+    },
+    {
+      "start": 83.73692,
+      "duration": 0.12952,
+      "confidence": 0.346,
+      "loudness_start": -9.948,
+      "loudness_max_time": 0.08587,
+      "loudness_max": -5.806,
+      "pitches": [
+        1,
+        0.955,
+        0.629,
+        0.487,
+        0.476,
+        0.543,
+        0.667,
+        0.745,
+        0.501,
+        0.396,
+        0.481,
+        0.411
+      ],
+      "timbre": [
+        51.731,
+        122.693,
+        -24.317,
+        -62.558,
+        -6.74,
+        -26.365,
+        10.477,
+        -27.934,
+        -29.849,
+        -11.451,
+        -16.625,
+        -21.257
+      ]
+    },
+    {
+      "start": 83.86644,
+      "duration": 0.22345,
+      "confidence": 0.418,
+      "loudness_start": -7.87,
+      "loudness_max_time": 0.03238,
+      "loudness_max": -3.589,
+      "pitches": [
+        0.376,
+        0.591,
+        0.221,
+        1,
+        0.514,
+        0.126,
+        0.13,
+        0.118,
+        0.257,
+        0.511,
+        0.842,
+        0.157
+      ],
+      "timbre": [
+        54.145,
+        107.425,
+        -14.299,
+        -3.662,
+        -2.938,
+        -40.444,
+        -12.121,
+        17.237,
+        5.095,
+        10.353,
+        -4.755,
+        -11.76
+      ]
+    },
+    {
+      "start": 84.08989,
+      "duration": 0.18635,
+      "confidence": 0.472,
+      "loudness_start": -9.887,
+      "loudness_max_time": 0.02607,
+      "loudness_max": -4.075,
+      "pitches": [
+        0.104,
+        0.143,
+        0.069,
+        0.053,
+        0.255,
+        0.09,
+        0.05,
+        0.066,
+        0.16,
+        1,
+        0.235,
+        0.132
+      ],
+      "timbre": [
+        54.56,
+        142.499,
+        -3.079,
+        -26.905,
+        30.403,
+        -13.016,
+        -48.082,
+        -27.335,
+        15.382,
+        -14.835,
+        -1.466,
+        -21.038
+      ]
+    },
+    {
+      "start": 84.27624,
+      "duration": 0.23868,
+      "confidence": 0.546,
+      "loudness_start": -10.566,
+      "loudness_max_time": 0.17074,
+      "loudness_max": -3.521,
+      "pitches": [
+        0.455,
+        0.937,
+        0.317,
+        1,
+        0.338,
+        0.07,
+        0.065,
+        0.533,
+        0.101,
+        0.157,
+        0.711,
+        0.348
+      ],
+      "timbre": [
+        54.827,
+        107.503,
+        -15.66,
+        -48.981,
+        13.241,
+        -14.646,
+        -9.213,
+        -0.515,
+        12.403,
+        5.727,
+        6.536,
+        -11.871
+      ]
+    },
+    {
+      "start": 84.51492,
+      "duration": 0.20308,
+      "confidence": 0.166,
+      "loudness_start": -8.479,
+      "loudness_max_time": 0.03895,
+      "loudness_max": -3.541,
+      "pitches": [
+        0.362,
+        0.661,
+        0.509,
+        0.456,
+        0.393,
+        0.204,
+        0.209,
+        0.361,
+        0.553,
+        1,
+        0.367,
+        0.292
+      ],
+      "timbre": [
+        52.561,
+        68.397,
+        -4.731,
+        39.852,
+        13.313,
+        -19.683,
+        13.34,
+        -2.108,
+        -2.731,
+        -0.081,
+        -19.45,
+        18.029
+      ]
+    },
+    {
+      "start": 84.718,
+      "duration": 0.28975,
+      "confidence": 0.837,
+      "loudness_start": -14.719,
+      "loudness_max_time": 0.12779,
+      "loudness_max": -3.728,
+      "pitches": [
+        0.907,
+        1,
+        0.267,
+        0.114,
+        0.271,
+        0.693,
+        0.136,
+        0.121,
+        0.116,
+        0.148,
+        0.103,
+        0.167
+      ],
+      "timbre": [
+        52.273,
+        103.66,
+        11.104,
+        -64.895,
+        9.8,
+        1.16,
+        2.843,
+        -16.206,
+        -9.764,
+        21.909,
+        -16.209,
+        -6.608
+      ]
+    },
+    {
+      "start": 85.00776,
+      "duration": 0.19828,
+      "confidence": 0.315,
+      "loudness_start": -12.466,
+      "loudness_max_time": 0.12198,
+      "loudness_max": -6.218,
+      "pitches": [
+        0.888,
+        0.947,
+        0.671,
+        0.671,
+        1,
+        0.577,
+        0.516,
+        0.38,
+        0.536,
+        0.715,
+        0.185,
+        0.764
+      ],
+      "timbre": [
+        51.781,
+        80.711,
+        -2.442,
+        -20.063,
+        -12.765,
+        -9.062,
+        -39.223,
+        -11.99,
+        0.488,
+        11.645,
+        -22.175,
+        -19.448
+      ]
+    },
+    {
+      "start": 85.20603,
+      "duration": 0.21859,
+      "confidence": 0.634,
+      "loudness_start": -11.311,
+      "loudness_max_time": 0.0946,
+      "loudness_max": -4.053,
+      "pitches": [
+        0.522,
+        0.289,
+        0.228,
+        0.074,
+        0.223,
+        1,
+        0.423,
+        0.353,
+        0.056,
+        0.158,
+        0.027,
+        0.113
+      ],
+      "timbre": [
+        52.819,
+        69.121,
+        -14.769,
+        -45.973,
+        4.296,
+        -7.771,
+        0.989,
+        -19.263,
+        -19.181,
+        22.448,
+        -22.816,
+        15.162
+      ]
+    },
+    {
+      "start": 85.42463,
+      "duration": 0.23166,
+      "confidence": 0.345,
+      "loudness_start": -9.317,
+      "loudness_max_time": 0.06093,
+      "loudness_max": -5.541,
+      "pitches": [
+        0.386,
+        1,
+        0.579,
+        0.14,
+        0.179,
+        0.171,
+        0.185,
+        0.142,
+        0.156,
+        0.09,
+        0.044,
+        0.239
+      ],
+      "timbre": [
+        52.211,
+        102.124,
+        -25.039,
+        -20.475,
+        -27.64,
+        -16.265,
+        -6.165,
+        -33.244,
+        2.744,
+        -16.008,
+        -12.96,
+        3.417
+      ]
+    },
+    {
+      "start": 85.65628,
+      "duration": 0.42005,
+      "confidence": 0.439,
+      "loudness_start": -10.435,
+      "loudness_max_time": 0.23964,
+      "loudness_max": -4.351,
+      "pitches": [
+        0.194,
+        0.365,
+        1,
+        0.397,
+        0.216,
+        0.186,
+        0.298,
+        0.176,
+        0.148,
+        0.216,
+        0.112,
+        0.069
+      ],
+      "timbre": [
+        51.456,
+        89.817,
+        -4.659,
+        -51.623,
+        -3.46,
+        -24.118,
+        -19.294,
+        28.194,
+        -6.63,
+        -0.656,
+        -20.123,
+        -7.271
+      ]
+    },
+    {
+      "start": 86.07633,
+      "duration": 0.28553,
+      "confidence": 0.672,
+      "loudness_start": -12.35,
+      "loudness_max_time": 0.0972,
+      "loudness_max": -5.8,
+      "pitches": [
+        0.694,
+        1,
+        0.612,
+        0.204,
+        0.288,
+        0.255,
+        0.356,
+        0.171,
+        0.286,
+        0.473,
+        0.198,
+        0.462
+      ],
+      "timbre": [
+        51.383,
+        81.713,
+        5.188,
+        -18.033,
+        24.984,
+        0.543,
+        -23.561,
+        -13.153,
+        -27.295,
+        21.738,
+        -27.891,
+        8.262
+      ]
+    },
+    {
+      "start": 86.36186,
+      "duration": 0.0741,
+      "confidence": 0.368,
+      "loudness_start": -13.113,
+      "loudness_max_time": 0.03881,
+      "loudness_max": -9.226,
+      "pitches": [
+        0.537,
+        1,
+        0.77,
+        0.742,
+        0.407,
+        0.413,
+        0.287,
+        0.24,
+        0.493,
+        0.517,
+        0.806,
+        0.439
+      ],
+      "timbre": [
+        49.007,
+        60.214,
+        -3.324,
+        -37.145,
+        -27.962,
+        -25.732,
+        18.102,
+        5.604,
+        0.871,
+        -11.262,
+        6.683,
+        -8.436
+      ]
+    },
+    {
+      "start": 86.43596,
+      "duration": 0.19764,
+      "confidence": 0.427,
+      "loudness_start": -11.34,
+      "loudness_max_time": 0.15465,
+      "loudness_max": -6.265,
+      "pitches": [
+        0.151,
+        0.23,
+        0.235,
+        0.183,
+        0.216,
+        0.554,
+        1,
+        0.525,
+        0.102,
+        0.118,
+        0.108,
+        0.104
+      ],
+      "timbre": [
+        52.358,
+        80.817,
+        14.138,
+        -59.087,
+        -4.377,
+        -19.637,
+        -67.679,
+        21.701,
+        -7.916,
+        -6.792,
+        12.193,
+        -19.889
+      ]
+    },
+    {
+      "start": 86.63361,
+      "duration": 0.23755,
+      "confidence": 0.321,
+      "loudness_start": -7.041,
+      "loudness_max_time": 0.10983,
+      "loudness_max": -3.441,
+      "pitches": [
+        0.573,
+        0.745,
+        0.572,
+        0.209,
+        0.085,
+        0.208,
+        0.396,
+        1,
+        0.287,
+        0.09,
+        0.094,
+        0.299
+      ],
+      "timbre": [
+        54.624,
+        107.656,
+        -9.682,
+        -38.531,
+        4.665,
+        -18.8,
+        -48.388,
+        -26.996,
+        -3.477,
+        15.131,
+        -12.389,
+        -12.552
+      ]
+    },
+    {
+      "start": 86.87116,
+      "duration": 0.15152,
+      "confidence": 0.408,
+      "loudness_start": -7.557,
+      "loudness_max_time": 0.03789,
+      "loudness_max": -2.984,
+      "pitches": [
+        0.658,
+        1,
+        0.738,
+        0.534,
+        0.587,
+        0.839,
+        0.744,
+        0.801,
+        0.981,
+        0.852,
+        0.663,
+        0.321
+      ],
+      "timbre": [
+        54.863,
+        94.046,
+        33.224,
+        -10.778,
+        12.663,
+        -21.871,
+        12.286,
+        9.008,
+        9.979,
+        -17.063,
+        3.176,
+        -1.962
+      ]
+    },
+    {
+      "start": 87.02268,
+      "duration": 0.14091,
+      "confidence": 0.155,
+      "loudness_start": -7.71,
+      "loudness_max_time": 0.01955,
+      "loudness_max": -3.917,
+      "pitches": [
+        0.502,
+        0.667,
+        0.719,
+        0.644,
+        0.954,
+        1,
+        0.937,
+        0.965,
+        0.654,
+        0.658,
+        0.59,
+        0.081
+      ],
+      "timbre": [
+        54.606,
+        56.102,
+        23.933,
+        -2.687,
+        10.843,
+        -44.746,
+        44.211,
+        0.595,
+        -2.743,
+        20.814,
+        -8.885,
+        7.469
+      ]
+    },
+    {
+      "start": 87.16358,
+      "duration": 0.20698,
+      "confidence": 0.273,
+      "loudness_start": -6.816,
+      "loudness_max_time": 0.0185,
+      "loudness_max": -2.942,
+      "pitches": [
+        0.185,
+        0.384,
+        0.262,
+        0.067,
+        0.069,
+        0.052,
+        0.322,
+        1,
+        0.733,
+        0.365,
+        0.1,
+        0.08
+      ],
+      "timbre": [
+        54.198,
+        61.862,
+        -5.806,
+        12.123,
+        -4.342,
+        -32.423,
+        -15.254,
+        -26.903,
+        -4.346,
+        -8.037,
+        -7.492,
+        -6.42
+      ]
+    },
+    {
+      "start": 87.37057,
+      "duration": 0.23329,
+      "confidence": 0.581,
+      "loudness_start": -9.029,
+      "loudness_max_time": 0.02331,
+      "loudness_max": -3.237,
+      "pitches": [
+        0.857,
+        1,
+        0.257,
+        0.09,
+        0.195,
+        0.62,
+        0.166,
+        0.326,
+        0.082,
+        0.096,
+        0.068,
+        0.128
+      ],
+      "timbre": [
+        55.25,
+        45.768,
+        13.738,
+        -6.471,
+        15.13,
+        -38.252,
+        33.357,
+        0.15,
+        5.191,
+        2.634,
+        -2.542,
+        24.148
+      ]
+    },
+    {
+      "start": 87.60385,
+      "duration": 0.37596,
+      "confidence": 0.431,
+      "loudness_start": -6.969,
+      "loudness_max_time": 0.03312,
+      "loudness_max": -1.797,
+      "pitches": [
+        0.188,
+        0.563,
+        1,
+        0.351,
+        0.191,
+        0.108,
+        0.358,
+        0.315,
+        0.305,
+        0.685,
+        0.34,
+        0.062
+      ],
+      "timbre": [
+        56.124,
+        76.025,
+        26.847,
+        -14.812,
+        -0.329,
+        -15.13,
+        3.661,
+        -1.11,
+        -3.073,
+        -7.418,
+        9.533,
+        5.459
+      ]
+    },
+    {
+      "start": 87.97982,
+      "duration": 0.34481,
+      "confidence": 0.371,
+      "loudness_start": -8.183,
+      "loudness_max_time": 0.04795,
+      "loudness_max": -3.375,
+      "pitches": [
+        0.704,
+        1,
+        0.95,
+        0.141,
+        0.222,
+        0.191,
+        0.254,
+        0.145,
+        0.149,
+        0.636,
+        0.199,
+        0.431
+      ],
+      "timbre": [
+        54.693,
+        98.878,
+        31.14,
+        4.288,
+        22.467,
+        -19.85,
+        -16.998,
+        -5.386,
+        1.618,
+        0.992,
+        -16.752,
+        4.534
+      ]
+    },
+    {
+      "start": 88.32463,
+      "duration": 0.21873,
+      "confidence": 0.564,
+      "loudness_start": -9.415,
+      "loudness_max_time": 0.10892,
+      "loudness_max": -3.329,
+      "pitches": [
+        0.594,
+        0.839,
+        0.733,
+        0.3,
+        0.285,
+        0.672,
+        1,
+        0.228,
+        0.444,
+        0.697,
+        0.279,
+        0.43
+      ],
+      "timbre": [
+        55.347,
+        100.361,
+        45.005,
+        -17.372,
+        9.434,
+        -25.36,
+        9.083,
+        10.008,
+        8.978,
+        -15.398,
+        5.696,
+        1.75
+      ]
+    },
+    {
+      "start": 88.54336,
+      "duration": 0.49773,
+      "confidence": 0.333,
+      "loudness_start": -5.632,
+      "loudness_max_time": 0.05978,
+      "loudness_max": -2.487,
+      "pitches": [
+        0.333,
+        0.505,
+        1,
+        0.442,
+        0.248,
+        0.357,
+        0.399,
+        0.178,
+        0.137,
+        0.534,
+        0.207,
+        0.11
+      ],
+      "timbre": [
+        55.492,
+        99.496,
+        11.191,
+        -7.677,
+        10.835,
+        -35.067,
+        -8.253,
+        6.21,
+        -1.343,
+        11.401,
+        -8.784,
+        4.781
+      ]
+    },
+    {
+      "start": 89.04109,
+      "duration": 0.24522,
+      "confidence": 0.171,
+      "loudness_start": -6.254,
+      "loudness_max_time": 0.10518,
+      "loudness_max": -2.846,
+      "pitches": [
+        0.133,
+        0.693,
+        1,
+        0.348,
+        0.098,
+        0.118,
+        0.451,
+        0.053,
+        0.098,
+        0.574,
+        0.202,
+        0.049
+      ],
+      "timbre": [
+        55.185,
+        80.968,
+        5.942,
+        -26.441,
+        3.352,
+        -21.569,
+        -12.034,
+        -9.218,
+        -6.635,
+        8.502,
+        -14.872,
+        0.863
+      ]
+    },
+    {
+      "start": 89.2863,
+      "duration": 0.22599,
+      "confidence": 0.142,
+      "loudness_start": -7.849,
+      "loudness_max_time": 0.04737,
+      "loudness_max": -4.14,
+      "pitches": [
+        0.733,
+        1,
+        0.916,
+        0.339,
+        0.099,
+        0.111,
+        0.621,
+        0.11,
+        0.156,
+        0.649,
+        0.25,
+        0.173
+      ],
+      "timbre": [
+        54.568,
+        86.421,
+        -16.082,
+        -21.609,
+        -10.168,
+        -34.344,
+        -24.413,
+        -9.09,
+        -6.886,
+        -13.382,
+        -4.89,
+        2.866
+      ]
+    },
+    {
+      "start": 89.51229,
+      "duration": 0.37193,
+      "confidence": 0.556,
+      "loudness_start": -8.649,
+      "loudness_max_time": 0.10069,
+      "loudness_max": -2.84,
+      "pitches": [
+        0.083,
+        0.195,
+        0.48,
+        0.333,
+        0.238,
+        0.328,
+        0.288,
+        1,
+        0.41,
+        0.14,
+        0.233,
+        0.131
+      ],
+      "timbre": [
+        55.583,
+        79.73,
+        22.272,
+        -22.276,
+        2.687,
+        -24.9,
+        -7.581,
+        12.786,
+        -6.201,
+        9.542,
+        -2.385,
+        -15.644
+      ]
+    },
+    {
+      "start": 89.88422,
+      "duration": 0.11039,
+      "confidence": 0.477,
+      "loudness_start": -8.886,
+      "loudness_max_time": 0.033,
+      "loudness_max": -2.419,
+      "pitches": [
+        0.294,
+        0.604,
+        0.397,
+        0.089,
+        0.266,
+        0.373,
+        1,
+        0.538,
+        0.156,
+        0.707,
+        0.249,
+        0.361
+      ],
+      "timbre": [
+        55.555,
+        110.459,
+        53.113,
+        -5.076,
+        24.121,
+        -22.047,
+        -30.349,
+        -10.572,
+        -13.962,
+        17.005,
+        8.669,
+        -8.279
+      ]
+    },
+    {
+      "start": 89.9946,
+      "duration": 0.18617,
+      "confidence": 0.132,
+      "loudness_start": -5.428,
+      "loudness_max_time": 0.03549,
+      "loudness_max": -2.165,
+      "pitches": [
+        0.718,
+        0.916,
+        0.524,
+        0.269,
+        0.202,
+        0.205,
+        0.529,
+        1,
+        0.456,
+        0.157,
+        0.092,
+        0.298
+      ],
+      "timbre": [
+        55.668,
+        109.705,
+        0.407,
+        -4.443,
+        -3.871,
+        -39.888,
+        -14.368,
+        11.007,
+        -3.798,
+        10.93,
+        -4.484,
+        -5.893
+      ]
+    },
+    {
+      "start": 90.18077,
+      "duration": 0.28993,
+      "confidence": 0.475,
+      "loudness_start": -7.028,
+      "loudness_max_time": 0.07925,
+      "loudness_max": -2.344,
+      "pitches": [
+        0.301,
+        0.308,
+        0.322,
+        0.42,
+        0.382,
+        0.614,
+        0.577,
+        1,
+        0.625,
+        0.886,
+        0.452,
+        0.441
+      ],
+      "timbre": [
+        54.563,
+        109.582,
+        47.4,
+        -42.481,
+        11.163,
+        -28.274,
+        -3.266,
+        10.873,
+        -12.65,
+        15.182,
+        -5.607,
+        8.826
+      ]
+    },
+    {
+      "start": 90.4707,
+      "duration": 0.3658,
+      "confidence": 0.303,
+      "loudness_start": -6.574,
+      "loudness_max_time": 0.04227,
+      "loudness_max": -2.242,
+      "pitches": [
+        0.214,
+        0.421,
+        0.307,
+        0.046,
+        0.051,
+        0.067,
+        0.149,
+        1,
+        0.174,
+        0.069,
+        0.13,
+        0.104
+      ],
+      "timbre": [
+        56.095,
+        81.013,
+        23.202,
+        -6.151,
+        10.962,
+        -36.834,
+        13.607,
+        0.432,
+        -1.437,
+        -1.373,
+        -4.793,
+        10.017
+      ]
+    },
+    {
+      "start": 90.83651,
+      "duration": 0.21456,
+      "confidence": 0.163,
+      "loudness_start": -6.737,
+      "loudness_max_time": 0.01693,
+      "loudness_max": -2.827,
+      "pitches": [
+        0.505,
+        0.329,
+        0.505,
+        0.118,
+        0.074,
+        0.073,
+        0.268,
+        1,
+        0.23,
+        0.05,
+        0.142,
+        0.281
+      ],
+      "timbre": [
+        55.098,
+        40.27,
+        16.492,
+        -6.211,
+        16.108,
+        -58.289,
+        22.58,
+        -6.625,
+        6.657,
+        25.795,
+        5.193,
+        15.415
+      ]
+    },
+    {
+      "start": 91.05107,
+      "duration": 0.14535,
+      "confidence": 0.22,
+      "loudness_start": -5.528,
+      "loudness_max_time": 0.03715,
+      "loudness_max": -3.002,
+      "pitches": [
+        0.214,
+        0.447,
+        0.891,
+        0.42,
+        0.456,
+        0.532,
+        0.435,
+        1,
+        0.272,
+        0.234,
+        0.199,
+        0.187
+      ],
+      "timbre": [
+        55.724,
+        72.988,
+        22.569,
+        -5.677,
+        29.089,
+        -41.844,
+        11.745,
+        -2.485,
+        10.301,
+        -1.041,
+        -8.154,
+        13.385
+      ]
+    },
+    {
+      "start": 91.19642,
+      "duration": 0.2254,
+      "confidence": 0.059,
+      "loudness_start": -6.739,
+      "loudness_max_time": 0.02495,
+      "loudness_max": -2.613,
+      "pitches": [
+        0.545,
+        0.65,
+        0.4,
+        0.171,
+        0.205,
+        0.096,
+        0.274,
+        1,
+        0.237,
+        0.308,
+        0.128,
+        0.197
+      ],
+      "timbre": [
+        55.601,
+        64.693,
+        1.076,
+        -22.248,
+        4.067,
+        -36.938,
+        -8.054,
+        -1.869,
+        -0.983,
+        0.978,
+        -4.431,
+        -12.827
+      ]
+    },
+    {
+      "start": 91.42181,
+      "duration": 0.48263,
+      "confidence": 0.261,
+      "loudness_start": -7.105,
+      "loudness_max_time": 0.27973,
+      "loudness_max": -3.163,
+      "pitches": [
+        0.24,
+        0.325,
+        0.785,
+        1,
+        0.566,
+        0.303,
+        0.255,
+        0.215,
+        0.523,
+        0.776,
+        0.783,
+        0.239
+      ],
+      "timbre": [
+        55.738,
+        91.987,
+        11.367,
+        -31.755,
+        -13.401,
+        -24.487,
+        -17.034,
+        -13.279,
+        -11.404,
+        -0.267,
+        5.805,
+        -9.957
+      ]
+    },
+    {
+      "start": 91.90444,
+      "duration": 0.22059,
+      "confidence": 0.354,
+      "loudness_start": -7.02,
+      "loudness_max_time": 0.037,
+      "loudness_max": -2.275,
+      "pitches": [
+        0.574,
+        0.344,
+        0.331,
+        1,
+        0.452,
+        0.108,
+        0.072,
+        0.537,
+        0.236,
+        0.212,
+        0.737,
+        0.378
+      ],
+      "timbre": [
+        56.093,
+        98.376,
+        12.311,
+        -21.404,
+        -8.692,
+        -22.791,
+        4.663,
+        0.821,
+        6.073,
+        10.117,
+        -7.301,
+        -7.385
+      ]
+    },
+    {
+      "start": 92.12503,
+      "duration": 0.24912,
+      "confidence": 0.128,
+      "loudness_start": -5.393,
+      "loudness_max_time": 0.17937,
+      "loudness_max": -2.422,
+      "pitches": [
+        0.562,
+        0.463,
+        0.511,
+        0.416,
+        0.596,
+        0.252,
+        0.141,
+        0.554,
+        0.228,
+        1,
+        0.397,
+        0.32
+      ],
+      "timbre": [
+        56.014,
+        95.023,
+        35.474,
+        -27.214,
+        22.137,
+        -26.551,
+        -29.609,
+        4.63,
+        -7.468,
+        -1.168,
+        -2.503,
+        -1.871
+      ]
+    },
+    {
+      "start": 92.37415,
+      "duration": 0.14032,
+      "confidence": 0.104,
+      "loudness_start": -6.418,
+      "loudness_max_time": 0.02575,
+      "loudness_max": -3.647,
+      "pitches": [
+        0.717,
+        0.96,
+        0.666,
+        0.663,
+        0.971,
+        1,
+        0.959,
+        0.998,
+        0.789,
+        1,
+        0.469,
+        0.162
+      ],
+      "timbre": [
+        55.572,
+        60.758,
+        -0.099,
+        -25.532,
+        4.564,
+        -31.15,
+        -26.79,
+        -14.725,
+        -7.266,
+        -1.067,
+        -6.241,
+        -13.195
+      ]
+    },
+    {
+      "start": 92.51447,
+      "duration": 0.12757,
+      "confidence": 0.119,
+      "loudness_start": -5.764,
+      "loudness_max_time": 0.06642,
+      "loudness_max": -2.701,
+      "pitches": [
+        0.78,
+        0.732,
+        0.824,
+        0.591,
+        0.628,
+        0.843,
+        0.363,
+        0.32,
+        0.192,
+        0.694,
+        1,
+        0.277
+      ],
+      "timbre": [
+        55.198,
+        62.338,
+        18.478,
+        -23.578,
+        -0.603,
+        -22.567,
+        -32.998,
+        -7.787,
+        -11.201,
+        6.161,
+        -23.615,
+        -13.026
+      ]
+    },
+    {
+      "start": 92.64204,
+      "duration": 0.23224,
+      "confidence": 0.185,
+      "loudness_start": -7.339,
+      "loudness_max_time": 0.11355,
+      "loudness_max": -2.378,
+      "pitches": [
+        1,
+        0.813,
+        0.404,
+        0.412,
+        0.708,
+        0.596,
+        0.161,
+        0.181,
+        0.233,
+        0.616,
+        0.219,
+        0.674
+      ],
+      "timbre": [
+        55.611,
+        76.665,
+        18.443,
+        -17.635,
+        15.186,
+        -17.419,
+        -20.429,
+        -11.417,
+        -2.3,
+        -15.413,
+        -4.744,
+        -12.186
+      ]
+    },
+    {
+      "start": 92.87429,
+      "duration": 0.22662,
+      "confidence": 0.211,
+      "loudness_start": -6.713,
+      "loudness_max_time": 0.04892,
+      "loudness_max": -3.486,
+      "pitches": [
+        0.445,
+        0.203,
+        0.159,
+        0.122,
+        0.264,
+        1,
+        0.443,
+        0.338,
+        0.125,
+        0.186,
+        0.121,
+        0.11
+      ],
+      "timbre": [
+        55.03,
+        69.069,
+        7.342,
+        -13.969,
+        1.763,
+        -33.984,
+        -21.929,
+        13.125,
+        -6.099,
+        1.891,
+        2.785,
+        9.331
+      ]
+    },
+    {
+      "start": 93.10091,
+      "duration": 0.24898,
+      "confidence": 0.394,
+      "loudness_start": -7.171,
+      "loudness_max_time": 0.0538,
+      "loudness_max": -2.593,
+      "pitches": [
+        0.484,
+        1,
+        0.446,
+        0.08,
+        0.071,
+        0.077,
+        0.095,
+        0.158,
+        0.146,
+        0.074,
+        0.05,
+        0.11
+      ],
+      "timbre": [
+        55.532,
+        79.842,
+        8.037,
+        -22.168,
+        -0.519,
+        -31.411,
+        13.968,
+        12.616,
+        -2.423,
+        -0.074,
+        -2.301,
+        24.671
+      ]
+    },
+    {
+      "start": 93.34989,
+      "duration": 0.34839,
+      "confidence": 0.235,
+      "loudness_start": -5.552,
+      "loudness_max_time": 0.18785,
+      "loudness_max": -2.281,
+      "pitches": [
+        0.276,
+        0.686,
+        1,
+        0.124,
+        0.197,
+        0.222,
+        0.431,
+        0.106,
+        0.069,
+        0.184,
+        0.073,
+        0.058
+      ],
+      "timbre": [
+        56.17,
+        107.752,
+        20.061,
+        -20.498,
+        0.853,
+        -28.168,
+        -0.659,
+        13.29,
+        -2.711,
+        -6.684,
+        -12.918,
+        10.884
+      ]
+    },
+    {
+      "start": 93.69828,
+      "duration": 0.34222,
+      "confidence": 0.474,
+      "loudness_start": -9.396,
+      "loudness_max_time": 0.03963,
+      "loudness_max": -4.164,
+      "pitches": [
+        0.564,
+        1,
+        0.573,
+        0.104,
+        0.183,
+        0.191,
+        0.486,
+        0.114,
+        0.166,
+        0.516,
+        0.176,
+        0.375
+      ],
+      "timbre": [
+        53.272,
+        105.903,
+        14.72,
+        8.172,
+        20.423,
+        -12.216,
+        -30.297,
+        -18.236,
+        -25.798,
+        13.205,
+        -23.648,
+        10.517
+      ]
+    },
+    {
+      "start": 94.0405,
+      "duration": 0.24957,
+      "confidence": 0.642,
+      "loudness_start": -10.486,
+      "loudness_max_time": 0.08163,
+      "loudness_max": -3.485,
+      "pitches": [
+        0.295,
+        0.377,
+        0.597,
+        0.303,
+        0.431,
+        0.827,
+        1,
+        0.702,
+        0.268,
+        0.369,
+        0.584,
+        0.364
+      ],
+      "timbre": [
+        54.377,
+        97.757,
+        45.55,
+        -34.548,
+        27.061,
+        -22.339,
+        -6.576,
+        4.634,
+        5.129,
+        7.856,
+        8.536,
+        -10.67
+      ]
+    },
+    {
+      "start": 94.29007,
+      "duration": 0.67383,
+      "confidence": 0.287,
+      "loudness_start": -5.344,
+      "loudness_max_time": 0.16802,
+      "loudness_max": -2.414,
+      "pitches": [
+        0.384,
+        0.423,
+        0.71,
+        0.485,
+        0.349,
+        0.456,
+        0.526,
+        1,
+        0.728,
+        0.601,
+        0.409,
+        0.41
+      ],
+      "timbre": [
+        55.786,
+        82.68,
+        20.53,
+        5.287,
+        -2.366,
+        -37.351,
+        9.688,
+        23.355,
+        13.733,
+        10.803,
+        -21.867,
+        -7.633
+      ]
+    },
+    {
+      "start": 94.9639,
+      "duration": 0.37578,
+      "confidence": 0.693,
+      "loudness_start": -9.825,
+      "loudness_max_time": 0.04206,
+      "loudness_max": -0.782,
+      "pitches": [
+        0.416,
+        0.226,
+        0.205,
+        0.354,
+        0.442,
+        1,
+        0.537,
+        0.243,
+        0.143,
+        0.161,
+        0.126,
+        0.203
+      ],
+      "timbre": [
+        53.115,
+        45.906,
+        -24.957,
+        3.151,
+        5.123,
+        2.339,
+        -5.888,
+        -7.985,
+        -9.175,
+        -8.258,
+        -14.222,
+        4.926
+      ]
+    },
+    {
+      "start": 95.33968,
+      "duration": 0.20893,
+      "confidence": 0.262,
+      "loudness_start": -14.628,
+      "loudness_max_time": 0.04573,
+      "loudness_max": -11.579,
+      "pitches": [
+        1,
+        0.982,
+        0.296,
+        0.963,
+        0.185,
+        0.191,
+        0.194,
+        0.571,
+        0.249,
+        0.153,
+        0.365,
+        0.427
+      ],
+      "timbre": [
+        46.442,
+        -45.957,
+        -10.659,
+        -16.537,
+        23.142,
+        -17.507,
+        -14.61,
+        -2.566,
+        -10.264,
+        -26.432,
+        -16.517,
+        -8.105
+      ]
+    },
+    {
+      "start": 95.54862,
+      "duration": 0.15252,
+      "confidence": 0.717,
+      "loudness_start": -18.606,
+      "loudness_max_time": 0.06552,
+      "loudness_max": -11.239,
+      "pitches": [
+        0.256,
+        0.175,
+        0.227,
+        0.442,
+        0.104,
+        0.167,
+        0.072,
+        0.242,
+        0.245,
+        0.48,
+        1,
+        0.122
+      ],
+      "timbre": [
+        47.613,
+        10.13,
+        -20.288,
+        -50.412,
+        100.691,
+        -33.163,
+        -13.98,
+        2.022,
+        5.475,
+        -8.866,
+        11.629,
+        1.186
+      ]
+    },
+    {
+      "start": 95.70113,
+      "duration": 0.242,
+      "confidence": 0.698,
+      "loudness_start": -12.323,
+      "loudness_max_time": 0.07452,
+      "loudness_max": -4.888,
+      "pitches": [
+        0.125,
+        0.12,
+        0.258,
+        0.743,
+        0.244,
+        0.45,
+        0.136,
+        0.214,
+        0.199,
+        0.485,
+        1,
+        0.358
+      ],
+      "timbre": [
+        50.127,
+        23.504,
+        16.483,
+        -23.933,
+        68.971,
+        -5.932,
+        -8.53,
+        12.605,
+        8.849,
+        2.128,
+        -33.541,
+        27.489
+      ]
+    },
+    {
+      "start": 95.94313,
+      "duration": 0.55955,
+      "confidence": 0.719,
+      "loudness_start": -13.043,
+      "loudness_max_time": 0.05618,
+      "loudness_max": -5.653,
+      "pitches": [
+        0.251,
+        0.196,
+        0.202,
+        0.669,
+        0.289,
+        0.188,
+        0.112,
+        0.253,
+        0.149,
+        0.389,
+        1,
+        0.371
+      ],
+      "timbre": [
+        51.902,
+        54.606,
+        21.676,
+        -48.677,
+        30.345,
+        6.386,
+        -24.383,
+        9.442,
+        11.321,
+        -25.217,
+        11.147,
+        6.443
+      ]
+    },
+    {
+      "start": 96.50268,
+      "duration": 0.16844,
+      "confidence": 1,
+      "loudness_start": -20.55,
+      "loudness_max_time": 0.07337,
+      "loudness_max": -4.596,
+      "pitches": [
+        0.164,
+        0.088,
+        0.118,
+        1,
+        0.407,
+        0.677,
+        0.192,
+        0.109,
+        0.06,
+        0.086,
+        0.582,
+        0.129
+      ],
+      "timbre": [
+        48.572,
+        22.945,
+        51.88,
+        -120.458,
+        42.656,
+        37.535,
+        -3.337,
+        -2.182,
+        -36.824,
+        -42.302,
+        1.653,
+        27.52
+      ]
+    },
+    {
+      "start": 96.67111,
+      "duration": 0.40553,
+      "confidence": 0.396,
+      "loudness_start": -7.861,
+      "loudness_max_time": 0.02519,
+      "loudness_max": -3.338,
+      "pitches": [
+        0.505,
+        0.45,
+        0.534,
+        1,
+        0.523,
+        0.728,
+        0.372,
+        0.385,
+        0.244,
+        0.196,
+        0.622,
+        0.165
+      ],
+      "timbre": [
+        54.414,
+        38.152,
+        32.051,
+        3.835,
+        46.132,
+        -25.487,
+        13.123,
+        1.719,
+        -34.668,
+        -24.903,
+        5.731,
+        35.193
+      ]
+    },
+    {
+      "start": 97.07664,
+      "duration": 0.30204,
+      "confidence": 0.013,
+      "loudness_start": -9.135,
+      "loudness_max_time": 0.0511,
+      "loudness_max": -7.007,
+      "pitches": [
+        0.245,
+        0.227,
+        1,
+        0.613,
+        0.11,
+        0.163,
+        0.054,
+        0.182,
+        0.052,
+        0.111,
+        0.566,
+        0.166
+      ],
+      "timbre": [
+        51.673,
+        66.736,
+        33.853,
+        -6.666,
+        17.122,
+        -31.637,
+        -47.928,
+        18.714,
+        -16.12,
+        -11.458,
+        -5.214,
+        -7.531
+      ]
+    },
+    {
+      "start": 97.37868,
+      "duration": 0.2376,
+      "confidence": 0.597,
+      "loudness_start": -12.764,
+      "loudness_max_time": 0.04653,
+      "loudness_max": -6.731,
+      "pitches": [
+        0.06,
+        0.158,
+        1,
+        0.798,
+        0.081,
+        0.052,
+        0.048,
+        0.182,
+        0.028,
+        0.099,
+        0.447,
+        0.051
+      ],
+      "timbre": [
+        49.13,
+        19.907,
+        -15.962,
+        55.007,
+        44.518,
+        -2.105,
+        -38.983,
+        -16.527,
+        -46.852,
+        12.599,
+        -53.287,
+        9.481
+      ]
+    },
+    {
+      "start": 97.61628,
+      "duration": 0.24943,
+      "confidence": 1,
+      "loudness_start": -21.041,
+      "loudness_max_time": 0.0199,
+      "loudness_max": -4.649,
+      "pitches": [
+        1,
+        0.601,
+        0.282,
+        0.53,
+        0.155,
+        0.113,
+        0.1,
+        0.112,
+        0.064,
+        0.056,
+        0.521,
+        0.317
+      ],
+      "timbre": [
+        52.731,
+        20.966,
+        4.23,
+        1.48,
+        13.697,
+        -17.557,
+        -52.87,
+        -9.066,
+        -18.503,
+        -10.742,
+        6.307,
+        -20.298
+      ]
+    },
+    {
+      "start": 97.86571,
+      "duration": 0.22694,
+      "confidence": 0.374,
+      "loudness_start": -13.734,
+      "loudness_max_time": 0.01571,
+      "loudness_max": -6.261,
+      "pitches": [
+        0.077,
+        0.081,
+        0.244,
+        1,
+        0.106,
+        0.215,
+        0.035,
+        0.087,
+        0.02,
+        0.123,
+        0.546,
+        0.09
+      ],
+      "timbre": [
+        51.186,
+        103.801,
+        7.569,
+        11.586,
+        5.237,
+        -17.717,
+        -88.171,
+        -35.626,
+        19.619,
+        -2.895,
+        -21.016,
+        -3.011
+      ]
+    },
+    {
+      "start": 98.09265,
+      "duration": 0.37719,
+      "confidence": 0.837,
+      "loudness_start": -16.008,
+      "loudness_max_time": 0.10354,
+      "loudness_max": -5.738,
+      "pitches": [
+        0.214,
+        0.063,
+        0.133,
+        0.232,
+        0.109,
+        0.395,
+        0.08,
+        0.177,
+        0.066,
+        0.103,
+        1,
+        0.118
+      ],
+      "timbre": [
+        52.51,
+        45.67,
+        41.8,
+        -2.205,
+        28.298,
+        -31.244,
+        6.239,
+        7.833,
+        -43.842,
+        8.185,
+        -5.493,
+        10.385
+      ]
+    },
+    {
+      "start": 98.46984,
+      "duration": 0.34263,
+      "confidence": 0.4,
+      "loudness_start": -12.349,
+      "loudness_max_time": 0.04879,
+      "loudness_max": -6.547,
+      "pitches": [
+        0.226,
+        0.144,
+        0.287,
+        0.934,
+        0.344,
+        1,
+        0.169,
+        0.25,
+        0.101,
+        0.139,
+        0.878,
+        0.128
+      ],
+      "timbre": [
+        50.196,
+        85.809,
+        25.853,
+        34.087,
+        61.406,
+        -21.81,
+        -28.61,
+        57.22,
+        -48.013,
+        -19.798,
+        -20.053,
+        36.073
+      ]
+    },
+    {
+      "start": 98.81247,
+      "duration": 0.19732,
+      "confidence": 0.839,
+      "loudness_start": -16.388,
+      "loudness_max_time": 0.04557,
+      "loudness_max": -7.123,
+      "pitches": [
+        0.918,
+        0.149,
+        0.338,
+        0.643,
+        0.404,
+        0.149,
+        0.18,
+        0.846,
+        0.162,
+        0.253,
+        1,
+        0.228
+      ],
+      "timbre": [
+        50.612,
+        44.397,
+        52.107,
+        3.039,
+        43.011,
+        -14.343,
+        13.683,
+        1.71,
+        -45.408,
+        7.563,
+        12.16,
+        -10.155
+      ]
+    },
+    {
+      "start": 99.0098,
+      "duration": 0.52204,
+      "confidence": 0.423,
+      "loudness_start": -9.36,
+      "loudness_max_time": 0.24553,
+      "loudness_max": -5.23,
+      "pitches": [
+        0.354,
+        0.508,
+        1,
+        0.407,
+        0.275,
+        0.401,
+        0.252,
+        0.577,
+        0.289,
+        0.202,
+        0.349,
+        0.165
+      ],
+      "timbre": [
+        52.28,
+        27.186,
+        56.764,
+        -17.813,
+        14.619,
+        -15.078,
+        -20.509,
+        5.585,
+        -19.407,
+        -24.051,
+        -15.89,
+        -14.02
+      ]
+    },
+    {
+      "start": 99.53184,
+      "duration": 0.42975,
+      "confidence": 0.845,
+      "loudness_start": -15.188,
+      "loudness_max_time": 0.09475,
+      "loudness_max": -5.873,
+      "pitches": [
+        0.903,
+        0.206,
+        0.59,
+        0.129,
+        0.069,
+        0.221,
+        0.059,
+        0.404,
+        0.116,
+        0.651,
+        1,
+        0.79
+      ],
+      "timbre": [
+        51.006,
+        61.219,
+        10.959,
+        -40.244,
+        23.627,
+        19.026,
+        -35.844,
+        -23.396,
+        -17.681,
+        -22.596,
+        11.141,
+        0.838
+      ]
+    },
+    {
+      "start": 99.96159,
+      "duration": 0.36617,
+      "confidence": 0.367,
+      "loudness_start": -9.996,
+      "loudness_max_time": 0.04329,
+      "loudness_max": -5.318,
+      "pitches": [
+        0.317,
+        0.395,
+        0.762,
+        0.226,
+        0.315,
+        0.617,
+        0.115,
+        1,
+        0.284,
+        0.592,
+        0.452,
+        0.076
+      ],
+      "timbre": [
+        51.098,
+        1.769,
+        46.452,
+        23.632,
+        47.342,
+        -13.117,
+        15.715,
+        -4.149,
+        -33.511,
+        -26.808,
+        -9.962,
+        23.831
+      ]
+    },
+    {
+      "start": 100.32776,
+      "duration": 0.15088,
+      "confidence": 0.987,
+      "loudness_start": -20.445,
+      "loudness_max_time": 0.06468,
+      "loudness_max": -7.624,
+      "pitches": [
+        0.641,
+        1,
+        0.77,
+        0.212,
+        0.126,
+        0.177,
+        0.094,
+        0.304,
+        0.074,
+        0.078,
+        0.311,
+        0.237
+      ],
+      "timbre": [
+        48.472,
+        60.02,
+        26.109,
+        -92.274,
+        11.621,
+        42.362,
+        -46.711,
+        22.61,
+        -3.335,
+        -54.43,
+        22.42,
+        -12.344
+      ]
+    },
+    {
+      "start": 100.47864,
+      "duration": 0.23252,
+      "confidence": 0.304,
+      "loudness_start": -9.188,
+      "loudness_max_time": 0.07108,
+      "loudness_max": -5.31,
+      "pitches": [
+        1,
+        0.635,
+        0.383,
+        0.309,
+        0.158,
+        0.209,
+        0.095,
+        0.259,
+        0.069,
+        0.05,
+        0.103,
+        0.344
+      ],
+      "timbre": [
+        51.305,
+        78.434,
+        -37.549,
+        14.233,
+        -16.918,
+        -15.517,
+        -78.12,
+        -26.057,
+        -8.935,
+        -25.024,
+        -35.97,
+        -3.983
+      ]
+    },
+    {
+      "start": 100.71116,
+      "duration": 0.21991,
+      "confidence": 0.943,
+      "loudness_start": -20.236,
+      "loudness_max_time": 0.03788,
+      "loudness_max": -6.773,
+      "pitches": [
+        0.094,
+        0.107,
+        1,
+        0.115,
+        0.071,
+        0.349,
+        0.086,
+        0.314,
+        0.135,
+        0.156,
+        0.553,
+        0.119
+      ],
+      "timbre": [
+        50.471,
+        21.802,
+        23.495,
+        8.673,
+        50.647,
+        2.362,
+        -10.215,
+        -0.364,
+        -33.068,
+        -16.468,
+        -7.81,
+        7.3
+      ]
+    },
+    {
+      "start": 100.93107,
+      "duration": 0.15683,
+      "confidence": 0.923,
+      "loudness_start": -20.11,
+      "loudness_max_time": 0.04155,
+      "loudness_max": -5.928,
+      "pitches": [
+        0.539,
+        0.945,
+        0.702,
+        0.272,
+        0.089,
+        0.352,
+        0.221,
+        1,
+        0.141,
+        0.111,
+        0.357,
+        0.276
+      ],
+      "timbre": [
+        50.484,
+        41.999,
+        11.458,
+        -14.429,
+        29.909,
+        30.621,
+        -13.187,
+        -53.834,
+        -18.388,
+        -5.944,
+        18.236,
+        -5.553
+      ]
+    },
+    {
+      "start": 101.08789,
+      "duration": 0.18036,
+      "confidence": 0.273,
+      "loudness_start": -10.809,
+      "loudness_max_time": 0.077,
+      "loudness_max": -6.949,
+      "pitches": [
+        0.234,
+        0.426,
+        0.851,
+        0.079,
+        0.097,
+        0.646,
+        0.294,
+        1,
+        0.116,
+        0.198,
+        0.268,
+        0.186
+      ],
+      "timbre": [
+        49.697,
+        33.614,
+        26.165,
+        12.573,
+        69.228,
+        -35.069,
+        15.798,
+        76.784,
+        -42.768,
+        -15.014,
+        -30.858,
+        25.999
+      ]
+    },
+    {
+      "start": 101.26825,
+      "duration": 0.13932,
+      "confidence": 0.849,
+      "loudness_start": -16.185,
+      "loudness_max_time": 0.07115,
+      "loudness_max": -6.087,
+      "pitches": [
+        0.255,
+        0.694,
+        1,
+        0.174,
+        0.067,
+        0.193,
+        0.132,
+        0.269,
+        0.137,
+        0.081,
+        0.174,
+        0.175
+      ],
+      "timbre": [
+        48.999,
+        70.99,
+        10.966,
+        -99.937,
+        69.714,
+        -0.156,
+        -13.127,
+        -55.221,
+        -32.484,
+        19.466,
+        -12.2,
+        2.037
+      ]
+    },
+    {
+      "start": 101.40757,
+      "duration": 0.23188,
+      "confidence": 0.24,
+      "loudness_start": -8.757,
+      "loudness_max_time": 0.02821,
+      "loudness_max": -5.295,
+      "pitches": [
+        1,
+        0.716,
+        0.632,
+        0.372,
+        0.348,
+        0.51,
+        0.317,
+        0.586,
+        0.273,
+        0.145,
+        0.139,
+        0.578
+      ],
+      "timbre": [
+        51.467,
+        13.061,
+        19.249,
+        33.47,
+        57.706,
+        -28.199,
+        3.193,
+        19.173,
+        -16.22,
+        1.491,
+        -16.533,
+        17.049
+      ]
+    },
+    {
+      "start": 101.63946,
+      "duration": 0.2439,
+      "confidence": 0.894,
+      "loudness_start": -20.497,
+      "loudness_max_time": 0.04942,
+      "loudness_max": -8.455,
+      "pitches": [
+        0.079,
+        0.066,
+        0.802,
+        0.102,
+        0.017,
+        0.164,
+        0.026,
+        0.122,
+        0.032,
+        0.068,
+        1,
+        0.08
+      ],
+      "timbre": [
+        47.609,
+        27.871,
+        4.995,
+        -45.699,
+        102.87,
+        18.567,
+        2.342,
+        -28.797,
+        -20.426,
+        31.684,
+        -5.315,
+        29.419
+      ]
+    },
+    {
+      "start": 101.88336,
+      "duration": 0.49968,
+      "confidence": 0.624,
+      "loudness_start": -13.21,
+      "loudness_max_time": 0.10109,
+      "loudness_max": -6.29,
+      "pitches": [
+        0.276,
+        0.195,
+        1,
+        0.816,
+        0.568,
+        0.509,
+        0.185,
+        0.925,
+        0.088,
+        0.422,
+        0.377,
+        0.232
+      ],
+      "timbre": [
+        50.213,
+        -2.35,
+        51.993,
+        13.642,
+        66.378,
+        -10.015,
+        4.804,
+        19.579,
+        -33.343,
+        -21.187,
+        -1.942,
+        20.814
+      ]
+    },
+    {
+      "start": 102.38304,
+      "duration": 0.35433,
+      "confidence": 0.608,
+      "loudness_start": -12.527,
+      "loudness_max_time": 0.01916,
+      "loudness_max": -6.164,
+      "pitches": [
+        0.338,
+        0.078,
+        1,
+        0.081,
+        0.05,
+        0.432,
+        0.069,
+        0.2,
+        0.059,
+        0.302,
+        0.086,
+        0.062
+      ],
+      "timbre": [
+        52.314,
+        51.039,
+        97.196,
+        -6.441,
+        29.366,
+        -17.252,
+        -28.991,
+        8.328,
+        -32.581,
+        -21.236,
+        20.503,
+        -23.599
+      ]
+    },
+    {
+      "start": 102.73737,
+      "duration": 0.17973,
+      "confidence": 0.243,
+      "loudness_start": -8.502,
+      "loudness_max_time": 0.02858,
+      "loudness_max": -4.864,
+      "pitches": [
+        1,
+        0.769,
+        0.274,
+        0.376,
+        0.386,
+        0.317,
+        0.528,
+        0.596,
+        0.678,
+        0.623,
+        0.775,
+        0.156
+      ],
+      "timbre": [
+        51.614,
+        25.272,
+        -24.87,
+        31.509,
+        7.053,
+        -14.245,
+        -55.432,
+        -21.026,
+        2.857,
+        -21.428,
+        -35.05,
+        0.302
+      ]
+    },
+    {
+      "start": 102.9171,
+      "duration": 0.23728,
+      "confidence": 0.303,
+      "loudness_start": -18.225,
+      "loudness_max_time": 0.04505,
+      "loudness_max": -13.208,
+      "pitches": [
+        0.762,
+        1,
+        0.154,
+        0.623,
+        0.04,
+        0.054,
+        0.024,
+        0.343,
+        0.023,
+        0.04,
+        0.309,
+        0.066
+      ],
+      "timbre": [
+        44.471,
+        -61.333,
+        -5.182,
+        -29.648,
+        34.702,
+        -24.749,
+        -26.275,
+        9.412,
+        21.284,
+        -14.46,
+        -9.619,
+        3.892
+      ]
+    },
+    {
+      "start": 103.15438,
+      "duration": 0.17478,
+      "confidence": 0.234,
+      "loudness_start": -18.05,
+      "loudness_max_time": 0.04294,
+      "loudness_max": -14.726,
+      "pitches": [
+        0.057,
+        0.058,
+        0.203,
+        1,
+        0.116,
+        0.09,
+        0.03,
+        0.292,
+        0.023,
+        0.05,
+        0.532,
+        0.025
+      ],
+      "timbre": [
+        42.416,
+        -39.223,
+        -16.106,
+        2.299,
+        39.579,
+        -27.026,
+        -47.318,
+        -31.072,
+        2.702,
+        -4.313,
+        -3.746,
+        2.88
+      ]
+    },
+    {
+      "start": 103.32916,
+      "duration": 0.2322,
+      "confidence": 1,
+      "loudness_start": -20.64,
+      "loudness_max_time": 0.10023,
+      "loudness_max": -6.1,
+      "pitches": [
+        0.043,
+        0.043,
+        0.124,
+        0.551,
+        0.034,
+        0.1,
+        0.021,
+        0.065,
+        0.022,
+        0.09,
+        1,
+        0.117
+      ],
+      "timbre": [
+        51.356,
+        81.128,
+        13.302,
+        -24.835,
+        43.746,
+        19.322,
+        -76.408,
+        -17.13,
+        -8.523,
+        -0.846,
+        -9.609,
+        -16.817
+      ]
+    },
+    {
+      "start": 103.56136,
+      "duration": 0.32494,
+      "confidence": 0.772,
+      "loudness_start": -13.482,
+      "loudness_max_time": 0.04515,
+      "loudness_max": -5.088,
+      "pitches": [
+        0.088,
+        0.03,
+        0.064,
+        0.363,
+        0.031,
+        0.157,
+        0.035,
+        0.106,
+        0.04,
+        0.07,
+        1,
+        0.106
+      ],
+      "timbre": [
+        52.564,
+        72.801,
+        9.452,
+        -51.89,
+        61.709,
+        16.088,
+        -41.744,
+        -15.553,
+        -17.421,
+        -3.829,
+        0.186,
+        -6.597
+      ]
+    },
+    {
+      "start": 103.8863,
+      "duration": 0.29016,
+      "confidence": 0.013,
+      "loudness_start": -8.897,
+      "loudness_max_time": 0.08768,
+      "loudness_max": -6.116,
+      "pitches": [
+        0.363,
+        0.046,
+        0.097,
+        1,
+        0.19,
+        0.479,
+        0.044,
+        0.254,
+        0.044,
+        0.072,
+        0.576,
+        0.104
+      ],
+      "timbre": [
+        52,
+        67.314,
+        56.984,
+        44.335,
+        74.978,
+        -24.254,
+        8.694,
+        -2.207,
+        -35.454,
+        -9.707,
+        -30.136,
+        58.105
+      ]
+    },
+    {
+      "start": 104.17646,
+      "duration": 0.3483,
+      "confidence": 0.954,
+      "loudness_start": -18.367,
+      "loudness_max_time": 0.14099,
+      "loudness_max": -4.743,
+      "pitches": [
+        0.719,
+        0.786,
+        0.629,
+        1,
+        0.591,
+        0.698,
+        0.591,
+        0.431,
+        0.404,
+        0.358,
+        0.516,
+        0.605
+      ],
+      "timbre": [
+        51.196,
+        81.491,
+        29.108,
+        -31.396,
+        39.017,
+        32.295,
+        -17.885,
+        43.004,
+        -38.173,
+        14.292,
+        11.485,
+        22.709
+      ]
+    },
+    {
+      "start": 104.52476,
+      "duration": 0.46444,
+      "confidence": 0.478,
+      "loudness_start": -10.854,
+      "loudness_max_time": 0.06278,
+      "loudness_max": -6.28,
+      "pitches": [
+        0.293,
+        0.432,
+        0.342,
+        1,
+        0.222,
+        0.147,
+        0.044,
+        0.233,
+        0.12,
+        0.212,
+        0.768,
+        0.052
+      ],
+      "timbre": [
+        51.08,
+        36.617,
+        23.778,
+        -11.54,
+        45.279,
+        -9.873,
+        -22.547,
+        -32.913,
+        -34.863,
+        26.344,
+        -24.137,
+        20.951
+      ]
+    },
+    {
+      "start": 104.98921,
+      "duration": 0.21569,
+      "confidence": 0.798,
+      "loudness_start": -15.279,
+      "loudness_max_time": 0.12845,
+      "loudness_max": -4.901,
+      "pitches": [
+        0.076,
+        0.092,
+        1,
+        0.497,
+        0.068,
+        0.038,
+        0.029,
+        0.097,
+        0.016,
+        0.087,
+        0.626,
+        0.064
+      ],
+      "timbre": [
+        51.848,
+        62.767,
+        13.357,
+        -45.373,
+        -0.412,
+        24.673,
+        -46.679,
+        11.747,
+        -10.333,
+        -33.425,
+        17.54,
+        6.58
+      ]
+    },
+    {
+      "start": 105.2049,
+      "duration": 0.2717,
+      "confidence": 0.602,
+      "loudness_start": -13.312,
+      "loudness_max_time": 0.18294,
+      "loudness_max": -4.72,
+      "pitches": [
+        1,
+        0.737,
+        0.404,
+        0.613,
+        0.317,
+        0.234,
+        0.238,
+        0.446,
+        0.175,
+        0.134,
+        0.475,
+        0.494
+      ],
+      "timbre": [
+        51.79,
+        65.597,
+        6.888,
+        -33.177,
+        7.518,
+        4.878,
+        -36.743,
+        -22.597,
+        -36.462,
+        18.67,
+        -12.864,
+        2.123
+      ]
+    },
+    {
+      "start": 105.4766,
+      "duration": 0.23147,
+      "confidence": 0.637,
+      "loudness_start": -13.857,
+      "loudness_max_time": 0.01943,
+      "loudness_max": -5.947,
+      "pitches": [
+        0.055,
+        0.067,
+        0.249,
+        0.397,
+        0.056,
+        0.239,
+        0.046,
+        0.09,
+        0.089,
+        0.418,
+        1,
+        0.253
+      ],
+      "timbre": [
+        49.05,
+        4.639,
+        5.256,
+        88.741,
+        50.874,
+        -8.268,
+        -14.788,
+        -18.404,
+        -35.867,
+        8.195,
+        -52.536,
+        32.249
+      ]
+    },
+    {
+      "start": 105.70807,
+      "duration": 0.13415,
+      "confidence": 1,
+      "loudness_start": -23.546,
+      "loudness_max_time": 0.06327,
+      "loudness_max": -4.693,
+      "pitches": [
+        0.125,
+        0.162,
+        0.212,
+        0.63,
+        0.26,
+        0.339,
+        0.638,
+        0.303,
+        0.089,
+        0.169,
+        1,
+        0.21
+      ],
+      "timbre": [
+        52.819,
+        61.291,
+        37.971,
+        -30.03,
+        15.016,
+        -3.136,
+        -9.387,
+        -9.111,
+        -60.6,
+        -8.783,
+        1.563,
+        18.938
+      ]
+    },
+    {
+      "start": 105.84222,
+      "duration": 0.20544,
+      "confidence": 0.315,
+      "loudness_start": -7.58,
+      "loudness_max_time": 0.07052,
+      "loudness_max": -4.187,
+      "pitches": [
+        0.131,
+        0.053,
+        0.279,
+        0.668,
+        0.084,
+        0.058,
+        0.088,
+        0.656,
+        0.101,
+        0.135,
+        1,
+        0.093
+      ],
+      "timbre": [
+        53.272,
+        45.325,
+        41.484,
+        28.586,
+        25.356,
+        -6.808,
+        -1.858,
+        16.844,
+        -37.823,
+        -25.929,
+        -24.283,
+        29.138
+      ]
+    },
+    {
+      "start": 106.04766,
+      "duration": 0.14268,
+      "confidence": 0.902,
+      "loudness_start": -20.146,
+      "loudness_max_time": 0.06897,
+      "loudness_max": -5.553,
+      "pitches": [
+        0.051,
+        0.069,
+        0.181,
+        0.377,
+        0.186,
+        0.319,
+        0.641,
+        0.195,
+        0.123,
+        0.251,
+        1,
+        0.077
+      ],
+      "timbre": [
+        49.82,
+        75.547,
+        23.858,
+        -96.965,
+        16.187,
+        8.68,
+        -23.68,
+        -25.417,
+        -62.437,
+        -1.015,
+        -6.029,
+        0.918
+      ]
+    },
+    {
+      "start": 106.19034,
+      "duration": 0.22095,
+      "confidence": 0.117,
+      "loudness_start": -8.54,
+      "loudness_max_time": 0.06812,
+      "loudness_max": -5.312,
+      "pitches": [
+        0.24,
+        0.11,
+        0.158,
+        0.523,
+        0.28,
+        1,
+        0.088,
+        0.1,
+        0.03,
+        0.112,
+        0.827,
+        0.152
+      ],
+      "timbre": [
+        51.72,
+        37.729,
+        37.62,
+        39.211,
+        18.972,
+        -4.611,
+        -8.728,
+        -14.259,
+        -51.772,
+        -17.462,
+        -45.224,
+        40.628
+      ]
+    },
+    {
+      "start": 106.41129,
+      "duration": 0.26045,
+      "confidence": 0.811,
+      "loudness_start": -20.114,
+      "loudness_max_time": 0.08209,
+      "loudness_max": -7.149,
+      "pitches": [
+        0.711,
+        0.225,
+        0.315,
+        0.691,
+        0.877,
+        0.209,
+        0.173,
+        1,
+        0.555,
+        0.307,
+        0.508,
+        0.43
+      ],
+      "timbre": [
+        50.433,
+        56.884,
+        40.587,
+        -21.56,
+        18.297,
+        -4.776,
+        1.677,
+        -40.167,
+        -36.193,
+        25.265,
+        -7.619,
+        7.814
+      ]
+    },
+    {
+      "start": 106.67175,
+      "duration": 0.0629,
+      "confidence": 0.131,
+      "loudness_start": -11.358,
+      "loudness_max_time": 0.0265,
+      "loudness_max": -7.38,
+      "pitches": [
+        0.427,
+        0.592,
+        0.602,
+        0.273,
+        0.367,
+        0.343,
+        0.632,
+        0.588,
+        0.707,
+        1,
+        0.604,
+        0.06
+      ],
+      "timbre": [
+        50.985,
+        -42.129,
+        -1.017,
+        -23.432,
+        70.682,
+        -52.953,
+        24.868,
+        11.476,
+        -2.113,
+        0.825,
+        10.111,
+        11.974
+      ]
+    },
+    {
+      "start": 106.73465,
+      "duration": 0.18676,
+      "confidence": 0.06,
+      "loudness_start": -9.583,
+      "loudness_max_time": 0.07902,
+      "loudness_max": -6.558,
+      "pitches": [
+        0.705,
+        1,
+        0.698,
+        0.177,
+        0.051,
+        0.072,
+        0.154,
+        0.034,
+        0.062,
+        0.325,
+        0.189,
+        0.145
+      ],
+      "timbre": [
+        51.328,
+        38.9,
+        -16.537,
+        -20.181,
+        62.471,
+        -35.728,
+        -10.51,
+        33.283,
+        -11.901,
+        -2.368,
+        -8.935,
+        39.234
+      ]
+    },
+    {
+      "start": 106.92141,
+      "duration": 0.22649,
+      "confidence": 0.565,
+      "loudness_start": -12.635,
+      "loudness_max_time": 0.02867,
+      "loudness_max": -6.244,
+      "pitches": [
+        0.089,
+        0.182,
+        1,
+        0.215,
+        0.065,
+        0.177,
+        0.268,
+        0.047,
+        0.048,
+        0.49,
+        0.136,
+        0.032
+      ],
+      "timbre": [
+        51.344,
+        22.37,
+        48.056,
+        18.895,
+        51.705,
+        -13.752,
+        -0.694,
+        -8.785,
+        -32.036,
+        -2.397,
+        -12.72,
+        23.465
+      ]
+    },
+    {
+      "start": 107.14789,
+      "duration": 0.25066,
+      "confidence": 0.868,
+      "loudness_start": -17.428,
+      "loudness_max_time": 0.03472,
+      "loudness_max": -4.861,
+      "pitches": [
+        0.71,
+        0.923,
+        1,
+        0.282,
+        0.174,
+        0.167,
+        0.378,
+        0.079,
+        0.072,
+        0.392,
+        0.083,
+        0.336
+      ],
+      "timbre": [
+        52.441,
+        12.094,
+        20.136,
+        -5.097,
+        34.081,
+        2.257,
+        3.447,
+        -11.119,
+        -27.171,
+        -14.662,
+        19.105,
+        -9.691
+      ]
+    },
+    {
+      "start": 107.39855,
+      "duration": 0.21474,
+      "confidence": 0.201,
+      "loudness_start": -10.754,
+      "loudness_max_time": 0.06327,
+      "loudness_max": -7.826,
+      "pitches": [
+        0.095,
+        0.398,
+        1,
+        0.127,
+        0.046,
+        0.314,
+        0.146,
+        0.059,
+        0.587,
+        0.75,
+        0.127,
+        0.051
+      ],
+      "timbre": [
+        51.628,
+        30.696,
+        73.111,
+        -2.898,
+        64.949,
+        -41.445,
+        25.437,
+        -2.9,
+        -27.244,
+        -11.699,
+        9.507,
+        25.005
+      ]
+    },
+    {
+      "start": 107.61329,
+      "duration": 0.23202,
+      "confidence": 0.485,
+      "loudness_start": -8.888,
+      "loudness_max_time": 0.014,
+      "loudness_max": -3.355,
+      "pitches": [
+        0.719,
+        0.883,
+        0.722,
+        0.368,
+        0.273,
+        0.261,
+        0.326,
+        0.151,
+        0.175,
+        1,
+        0.141,
+        0.524
+      ],
+      "timbre": [
+        53.614,
+        5.8,
+        46.114,
+        9.759,
+        20.614,
+        -54.006,
+        11.543,
+        15.27,
+        -20.259,
+        -3.871,
+        14.314,
+        -3.065
+      ]
+    },
+    {
+      "start": 107.84531,
+      "duration": 0.12748,
+      "confidence": 0.282,
+      "loudness_start": -10.378,
+      "loudness_max_time": 0.04929,
+      "loudness_max": -5.754,
+      "pitches": [
+        0.274,
+        0.549,
+        1,
+        0.118,
+        0.132,
+        0.134,
+        0.292,
+        0.114,
+        0.328,
+        0.708,
+        0.194,
+        0.107
+      ],
+      "timbre": [
+        51.646,
+        11.12,
+        51.554,
+        21.846,
+        58.291,
+        -19.072,
+        17.729,
+        9.451,
+        -17.248,
+        -34.487,
+        -19.621,
+        19.216
+      ]
+    },
+    {
+      "start": 107.97279,
+      "duration": 0.12218,
+      "confidence": 0.583,
+      "loudness_start": -13.819,
+      "loudness_max_time": 0.06362,
+      "loudness_max": -6.123,
+      "pitches": [
+        0.083,
+        0.273,
+        1,
+        0.883,
+        0.113,
+        0.097,
+        0.262,
+        0.109,
+        0.155,
+        0.671,
+        0.278,
+        0.063
+      ],
+      "timbre": [
+        51.784,
+        38.215,
+        42.482,
+        -19.079,
+        40.733,
+        1.605,
+        -8.548,
+        -20.913,
+        -40.879,
+        5.067,
+        4.697,
+        -19.124
+      ]
+    },
+    {
+      "start": 108.09497,
+      "duration": 0.23211,
+      "confidence": 0.284,
+      "loudness_start": -9.463,
+      "loudness_max_time": 0.02885,
+      "loudness_max": -4.543,
+      "pitches": [
+        0.714,
+        0.953,
+        1,
+        0.31,
+        0.239,
+        0.216,
+        0.257,
+        0.105,
+        0.127,
+        0.6,
+        0.096,
+        0.456
+      ],
+      "timbre": [
+        52.595,
+        6.885,
+        9.56,
+        13.315,
+        3.721,
+        -21.018,
+        -36.179,
+        17.566,
+        -10.017,
+        -16.905,
+        -16.519,
+        -4.343
+      ]
+    },
+    {
+      "start": 108.32707,
+      "duration": 0.41229,
+      "confidence": 0.889,
+      "loudness_start": -18.383,
+      "loudness_max_time": 0.06306,
+      "loudness_max": -4.861,
+      "pitches": [
+        0.072,
+        0.208,
+        0.792,
+        0.084,
+        0.077,
+        0.158,
+        0.448,
+        0.671,
+        0.217,
+        1,
+        0.356,
+        0.238
+      ],
+      "timbre": [
+        51.99,
+        77.006,
+        61.393,
+        -37.126,
+        35.023,
+        -0.232,
+        -27.037,
+        -15.991,
+        -21.107,
+        8.51,
+        -1.362,
+        -6.524
+      ]
+    },
+    {
+      "start": 108.73937,
+      "duration": 0.31297,
+      "confidence": 0.17,
+      "loudness_start": -8.541,
+      "loudness_max_time": 0.1409,
+      "loudness_max": -5.588,
+      "pitches": [
+        0.48,
+        0.922,
+        1,
+        0.365,
+        0.441,
+        0.555,
+        0.77,
+        0.167,
+        0.203,
+        0.555,
+        0.232,
+        0.286
+      ],
+      "timbre": [
+        53.114,
+        107.664,
+        66.754,
+        -1.509,
+        45.983,
+        -32.305,
+        14.968,
+        7.147,
+        -25.721,
+        2.048,
+        -1.297,
+        35.427
+      ]
+    },
+    {
+      "start": 109.05234,
+      "duration": 0.15678,
+      "confidence": 0.52,
+      "loudness_start": -8.949,
+      "loudness_max_time": 0.03524,
+      "loudness_max": -1.396,
+      "pitches": [
+        0.17,
+        0.289,
+        0.588,
+        0.186,
+        0.199,
+        0.678,
+        0.665,
+        1,
+        0.166,
+        0.484,
+        0.232,
+        0.367
+      ],
+      "timbre": [
+        55.167,
+        80.648,
+        86.36,
+        27.577,
+        49.577,
+        -30.986,
+        -1.246,
+        10.966,
+        5.491,
+        -9.573,
+        7.219,
+        24.722
+      ]
+    },
+    {
+      "start": 109.20912,
+      "duration": 0.2732,
+      "confidence": 0.367,
+      "loudness_start": -7.573,
+      "loudness_max_time": 0.053,
+      "loudness_max": -3.968,
+      "pitches": [
+        0.072,
+        0.124,
+        0.723,
+        0.105,
+        0.105,
+        0.161,
+        0.274,
+        1,
+        0.166,
+        0.372,
+        0.074,
+        0.307
+      ],
+      "timbre": [
+        53.693,
+        92.109,
+        88.961,
+        27.812,
+        79.384,
+        -22.498,
+        16.147,
+        17.673,
+        -25.794,
+        -10.729,
+        -19.943,
+        21.525
+      ]
+    },
+    {
+      "start": 109.48231,
+      "duration": 0.46376,
+      "confidence": 0.728,
+      "loudness_start": -10.858,
+      "loudness_max_time": 0.06765,
+      "loudness_max": -2.878,
+      "pitches": [
+        0.403,
+        0.116,
+        0.149,
+        0.087,
+        0.138,
+        1,
+        0.241,
+        0.138,
+        0.055,
+        0.254,
+        0.039,
+        0.063
+      ],
+      "timbre": [
+        52.365,
+        60.152,
+        83.553,
+        -19.379,
+        66.855,
+        -6.955,
+        10.41,
+        5.883,
+        -6.886,
+        8.653,
+        -12.4,
+        15.413
+      ]
+    },
+    {
+      "start": 109.94608,
+      "duration": 0.48263,
+      "confidence": 0.832,
+      "loudness_start": -15.334,
+      "loudness_max_time": 0.32766,
+      "loudness_max": -2.738,
+      "pitches": [
+        0.444,
+        0.547,
+        0.699,
+        0.487,
+        0.581,
+        1,
+        0.903,
+        0.405,
+        0.236,
+        0.214,
+        0.184,
+        0.59
+      ],
+      "timbre": [
+        53.563,
+        79.483,
+        52.15,
+        -26.655,
+        31.956,
+        -12.164,
+        17.943,
+        -32.899,
+        7.726,
+        14.515,
+        -18.305,
+        10.77
+      ]
+    },
+    {
+      "start": 110.42871,
+      "duration": 0.26073,
+      "confidence": 0.768,
+      "loudness_start": -12.327,
+      "loudness_max_time": 0.0771,
+      "loudness_max": -1.922,
+      "pitches": [
+        1,
+        0.959,
+        0.778,
+        0.427,
+        0.312,
+        0.245,
+        0.617,
+        0.901,
+        0.185,
+        0.103,
+        0.181,
+        0.544
+      ],
+      "timbre": [
+        55.618,
+        85.415,
+        18.805,
+        -52.286,
+        16.892,
+        -17.269,
+        13.895,
+        -19.759,
+        14.47,
+        29.716,
+        -14.959,
+        0.22
+      ]
+    },
+    {
+      "start": 110.68943,
+      "duration": 0.95832,
+      "confidence": 0.174,
+      "loudness_start": -4.382,
+      "loudness_max_time": 0.27006,
+      "loudness_max": 0.11,
+      "pitches": [
+        0.211,
+        0.218,
+        0.435,
+        0.283,
+        0.2,
+        0.276,
+        0.421,
+        1,
+        0.392,
+        0.275,
+        0.183,
+        0.24
+      ],
+      "timbre": [
+        57.064,
+        74.511,
+        13.891,
+        -2.351,
+        29.817,
+        -33.413,
+        13.451,
+        21.434,
+        12.096,
+        15.847,
+        -26.846,
+        3.537
+      ]
+    },
+    {
+      "start": 111.64776,
+      "duration": 0.25102,
+      "confidence": 0.594,
+      "loudness_start": -8.32,
+      "loudness_max_time": 0.09379,
+      "loudness_max": -2.391,
+      "pitches": [
+        0.863,
+        1,
+        0.864,
+        0.454,
+        0.47,
+        0.691,
+        0.59,
+        0.926,
+        0.766,
+        0.39,
+        0.265,
+        0.878
+      ],
+      "timbre": [
+        54.997,
+        97.374,
+        -10.464,
+        -15.755,
+        0.453,
+        -11.614,
+        -24.034,
+        -9.496,
+        -6.003,
+        13.167,
+        -10.579,
+        -17.153
+      ]
+    },
+    {
+      "start": 111.89878,
+      "duration": 0.22472,
+      "confidence": 0.751,
+      "loudness_start": -7.487,
+      "loudness_max_time": 0.01478,
+      "loudness_max": 0.17,
+      "pitches": [
+        0.394,
+        0.435,
+        0.437,
+        0.209,
+        0.184,
+        0.574,
+        0.599,
+        1,
+        0.467,
+        0.296,
+        0.534,
+        0.469
+      ],
+      "timbre": [
+        57.845,
+        68.429,
+        -7.372,
+        -11.508,
+        -1.617,
+        -29.133,
+        -15.007,
+        8.947,
+        -11.793,
+        3.348,
+        -10.482,
+        -2.244
+      ]
+    },
+    {
+      "start": 112.12349,
+      "duration": 0.26109,
+      "confidence": 0.499,
+      "loudness_start": -6.946,
+      "loudness_max_time": 0.09986,
+      "loudness_max": -0.942,
+      "pitches": [
+        0.42,
+        0.165,
+        0.167,
+        0.17,
+        0.161,
+        1,
+        0.263,
+        0.579,
+        0.331,
+        0.123,
+        0.119,
+        0.249
+      ],
+      "timbre": [
+        55.878,
+        58.628,
+        9.347,
+        -10.348,
+        12.162,
+        -17.506,
+        -12.814,
+        11.96,
+        -0.341,
+        14.156,
+        -18.776,
+        -11.115
+      ]
+    },
+    {
+      "start": 112.38458,
+      "duration": 0.238,
+      "confidence": 0.5,
+      "loudness_start": -6.546,
+      "loudness_max_time": 0.07736,
+      "loudness_max": -0.354,
+      "pitches": [
+        0.74,
+        0.864,
+        0.556,
+        0.293,
+        0.153,
+        0.148,
+        0.331,
+        1,
+        0.284,
+        0.183,
+        0.556,
+        0.366
+      ],
+      "timbre": [
+        55.647,
+        49.804,
+        -9.66,
+        4.251,
+        12.517,
+        -26.594,
+        -10.776,
+        3.899,
+        -16.83,
+        9.292,
+        -37.342,
+        -6.891
+      ]
+    },
+    {
+      "start": 112.62259,
+      "duration": 0.23011,
+      "confidence": 0.776,
+      "loudness_start": -8.839,
+      "loudness_max_time": 0.1,
+      "loudness_max": -0.634,
+      "pitches": [
+        0.25,
+        0.093,
+        0.153,
+        0.039,
+        0.069,
+        0.055,
+        0.202,
+        1,
+        0.22,
+        0.03,
+        0.059,
+        0.061
+      ],
+      "timbre": [
+        57.845,
+        90.072,
+        26.761,
+        -18.097,
+        21.394,
+        -30.171,
+        -1.562,
+        2.011,
+        -1.044,
+        6.411,
+        -3.361,
+        -1.442
+      ]
+    },
+    {
+      "start": 112.8527,
+      "duration": 0.45492,
+      "confidence": 0.164,
+      "loudness_start": -4.617,
+      "loudness_max_time": 0.01054,
+      "loudness_max": 0.42,
+      "pitches": [
+        0.224,
+        0.343,
+        0.677,
+        0.338,
+        0.301,
+        0.228,
+        0.313,
+        1,
+        0.363,
+        0.229,
+        0.179,
+        0.191
+      ],
+      "timbre": [
+        57.75,
+        61.122,
+        -4.012,
+        -10.04,
+        10.795,
+        -50.222,
+        -12.175,
+        7.783,
+        -8.376,
+        2.281,
+        -19.887,
+        -5.574
+      ]
+    },
+    {
+      "start": 113.30762,
+      "duration": 0.24971,
+      "confidence": 0.457,
+      "loudness_start": -9.295,
+      "loudness_max_time": 0.16424,
+      "loudness_max": -3.845,
+      "pitches": [
+        0.697,
+        0.893,
+        0.761,
+        0.381,
+        0.171,
+        0.195,
+        0.519,
+        1,
+        0.233,
+        0.147,
+        0.206,
+        0.661
+      ],
+      "timbre": [
+        54.061,
+        65.703,
+        20.903,
+        -39.515,
+        8.711,
+        -26.109,
+        23.235,
+        9.96,
+        11.636,
+        1.293,
+        -1.522,
+        -21.485
+      ]
+    },
+    {
+      "start": 113.55732,
+      "duration": 0.21365,
+      "confidence": 0.434,
+      "loudness_start": -7.493,
+      "loudness_max_time": 0.14444,
+      "loudness_max": -2.339,
+      "pitches": [
+        0.902,
+        0.694,
+        0.528,
+        0.435,
+        0.532,
+        0.656,
+        0.473,
+        0.916,
+        1,
+        0.467,
+        0.231,
+        0.548
+      ],
+      "timbre": [
+        56.528,
+        75.294,
+        46.05,
+        -0.734,
+        18.568,
+        -34.891,
+        42.878,
+        -1.735,
+        10.416,
+        -5.965,
+        -10.594,
+        2.423
+      ]
+    },
+    {
+      "start": 113.77098,
+      "duration": 0.28009,
+      "confidence": 0.577,
+      "loudness_start": -6.352,
+      "loudness_max_time": 0.04686,
+      "loudness_max": 0.25,
+      "pitches": [
+        0.521,
+        0.436,
+        0.408,
+        0.19,
+        0.245,
+        0.457,
+        0.534,
+        1,
+        0.325,
+        0.11,
+        0.102,
+        0.322
+      ],
+      "timbre": [
+        56.881,
+        35.718,
+        18.446,
+        -27.794,
+        34.65,
+        -19.364,
+        20.419,
+        13.243,
+        8.438,
+        -4.534,
+        -1.709,
+        -5.938
+      ]
+    },
+    {
+      "start": 114.05107,
+      "duration": 0.17878,
+      "confidence": 0.288,
+      "loudness_start": -4.562,
+      "loudness_max_time": 0.03857,
+      "loudness_max": -0.874,
+      "pitches": [
+        0.668,
+        0.503,
+        0.482,
+        0.466,
+        0.146,
+        0.334,
+        0.783,
+        0.803,
+        0.957,
+        1,
+        0.702,
+        0.127
+      ],
+      "timbre": [
+        57.577,
+        74.694,
+        5.485,
+        -22.932,
+        12.674,
+        -29.268,
+        -16.675,
+        8.777,
+        3.334,
+        -7.475,
+        -6.804,
+        -14.273
+      ]
+    },
+    {
+      "start": 114.22984,
+      "duration": 0.30762,
+      "confidence": 0.436,
+      "loudness_start": -5.911,
+      "loudness_max_time": 0.07992,
+      "loudness_max": -1.404,
+      "pitches": [
+        0.708,
+        0.707,
+        0.458,
+        1,
+        0.404,
+        0.205,
+        0.248,
+        0.298,
+        0.123,
+        0.168,
+        0.612,
+        0.572
+      ],
+      "timbre": [
+        55.642,
+        64.853,
+        20.08,
+        -31.38,
+        7.826,
+        -26.315,
+        24.424,
+        -7.103,
+        -9.562,
+        -7.511,
+        -12.599,
+        -8.458
+      ]
+    },
+    {
+      "start": 114.53746,
+      "duration": 0.22717,
+      "confidence": 0.481,
+      "loudness_start": -6.186,
+      "loudness_max_time": 0.02526,
+      "loudness_max": -0.838,
+      "pitches": [
+        0.083,
+        0.093,
+        0.312,
+        1,
+        0.46,
+        0.419,
+        0.066,
+        0.064,
+        0.038,
+        0.118,
+        0.672,
+        0.118
+      ],
+      "timbre": [
+        57.699,
+        52.735,
+        45.148,
+        -0.516,
+        31.766,
+        -39.49,
+        -9.075,
+        0.735,
+        1.195,
+        16.852,
+        -7.851,
+        -32.67
+      ]
+    },
+    {
+      "start": 114.76463,
+      "duration": 0.21451,
+      "confidence": 0.322,
+      "loudness_start": -4.073,
+      "loudness_max_time": 0.00587,
+      "loudness_max": 0.512,
+      "pitches": [
+        1,
+        0.479,
+        0.478,
+        0.832,
+        0.453,
+        0.559,
+        0.397,
+        0.33,
+        0.158,
+        0.203,
+        0.628,
+        0.664
+      ],
+      "timbre": [
+        57.995,
+        47.717,
+        7.332,
+        -9.94,
+        12.515,
+        -58.56,
+        5.127,
+        8.466,
+        -7.125,
+        5.421,
+        -11.657,
+        -12.218
+      ]
+    },
+    {
+      "start": 114.97914,
+      "duration": 0.26726,
+      "confidence": 0.296,
+      "loudness_start": -5.48,
+      "loudness_max_time": 0.11747,
+      "loudness_max": -1.396,
+      "pitches": [
+        0.103,
+        0.37,
+        0.399,
+        1,
+        0.383,
+        0.107,
+        0.066,
+        0.102,
+        0.056,
+        0.109,
+        0.456,
+        0.185
+      ],
+      "timbre": [
+        56.8,
+        77.13,
+        19.409,
+        -34.236,
+        3.869,
+        -25.709,
+        -27.788,
+        9.527,
+        14.102,
+        -3.935,
+        -3.365,
+        -19.121
+      ]
+    },
+    {
+      "start": 115.24639,
+      "duration": 0.35383,
+      "confidence": 0.03,
+      "loudness_start": -3.755,
+      "loudness_max_time": 0.00613,
+      "loudness_max": -1.533,
+      "pitches": [
+        0.846,
+        0.488,
+        0.183,
+        0.179,
+        0.196,
+        1,
+        0.155,
+        0.327,
+        0.054,
+        0.095,
+        0.091,
+        0.138
+      ],
+      "timbre": [
+        56.501,
+        41.446,
+        26.781,
+        -5.73,
+        10.086,
+        -55.467,
+        6.172,
+        3.564,
+        4.148,
+        23.293,
+        -16.258,
+        -18.902
+      ]
+    },
+    {
+      "start": 115.60023,
+      "duration": 0.33147,
+      "confidence": 0.399,
+      "loudness_start": -6.158,
+      "loudness_max_time": 0.1221,
+      "loudness_max": -0.303,
+      "pitches": [
+        0.466,
+        0.465,
+        0.14,
+        0.239,
+        0.231,
+        1,
+        0.594,
+        0.326,
+        0.256,
+        0.201,
+        0.258,
+        0.315
+      ],
+      "timbre": [
+        57.159,
+        40.627,
+        6.711,
+        -12.754,
+        16.618,
+        -25.604,
+        -6.339,
+        -3.684,
+        -11.975,
+        7.903,
+        -12.074,
+        3.956
+      ]
+    },
+    {
+      "start": 115.9317,
+      "duration": 0.26082,
+      "confidence": 0.455,
+      "loudness_start": -6.702,
+      "loudness_max_time": 0.06183,
+      "loudness_max": -2.013,
+      "pitches": [
+        0.408,
+        0.14,
+        0.455,
+        0.112,
+        0.193,
+        1,
+        0.321,
+        0.464,
+        0.091,
+        0.121,
+        0.107,
+        0.184
+      ],
+      "timbre": [
+        55.433,
+        32.51,
+        19.312,
+        -35.657,
+        18.117,
+        -17.507,
+        -24.661,
+        7.72,
+        -4.693,
+        3.747,
+        -8.898,
+        -8.643
+      ]
+    },
+    {
+      "start": 116.19252,
+      "duration": 0.2907,
+      "confidence": 0.083,
+      "loudness_start": -5.817,
+      "loudness_max_time": 0.04126,
+      "loudness_max": -3.606,
+      "pitches": [
+        0.246,
+        0.389,
+        0.246,
+        0.117,
+        0.079,
+        0.124,
+        0.299,
+        1,
+        0.168,
+        0.092,
+        0.076,
+        0.284
+      ],
+      "timbre": [
+        54.679,
+        63.65,
+        -16.298,
+        -9.094,
+        3.242,
+        -38.081,
+        -29.359,
+        -1.699,
+        -1.384,
+        6.13,
+        -22.286,
+        -20.389
+      ]
+    },
+    {
+      "start": 116.48322,
+      "duration": 0.1166,
+      "confidence": 0.321,
+      "loudness_start": -8.528,
+      "loudness_max_time": 0.06075,
+      "loudness_max": -5.199,
+      "pitches": [
+        0.12,
+        0.17,
+        0.314,
+        0.129,
+        0.198,
+        0.354,
+        0.438,
+        1,
+        0.306,
+        0.135,
+        0.143,
+        0.164
+      ],
+      "timbre": [
+        53.367,
+        96.951,
+        -21.522,
+        -44.011,
+        15.622,
+        -28.523,
+        -26.658,
+        15.3,
+        41.744,
+        -5.939,
+        -7.761,
+        -2.453
+      ]
+    },
+    {
+      "start": 116.59982,
+      "duration": 0.27184,
+      "confidence": 0.665,
+      "loudness_start": -8.117,
+      "loudness_max_time": 0.07498,
+      "loudness_max": 0.627,
+      "pitches": [
+        0.728,
+        0.486,
+        0.529,
+        0.355,
+        0.192,
+        0.678,
+        1,
+        0.9,
+        0.315,
+        0.197,
+        0.186,
+        0.654
+      ],
+      "timbre": [
+        56.377,
+        98.677,
+        -2.724,
+        -56.739,
+        8.899,
+        -14.39,
+        -6.186,
+        -34.758,
+        -4.481,
+        31.135,
+        -1.395,
+        12.074
+      ]
+    },
+    {
+      "start": 116.87166,
+      "duration": 0.24413,
+      "confidence": 0.315,
+      "loudness_start": -3.593,
+      "loudness_max_time": 0.04917,
+      "loudness_max": -0.32,
+      "pitches": [
+        0.069,
+        0.074,
+        0.26,
+        0.049,
+        0.04,
+        0.059,
+        0.268,
+        1,
+        0.211,
+        0.075,
+        0.063,
+        0.157
+      ],
+      "timbre": [
+        56.634,
+        79.068,
+        27.227,
+        41.635,
+        24.884,
+        -38.437,
+        35.845,
+        21.061,
+        -15.184,
+        5.172,
+        -30.93,
+        -9.72
+      ]
+    },
+    {
+      "start": 117.11578,
+      "duration": 0.20299,
+      "confidence": 0.554,
+      "loudness_start": -7.999,
+      "loudness_max_time": 0.1138,
+      "loudness_max": -1.901,
+      "pitches": [
+        0.812,
+        1,
+        0.52,
+        0.324,
+        0.241,
+        0.483,
+        0.672,
+        0.557,
+        0.15,
+        0.119,
+        0.103,
+        0.452
+      ],
+      "timbre": [
+        56.125,
+        81.332,
+        25.098,
+        -37.68,
+        9.791,
+        -18.377,
+        27.024,
+        -29.585,
+        -21.64,
+        12.709,
+        -7.316,
+        3.72
+      ]
+    },
+    {
+      "start": 117.31878,
+      "duration": 0.26118,
+      "confidence": 0.096,
+      "loudness_start": -4.177,
+      "loudness_max_time": 0.08575,
+      "loudness_max": -0.764,
+      "pitches": [
+        0.76,
+        0.958,
+        0.552,
+        0.497,
+        0.265,
+        0.764,
+        0.534,
+        1,
+        0.361,
+        0.281,
+        0.145,
+        0.51
+      ],
+      "timbre": [
+        57.05,
+        33.298,
+        29.649,
+        -9.035,
+        30.617,
+        -36.942,
+        15.842,
+        6.377,
+        -7.391,
+        -3.393,
+        0.104,
+        22.821
+      ]
+    },
+    {
+      "start": 117.57995,
+      "duration": 0.36454,
+      "confidence": 0.596,
+      "loudness_start": -5.976,
+      "loudness_max_time": 0.04484,
+      "loudness_max": -0.16,
+      "pitches": [
+        0.432,
+        0.497,
+        0.435,
+        0.247,
+        0.303,
+        0.962,
+        0.949,
+        0.585,
+        0.438,
+        0.386,
+        1,
+        0.48
+      ],
+      "timbre": [
+        57.078,
+        37.819,
+        14.315,
+        -32.451,
+        15.615,
+        -12.857,
+        15.553,
+        9.216,
+        -9.593,
+        -4.906,
+        -2.86,
+        13.352
+      ]
+    },
+    {
+      "start": 117.94449,
+      "duration": 0.15234,
+      "confidence": 0.281,
+      "loudness_start": -6.006,
+      "loudness_max_time": 0.04066,
+      "loudness_max": -0.847,
+      "pitches": [
+        0.187,
+        0.189,
+        0.219,
+        0.095,
+        0.335,
+        0.524,
+        1,
+        0.914,
+        0.724,
+        0.549,
+        0.413,
+        0.122
+      ],
+      "timbre": [
+        56.234,
+        64.698,
+        -26.949,
+        -24.197,
+        18.737,
+        -28.995,
+        -12.018,
+        5.271,
+        1.125,
+        1.442,
+        -6.153,
+        -3.227
+      ]
+    },
+    {
+      "start": 118.09683,
+      "duration": 0.33646,
+      "confidence": 0.363,
+      "loudness_start": -6.264,
+      "loudness_max_time": 0.11273,
+      "loudness_max": -1.383,
+      "pitches": [
+        0.546,
+        0.377,
+        0.289,
+        0.07,
+        0.158,
+        0.086,
+        0.17,
+        1,
+        0.126,
+        0.041,
+        0.044,
+        0.231
+      ],
+      "timbre": [
+        57.083,
+        44.08,
+        32.598,
+        -20.931,
+        20.203,
+        -34.399,
+        34.166,
+        -4.276,
+        -12.386,
+        11.15,
+        -6.488,
+        8.289
+      ]
+    },
+    {
+      "start": 118.43329,
+      "duration": 0.11034,
+      "confidence": 0.12,
+      "loudness_start": -4.063,
+      "loudness_max_time": 0.02548,
+      "loudness_max": -1.362,
+      "pitches": [
+        0.091,
+        0.187,
+        0.395,
+        0.145,
+        0.13,
+        0.311,
+        0.3,
+        0.518,
+        0.172,
+        0.223,
+        1,
+        0.187
+      ],
+      "timbre": [
+        56.982,
+        59.632,
+        15.635,
+        -2.37,
+        38.824,
+        -48.504,
+        5.423,
+        -9.221,
+        9.33,
+        3.385,
+        -7.534,
+        15.936
+      ]
+    },
+    {
+      "start": 118.54363,
+      "duration": 0.47569,
+      "confidence": 0.45,
+      "loudness_start": -4.708,
+      "loudness_max_time": 0.03743,
+      "loudness_max": 0.689,
+      "pitches": [
+        0.143,
+        0.144,
+        0.319,
+        0.156,
+        0.087,
+        0.139,
+        0.21,
+        1,
+        0.413,
+        0.102,
+        0.104,
+        0.182
+      ],
+      "timbre": [
+        57.624,
+        57.189,
+        3.098,
+        -9.906,
+        25.127,
+        -27.707,
+        -5.98,
+        16.166,
+        7.418,
+        -2.43,
+        2.794,
+        -1.184
+      ]
+    },
+    {
+      "start": 119.01932,
+      "duration": 0.22671,
+      "confidence": 0.471,
+      "loudness_start": -10.115,
+      "loudness_max_time": 0.11137,
+      "loudness_max": -4.543,
+      "pitches": [
+        0.76,
+        1,
+        0.584,
+        0.246,
+        0.112,
+        0.136,
+        0.446,
+        0.676,
+        0.182,
+        0.061,
+        0.115,
+        0.435
+      ],
+      "timbre": [
+        53.135,
+        73.688,
+        -10.302,
+        -43.689,
+        7.322,
+        -23.505,
+        -8.671,
+        3.121,
+        -3.737,
+        3.791,
+        -9.31,
+        -29.068
+      ]
+    },
+    {
+      "start": 119.24603,
+      "duration": 0.26109,
+      "confidence": 0.624,
+      "loudness_start": -8.056,
+      "loudness_max_time": 0.11025,
+      "loudness_max": -1.288,
+      "pitches": [
+        0.291,
+        0.289,
+        0.393,
+        0.172,
+        0.159,
+        0.214,
+        0.248,
+        1,
+        0.43,
+        0.139,
+        0.116,
+        0.315
+      ],
+      "timbre": [
+        54.775,
+        85.647,
+        -3.727,
+        -45.221,
+        0.257,
+        -9.143,
+        -27.836,
+        -5.535,
+        1.17,
+        -3.776,
+        -31.171,
+        -9.702
+      ]
+    },
+    {
+      "start": 119.50712,
+      "duration": 0.22558,
+      "confidence": 0.74,
+      "loudness_start": -7.686,
+      "loudness_max_time": 0.02404,
+      "loudness_max": 0.471,
+      "pitches": [
+        0.465,
+        0.561,
+        0.524,
+        0.248,
+        0.218,
+        0.718,
+        0.773,
+        1,
+        0.547,
+        0.167,
+        0.328,
+        0.482
+      ],
+      "timbre": [
+        57.284,
+        65,
+        -7.917,
+        -9.685,
+        5.079,
+        -18.077,
+        -3.154,
+        -6.418,
+        -23.109,
+        17.527,
+        11.755,
+        -10.06
+      ]
+    },
+    {
+      "start": 119.7327,
+      "duration": 0.19224,
+      "confidence": 0.426,
+      "loudness_start": -7.108,
+      "loudness_max_time": 0.07626,
+      "loudness_max": -2.241,
+      "pitches": [
+        0.456,
+        0.279,
+        0.42,
+        0.281,
+        0.43,
+        1,
+        0.578,
+        0.709,
+        0.367,
+        0.162,
+        0.142,
+        0.313
+      ],
+      "timbre": [
+        56.278,
+        88.913,
+        16.321,
+        -27.665,
+        6.874,
+        -18.816,
+        -21.354,
+        -16.497,
+        0.664,
+        1.969,
+        -7.581,
+        -22.358
+      ]
+    },
+    {
+      "start": 119.92494,
+      "duration": 0.13388,
+      "confidence": 0.023,
+      "loudness_start": -5.051,
+      "loudness_max_time": 0.09263,
+      "loudness_max": -2.134,
+      "pitches": [
+        0.861,
+        0.818,
+        0.531,
+        0.251,
+        0.308,
+        0.72,
+        0.821,
+        0.787,
+        1,
+        0.431,
+        0.508,
+        0.539
+      ],
+      "timbre": [
+        56.808,
+        77.61,
+        13.383,
+        -32.341,
+        0.463,
+        -30.386,
+        -26.67,
+        -16.151,
+        4.048,
+        16.004,
+        -4.82,
+        -25.485
+      ]
+    },
+    {
+      "start": 120.05882,
+      "duration": 0.18553,
+      "confidence": 0.217,
+      "loudness_start": -3.079,
+      "loudness_max_time": 0.04799,
+      "loudness_max": 0.125,
+      "pitches": [
+        0.48,
+        0.495,
+        0.5,
+        0.32,
+        0.323,
+        0.424,
+        0.904,
+        1,
+        0.833,
+        0.888,
+        0.852,
+        0.098
+      ],
+      "timbre": [
+        57.48,
+        83.605,
+        -0.902,
+        1.616,
+        -1.31,
+        -20.433,
+        -10.256,
+        -15.897,
+        16.479,
+        -12.358,
+        -25.433,
+        -8.318
+      ]
+    },
+    {
+      "start": 120.24435,
+      "duration": 0.23256,
+      "confidence": 0.467,
+      "loudness_start": -6.803,
+      "loudness_max_time": 0.04077,
+      "loudness_max": -1.072,
+      "pitches": [
+        0.389,
+        0.061,
+        0.144,
+        0.029,
+        0.145,
+        0.048,
+        0.186,
+        1,
+        0.208,
+        0.025,
+        0.052,
+        0.055
+      ],
+      "timbre": [
+        57.674,
+        59.798,
+        39.227,
+        -7.74,
+        27.931,
+        -32.514,
+        23.326,
+        -11.71,
+        -11.328,
+        -11.428,
+        5.113,
+        8.673
+      ]
+    },
+    {
+      "start": 120.47692,
+      "duration": 0.18562,
+      "confidence": 0.231,
+      "loudness_start": -3.596,
+      "loudness_max_time": 0.00669,
+      "loudness_max": 0.979,
+      "pitches": [
+        0.923,
+        1,
+        0.769,
+        0.668,
+        0.356,
+        0.497,
+        0.608,
+        0.558,
+        0.347,
+        0.36,
+        0.242,
+        0.151
+      ],
+      "timbre": [
+        58.462,
+        51.516,
+        9.092,
+        -16.128,
+        9.205,
+        -58.044,
+        3.053,
+        2.187,
+        -16.194,
+        -2.794,
+        -10.524,
+        3.268
+      ]
+    },
+    {
+      "start": 120.66254,
+      "duration": 0.44063,
+      "confidence": 0.207,
+      "loudness_start": -3.717,
+      "loudness_max_time": 0.05196,
+      "loudness_max": -0.21,
+      "pitches": [
+        0.297,
+        0.233,
+        0.475,
+        0.183,
+        0.199,
+        0.318,
+        0.523,
+        1,
+        0.506,
+        0.388,
+        0.313,
+        0.417
+      ],
+      "timbre": [
+        56.663,
+        60.69,
+        11.833,
+        25.852,
+        20.754,
+        -39.873,
+        -2.079,
+        16.406,
+        3.641,
+        -12.804,
+        -20.317,
+        -7.548
+      ]
+    },
+    {
+      "start": 121.10317,
+      "duration": 0.32036,
+      "confidence": 0.47,
+      "loudness_start": -8.346,
+      "loudness_max_time": 0.21797,
+      "loudness_max": -2.088,
+      "pitches": [
+        0.513,
+        0.411,
+        0.566,
+        0.246,
+        0.266,
+        0.321,
+        0.229,
+        1,
+        0.522,
+        0.356,
+        0.244,
+        0.47
+      ],
+      "timbre": [
+        54.985,
+        73.156,
+        14.121,
+        -47.904,
+        9.449,
+        -23.029,
+        8.36,
+        5.407,
+        -4.892,
+        12.243,
+        -2.707,
+        -1.04
+      ]
+    },
+    {
+      "start": 121.42354,
+      "duration": 0.23161,
+      "confidence": 0.556,
+      "loudness_start": -7.75,
+      "loudness_max_time": 0.01365,
+      "loudness_max": -0.034,
+      "pitches": [
+        0.643,
+        0.356,
+        0.367,
+        0.154,
+        0.16,
+        0.373,
+        0.474,
+        1,
+        0.375,
+        0.117,
+        0.12,
+        0.395
+      ],
+      "timbre": [
+        57.08,
+        55.211,
+        -11.195,
+        -12.755,
+        12.455,
+        -46.932,
+        -9.125,
+        -3.256,
+        -22.345,
+        8.515,
+        -12.111,
+        -5.135
+      ]
+    },
+    {
+      "start": 121.65515,
+      "duration": 0.23846,
+      "confidence": 0.679,
+      "loudness_start": -8.355,
+      "loudness_max_time": 0.03449,
+      "loudness_max": -1.435,
+      "pitches": [
+        0.87,
+        1,
+        0.3,
+        0.089,
+        0.174,
+        0.785,
+        0.178,
+        0.1,
+        0.075,
+        0.152,
+        0.388,
+        0.182
+      ],
+      "timbre": [
+        56.183,
+        54.819,
+        0.919,
+        -17.544,
+        22.721,
+        -3.35,
+        6.909,
+        -17.582,
+        5.643,
+        9.931,
+        -7.967,
+        0.023
+      ]
+    },
+    {
+      "start": 121.89361,
+      "duration": 0.22585,
+      "confidence": 0.529,
+      "loudness_start": -7.669,
+      "loudness_max_time": 0.04764,
+      "loudness_max": -1.758,
+      "pitches": [
+        1,
+        0.524,
+        0.526,
+        0.951,
+        0.478,
+        0.122,
+        0.146,
+        0.28,
+        0.129,
+        0.144,
+        0.542,
+        0.537
+      ],
+      "timbre": [
+        55.977,
+        39.921,
+        12.245,
+        -7.208,
+        25.735,
+        -18.1,
+        14.422,
+        7.142,
+        1.556,
+        -0.01,
+        -5.714,
+        -8.756
+      ]
+    },
+    {
+      "start": 122.11946,
+      "duration": 0.24431,
+      "confidence": 0.597,
+      "loudness_start": -8.756,
+      "loudness_max_time": 0.08194,
+      "loudness_max": -2.334,
+      "pitches": [
+        0.125,
+        0.142,
+        0.361,
+        1,
+        0.415,
+        0.305,
+        0.054,
+        0.075,
+        0.047,
+        0.111,
+        0.677,
+        0.161
+      ],
+      "timbre": [
+        55.512,
+        74.949,
+        11.025,
+        -32.372,
+        20.981,
+        -9.872,
+        -6.004,
+        -10.803,
+        -20.283,
+        23.609,
+        -21.088,
+        -26.91
+      ]
+    },
+    {
+      "start": 122.36376,
+      "duration": 0.24385,
+      "confidence": 0.695,
+      "loudness_start": -9.632,
+      "loudness_max_time": 0.02528,
+      "loudness_max": -0.183,
+      "pitches": [
+        0.698,
+        0.836,
+        0.463,
+        1,
+        0.437,
+        0.613,
+        0.455,
+        0.335,
+        0.182,
+        0.272,
+        0.782,
+        0.592
+      ],
+      "timbre": [
+        56.201,
+        66.326,
+        -26.315,
+        -11.26,
+        3.79,
+        -11.457,
+        -13.256,
+        9.38,
+        -16.006,
+        9.515,
+        16.487,
+        -13.798
+      ]
+    },
+    {
+      "start": 122.60762,
+      "duration": 0.23175,
+      "confidence": 0.393,
+      "loudness_start": -6.008,
+      "loudness_max_time": 0.08351,
+      "loudness_max": -2.208,
+      "pitches": [
+        0.256,
+        0.284,
+        0.484,
+        1,
+        0.469,
+        0.114,
+        0.098,
+        0.108,
+        0.1,
+        0.163,
+        0.387,
+        0.14
+      ],
+      "timbre": [
+        55.779,
+        46.651,
+        16.511,
+        -11.81,
+        30.862,
+        -22.002,
+        15.009,
+        -26.119,
+        -24.638,
+        27.166,
+        -16.47,
+        -1.066
+      ]
+    },
+    {
+      "start": 122.83937,
+      "duration": 0.46426,
+      "confidence": 0.404,
+      "loudness_start": -5.77,
+      "loudness_max_time": 0.10503,
+      "loudness_max": -1.537,
+      "pitches": [
+        0.556,
+        0.256,
+        0.298,
+        0.187,
+        0.212,
+        1,
+        0.196,
+        0.432,
+        0.409,
+        0.171,
+        0.153,
+        0.159
+      ],
+      "timbre": [
+        56.507,
+        60.868,
+        13.884,
+        -20.897,
+        23.372,
+        -32.419,
+        11.977,
+        30.853,
+        -0.325,
+        -0.05,
+        0.005,
+        -0.336
+      ]
+    },
+    {
+      "start": 123.30363,
+      "duration": 0.27855,
+      "confidence": 0.352,
+      "loudness_start": -4.837,
+      "loudness_max_time": 0.03842,
+      "loudness_max": -0.204,
+      "pitches": [
+        0.441,
+        0.351,
+        0.177,
+        0.165,
+        0.201,
+        1,
+        0.408,
+        0.122,
+        0.12,
+        0.142,
+        0.203,
+        0.223
+      ],
+      "timbre": [
+        56.516,
+        72.466,
+        -30.011,
+        -13.583,
+        17.209,
+        -41.224,
+        -24.566,
+        22.061,
+        -17.615,
+        -2.421,
+        2.401,
+        -15.763
+      ]
+    },
+    {
+      "start": 123.58218,
+      "duration": 0.22068,
+      "confidence": 0.394,
+      "loudness_start": -6.483,
+      "loudness_max_time": 0.03062,
+      "loudness_max": -2.539,
+      "pitches": [
+        0.401,
+        0.156,
+        0.203,
+        0.081,
+        0.231,
+        1,
+        0.367,
+        0.585,
+        0.099,
+        0.125,
+        0.107,
+        0.2
+      ],
+      "timbre": [
+        56.403,
+        64.552,
+        25.956,
+        -13.304,
+        3.064,
+        -29.921,
+        -14.731,
+        0.326,
+        -19.248,
+        15.66,
+        -2.318,
+        -9.4
+      ]
+    },
+    {
+      "start": 123.80286,
+      "duration": 0.46472,
+      "confidence": 0.131,
+      "loudness_start": -5.168,
+      "loudness_max_time": 0.05303,
+      "loudness_max": -2.2,
+      "pitches": [
+        0.125,
+        0.154,
+        0.346,
+        0.187,
+        0.095,
+        0.104,
+        0.184,
+        1,
+        0.316,
+        0.103,
+        0.115,
+        0.098
+      ],
+      "timbre": [
+        54.874,
+        53.152,
+        -7.863,
+        10.774,
+        -1.172,
+        -32.003,
+        -32.274,
+        10.083,
+        2.97,
+        6.057,
+        -23.79,
+        -18.374
+      ]
+    },
+    {
+      "start": 124.26757,
+      "duration": 0.1566,
+      "confidence": 0.848,
+      "loudness_start": -10.343,
+      "loudness_max_time": 0.02585,
+      "loudness_max": 0.374,
+      "pitches": [
+        0.459,
+        0.453,
+        0.382,
+        0.325,
+        0.432,
+        0.545,
+        0.932,
+        1,
+        0.97,
+        0.879,
+        0.723,
+        0.123
+      ],
+      "timbre": [
+        55.66,
+        56.248,
+        -36.983,
+        -9.32,
+        6.445,
+        -20.566,
+        -8.412,
+        8.64,
+        -8.062,
+        7.798,
+        29.291,
+        -8.761
+      ]
+    },
+    {
+      "start": 124.42417,
+      "duration": 0.2795,
+      "confidence": 0.25,
+      "loudness_start": -6.793,
+      "loudness_max_time": 0.1407,
+      "loudness_max": -2.964,
+      "pitches": [
+        0.081,
+        0.083,
+        0.278,
+        0.048,
+        0.035,
+        0.072,
+        0.203,
+        1,
+        0.189,
+        0.056,
+        0.458,
+        0.203
+      ],
+      "timbre": [
+        55.275,
+        93.102,
+        -12.322,
+        -30.296,
+        1.701,
+        -24.573,
+        -34.105,
+        -25.843,
+        5.755,
+        3.659,
+        -18.852,
+        2.371
+      ]
+    },
+    {
+      "start": 124.70367,
+      "duration": 0.19615,
+      "confidence": 0.576,
+      "loudness_start": -7.815,
+      "loudness_max_time": 0.09105,
+      "loudness_max": -2.474,
+      "pitches": [
+        1,
+        0.841,
+        0.719,
+        0.523,
+        0.343,
+        0.545,
+        0.68,
+        0.486,
+        0.157,
+        0.187,
+        0.372,
+        0.955
+      ],
+      "timbre": [
+        55.004,
+        37.403,
+        25.95,
+        -70.11,
+        16.197,
+        -29.168,
+        -7.484,
+        14.788,
+        2.329,
+        7.209,
+        -0.424,
+        -6.643
+      ]
+    },
+    {
+      "start": 124.89982,
+      "duration": 0.30839,
+      "confidence": 0.033,
+      "loudness_start": -3.452,
+      "loudness_max_time": 0.06789,
+      "loudness_max": -1.466,
+      "pitches": [
+        0.413,
+        0.266,
+        0.295,
+        0.105,
+        0.097,
+        0.204,
+        0.245,
+        1,
+        0.268,
+        0.081,
+        0.152,
+        0.177
+      ],
+      "timbre": [
+        56.907,
+        80.007,
+        23.246,
+        -0.638,
+        37.31,
+        -32.166,
+        14.569,
+        9.452,
+        -3.165,
+        -3.35,
+        -26.665,
+        -6.821
+      ]
+    },
+    {
+      "start": 125.20821,
+      "duration": 0.26118,
+      "confidence": 0.696,
+      "loudness_start": -9.031,
+      "loudness_max_time": 0.03888,
+      "loudness_max": -1.084,
+      "pitches": [
+        0.484,
+        0.314,
+        0.162,
+        0.163,
+        0.261,
+        1,
+        0.42,
+        0.245,
+        0.138,
+        0.165,
+        0.279,
+        0.384
+      ],
+      "timbre": [
+        55.463,
+        57.026,
+        -19.688,
+        -33.386,
+        26.339,
+        -8.161,
+        1.496,
+        -10.641,
+        -11.23,
+        20.656,
+        -1.755,
+        -10.479
+      ]
+    },
+    {
+      "start": 125.46939,
+      "duration": 0.08041,
+      "confidence": 0.456,
+      "loudness_start": -5.847,
+      "loudness_max_time": 0.01329,
+      "loudness_max": -1.235,
+      "pitches": [
+        1,
+        0.722,
+        0.396,
+        0.377,
+        0.714,
+        0.67,
+        0.641,
+        0.666,
+        0.48,
+        0.612,
+        0.882,
+        0.406
+      ],
+      "timbre": [
+        57.653,
+        45.343,
+        -3.368,
+        -43.306,
+        8.553,
+        -44.882,
+        -20.655,
+        4.973,
+        -17.741,
+        6.996,
+        1.766,
+        -14.636
+      ]
+    },
+    {
+      "start": 125.5498,
+      "duration": 0.16884,
+      "confidence": 0.178,
+      "loudness_start": -2.509,
+      "loudness_max_time": 0.05181,
+      "loudness_max": 0.35,
+      "pitches": [
+        0.469,
+        0.188,
+        0.22,
+        0.142,
+        0.191,
+        0.862,
+        0.898,
+        1,
+        0.611,
+        0.474,
+        0.419,
+        0.281
+      ],
+      "timbre": [
+        58.301,
+        74.029,
+        -2.444,
+        -15.408,
+        5.474,
+        -32.698,
+        -39.021,
+        -7.946,
+        -6.752,
+        10.169,
+        -10.703,
+        -26.591
+      ]
+    },
+    {
+      "start": 125.71864,
+      "duration": 0.42921,
+      "confidence": 0.482,
+      "loudness_start": -3.869,
+      "loudness_max_time": 0.03701,
+      "loudness_max": 0.546,
+      "pitches": [
+        0.286,
+        0.373,
+        0.493,
+        0.972,
+        0.603,
+        0.495,
+        0.336,
+        0.648,
+        0.638,
+        0.42,
+        1,
+        0.309
+      ],
+      "timbre": [
+        58.615,
+        70.887,
+        21.859,
+        3.611,
+        4.676,
+        -23.419,
+        -35.331,
+        -6.998,
+        -1.151,
+        8.378,
+        -9.312,
+        -16.878
+      ]
+    },
+    {
+      "start": 126.14785,
+      "duration": 0.29057,
+      "confidence": 0.451,
+      "loudness_start": -4.437,
+      "loudness_max_time": 0.04912,
+      "loudness_max": 0.833,
+      "pitches": [
+        0.207,
+        0.247,
+        0.271,
+        1,
+        0.498,
+        0.801,
+        0.674,
+        0.307,
+        0.24,
+        0.273,
+        0.708,
+        0.254
+      ],
+      "timbre": [
+        57.856,
+        85.714,
+        19.991,
+        -12.351,
+        19.711,
+        -30.517,
+        7.869,
+        17.368,
+        -6.628,
+        3.251,
+        0.393,
+        1.107
+      ]
+    },
+    {
+      "start": 126.43841,
+      "duration": 0.22644,
+      "confidence": 0.274,
+      "loudness_start": -3.141,
+      "loudness_max_time": 0.02603,
+      "loudness_max": 0.731,
+      "pitches": [
+        0.13,
+        0.227,
+        0.474,
+        1,
+        0.623,
+        0.889,
+        0.505,
+        0.286,
+        0.208,
+        0.267,
+        0.754,
+        0.193
+      ],
+      "timbre": [
+        58.709,
+        67.667,
+        46.665,
+        6.847,
+        17.725,
+        -39.487,
+        16.017,
+        7.32,
+        -21.559,
+        2.244,
+        0.694,
+        12.032
+      ]
+    },
+    {
+      "start": 126.66485,
+      "duration": 0.34871,
+      "confidence": 0.297,
+      "loudness_start": -3.649,
+      "loudness_max_time": 0.25548,
+      "loudness_max": 0.433,
+      "pitches": [
+        1,
+        0.92,
+        0.568,
+        0.921,
+        0.475,
+        0.238,
+        0.232,
+        0.334,
+        0.1,
+        0.163,
+        0.665,
+        0.402
+      ],
+      "timbre": [
+        59.255,
+        92.265,
+        44.268,
+        -0.739,
+        13.28,
+        -41.503,
+        37.143,
+        -0.576,
+        -13.451,
+        1.349,
+        -3.561,
+        11.731
+      ]
+    },
+    {
+      "start": 127.01356,
+      "duration": 0.10925,
+      "confidence": 0.135,
+      "loudness_start": -4.159,
+      "loudness_max_time": 0.0287,
+      "loudness_max": -0.735,
+      "pitches": [
+        0.654,
+        1,
+        0.678,
+        0.733,
+        0.303,
+        0.229,
+        0.261,
+        0.279,
+        0.557,
+        0.663,
+        0.684,
+        0.525
+      ],
+      "timbre": [
+        58.159,
+        74.596,
+        47.749,
+        -6.323,
+        0.894,
+        -38.902,
+        -14.661,
+        0.914,
+        -14.74,
+        2.612,
+        -1.759,
+        -10.922
+      ]
+    },
+    {
+      "start": 127.12281,
+      "duration": 0.26766,
+      "confidence": 0.206,
+      "loudness_start": -2.843,
+      "loudness_max_time": 0.02588,
+      "loudness_max": 0.438,
+      "pitches": [
+        0.283,
+        0.27,
+        0.349,
+        1,
+        0.489,
+        0.662,
+        0.557,
+        0.356,
+        0.189,
+        0.239,
+        0.67,
+        0.258
+      ],
+      "timbre": [
+        58.216,
+        87.597,
+        6.787,
+        -6.961,
+        5.98,
+        -37.841,
+        -15.88,
+        21.017,
+        -17.318,
+        7.338,
+        1.305,
+        0.579
+      ]
+    },
+    {
+      "start": 127.39048,
+      "duration": 0.22045,
+      "confidence": 0.508,
+      "loudness_start": -4.579,
+      "loudness_max_time": 0.03898,
+      "loudness_max": 0.386,
+      "pitches": [
+        0.403,
+        0.208,
+        0.355,
+        1,
+        0.576,
+        0.475,
+        0.232,
+        0.188,
+        0.079,
+        0.224,
+        0.854,
+        0.256
+      ],
+      "timbre": [
+        58.306,
+        100.019,
+        31.628,
+        -17.544,
+        -4.178,
+        -16.916,
+        -38.41,
+        -13.766,
+        -11.137,
+        7.348,
+        11.169,
+        -23.669
+      ]
+    },
+    {
+      "start": 127.61093,
+      "duration": 0.44726,
+      "confidence": 0.284,
+      "loudness_start": -2.695,
+      "loudness_max_time": 0.06485,
+      "loudness_max": 1.05,
+      "pitches": [
+        0.154,
+        0.169,
+        0.362,
+        0.13,
+        0.096,
+        0.154,
+        0.307,
+        1,
+        0.564,
+        0.138,
+        0.264,
+        0.167
+      ],
+      "timbre": [
+        59.144,
+        105.048,
+        39.288,
+        -15.066,
+        -24.939,
+        -21.761,
+        -26.642,
+        6.745,
+        -7.785,
+        10.495,
+        -1.632,
+        -20.822
+      ]
+    },
+    {
+      "start": 128.05819,
+      "duration": 0.27293,
+      "confidence": 0.131,
+      "loudness_start": -3.571,
+      "loudness_max_time": 0.04244,
+      "loudness_max": -0.57,
+      "pitches": [
+        0.119,
+        0.098,
+        0.276,
+        0.104,
+        0.097,
+        0.574,
+        0.55,
+        1,
+        0.273,
+        0.166,
+        0.116,
+        0.154
+      ],
+      "timbre": [
+        57.817,
+        96.125,
+        8.071,
+        -18.449,
+        6.201,
+        -36.736,
+        4.004,
+        -2.754,
+        -15.892,
+        16.836,
+        -6.354,
+        12.433
+      ]
+    },
+    {
+      "start": 128.33111,
+      "duration": 0.20249,
+      "confidence": 0.213,
+      "loudness_start": -3.626,
+      "loudness_max_time": 0.13741,
+      "loudness_max": -0.252,
+      "pitches": [
+        0.153,
+        0.192,
+        0.412,
+        0.174,
+        0.269,
+        0.506,
+        0.73,
+        1,
+        0.504,
+        0.485,
+        0.48,
+        0.201
+      ],
+      "timbre": [
+        58.009,
+        59.191,
+        30.421,
+        -13.539,
+        14.696,
+        -18.664,
+        -8.427,
+        -10.294,
+        -16.847,
+        11.039,
+        -8.716,
+        10.879
+      ]
+    },
+    {
+      "start": 128.53361,
+      "duration": 0.50599,
+      "confidence": 0.218,
+      "loudness_start": -4.34,
+      "loudness_max_time": 0.2879,
+      "loudness_max": 1.458,
+      "pitches": [
+        0.269,
+        0.257,
+        0.848,
+        0.257,
+        0.329,
+        0.293,
+        0.474,
+        1,
+        0.428,
+        0.223,
+        0.305,
+        0.309
+      ],
+      "timbre": [
+        58.846,
+        81.359,
+        42.129,
+        -34.62,
+        30.784,
+        -36.736,
+        5.315,
+        8.663,
+        -7.585,
+        9.482,
+        -3.599,
+        4.622
+      ]
+    },
+    {
+      "start": 129.03959,
+      "duration": 0.25497,
+      "confidence": 0.218,
+      "loudness_start": -2.332,
+      "loudness_max_time": 0.01591,
+      "loudness_max": 1.132,
+      "pitches": [
+        0.134,
+        0.127,
+        0.443,
+        0.13,
+        0.093,
+        0.303,
+        0.492,
+        1,
+        0.21,
+        0.17,
+        0.083,
+        0.258
+      ],
+      "timbre": [
+        59.14,
+        81.427,
+        11.573,
+        -6.08,
+        0.852,
+        -40.865,
+        -7.574,
+        19.827,
+        -27.358,
+        -0.65,
+        -10.119,
+        -1.358
+      ]
+    },
+    {
+      "start": 129.29456,
+      "duration": 0.44703,
+      "confidence": 0.164,
+      "loudness_start": -4.251,
+      "loudness_max_time": 0.28289,
+      "loudness_max": 0.2,
+      "pitches": [
+        0.578,
+        0.427,
+        0.532,
+        0.326,
+        0.346,
+        0.552,
+        0.571,
+        1,
+        0.402,
+        0.412,
+        0.396,
+        0.505
+      ],
+      "timbre": [
+        58.46,
+        60.771,
+        41.589,
+        -26.359,
+        -3.253,
+        -36.894,
+        2.55,
+        12.091,
+        -13.031,
+        2.835,
+        7.68,
+        -7.949
+      ]
+    },
+    {
+      "start": 129.74159,
+      "duration": 0.23751,
+      "confidence": 0.284,
+      "loudness_start": -2.285,
+      "loudness_max_time": 0.0598,
+      "loudness_max": 0.94,
+      "pitches": [
+        0.68,
+        1,
+        0.617,
+        0.174,
+        0.111,
+        0.056,
+        0.17,
+        0.095,
+        0.087,
+        0.313,
+        0.156,
+        0.117
+      ],
+      "timbre": [
+        59.303,
+        83.528,
+        51.737,
+        -8.361,
+        19.284,
+        -28.785,
+        14.053,
+        13.696,
+        0.657,
+        0.545,
+        -12.495,
+        -18.522
+      ]
+    },
+    {
+      "start": 129.97909,
+      "duration": 0.262,
+      "confidence": 0.241,
+      "loudness_start": -3.623,
+      "loudness_max_time": 0.02931,
+      "loudness_max": 0.571,
+      "pitches": [
+        0.213,
+        0.69,
+        1,
+        0.316,
+        0.117,
+        0.446,
+        0.583,
+        0.276,
+        0.193,
+        0.554,
+        0.244,
+        0.197
+      ],
+      "timbre": [
+        58.789,
+        56.955,
+        11.641,
+        -12.907,
+        45.877,
+        -45.939,
+        22.736,
+        19.348,
+        5.832,
+        6.273,
+        4.941,
+        11.606
+      ]
+    },
+    {
+      "start": 130.24109,
+      "duration": 0.1737,
+      "confidence": 0.346,
+      "loudness_start": -3.361,
+      "loudness_max_time": 0.0219,
+      "loudness_max": 0.938,
+      "pitches": [
+        0.423,
+        1,
+        0.779,
+        0.607,
+        0.803,
+        0.792,
+        0.585,
+        0.646,
+        0.123,
+        0.128,
+        0.168,
+        0.096
+      ],
+      "timbre": [
+        58.572,
+        89.747,
+        23.13,
+        13.009,
+        26.302,
+        -33.835,
+        29.363,
+        9.476,
+        -3.582,
+        -3.431,
+        -5.539,
+        4.518
+      ]
+    },
+    {
+      "start": 130.41478,
+      "duration": 0.48776,
+      "confidence": 0.429,
+      "loudness_start": -5.092,
+      "loudness_max_time": 0.3357,
+      "loudness_max": -0.194,
+      "pitches": [
+        0.933,
+        0.862,
+        0.922,
+        0.482,
+        0.405,
+        0.562,
+        0.892,
+        1,
+        0.559,
+        0.795,
+        0.464,
+        0.495
+      ],
+      "timbre": [
+        57.186,
+        63.514,
+        52.505,
+        -39.735,
+        9.9,
+        -27.764,
+        10.642,
+        1.975,
+        -6.994,
+        3.117,
+        -5.563,
+        -11.419
+      ]
+    },
+    {
+      "start": 130.90254,
+      "duration": 0.27873,
+      "confidence": 0.376,
+      "loudness_start": -3.095,
+      "loudness_max_time": 0.0565,
+      "loudness_max": 2.141,
+      "pitches": [
+        0.541,
+        0.909,
+        0.884,
+        0.439,
+        0.154,
+        0.826,
+        1,
+        0.478,
+        0.312,
+        0.712,
+        0.343,
+        0.206
+      ],
+      "timbre": [
+        58.612,
+        58.059,
+        43.291,
+        6.4,
+        11.15,
+        -22.488,
+        19.557,
+        16.791,
+        -28.311,
+        3.218,
+        -24.516,
+        22.615
+      ]
+    },
+    {
+      "start": 131.18127,
+      "duration": 0.13374,
+      "confidence": 0.524,
+      "loudness_start": -5.616,
+      "loudness_max_time": 0.07006,
+      "loudness_max": -0.63,
+      "pitches": [
+        0.562,
+        1,
+        0.57,
+        0.458,
+        0.741,
+        0.721,
+        0.843,
+        0.975,
+        0.837,
+        0.711,
+        0.443,
+        0.096
+      ],
+      "timbre": [
+        57.567,
+        71.398,
+        28.624,
+        -22.068,
+        20.622,
+        -27.568,
+        16.081,
+        6.077,
+        -22.846,
+        4.631,
+        -8.363,
+        -0.095
+      ]
+    },
+    {
+      "start": 131.31501,
+      "duration": 0.22032,
+      "confidence": 0.239,
+      "loudness_start": -3.764,
+      "loudness_max_time": 0.11985,
+      "loudness_max": 0.347,
+      "pitches": [
+        0.577,
+        1,
+        0.538,
+        0.387,
+        0.376,
+        0.231,
+        0.294,
+        0.388,
+        0.322,
+        0.56,
+        0.336,
+        0.59
+      ],
+      "timbre": [
+        58.235,
+        86.812,
+        69.59,
+        -19.784,
+        -22.248,
+        -26.502,
+        -3.057,
+        6.317,
+        -24.607,
+        4.669,
+        -10.902,
+        -17.375
+      ]
+    },
+    {
+      "start": 131.53533,
+      "duration": 0.27868,
+      "confidence": 0.069,
+      "loudness_start": -1.968,
+      "loudness_max_time": 0.05912,
+      "loudness_max": 0.91,
+      "pitches": [
+        0.647,
+        1,
+        0.455,
+        0.362,
+        0.397,
+        0.283,
+        0.23,
+        0.242,
+        0.34,
+        0.516,
+        0.326,
+        0.361
+      ],
+      "timbre": [
+        58.994,
+        101.585,
+        47.564,
+        2.413,
+        -6.019,
+        -27.549,
+        -21.569,
+        -3.713,
+        -9.91,
+        -13.576,
+        -26.105,
+        -19.265
+      ]
+    },
+    {
+      "start": 131.81401,
+      "duration": 0.56295,
+      "confidence": 0.315,
+      "loudness_start": -4.116,
+      "loudness_max_time": 0.09899,
+      "loudness_max": 0.346,
+      "pitches": [
+        0.507,
+        0.932,
+        1,
+        0.654,
+        0.577,
+        0.699,
+        0.806,
+        0.922,
+        0.588,
+        0.834,
+        0.521,
+        0.501
+      ],
+      "timbre": [
+        57.742,
+        100.862,
+        30.205,
+        -27.02,
+        12.71,
+        -23.321,
+        -3.035,
+        -12.286,
+        -2.901,
+        3.685,
+        -9.899,
+        5.73
+      ]
+    },
+    {
+      "start": 132.37696,
+      "duration": 0.42308,
+      "confidence": 0.467,
+      "loudness_start": -5.183,
+      "loudness_max_time": 0.11483,
+      "loudness_max": 0.207,
+      "pitches": [
+        0.773,
+        0.672,
+        0.766,
+        0.656,
+        0.565,
+        1,
+        0.695,
+        0.654,
+        0.497,
+        0.75,
+        0.413,
+        0.546
+      ],
+      "timbre": [
+        58.59,
+        45.13,
+        26.281,
+        -9.738,
+        16.457,
+        -39.919,
+        9.52,
+        -1.473,
+        3.908,
+        4.705,
+        -13.605,
+        17.27
+      ]
+    },
+    {
+      "start": 132.80005,
+      "duration": 0.31392,
+      "confidence": 0.48,
+      "loudness_start": -4.045,
+      "loudness_max_time": 0.06939,
+      "loudness_max": 0.549,
+      "pitches": [
+        0.475,
+        0.349,
+        0.432,
+        0.237,
+        0.257,
+        1,
+        0.683,
+        0.423,
+        0.321,
+        0.529,
+        0.943,
+        0.377
+      ],
+      "timbre": [
+        57.639,
+        81.226,
+        30.438,
+        -20.365,
+        21.428,
+        -19.118,
+        9.11,
+        -11.798,
+        -0.966,
+        0.363,
+        -11.298,
+        2.483
+      ]
+    },
+    {
+      "start": 133.11397,
+      "duration": 0.17447,
+      "confidence": 0.266,
+      "loudness_start": -4.666,
+      "loudness_max_time": 0.01486,
+      "loudness_max": -1.313,
+      "pitches": [
+        0.117,
+        0.498,
+        1,
+        0.262,
+        0.075,
+        0.075,
+        0.12,
+        0.044,
+        0.027,
+        0.198,
+        0.05,
+        0.161
+      ],
+      "timbre": [
+        54.599,
+        43.96,
+        15.74,
+        81.579,
+        44.042,
+        -23.962,
+        -25.144,
+        -44.259,
+        -11.424,
+        -5.356,
+        -46.456,
+        12.566
+      ]
+    },
+    {
+      "start": 133.28844,
+      "duration": 0.29637,
+      "confidence": 0.871,
+      "loudness_start": -13.872,
+      "loudness_max_time": 0.05884,
+      "loudness_max": -1.624,
+      "pitches": [
+        0.927,
+        1,
+        0.493,
+        0.219,
+        0.148,
+        0.157,
+        0.366,
+        0.783,
+        0.162,
+        0.07,
+        0.07,
+        0.329
+      ],
+      "timbre": [
+        55.582,
+        101.167,
+        17.493,
+        -43.792,
+        22.765,
+        -8.744,
+        7.187,
+        -28.121,
+        14.791,
+        24.697,
+        -12.811,
+        6.611
+      ]
+    },
+    {
+      "start": 133.58481,
+      "duration": 0.0985,
+      "confidence": 0.01,
+      "loudness_start": -4.64,
+      "loudness_max_time": 0.02427,
+      "loudness_max": -1.107,
+      "pitches": [
+        0.311,
+        0.418,
+        0.648,
+        0.361,
+        0.435,
+        0.859,
+        0.694,
+        1,
+        0.532,
+        0.451,
+        0.409,
+        0.262
+      ],
+      "timbre": [
+        57.258,
+        86.512,
+        36.571,
+        -14.554,
+        26.011,
+        -45.902,
+        28.818,
+        8.231,
+        10.859,
+        -2.208,
+        -1.697,
+        10.698
+      ]
+    },
+    {
+      "start": 133.68331,
+      "duration": 0.12753,
+      "confidence": 0.166,
+      "loudness_start": -3.158,
+      "loudness_max_time": 0.03037,
+      "loudness_max": 0.088,
+      "pitches": [
+        0.139,
+        0.269,
+        0.749,
+        0.21,
+        0.245,
+        0.858,
+        0.537,
+        1,
+        0.281,
+        0.352,
+        0.966,
+        0.199
+      ],
+      "timbre": [
+        58.309,
+        85.457,
+        33.949,
+        -7.278,
+        46.926,
+        -51.556,
+        14.722,
+        -4.318,
+        21.872,
+        11.513,
+        0.33,
+        18.088
+      ]
+    },
+    {
+      "start": 133.81084,
+      "duration": 0.44649,
+      "confidence": 0.038,
+      "loudness_start": -2.66,
+      "loudness_max_time": 0.00459,
+      "loudness_max": 0.218,
+      "pitches": [
+        0.157,
+        0.168,
+        0.403,
+        0.299,
+        0.264,
+        0.229,
+        0.317,
+        1,
+        0.364,
+        0.109,
+        0.135,
+        0.175
+      ],
+      "timbre": [
+        57.759,
+        63.991,
+        -3.918,
+        -12.114,
+        18.968,
+        -45.407,
+        -9.461,
+        22.897,
+        -0.247,
+        2.424,
+        -28.372,
+        10.356
+      ]
+    },
+    {
+      "start": 134.25732,
+      "duration": 0.23279,
+      "confidence": 0.181,
+      "loudness_start": -8.224,
+      "loudness_max_time": 0.04186,
+      "loudness_max": -4.849,
+      "pitches": [
+        0.795,
+        0.939,
+        0.833,
+        0.384,
+        0.162,
+        0.204,
+        0.585,
+        1,
+        0.257,
+        0.094,
+        0.194,
+        0.724
+      ],
+      "timbre": [
+        53.531,
+        80.888,
+        -20.183,
+        -28.141,
+        19.342,
+        -38.423,
+        -12.146,
+        1.653,
+        -4.755,
+        16.287,
+        -8.576,
+        -26.788
+      ]
+    },
+    {
+      "start": 134.49011,
+      "duration": 0.2668,
+      "confidence": 0.635,
+      "loudness_start": -9.728,
+      "loudness_max_time": 0.0821,
+      "loudness_max": -3.193,
+      "pitches": [
+        0.627,
+        0.587,
+        0.56,
+        0.331,
+        0.326,
+        0.455,
+        0.324,
+        1,
+        0.647,
+        0.259,
+        0.193,
+        0.647
+      ],
+      "timbre": [
+        54.039,
+        95.111,
+        -11.388,
+        -33.719,
+        -5.439,
+        3.342,
+        -15.627,
+        -7.653,
+        -0.653,
+        1.183,
+        -14.283,
+        -19.213
+      ]
+    },
+    {
+      "start": 134.75692,
+      "duration": 0.22649,
+      "confidence": 0.763,
+      "loudness_start": -7.71,
+      "loudness_max_time": 0.01344,
+      "loudness_max": 0.496,
+      "pitches": [
+        0.36,
+        0.385,
+        0.432,
+        0.194,
+        0.184,
+        0.529,
+        0.575,
+        1,
+        0.413,
+        0.268,
+        0.603,
+        0.481
+      ],
+      "timbre": [
+        57.79,
+        65.143,
+        -9.795,
+        -6.816,
+        -10.698,
+        -33.681,
+        -21.584,
+        12.996,
+        -17.649,
+        -6.655,
+        -12.098,
+        1.215
+      ]
+    },
+    {
+      "start": 134.9834,
+      "duration": 0.25546,
+      "confidence": 0.515,
+      "loudness_start": -7.03,
+      "loudness_max_time": 0.1117,
+      "loudness_max": -1.78,
+      "pitches": [
+        0.456,
+        0.157,
+        0.159,
+        0.178,
+        0.168,
+        1,
+        0.28,
+        0.414,
+        0.283,
+        0.124,
+        0.096,
+        0.217
+      ],
+      "timbre": [
+        55.822,
+        67.115,
+        13.987,
+        0.75,
+        7.328,
+        -18.704,
+        -8.619,
+        11.136,
+        -4.332,
+        7.98,
+        -18.502,
+        -6.946
+      ]
+    },
+    {
+      "start": 135.23887,
+      "duration": 0.23887,
+      "confidence": 0.532,
+      "loudness_start": -7.477,
+      "loudness_max_time": 0.07741,
+      "loudness_max": -0.389,
+      "pitches": [
+        0.801,
+        0.531,
+        0.538,
+        0.173,
+        0.081,
+        0.223,
+        0.338,
+        1,
+        0.246,
+        0.159,
+        0.478,
+        0.418
+      ],
+      "timbre": [
+        55.043,
+        56.982,
+        -17.925,
+        -0.1,
+        12.77,
+        -25.837,
+        -10.923,
+        -0.666,
+        -9.831,
+        18.614,
+        -38.925,
+        -10.447
+      ]
+    },
+    {
+      "start": 135.47773,
+      "duration": 0.23728,
+      "confidence": 0.784,
+      "loudness_start": -9.701,
+      "loudness_max_time": 0.08333,
+      "loudness_max": -0.699,
+      "pitches": [
+        0.488,
+        0.093,
+        0.158,
+        0.028,
+        0.056,
+        0.041,
+        0.171,
+        1,
+        0.192,
+        0.022,
+        0.045,
+        0.064
+      ],
+      "timbre": [
+        57.454,
+        78.911,
+        28.108,
+        -23.269,
+        21.557,
+        -21.958,
+        8.695,
+        -7.349,
+        1.893,
+        15.712,
+        -8.358,
+        -1.816
+      ]
+    },
+    {
+      "start": 135.71501,
+      "duration": 0.44834,
+      "confidence": 0.15,
+      "loudness_start": -6.033,
+      "loudness_max_time": 0.00596,
+      "loudness_max": 0.241,
+      "pitches": [
+        0.167,
+        0.208,
+        0.583,
+        0.204,
+        0.134,
+        0.159,
+        0.259,
+        1,
+        0.386,
+        0.238,
+        0.202,
+        0.243
+      ],
+      "timbre": [
+        57.811,
+        61.048,
+        -3.766,
+        -7.021,
+        11.65,
+        -42.786,
+        -14.062,
+        1.989,
+        -9.294,
+        1.369,
+        -23.47,
+        -15.428
+      ]
+    },
+    {
+      "start": 136.16336,
+      "duration": 0.23764,
+      "confidence": 0.54,
+      "loudness_start": -9.765,
+      "loudness_max_time": 0.16825,
+      "loudness_max": -4.209,
+      "pitches": [
+        0.779,
+        1,
+        0.524,
+        0.243,
+        0.124,
+        0.139,
+        0.396,
+        0.59,
+        0.155,
+        0.116,
+        0.11,
+        0.397
+      ],
+      "timbre": [
+        53.981,
+        65.607,
+        19.124,
+        -39.639,
+        9.587,
+        -28.27,
+        26.478,
+        21.636,
+        11.393,
+        4.45,
+        7.179,
+        -14.99
+      ]
+    },
+    {
+      "start": 136.401,
+      "duration": 0.24286,
+      "confidence": 0.573,
+      "loudness_start": -6.843,
+      "loudness_max_time": 0.05098,
+      "loudness_max": -0.989,
+      "pitches": [
+        0.859,
+        0.6,
+        0.683,
+        0.434,
+        0.435,
+        0.529,
+        0.281,
+        1,
+        0.755,
+        0.418,
+        0.256,
+        0.591
+      ],
+      "timbre": [
+        57.098,
+        84.232,
+        40.661,
+        -16.255,
+        25.38,
+        -13.902,
+        35.138,
+        5.377,
+        20.497,
+        0.499,
+        -3.399,
+        7.861
+      ]
+    },
+    {
+      "start": 136.64385,
+      "duration": 0.31283,
+      "confidence": 0.48,
+      "loudness_start": -4.53,
+      "loudness_max_time": 0.02896,
+      "loudness_max": 1.203,
+      "pitches": [
+        0.36,
+        0.346,
+        0.252,
+        0.127,
+        0.146,
+        0.354,
+        0.388,
+        1,
+        0.254,
+        0.102,
+        0.095,
+        0.261
+      ],
+      "timbre": [
+        58.473,
+        56.23,
+        14.454,
+        -11.065,
+        28.955,
+        -34.555,
+        19.61,
+        10.882,
+        0.979,
+        7.185,
+        15.923,
+        6.633
+      ]
+    },
+    {
+      "start": 136.95669,
+      "duration": 0.18005,
+      "confidence": 0.062,
+      "loudness_start": -2.716,
+      "loudness_max_time": 0.04782,
+      "loudness_max": -1.119,
+      "pitches": [
+        1,
+        0.65,
+        0.633,
+        0.532,
+        0.457,
+        0.804,
+        0.64,
+        0.602,
+        0.466,
+        0.505,
+        0.639,
+        0.189
+      ],
+      "timbre": [
+        57.636,
+        98.377,
+        16.245,
+        -7.622,
+        15.783,
+        -38.262,
+        -15.874,
+        -2.75,
+        18.034,
+        2.509,
+        -22.269,
+        -27.104
+      ]
+    },
+    {
+      "start": 137.13673,
+      "duration": 0.2498,
+      "confidence": 0.236,
+      "loudness_start": -6.061,
+      "loudness_max_time": 0.04098,
+      "loudness_max": -2.001,
+      "pitches": [
+        0.821,
+        1,
+        0.318,
+        0.913,
+        0.415,
+        0.086,
+        0.126,
+        0.172,
+        0.079,
+        0.122,
+        0.425,
+        0.278
+      ],
+      "timbre": [
+        56.542,
+        67.653,
+        32.874,
+        -4.129,
+        3.258,
+        -31.465,
+        29.222,
+        -4.487,
+        -7.786,
+        3.202,
+        -6.447,
+        -12.23
+      ]
+    },
+    {
+      "start": 137.38653,
+      "duration": 0.23247,
+      "confidence": 0.358,
+      "loudness_start": -7.117,
+      "loudness_max_time": 0.02354,
+      "loudness_max": -1.699,
+      "pitches": [
+        0.102,
+        0.078,
+        0.25,
+        1,
+        0.443,
+        0.351,
+        0.066,
+        0.071,
+        0.04,
+        0.102,
+        0.659,
+        0.119
+      ],
+      "timbre": [
+        56.822,
+        69.916,
+        25.921,
+        -22.606,
+        28.101,
+        -27.806,
+        -4.503,
+        -10.349,
+        -1.157,
+        8.207,
+        13.413,
+        -18.357
+      ]
+    },
+    {
+      "start": 137.619,
+      "duration": 0.25605,
+      "confidence": 0.253,
+      "loudness_start": -3.924,
+      "loudness_max_time": 0.00765,
+      "loudness_max": 0.9,
+      "pitches": [
+        0.653,
+        0.641,
+        0.282,
+        1,
+        0.348,
+        0.443,
+        0.322,
+        0.296,
+        0.124,
+        0.163,
+        0.66,
+        0.544
+      ],
+      "timbre": [
+        58.186,
+        46.872,
+        7.716,
+        -9.761,
+        15.814,
+        -63.656,
+        6.707,
+        6.182,
+        -6.663,
+        6.703,
+        -10.182,
+        -5.61
+      ]
+    },
+    {
+      "start": 137.87506,
+      "duration": 0.17918,
+      "confidence": 0.102,
+      "loudness_start": -5.112,
+      "loudness_max_time": 0.06438,
+      "loudness_max": -1.723,
+      "pitches": [
+        0.785,
+        1,
+        0.784,
+        0.874,
+        0.366,
+        0.28,
+        0.276,
+        0.414,
+        0.259,
+        0.316,
+        0.435,
+        0.413
+      ],
+      "timbre": [
+        56.774,
+        62.168,
+        20.289,
+        -12.793,
+        5.593,
+        -29.421,
+        -29.455,
+        -15.167,
+        9.546,
+        1.582,
+        -15.724,
+        -17.053
+      ]
+    },
+    {
+      "start": 138.05424,
+      "duration": 0.37125,
+      "confidence": 0.303,
+      "loudness_start": -5.625,
+      "loudness_max_time": 0.04786,
+      "loudness_max": -2.044,
+      "pitches": [
+        1,
+        0.747,
+        0.357,
+        0.32,
+        0.224,
+        0.909,
+        0.221,
+        0.318,
+        0.093,
+        0.133,
+        0.134,
+        0.272
+      ],
+      "timbre": [
+        56.549,
+        51.417,
+        34.293,
+        -13.853,
+        20.287,
+        -26.838,
+        0.303,
+        -1.476,
+        10.484,
+        12.685,
+        -9.929,
+        -24.18
+      ]
+    },
+    {
+      "start": 138.42549,
+      "duration": 0.38912,
+      "confidence": 0.375,
+      "loudness_start": -6.108,
+      "loudness_max_time": 0.15298,
+      "loudness_max": -0.763,
+      "pitches": [
+        0.376,
+        0.22,
+        0.186,
+        0.292,
+        0.366,
+        1,
+        0.644,
+        0.415,
+        0.271,
+        0.21,
+        0.181,
+        0.177
+      ],
+      "timbre": [
+        56.816,
+        46.61,
+        -2.452,
+        -9.917,
+        35.654,
+        -33.182,
+        -10.487,
+        -5.868,
+        -8.905,
+        20.094,
+        -8.357,
+        2.157
+      ]
+    },
+    {
+      "start": 138.8146,
+      "duration": 0.0751,
+      "confidence": 0.196,
+      "loudness_start": -6.673,
+      "loudness_max_time": 0.02786,
+      "loudness_max": -3.867,
+      "pitches": [
+        0.8,
+        0.908,
+        0.887,
+        0.683,
+        0.827,
+        1,
+        0.638,
+        0.699,
+        0.357,
+        0.401,
+        0.666,
+        0.456
+      ],
+      "timbre": [
+        55.31,
+        25.316,
+        35.39,
+        -11.631,
+        13.171,
+        -42.273,
+        -6.942,
+        -5.96,
+        -7.097,
+        13.027,
+        -1.337,
+        4.413
+      ]
+    },
+    {
+      "start": 138.88971,
+      "duration": 0.50585,
+      "confidence": 0.412,
+      "loudness_start": -5.199,
+      "loudness_max_time": 0.04533,
+      "loudness_max": 0.077,
+      "pitches": [
+        0.329,
+        0.38,
+        0.688,
+        0.465,
+        0.266,
+        0.323,
+        0.574,
+        1,
+        0.534,
+        0.206,
+        0.236,
+        0.399
+      ],
+      "timbre": [
+        56.927,
+        42.973,
+        7.089,
+        -19.93,
+        11.141,
+        -24.834,
+        -21.482,
+        8.873,
+        8.192,
+        -3.718,
+        -3.34,
+        -13.287
+      ]
+    },
+    {
+      "start": 139.39556,
+      "duration": 0.12145,
+      "confidence": 0.148,
+      "loudness_start": -4.289,
+      "loudness_max_time": 0.00915,
+      "loudness_max": -2.196,
+      "pitches": [
+        0.088,
+        0.226,
+        0.326,
+        0.149,
+        0.207,
+        0.314,
+        0.943,
+        1,
+        0.221,
+        0.197,
+        0.129,
+        0.133
+      ],
+      "timbre": [
+        55.753,
+        71.156,
+        5.318,
+        2.731,
+        -0.358,
+        -35.81,
+        -28.3,
+        -20.738,
+        -19.383,
+        -4.03,
+        -22.249,
+        14.89
+      ]
+    },
+    {
+      "start": 139.51701,
+      "duration": 0.19814,
+      "confidence": 0.426,
+      "loudness_start": -7.862,
+      "loudness_max_time": 0.01473,
+      "loudness_max": -0.122,
+      "pitches": [
+        0.897,
+        1,
+        0.796,
+        0.549,
+        0.336,
+        0.714,
+        0.93,
+        0.979,
+        0.297,
+        0.174,
+        0.189,
+        0.539
+      ],
+      "timbre": [
+        56.497,
+        56.793,
+        -20.178,
+        -9.954,
+        0.43,
+        -51.646,
+        -3.612,
+        0.91,
+        -26.818,
+        6.644,
+        -3.728,
+        -0.553
+      ]
+    },
+    {
+      "start": 139.71515,
+      "duration": 0.13859,
+      "confidence": 0.164,
+      "loudness_start": -6.536,
+      "loudness_max_time": 0.05145,
+      "loudness_max": -3.976,
+      "pitches": [
+        0.178,
+        0.357,
+        0.567,
+        0.244,
+        0.41,
+        0.533,
+        1,
+        0.996,
+        0.392,
+        0.382,
+        0.155,
+        0.324
+      ],
+      "timbre": [
+        54.541,
+        49.474,
+        12.9,
+        -8.645,
+        -11.098,
+        -24.551,
+        -23.534,
+        2.298,
+        -15.854,
+        -8.577,
+        -9.841,
+        -1.592
+      ]
+    },
+    {
+      "start": 139.85374,
+      "duration": 0.37719,
+      "confidence": 0.543,
+      "loudness_start": -7.573,
+      "loudness_max_time": 0.03256,
+      "loudness_max": -1.013,
+      "pitches": [
+        0.558,
+        0.368,
+        0.626,
+        0.488,
+        0.434,
+        0.797,
+        1,
+        0.882,
+        0.678,
+        0.348,
+        0.419,
+        0.71
+      ],
+      "timbre": [
+        54.53,
+        51.409,
+        -26.549,
+        -2.384,
+        2.418,
+        -22.818,
+        -16.495,
+        13.129,
+        -9.272,
+        5.133,
+        4.977,
+        -11.402
+      ]
+    },
+    {
+      "start": 140.23093,
+      "duration": 0.10544,
+      "confidence": 0.072,
+      "loudness_start": -8.465,
+      "loudness_max_time": 0.01926,
+      "loudness_max": -5.988,
+      "pitches": [
+        0.578,
+        0.718,
+        0.423,
+        0.389,
+        0.802,
+        0.788,
+        1,
+        0.999,
+        0.928,
+        0.942,
+        0.693,
+        0.053
+      ],
+      "timbre": [
+        51.886,
+        58.93,
+        -15.29,
+        -17.24,
+        -19.647,
+        -48.08,
+        -1.687,
+        -2.251,
+        -1.537,
+        18.507,
+        -6.267,
+        -25.831
+      ]
+    },
+    {
+      "start": 140.33637,
+      "duration": 0.138,
+      "confidence": 0.132,
+      "loudness_start": -9.822,
+      "loudness_max_time": 0.03731,
+      "loudness_max": -6.763,
+      "pitches": [
+        0.971,
+        0.769,
+        0.365,
+        0.291,
+        0.569,
+        0.584,
+        1,
+        0.985,
+        0.901,
+        0.906,
+        0.779,
+        0.149
+      ],
+      "timbre": [
+        51.857,
+        72.883,
+        -3.296,
+        -31.308,
+        -29.834,
+        -28.067,
+        -10.422,
+        -1.61,
+        -9.551,
+        11.097,
+        -2.875,
+        -15.922
+      ]
+    },
+    {
+      "start": 140.47438,
+      "duration": 0.11211,
+      "confidence": 0.671,
+      "loudness_start": -9.2,
+      "loudness_max_time": 0.00975,
+      "loudness_max": -0.284,
+      "pitches": [
+        0.426,
+        0.359,
+        0.373,
+        0.318,
+        0.277,
+        1,
+        0.926,
+        0.502,
+        0.661,
+        0.429,
+        0.452,
+        0.448
+      ],
+      "timbre": [
+        55.191,
+        54.412,
+        -41.478,
+        -16.146,
+        -5.336,
+        -76.234,
+        -25.462,
+        -5.936,
+        -16.737,
+        2.577,
+        -11.07,
+        6.284
+      ]
+    },
+    {
+      "start": 140.58649,
+      "duration": 0.12771,
+      "confidence": 0.246,
+      "loudness_start": -7.479,
+      "loudness_max_time": 0.01602,
+      "loudness_max": -2.703,
+      "pitches": [
+        0.317,
+        0.084,
+        0.087,
+        0.101,
+        0.206,
+        0.759,
+        1,
+        0.564,
+        0.892,
+        0.825,
+        0.626,
+        0.28
+      ],
+      "timbre": [
+        54.586,
+        48.059,
+        -30.32,
+        -25.189,
+        6.113,
+        -47.892,
+        -13.432,
+        -1.792,
+        -8.384,
+        5.286,
+        4.483,
+        -2.08
+      ]
+    },
+    {
+      "start": 140.7142,
+      "duration": 0.1151,
+      "confidence": 0.265,
+      "loudness_start": -7.188,
+      "loudness_max_time": 0.00625,
+      "loudness_max": -2.151,
+      "pitches": [
+        0.235,
+        0.274,
+        0.222,
+        0.173,
+        0.484,
+        0.645,
+        1,
+        0.826,
+        0.823,
+        0.544,
+        0.393,
+        0.179
+      ],
+      "timbre": [
+        54.72,
+        36.219,
+        -32.472,
+        -21.049,
+        -3.107,
+        -63.599,
+        -15.537,
+        1.518,
+        -13.617,
+        -10.888,
+        -8.596,
+        1.449
+      ]
+    },
+    {
+      "start": 140.8293,
+      "duration": 0.58036,
+      "confidence": 0.266,
+      "loudness_start": -7.496,
+      "loudness_max_time": 0.01159,
+      "loudness_max": -2.459,
+      "pitches": [
+        0.101,
+        0.176,
+        0.147,
+        0.092,
+        0.114,
+        0.12,
+        0.156,
+        0.595,
+        1,
+        0.651,
+        0.166,
+        0.259
+      ],
+      "timbre": [
+        52.481,
+        4.101,
+        -45.776,
+        32.742,
+        0.977,
+        -58.558,
+        -1.95,
+        -29.318,
+        -14.994,
+        -0.483,
+        -22.615,
+        12.729
+      ]
+    },
+    {
+      "start": 141.40966,
+      "duration": 0.16816,
+      "confidence": 0.58,
+      "loudness_start": -14.986,
+      "loudness_max_time": 0.03008,
+      "loudness_max": -7.076,
+      "pitches": [
+        0.801,
+        0.992,
+        0.486,
+        0.254,
+        0.48,
+        0.474,
+        0.403,
+        1,
+        0.347,
+        0.31,
+        0.812,
+        0.25
+      ],
+      "timbre": [
+        48.024,
+        10.368,
+        13.696,
+        19.589,
+        47.242,
+        -15.89,
+        28.519,
+        -12.321,
+        6.218,
+        -46.301,
+        16.153,
+        -7.288
+      ]
+    },
+    {
+      "start": 141.57782,
+      "duration": 0.3249,
+      "confidence": 0.105,
+      "loudness_start": -15.165,
+      "loudness_max_time": 0.09323,
+      "loudness_max": -11.484,
+      "pitches": [
+        0.127,
+        0.193,
+        0.459,
+        0.106,
+        0.085,
+        0.057,
+        0.139,
+        1,
+        0.135,
+        0.071,
+        0.054,
+        0.183
+      ],
+      "timbre": [
+        46.768,
+        -47.716,
+        50.103,
+        -5.226,
+        22.769,
+        -44.491,
+        28.82,
+        -13.221,
+        -31.029,
+        13.347,
+        -2.806,
+        -5.148
+      ]
+    },
+    {
+      "start": 141.90272,
+      "duration": 0.23166,
+      "confidence": 0.8,
+      "loudness_start": -14.653,
+      "loudness_max_time": 0.01793,
+      "loudness_max": -4.956,
+      "pitches": [
+        0.064,
+        0.113,
+        0.558,
+        0.166,
+        0.119,
+        0.259,
+        0.448,
+        1,
+        0.215,
+        0.099,
+        0.163,
+        0.167
+      ],
+      "timbre": [
+        51.969,
+        40.518,
+        5.37,
+        18.147,
+        22.632,
+        -54.21,
+        12.746,
+        1.143,
+        -32.884,
+        5.149,
+        -20.711,
+        7.979
+      ]
+    },
+    {
+      "start": 142.13438,
+      "duration": 0.23891,
+      "confidence": 0.627,
+      "loudness_start": -13.211,
+      "loudness_max_time": 0.12599,
+      "loudness_max": -4.819,
+      "pitches": [
+        0.281,
+        0.202,
+        0.48,
+        0.146,
+        0.165,
+        0.364,
+        0.643,
+        1,
+        0.319,
+        0.15,
+        0.128,
+        0.197
+      ],
+      "timbre": [
+        51.968,
+        47.938,
+        53.239,
+        -5.068,
+        14.939,
+        -18.669,
+        40.284,
+        0.986,
+        4.756,
+        -4.339,
+        6.895,
+        9.729
+      ]
+    },
+    {
+      "start": 142.37329,
+      "duration": 0.12975,
+      "confidence": 0.254,
+      "loudness_start": -11.938,
+      "loudness_max_time": 0.01997,
+      "loudness_max": -5.766,
+      "pitches": [
+        0.142,
+        0.17,
+        0.085,
+        0.075,
+        0.358,
+        0.363,
+        0.841,
+        0.884,
+        1,
+        0.981,
+        0.56,
+        0.019
+      ],
+      "timbre": [
+        51.719,
+        -8.434,
+        28.582,
+        13.253,
+        19.204,
+        -48.763,
+        66.364,
+        -4.383,
+        -3.159,
+        20.192,
+        -6.251,
+        15.032
+      ]
+    },
+    {
+      "start": 142.50304,
+      "duration": 0.20667,
+      "confidence": 0.242,
+      "loudness_start": -10.64,
+      "loudness_max_time": 0.07371,
+      "loudness_max": -7.021,
+      "pitches": [
+        0.255,
+        0.28,
+        0.35,
+        0.17,
+        0.123,
+        0.141,
+        0.399,
+        1,
+        0.461,
+        0.107,
+        0.133,
+        0.146
+      ],
+      "timbre": [
+        51.366,
+        6.743,
+        50.933,
+        -13.676,
+        12.984,
+        -39.519,
+        60.406,
+        18.847,
+        23.725,
+        -12.186,
+        1.304,
+        -8.043
+      ]
+    },
+    {
+      "start": 142.70971,
+      "duration": 0.15039,
+      "confidence": 0.081,
+      "loudness_start": -9.464,
+      "loudness_max_time": 0.0548,
+      "loudness_max": -6.484,
+      "pitches": [
+        0.251,
+        0.639,
+        0.367,
+        0.174,
+        0.69,
+        0.817,
+        0.851,
+        1,
+        0.395,
+        0.395,
+        0.214,
+        0.056
+      ],
+      "timbre": [
+        52.403,
+        81.79,
+        66.834,
+        4.857,
+        24.66,
+        -46.043,
+        29.999,
+        6.815,
+        4.69,
+        10.156,
+        -12.546,
+        4.504
+      ]
+    },
+    {
+      "start": 142.86009,
+      "duration": 0.09397,
+      "confidence": 0.016,
+      "loudness_start": -8.563,
+      "loudness_max_time": 0.01144,
+      "loudness_max": -5.645,
+      "pitches": [
+        0.904,
+        0.994,
+        0.785,
+        0.482,
+        0.676,
+        0.811,
+        0.507,
+        1,
+        0.523,
+        0.627,
+        0.578,
+        0.607
+      ],
+      "timbre": [
+        51.241,
+        57.493,
+        69.511,
+        31.778,
+        25.837,
+        -60.822,
+        21.526,
+        -11.394,
+        -24.463,
+        27.407,
+        -9.649,
+        -1.725
+      ]
+    },
+    {
+      "start": 142.95406,
+      "duration": 0.13261,
+      "confidence": 0.092,
+      "loudness_start": -10.659,
+      "loudness_max_time": 0.09577,
+      "loudness_max": -7.803,
+      "pitches": [
+        0.623,
+        0.826,
+        0.872,
+        0.136,
+        0.287,
+        0.484,
+        0.123,
+        0.253,
+        0.203,
+        1,
+        0.392,
+        0.145
+      ],
+      "timbre": [
+        50.852,
+        -0.942,
+        83.821,
+        11.13,
+        11.915,
+        -31.932,
+        44.545,
+        -11.828,
+        -19.864,
+        9.897,
+        -5.152,
+        13.815
+      ]
+    },
+    {
+      "start": 143.08667,
+      "duration": 0.21551,
+      "confidence": 0.068,
+      "loudness_start": -10.785,
+      "loudness_max_time": 0.07407,
+      "loudness_max": -7.069,
+      "pitches": [
+        0.641,
+        0.36,
+        0.395,
+        0.366,
+        0.243,
+        0.44,
+        0.203,
+        0.163,
+        0.494,
+        1,
+        0.49,
+        0.571
+      ],
+      "timbre": [
+        50.976,
+        1.848,
+        56.144,
+        -1.162,
+        7.148,
+        -42.048,
+        29.642,
+        16.259,
+        -8.85,
+        -2.266,
+        1.133,
+        -11.753
+      ]
+    },
+    {
+      "start": 143.30218,
+      "duration": 0.26694,
+      "confidence": 0.295,
+      "loudness_start": -10.809,
+      "loudness_max_time": 0.04189,
+      "loudness_max": -5.86,
+      "pitches": [
+        0.235,
+        0.278,
+        0.538,
+        0.181,
+        0.178,
+        0.338,
+        0.098,
+        0.267,
+        0.414,
+        1,
+        0.272,
+        0.114
+      ],
+      "timbre": [
+        51.114,
+        36.659,
+        67.545,
+        16.534,
+        33.365,
+        -26.273,
+        31.36,
+        -17.922,
+        -4.007,
+        -18.606,
+        -15.112,
+        -11.553
+      ]
+    },
+    {
+      "start": 143.56912,
+      "duration": 0.23175,
+      "confidence": 0.194,
+      "loudness_start": -11.231,
+      "loudness_max_time": 0.04116,
+      "loudness_max": -7.163,
+      "pitches": [
+        0.273,
+        0.368,
+        0.236,
+        0.133,
+        0.101,
+        0.249,
+        0.123,
+        0.092,
+        0.416,
+        1,
+        0.47,
+        0.27
+      ],
+      "timbre": [
+        51.129,
+        22.819,
+        42.718,
+        6.245,
+        -1.426,
+        -39.387,
+        20.297,
+        4.455,
+        12.712,
+        -4.889,
+        -13.472,
+        -8.802
+      ]
+    },
+    {
+      "start": 143.80086,
+      "duration": 0.35447,
+      "confidence": 0.685,
+      "loudness_start": -11.888,
+      "loudness_max_time": 0.01533,
+      "loudness_max": -3.925,
+      "pitches": [
+        0.289,
+        0.262,
+        0.326,
+        0.154,
+        0.198,
+        0.404,
+        0.271,
+        0.472,
+        0.209,
+        1,
+        0.301,
+        0.159
+      ],
+      "timbre": [
+        52.7,
+        29.887,
+        37.723,
+        31.886,
+        23.141,
+        -44.123,
+        23.113,
+        -21.684,
+        -17.962,
+        8.361,
+        -5.671,
+        -16.953
+      ]
+    },
+    {
+      "start": 144.15533,
+      "duration": 0.12735,
+      "confidence": 0.245,
+      "loudness_start": -12.119,
+      "loudness_max_time": 0.01921,
+      "loudness_max": -7.632,
+      "pitches": [
+        0.865,
+        1,
+        0.566,
+        0.371,
+        0.338,
+        0.716,
+        0.658,
+        0.526,
+        0.218,
+        0.805,
+        0.56,
+        0.38
+      ],
+      "timbre": [
+        49.422,
+        -1.904,
+        61.383,
+        25.401,
+        35.132,
+        -46.395,
+        16.423,
+        -10.516,
+        -16.363,
+        5.598,
+        -0.652,
+        1.383
+      ]
+    },
+    {
+      "start": 144.28268,
+      "duration": 0.30254,
+      "confidence": 0.214,
+      "loudness_start": -12.957,
+      "loudness_max_time": 0.01357,
+      "loudness_max": -7.597,
+      "pitches": [
+        0.259,
+        0.385,
+        0.588,
+        0.106,
+        0.189,
+        0.388,
+        0.296,
+        0.425,
+        0.176,
+        1,
+        0.233,
+        0.228
+      ],
+      "timbre": [
+        48.962,
+        2.407,
+        50.855,
+        23.916,
+        43.506,
+        -59.779,
+        21.568,
+        -30.279,
+        -2.457,
+        17.687,
+        -3.28,
+        2.804
+      ]
+    },
+    {
+      "start": 144.58522,
+      "duration": 0.12785,
+      "confidence": 0.096,
+      "loudness_start": -13.963,
+      "loudness_max_time": 0.03494,
+      "loudness_max": -11.183,
+      "pitches": [
+        0.496,
+        0.677,
+        0.912,
+        0.181,
+        0.26,
+        0.781,
+        0.16,
+        0.254,
+        0.135,
+        1,
+        0.261,
+        0.239
+      ],
+      "timbre": [
+        47.835,
+        11.285,
+        83.516,
+        -0.548,
+        37.842,
+        -33.104,
+        2.987,
+        5.116,
+        7.831,
+        2.538,
+        -8.113,
+        -0.294
+      ]
+    },
+    {
+      "start": 144.71306,
+      "duration": 0.11302,
+      "confidence": 0.675,
+      "loudness_start": -12.971,
+      "loudness_max_time": 0.05856,
+      "loudness_max": -4.596,
+      "pitches": [
+        0.874,
+        1,
+        0.481,
+        0.296,
+        0.34,
+        0.33,
+        0.428,
+        0.478,
+        0.578,
+        0.707,
+        0.649,
+        0.131
+      ],
+      "timbre": [
+        50.977,
+        37.972,
+        26.612,
+        -27.902,
+        44.153,
+        -11.014,
+        39.006,
+        10.011,
+        15.791,
+        -6.468,
+        -23.02,
+        0.898
+      ]
+    },
+    {
+      "start": 144.82608,
+      "duration": 0.258,
+      "confidence": 0.128,
+      "loudness_start": -9.916,
+      "loudness_max_time": 0.10399,
+      "loudness_max": -6.157,
+      "pitches": [
+        0.421,
+        0.676,
+        1,
+        0.498,
+        0.301,
+        0.432,
+        0.376,
+        0.364,
+        0.158,
+        0.451,
+        0.871,
+        0.539
+      ],
+      "timbre": [
+        51.452,
+        30.372,
+        26.298,
+        -10.78,
+        -13.069,
+        -27.236,
+        34.85,
+        -8.363,
+        6.64,
+        7.344,
+        -16.666,
+        -8.284
+      ]
+    },
+    {
+      "start": 145.08408,
+      "duration": 0.16268,
+      "confidence": 0.134,
+      "loudness_start": -11.696,
+      "loudness_max_time": 0.11942,
+      "loudness_max": -7.539,
+      "pitches": [
+        0.543,
+        0.579,
+        0.542,
+        0.209,
+        0.81,
+        0.96,
+        1,
+        0.966,
+        0.296,
+        0.416,
+        0.763,
+        0.355
+      ],
+      "timbre": [
+        50.473,
+        32.214,
+        46.694,
+        -36.136,
+        15.158,
+        -36.393,
+        6.312,
+        24.042,
+        6.641,
+        -5.168,
+        3.078,
+        -7.099
+      ]
+    },
+    {
+      "start": 145.24676,
+      "duration": 0.46376,
+      "confidence": 0.057,
+      "loudness_start": -9.762,
+      "loudness_max_time": 0.00539,
+      "loudness_max": -5.81,
+      "pitches": [
+        0.132,
+        0.231,
+        0.532,
+        0.2,
+        0.099,
+        0.217,
+        0.125,
+        0.2,
+        0.111,
+        0.593,
+        1,
+        0.276
+      ],
+      "timbre": [
+        50.384,
+        41.078,
+        34.825,
+        11.714,
+        17.085,
+        -68.142,
+        9.27,
+        -0.613,
+        -0.507,
+        22.369,
+        -25.386,
+        -4.783
+      ]
+    },
+    {
+      "start": 145.71052,
+      "duration": 0.41764,
+      "confidence": 0.73,
+      "loudness_start": -13.829,
+      "loudness_max_time": 0.01533,
+      "loudness_max": -4.684,
+      "pitches": [
+        0.246,
+        0.368,
+        0.788,
+        0.179,
+        0.135,
+        0.293,
+        0.37,
+        0.314,
+        0.139,
+        0.371,
+        1,
+        0.39
+      ],
+      "timbre": [
+        51.079,
+        29.845,
+        -0.324,
+        30.056,
+        24.675,
+        -62.1,
+        8.208,
+        -16.799,
+        -24.592,
+        2.613,
+        -15.948,
+        4.074
+      ]
+    },
+    {
+      "start": 146.12816,
+      "duration": 0.29111,
+      "confidence": 0.535,
+      "loudness_start": -14.068,
+      "loudness_max_time": 0.07295,
+      "loudness_max": -7.245,
+      "pitches": [
+        0.542,
+        0.53,
+        1,
+        0.536,
+        0.236,
+        0.321,
+        0.37,
+        0.275,
+        0.355,
+        0.524,
+        0.972,
+        0.677
+      ],
+      "timbre": [
+        47.542,
+        -13.276,
+        23.511,
+        -10.294,
+        21.623,
+        -36.457,
+        60.969,
+        10.998,
+        -13.336,
+        0.555,
+        -23.316,
+        5.677
+      ]
+    },
+    {
+      "start": 146.41927,
+      "duration": 0.24463,
+      "confidence": 0.14,
+      "loudness_start": -14.238,
+      "loudness_max_time": 0.01451,
+      "loudness_max": -11.058,
+      "pitches": [
+        0.658,
+        0.685,
+        1,
+        0.408,
+        0.262,
+        0.306,
+        0.284,
+        0.289,
+        0.14,
+        0.367,
+        0.546,
+        0.262
+      ],
+      "timbre": [
+        47.048,
+        -17.199,
+        46.834,
+        6.192,
+        8.664,
+        -48.623,
+        42.652,
+        9.08,
+        -21.127,
+        -4.906,
+        -2.289,
+        7.402
+      ]
+    },
+    {
+      "start": 146.6639,
+      "duration": 0.22018,
+      "confidence": 0.564,
+      "loudness_start": -14.587,
+      "loudness_max_time": 0.0129,
+      "loudness_max": -6.581,
+      "pitches": [
+        0.676,
+        0.644,
+        1,
+        0.311,
+        0.372,
+        0.26,
+        0.346,
+        0.328,
+        0.138,
+        0.472,
+        0.34,
+        0.294
+      ],
+      "timbre": [
+        48.016,
+        35.39,
+        30.135,
+        38.525,
+        64.957,
+        -66.2,
+        21.143,
+        -33.935,
+        -23.877,
+        12.077,
+        4.263,
+        13.136
+      ]
+    },
+    {
+      "start": 146.88408,
+      "duration": 0.20336,
+      "confidence": 0.414,
+      "loudness_start": -15.638,
+      "loudness_max_time": 0.04365,
+      "loudness_max": -11.095,
+      "pitches": [
+        1,
+        0.925,
+        0.716,
+        0.196,
+        0.217,
+        0.196,
+        0.253,
+        0.139,
+        0.217,
+        0.43,
+        0.218,
+        0.861
+      ],
+      "timbre": [
+        46.879,
+        -35.928,
+        35.963,
+        -1.056,
+        14.807,
+        -26.803,
+        37.781,
+        1.526,
+        -20.92,
+        -5.209,
+        5.503,
+        8.571
+      ]
+    },
+    {
+      "start": 147.08744,
+      "duration": 0.29488,
+      "confidence": 0.671,
+      "loudness_start": -14.435,
+      "loudness_max_time": 0.06884,
+      "loudness_max": -5.946,
+      "pitches": [
+        0.468,
+        0.214,
+        1,
+        0.14,
+        0.209,
+        0.105,
+        0.233,
+        0.31,
+        0.167,
+        0.443,
+        0.22,
+        0.234
+      ],
+      "timbre": [
+        47.75,
+        -10.516,
+        54.694,
+        -10.211,
+        39.026,
+        -18.43,
+        16.416,
+        9.629,
+        -23.703,
+        -16.173,
+        -7.488,
+        8.805
+      ]
+    },
+    {
+      "start": 147.38231,
+      "duration": 0.22639,
+      "confidence": 0.184,
+      "loudness_start": -14.49,
+      "loudness_max_time": 0.00834,
+      "loudness_max": -9.626,
+      "pitches": [
+        0.878,
+        0.722,
+        1,
+        0.502,
+        0.305,
+        0.283,
+        0.415,
+        0.338,
+        0.351,
+        0.728,
+        0.425,
+        0.676
+      ],
+      "timbre": [
+        47.528,
+        -32.578,
+        25.378,
+        -1.019,
+        14.733,
+        -66.77,
+        29.989,
+        12.723,
+        -7.913,
+        -14.393,
+        -10.587,
+        -2.514
+      ]
+    },
+    {
+      "start": 147.60871,
+      "duration": 0.48834,
+      "confidence": 0.803,
+      "loudness_start": -14.154,
+      "loudness_max_time": 0.01676,
+      "loudness_max": -5.103,
+      "pitches": [
+        0.585,
+        0.515,
+        1,
+        0.255,
+        0.238,
+        0.47,
+        0.574,
+        0.367,
+        0.211,
+        0.5,
+        0.35,
+        0.392
+      ],
+      "timbre": [
+        50.356,
+        28.532,
+        -2.277,
+        41.44,
+        37.528,
+        -43.318,
+        18.719,
+        -23.939,
+        -10.263,
+        7.387,
+        1.205,
+        18.058
+      ]
+    },
+    {
+      "start": 148.09705,
+      "duration": 0.44707,
+      "confidence": 0.553,
+      "loudness_start": -14.529,
+      "loudness_max_time": 0.00786,
+      "loudness_max": -7.808,
+      "pitches": [
+        0.175,
+        0.349,
+        1,
+        0.146,
+        0.13,
+        0.284,
+        0.313,
+        0.226,
+        0.163,
+        0.421,
+        0.539,
+        0.177
+      ],
+      "timbre": [
+        47.699,
+        4.104,
+        25.565,
+        30.741,
+        44.941,
+        -69.403,
+        6.42,
+        -24.852,
+        -2.528,
+        17.843,
+        -11.819,
+        17.62
+      ]
+    },
+    {
+      "start": 148.54413,
+      "duration": 0.14821,
+      "confidence": 0.789,
+      "loudness_start": -16.368,
+      "loudness_max_time": 0.03718,
+      "loudness_max": -5.838,
+      "pitches": [
+        0.187,
+        0.23,
+        0.134,
+        0.093,
+        0.341,
+        0.339,
+        0.815,
+        0.818,
+        0.999,
+        1,
+        0.619,
+        0.025
+      ],
+      "timbre": [
+        48.502,
+        16.494,
+        -19.423,
+        1.174,
+        28.123,
+        -3.235,
+        52.319,
+        -13.217,
+        3.264,
+        -23.093,
+        -3.082,
+        1.998
+      ]
+    },
+    {
+      "start": 148.69234,
+      "duration": 0.08998,
+      "confidence": 0.252,
+      "loudness_start": -13.921,
+      "loudness_max_time": 0.03229,
+      "loudness_max": -10.48,
+      "pitches": [
+        0.325,
+        0.519,
+        0.472,
+        0.45,
+        0.463,
+        0.464,
+        0.976,
+        1,
+        0.928,
+        0.919,
+        0.3,
+        0.301
+      ],
+      "timbre": [
+        48.041,
+        -51.851,
+        4.008,
+        -17.085,
+        -6.765,
+        -36.605,
+        40.793,
+        5.356,
+        -26.698,
+        -2.893,
+        -4.243,
+        -1.747
+      ]
+    },
+    {
+      "start": 148.78231,
+      "duration": 0.17873,
+      "confidence": 0.661,
+      "loudness_start": -12.698,
+      "loudness_max_time": 0.0538,
+      "loudness_max": -6.074,
+      "pitches": [
+        0.663,
+        0.405,
+        0.294,
+        0.084,
+        0.244,
+        0.249,
+        0.807,
+        1,
+        0.423,
+        0.466,
+        0.957,
+        0.097
+      ],
+      "timbre": [
+        50.598,
+        -6.5,
+        12.386,
+        -30.091,
+        4.103,
+        -0.41,
+        26.171,
+        26.415,
+        -18.658,
+        -31.11,
+        -15.175,
+        13.614
+      ]
+    },
+    {
+      "start": 148.96104,
+      "duration": 0.1458,
+      "confidence": 0.48,
+      "loudness_start": -12.385,
+      "loudness_max_time": 0.10468,
+      "loudness_max": -6.022,
+      "pitches": [
+        0.436,
+        0.842,
+        0.616,
+        0.29,
+        0.566,
+        0.595,
+        0.469,
+        1,
+        0.31,
+        0.346,
+        0.492,
+        0.135
+      ],
+      "timbre": [
+        52.295,
+        70.088,
+        13.056,
+        -22.935,
+        59.404,
+        -41.281,
+        23.163,
+        -27.496,
+        -17.92,
+        -13.352,
+        -14.639,
+        22.985
+      ]
+    },
+    {
+      "start": 149.10685,
+      "duration": 0.12998,
+      "confidence": 0.39,
+      "loudness_start": -9.895,
+      "loudness_max_time": 0.07712,
+      "loudness_max": -5.002,
+      "pitches": [
+        0.324,
+        0.486,
+        0.45,
+        0.144,
+        0.139,
+        0.184,
+        0.094,
+        0.44,
+        0.146,
+        0.529,
+        1,
+        0.14
+      ],
+      "timbre": [
+        52.487,
+        29.165,
+        18.039,
+        -18.905,
+        21.052,
+        -10.911,
+        -2.643,
+        -10.11,
+        3.199,
+        -20.536,
+        -21.969,
+        20.712
+      ]
+    },
+    {
+      "start": 149.23683,
+      "duration": 0.27678,
+      "confidence": 0.545,
+      "loudness_start": -11.457,
+      "loudness_max_time": 0.04642,
+      "loudness_max": -4.748,
+      "pitches": [
+        0.092,
+        0.115,
+        0.193,
+        0.045,
+        0.046,
+        0.115,
+        0.144,
+        1,
+        0.268,
+        0.158,
+        0.36,
+        0.191
+      ],
+      "timbre": [
+        51.534,
+        22.465,
+        6.842,
+        -2.988,
+        33.634,
+        1.229,
+        -4.865,
+        -3.456,
+        4.188,
+        -26.496,
+        -7.023,
+        3.629
+      ]
+    },
+    {
+      "start": 149.51361,
+      "duration": 0.3707,
+      "confidence": 0.76,
+      "loudness_start": -11.745,
+      "loudness_max_time": 0.02568,
+      "loudness_max": -3.785,
+      "pitches": [
+        0.189,
+        0.224,
+        0.69,
+        0.2,
+        0.36,
+        0.924,
+        0.318,
+        1,
+        0.456,
+        0.219,
+        0.223,
+        0.175
+      ],
+      "timbre": [
+        54.365,
+        53.815,
+        32.492,
+        -4.765,
+        7.007,
+        -9.868,
+        -14.121,
+        -9.471,
+        -23.292,
+        -3.112,
+        8.092,
+        -7.825
+      ]
+    },
+    {
+      "start": 149.88431,
+      "duration": 0.30612,
+      "confidence": 0.513,
+      "loudness_start": -11.777,
+      "loudness_max_time": 0.12881,
+      "loudness_max": -3.169,
+      "pitches": [
+        0.474,
+        0.502,
+        0.706,
+        0.43,
+        0.301,
+        0.504,
+        0.389,
+        1,
+        0.344,
+        0.3,
+        0.202,
+        0.426
+      ],
+      "timbre": [
+        52.676,
+        47.469,
+        24.506,
+        -1.879,
+        4.711,
+        -8.757,
+        -15.465,
+        -12.538,
+        -34.853,
+        -4.985,
+        -39.425,
+        -15.506
+      ]
+    },
+    {
+      "start": 150.19043,
+      "duration": 0.07147,
+      "confidence": 0.366,
+      "loudness_start": -11.965,
+      "loudness_max_time": 0.02274,
+      "loudness_max": -8.013,
+      "pitches": [
+        0.514,
+        0.694,
+        0.739,
+        0.647,
+        0.721,
+        0.725,
+        0.943,
+        1,
+        0.892,
+        0.908,
+        0.387,
+        0.375
+      ],
+      "timbre": [
+        51.034,
+        69.771,
+        9.122,
+        -23.31,
+        36.953,
+        -49.77,
+        40.135,
+        8.769,
+        -22.003,
+        -4.278,
+        0.001,
+        2.238
+      ]
+    },
+    {
+      "start": 150.2619,
+      "duration": 0.2098,
+      "confidence": 0.315,
+      "loudness_start": -9.278,
+      "loudness_max_time": 0.03898,
+      "loudness_max": -5.225,
+      "pitches": [
+        0.35,
+        0.677,
+        0.922,
+        0.14,
+        0.127,
+        0.177,
+        0.494,
+        1,
+        0.222,
+        0.247,
+        0.241,
+        0.216
+      ],
+      "timbre": [
+        52.871,
+        40.676,
+        35.738,
+        -6.203,
+        26.677,
+        -26.619,
+        5.381,
+        -34.146,
+        -9.895,
+        15.652,
+        5.307,
+        -3.552
+      ]
+    },
+    {
+      "start": 150.4717,
+      "duration": 0.1327,
+      "confidence": 0.223,
+      "loudness_start": -7.806,
+      "loudness_max_time": 0.01312,
+      "loudness_max": -4.487,
+      "pitches": [
+        0.464,
+        0.908,
+        1,
+        0.296,
+        0.363,
+        0.464,
+        0.319,
+        0.442,
+        0.152,
+        0.52,
+        0.21,
+        0.129
+      ],
+      "timbre": [
+        51.823,
+        41.945,
+        24.785,
+        51.412,
+        39.724,
+        -38.281,
+        22.222,
+        -34.251,
+        -10.409,
+        0.883,
+        -34.269,
+        -2.976
+      ]
+    },
+    {
+      "start": 150.6044,
+      "duration": 0.11052,
+      "confidence": 0.444,
+      "loudness_start": -14.337,
+      "loudness_max_time": 0.0365,
+      "loudness_max": -9.119,
+      "pitches": [
+        0.442,
+        0.621,
+        0.552,
+        0.178,
+        0.286,
+        0.733,
+        0.163,
+        0.146,
+        0.286,
+        1,
+        0.399,
+        0.161
+      ],
+      "timbre": [
+        49.762,
+        63.229,
+        25.986,
+        -29.215,
+        69.025,
+        -33.477,
+        16.918,
+        15.992,
+        14.562,
+        -19.995,
+        6.584,
+        8.899
+      ]
+    },
+    {
+      "start": 150.71492,
+      "duration": 0.21429,
+      "confidence": 0.595,
+      "loudness_start": -10.203,
+      "loudness_max_time": 0.03478,
+      "loudness_max": -4.591,
+      "pitches": [
+        1,
+        0.876,
+        0.971,
+        0.481,
+        0.693,
+        0.369,
+        0.352,
+        0.256,
+        0.291,
+        0.677,
+        0.286,
+        0.577
+      ],
+      "timbre": [
+        52.897,
+        28.381,
+        22.276,
+        18.479,
+        13.711,
+        -20.231,
+        13.15,
+        -37.233,
+        -21.145,
+        -12.812,
+        -15.589,
+        -0.881
+      ]
+    },
+    {
+      "start": 150.92921,
+      "duration": 0.26177,
+      "confidence": 0.643,
+      "loudness_start": -10.911,
+      "loudness_max_time": 0.04049,
+      "loudness_max": -3.878,
+      "pitches": [
+        0.418,
+        0.248,
+        0.287,
+        0.122,
+        0.27,
+        0.285,
+        0.098,
+        0.369,
+        0.271,
+        1,
+        0.366,
+        0.137
+      ],
+      "timbre": [
+        53.425,
+        32.328,
+        57.023,
+        -12.136,
+        52.433,
+        -5.58,
+        33.606,
+        26.532,
+        -3.147,
+        -38.445,
+        12.133,
+        11.565
+      ]
+    },
+    {
+      "start": 151.19098,
+      "duration": 0.19741,
+      "confidence": 0.371,
+      "loudness_start": -10.456,
+      "loudness_max_time": 0.02517,
+      "loudness_max": -4.736,
+      "pitches": [
+        0.617,
+        0.634,
+        0.438,
+        0.239,
+        0.174,
+        0.276,
+        0.151,
+        0.152,
+        0.298,
+        0.782,
+        1,
+        0.576
+      ],
+      "timbre": [
+        51.842,
+        10.184,
+        -1.663,
+        36.795,
+        6.745,
+        -23.465,
+        1.425,
+        -38.262,
+        -17.274,
+        -23.088,
+        -20.655,
+        -2.277
+      ]
+    },
+    {
+      "start": 151.38839,
+      "duration": 0.34222,
+      "confidence": 0.836,
+      "loudness_start": -13.675,
+      "loudness_max_time": 0.0716,
+      "loudness_max": -3.749,
+      "pitches": [
+        0.399,
+        0.263,
+        0.643,
+        0.264,
+        0.319,
+        0.813,
+        0.511,
+        0.246,
+        0.217,
+        1,
+        0.347,
+        0.35
+      ],
+      "timbre": [
+        52.216,
+        59.513,
+        39.668,
+        -39.523,
+        60.448,
+        0.547,
+        28.296,
+        -15.827,
+        -35.527,
+        0.57,
+        -0.878,
+        1.996
+      ]
+    },
+    {
+      "start": 151.73061,
+      "duration": 0.36014,
+      "confidence": 0.077,
+      "loudness_start": -8.041,
+      "loudness_max_time": 0.0345,
+      "loudness_max": -5.242,
+      "pitches": [
+        0.414,
+        0.351,
+        0.381,
+        0.26,
+        0.221,
+        1,
+        0.276,
+        0.277,
+        0.185,
+        0.705,
+        0.193,
+        0.127
+      ],
+      "timbre": [
+        53.504,
+        56.935,
+        55.295,
+        6.624,
+        29.91,
+        -31.838,
+        -0.175,
+        -13.696,
+        -2.03,
+        -2.527,
+        -4.349,
+        -7.381
+      ]
+    },
+    {
+      "start": 152.09075,
+      "duration": 0.11605,
+      "confidence": 0.23,
+      "loudness_start": -9.781,
+      "loudness_max_time": 0.0534,
+      "loudness_max": -6.672,
+      "pitches": [
+        0.336,
+        0.419,
+        0.442,
+        0.686,
+        1,
+        0.78,
+        0.307,
+        0.244,
+        0.164,
+        0.633,
+        0.184,
+        0.214
+      ],
+      "timbre": [
+        52.62,
+        12.252,
+        70.561,
+        -13.686,
+        39.837,
+        -40.529,
+        24.306,
+        30.081,
+        -22.627,
+        2.752,
+        5.032,
+        -5.079
+      ]
+    },
+    {
+      "start": 152.2068,
+      "duration": 0.1283,
+      "confidence": 0.376,
+      "loudness_start": -7.025,
+      "loudness_max_time": 0.04054,
+      "loudness_max": -3.42,
+      "pitches": [
+        0.686,
+        1,
+        0.731,
+        0.391,
+        0.293,
+        0.192,
+        0.132,
+        0.09,
+        0.174,
+        0.856,
+        0.31,
+        0.248
+      ],
+      "timbre": [
+        54.618,
+        76.567,
+        57.65,
+        9.808,
+        27.566,
+        -29.856,
+        6.17,
+        -2.174,
+        -5.884,
+        1.493,
+        -2.987,
+        -19.874
+      ]
+    },
+    {
+      "start": 152.3351,
+      "duration": 0.18653,
+      "confidence": 0.314,
+      "loudness_start": -7.449,
+      "loudness_max_time": 0.05425,
+      "loudness_max": -3.343,
+      "pitches": [
+        0.791,
+        0.998,
+        1,
+        0.278,
+        0.299,
+        0.315,
+        0.387,
+        0.32,
+        0.258,
+        0.55,
+        0.77,
+        0.728
+      ],
+      "timbre": [
+        53.826,
+        62.821,
+        23.147,
+        12.28,
+        35.872,
+        -24.036,
+        31.023,
+        -21.634,
+        8.456,
+        9.023,
+        -44.022,
+        -1.414
+      ]
+    },
+    {
+      "start": 152.52163,
+      "duration": 0.06825,
+      "confidence": 0.038,
+      "loudness_start": -12.453,
+      "loudness_max_time": 0.02438,
+      "loudness_max": -7.945,
+      "pitches": [
+        0.711,
+        0.807,
+        0.703,
+        0.679,
+        0.654,
+        0.666,
+        0.909,
+        0.904,
+        0.961,
+        1,
+        0.586,
+        0.466
+      ],
+      "timbre": [
+        50.203,
+        46.4,
+        -24.708,
+        -15.108,
+        55.974,
+        -66.766,
+        52.175,
+        11.46,
+        1.936,
+        6.156,
+        -2.398,
+        8.837
+      ]
+    },
+    {
+      "start": 152.58989,
+      "duration": 0.25011,
+      "confidence": 0.631,
+      "loudness_start": -11.01,
+      "loudness_max_time": 0.06786,
+      "loudness_max": -3.564,
+      "pitches": [
+        0.342,
+        0.578,
+        1,
+        0.414,
+        0.103,
+        0.153,
+        0.14,
+        0.104,
+        0.177,
+        0.319,
+        0.603,
+        0.509
+      ],
+      "timbre": [
+        52.169,
+        45.696,
+        -9.305,
+        -12.317,
+        31.226,
+        -7.592,
+        20.606,
+        -15.529,
+        -14.259,
+        -9.315,
+        -25.495,
+        17.228
+      ]
+    },
+    {
+      "start": 152.84,
+      "duration": 0.08109,
+      "confidence": 0.724,
+      "loudness_start": -13.255,
+      "loudness_max_time": 0.03327,
+      "loudness_max": -4.173,
+      "pitches": [
+        0.582,
+        0.726,
+        0.559,
+        0.494,
+        1,
+        0.724,
+        0.308,
+        0.484,
+        0.29,
+        0.39,
+        0.675,
+        0.241
+      ],
+      "timbre": [
+        53,
+        39.705,
+        54.543,
+        20.924,
+        28.835,
+        -20.183,
+        0.862,
+        -28.503,
+        -11.898,
+        9.763,
+        8.531,
+        -23.054
+      ]
+    },
+    {
+      "start": 152.92109,
+      "duration": 0.18109,
+      "confidence": 0.174,
+      "loudness_start": -8.617,
+      "loudness_max_time": 0.08431,
+      "loudness_max": -5.404,
+      "pitches": [
+        0.43,
+        0.704,
+        1,
+        0.144,
+        0.151,
+        0.377,
+        0.25,
+        0.133,
+        0.206,
+        0.584,
+        0.495,
+        0.295
+      ],
+      "timbre": [
+        52.661,
+        39.158,
+        57.112,
+        10.743,
+        46.321,
+        -23.903,
+        28.205,
+        -1.79,
+        2.405,
+        -21.934,
+        -22.284,
+        24.345
+      ]
+    },
+    {
+      "start": 153.10218,
+      "duration": 0.21923,
+      "confidence": 0.582,
+      "loudness_start": -11.632,
+      "loudness_max_time": 0.16243,
+      "loudness_max": -3.991,
+      "pitches": [
+        1,
+        0.201,
+        0.332,
+        0.152,
+        0.089,
+        0.155,
+        0.05,
+        0.091,
+        0.054,
+        0.138,
+        0.32,
+        0.119
+      ],
+      "timbre": [
+        54.356,
+        75.676,
+        33.608,
+        -32.711,
+        14.126,
+        -15.531,
+        -21.967,
+        11.088,
+        2.235,
+        -25.099,
+        26.782,
+        8.63
+      ]
+    },
+    {
+      "start": 153.32141,
+      "duration": 0.23211,
+      "confidence": 0.008,
+      "loudness_start": -5.562,
+      "loudness_max_time": 0.01338,
+      "loudness_max": -3.116,
+      "pitches": [
+        0.161,
+        0.282,
+        1,
+        0.341,
+        0.138,
+        0.383,
+        0.413,
+        0.189,
+        0.168,
+        0.591,
+        0.739,
+        0.225
+      ],
+      "timbre": [
+        54.916,
+        61.963,
+        25.786,
+        11.252,
+        25.811,
+        -41.281,
+        0.464,
+        1.777,
+        -5.869,
+        15.073,
+        -24.992,
+        7.249
+      ]
+    },
+    {
+      "start": 153.55351,
+      "duration": 0.09166,
+      "confidence": 0.058,
+      "loudness_start": -12.838,
+      "loudness_max_time": 0.04502,
+      "loudness_max": -8.451,
+      "pitches": [
+        0.586,
+        0.451,
+        0.252,
+        0.168,
+        0.1,
+        0.122,
+        0.108,
+        0.117,
+        0.519,
+        0.647,
+        1,
+        0.253
+      ],
+      "timbre": [
+        49.264,
+        -22.45,
+        28.738,
+        6.606,
+        26.022,
+        -27.778,
+        20.364,
+        -5.287,
+        -16.16,
+        12.113,
+        -5.295,
+        -3.306
+      ]
+    },
+    {
+      "start": 153.64517,
+      "duration": 0.40181,
+      "confidence": 0.759,
+      "loudness_start": -12.443,
+      "loudness_max_time": 0.17245,
+      "loudness_max": -2.435,
+      "pitches": [
+        0.153,
+        0.19,
+        0.295,
+        0.155,
+        0.102,
+        0.146,
+        0.256,
+        0.629,
+        1,
+        0.767,
+        0.375,
+        0.199
+      ],
+      "timbre": [
+        51.851,
+        28.307,
+        36.152,
+        -40.61,
+        36.031,
+        2.537,
+        37.818,
+        22.001,
+        5.46,
+        -26.436,
+        -28.079,
+        7.691
+      ]
+    },
+    {
+      "start": 154.04698,
+      "duration": 0.20898,
+      "confidence": 0.419,
+      "loudness_start": -11.329,
+      "loudness_max_time": 0.0458,
+      "loudness_max": -6.823,
+      "pitches": [
+        0.13,
+        0.324,
+        1,
+        0.507,
+        0.211,
+        0.163,
+        0.107,
+        0.129,
+        0.115,
+        0.196,
+        0.268,
+        0.079
+      ],
+      "timbre": [
+        52.336,
+        30.492,
+        29.238,
+        -12.379,
+        35.661,
+        -39.104,
+        4.986,
+        5.846,
+        -34.194,
+        6.566,
+        -5.93,
+        29.207
+      ]
+    },
+    {
+      "start": 154.25596,
+      "duration": 0.26667,
+      "confidence": 0.326,
+      "loudness_start": -8.505,
+      "loudness_max_time": 0.04016,
+      "loudness_max": -4.292,
+      "pitches": [
+        0.297,
+        0.298,
+        1,
+        0.368,
+        0.189,
+        0.105,
+        0.095,
+        0.148,
+        0.053,
+        0.23,
+        0.143,
+        0.101
+      ],
+      "timbre": [
+        52.507,
+        23.604,
+        41.691,
+        23.387,
+        73.023,
+        -30.747,
+        17.839,
+        -26.434,
+        -18.357,
+        -14.898,
+        -8.405,
+        28.974
+      ]
+    },
+    {
+      "start": 154.52263,
+      "duration": 0.24993,
+      "confidence": 0.438,
+      "loudness_start": -11.528,
+      "loudness_max_time": 0.11172,
+      "loudness_max": -6.672,
+      "pitches": [
+        0.272,
+        0.585,
+        0.678,
+        1,
+        0.261,
+        0.126,
+        0.173,
+        0.192,
+        0.113,
+        0.55,
+        0.249,
+        0.328
+      ],
+      "timbre": [
+        52.455,
+        -10.822,
+        61.102,
+        -10.825,
+        43.736,
+        -42.521,
+        40.069,
+        19.068,
+        -4.649,
+        -14.336,
+        5.967,
+        6.788
+      ]
+    },
+    {
+      "start": 154.77256,
+      "duration": 0.20934,
+      "confidence": 0.223,
+      "loudness_start": -8.269,
+      "loudness_max_time": 0.00184,
+      "loudness_max": -4.579,
+      "pitches": [
+        0.383,
+        0.445,
+        1,
+        0.245,
+        0.172,
+        0.067,
+        0.115,
+        0.199,
+        0.066,
+        0.249,
+        0.081,
+        0.138
+      ],
+      "timbre": [
+        52.164,
+        12.189,
+        88.262,
+        28.814,
+        49.894,
+        -69.528,
+        43.914,
+        -5.445,
+        -36.537,
+        15.464,
+        -10.51,
+        34.755
+      ]
+    },
+    {
+      "start": 154.9819,
+      "duration": 0.25524,
+      "confidence": 0.242,
+      "loudness_start": -10.014,
+      "loudness_max_time": 0.02591,
+      "loudness_max": -6.487,
+      "pitches": [
+        0.475,
+        1,
+        0.476,
+        0.407,
+        0.141,
+        0.112,
+        0.174,
+        0.174,
+        0.202,
+        0.334,
+        0.099,
+        0.413
+      ],
+      "timbre": [
+        52.143,
+        -5.921,
+        62.788,
+        8.673,
+        44.303,
+        -51.044,
+        61.075,
+        16.841,
+        -24.213,
+        -2.58,
+        5.805,
+        29.838
+      ]
+    },
+    {
+      "start": 155.23714,
+      "duration": 0.48154,
+      "confidence": 0.496,
+      "loudness_start": -9.623,
+      "loudness_max_time": 0.00764,
+      "loudness_max": -3.639,
+      "pitches": [
+        0.159,
+        0.236,
+        1,
+        0.398,
+        0.132,
+        0.291,
+        0.334,
+        0.154,
+        0.119,
+        0.41,
+        0.171,
+        0.163
+      ],
+      "timbre": [
+        53.275,
+        17.859,
+        27.467,
+        20.724,
+        41.363,
+        -69.342,
+        29.012,
+        1.149,
+        -23.233,
+        10.504,
+        -10.679,
+        38.287
+      ]
+    },
+    {
+      "start": 155.71868,
+      "duration": 0.23868,
+      "confidence": 0.082,
+      "loudness_start": -9.712,
+      "loudness_max_time": 0.00502,
+      "loudness_max": -6.331,
+      "pitches": [
+        0.283,
+        0.617,
+        1,
+        0.264,
+        0.141,
+        0.278,
+        0.179,
+        0.138,
+        0.17,
+        0.362,
+        0.074,
+        0.155
+      ],
+      "timbre": [
+        51.591,
+        44.457,
+        53.207,
+        6.026,
+        81.652,
+        -57.602,
+        28.413,
+        -2.884,
+        -4.243,
+        10.536,
+        -22.36,
+        28.326
+      ]
+    },
+    {
+      "start": 155.95737,
+      "duration": 0.18558,
+      "confidence": 0.051,
+      "loudness_start": -11.503,
+      "loudness_max_time": 0.0096,
+      "loudness_max": -7.482,
+      "pitches": [
+        0.326,
+        1,
+        0.659,
+        0.128,
+        0.211,
+        0.375,
+        0.448,
+        0.197,
+        0.224,
+        0.283,
+        0.185,
+        0.177
+      ],
+      "timbre": [
+        49.888,
+        3.514,
+        40.581,
+        15.136,
+        73.088,
+        -55.68,
+        1.262,
+        -11.604,
+        -1.201,
+        -7.769,
+        -20.77,
+        20.066
+      ]
+    },
+    {
+      "start": 156.14295,
+      "duration": 0.25927,
+      "confidence": 0.783,
+      "loudness_start": -15.719,
+      "loudness_max_time": 0.05992,
+      "loudness_max": -5.932,
+      "pitches": [
+        0.495,
+        0.491,
+        0.39,
+        0.355,
+        0.223,
+        0.195,
+        0.325,
+        1,
+        0.401,
+        0.13,
+        0.128,
+        0.208
+      ],
+      "timbre": [
+        48.107,
+        -21.84,
+        11.243,
+        -24.954,
+        40.275,
+        1.253,
+        39.321,
+        -7.743,
+        6.832,
+        -32.345,
+        -20.891,
+        10.112
+      ]
+    },
+    {
+      "start": 156.40222,
+      "duration": 0.23986,
+      "confidence": 0.22,
+      "loudness_start": -14.181,
+      "loudness_max_time": 0.03475,
+      "loudness_max": -9.752,
+      "pitches": [
+        0.331,
+        0.447,
+        0.583,
+        0.218,
+        0.084,
+        0.165,
+        0.295,
+        1,
+        0.4,
+        0.216,
+        0.067,
+        0.434
+      ],
+      "timbre": [
+        48.268,
+        -59.803,
+        17.435,
+        -7.959,
+        -3.662,
+        -32.721,
+        27.745,
+        6.449,
+        -33.677,
+        -15.598,
+        -1.187,
+        5.915
+      ]
+    },
+    {
+      "start": 156.64209,
+      "duration": 0.25551,
+      "confidence": 0.86,
+      "loudness_start": -14.384,
+      "loudness_max_time": 0.07091,
+      "loudness_max": -4.217,
+      "pitches": [
+        0.194,
+        0.521,
+        1,
+        0.132,
+        0.113,
+        0.207,
+        0.379,
+        0.952,
+        0.208,
+        0.221,
+        0.982,
+        0.216
+      ],
+      "timbre": [
+        52.437,
+        40.053,
+        39.741,
+        -17.309,
+        40.401,
+        17.321,
+        0.561,
+        7.1,
+        -6.757,
+        -38.06,
+        2.912,
+        1.336
+      ]
+    },
+    {
+      "start": 156.8976,
+      "duration": 0.24354,
+      "confidence": 0.58,
+      "loudness_start": -10.62,
+      "loudness_max_time": 0.09101,
+      "loudness_max": -4.593,
+      "pitches": [
+        0.184,
+        0.103,
+        0.434,
+        0.175,
+        0.088,
+        0.351,
+        0.26,
+        0.967,
+        0.291,
+        0.139,
+        1,
+        0.135
+      ],
+      "timbre": [
+        53.865,
+        80.833,
+        30.731,
+        -27.488,
+        58.202,
+        -16.214,
+        -26.46,
+        4.851,
+        -15.328,
+        -8.457,
+        -3.137,
+        2.049
+      ]
+    },
+    {
+      "start": 157.14113,
+      "duration": 0.38249,
+      "confidence": 0.276,
+      "loudness_start": -9.858,
+      "loudness_max_time": 0.02043,
+      "loudness_max": -2.952,
+      "pitches": [
+        0.418,
+        0.377,
+        1,
+        0.329,
+        0.297,
+        0.513,
+        0.319,
+        0.902,
+        0.212,
+        0.211,
+        0.215,
+        0.276
+      ],
+      "timbre": [
+        53.99,
+        32.014,
+        25.777,
+        28.848,
+        34.833,
+        -50.951,
+        23.498,
+        6.426,
+        -26.89,
+        -4.202,
+        -22.291,
+        19.839
+      ]
+    },
+    {
+      "start": 157.52363,
+      "duration": 0.5341,
+      "confidence": 0.778,
+      "loudness_start": -14.162,
+      "loudness_max_time": 0.11068,
+      "loudness_max": -4.324,
+      "pitches": [
+        0.042,
+        0.046,
+        0.099,
+        0.035,
+        0.036,
+        0.047,
+        0.089,
+        0.476,
+        1,
+        0.397,
+        0.072,
+        0.049
+      ],
+      "timbre": [
+        53.169,
+        53.147,
+        43.468,
+        -5.464,
+        14.671,
+        -13.477,
+        23.766,
+        19.898,
+        -31.003,
+        3.288,
+        1.831,
+        17.383
+      ]
+    },
+    {
+      "start": 158.05773,
+      "duration": 0.26789,
+      "confidence": 0.358,
+      "loudness_start": -9.49,
+      "loudness_max_time": 0.04837,
+      "loudness_max": -4.794,
+      "pitches": [
+        0.256,
+        0.596,
+        0.744,
+        0.228,
+        0.122,
+        0.277,
+        0.105,
+        0.318,
+        0.212,
+        1,
+        0.367,
+        0.125
+      ],
+      "timbre": [
+        51.192,
+        14.591,
+        44.566,
+        26.971,
+        68.339,
+        -32.872,
+        40.731,
+        -6.403,
+        -4.4,
+        -15.131,
+        -19.66,
+        13.884
+      ]
+    },
+    {
+      "start": 158.32562,
+      "duration": 0.20848,
+      "confidence": 0.789,
+      "loudness_start": -13.751,
+      "loudness_max_time": 0.02409,
+      "loudness_max": -4.536,
+      "pitches": [
+        0.313,
+        0.339,
+        1,
+        0.263,
+        0.143,
+        0.251,
+        0.078,
+        0.057,
+        0.143,
+        0.312,
+        0.141,
+        0.336
+      ],
+      "timbre": [
+        53.669,
+        38.1,
+        22.182,
+        -17.767,
+        -7.04,
+        -2.06,
+        -8.369,
+        16.989,
+        -3.434,
+        -36.42,
+        22.667,
+        7.473
+      ]
+    },
+    {
+      "start": 158.5341,
+      "duration": 0.27288,
+      "confidence": 0.432,
+      "loudness_start": -10.302,
+      "loudness_max_time": 0.0585,
+      "loudness_max": -4.831,
+      "pitches": [
+        1,
+        0.579,
+        0.496,
+        0.204,
+        0.4,
+        0.468,
+        0.15,
+        0.611,
+        0.413,
+        0.816,
+        0.26,
+        0.342
+      ],
+      "timbre": [
+        52.545,
+        58.937,
+        60.251,
+        -0.207,
+        34.836,
+        -19.449,
+        2.756,
+        -13.869,
+        -13.594,
+        -1.805,
+        -13.097,
+        2.546
+      ]
+    },
+    {
+      "start": 158.80698,
+      "duration": 0.23751,
+      "confidence": 0.564,
+      "loudness_start": -11.112,
+      "loudness_max_time": 0.02423,
+      "loudness_max": -4.362,
+      "pitches": [
+        0.398,
+        0.34,
+        0.523,
+        0.321,
+        0.185,
+        0.288,
+        0.148,
+        0.105,
+        0.171,
+        0.732,
+        1,
+        0.576
+      ],
+      "timbre": [
+        51.619,
+        -10.796,
+        7.963,
+        55.264,
+        26.506,
+        -34.426,
+        27.712,
+        -15.764,
+        -27.294,
+        5.796,
+        -25.649,
+        17.233
+      ]
+    },
+    {
+      "start": 159.04449,
+      "duration": 0.1922,
+      "confidence": 0.871,
+      "loudness_start": -14.685,
+      "loudness_max_time": 0.0152,
+      "loudness_max": -4.371,
+      "pitches": [
+        0.524,
+        0.325,
+        0.577,
+        0.461,
+        0.23,
+        1,
+        0.893,
+        0.345,
+        0.268,
+        0.577,
+        0.301,
+        0.405
+      ],
+      "timbre": [
+        54.722,
+        53.99,
+        37.193,
+        -16.635,
+        28.242,
+        -50.829,
+        13.578,
+        -10.747,
+        -26.665,
+        0.275,
+        1.286,
+        7.093
+      ]
+    },
+    {
+      "start": 159.23669,
+      "duration": 0.14544,
+      "confidence": 0.058,
+      "loudness_start": -5.674,
+      "loudness_max_time": 0.00772,
+      "loudness_max": -3.789,
+      "pitches": [
+        0.804,
+        0.491,
+        0.518,
+        0.176,
+        0.258,
+        0.611,
+        0.391,
+        1,
+        0.232,
+        0.352,
+        0.235,
+        0.547
+      ],
+      "timbre": [
+        53.149,
+        44.124,
+        23.829,
+        54.919,
+        19.51,
+        -33.959,
+        20.864,
+        -6.633,
+        -40.194,
+        -21.806,
+        -45.102,
+        7.346
+      ]
+    },
+    {
+      "start": 159.38213,
+      "duration": 0.3473,
+      "confidence": 0.729,
+      "loudness_start": -13.632,
+      "loudness_max_time": 0.06971,
+      "loudness_max": -4.953,
+      "pitches": [
+        0.391,
+        0.377,
+        0.531,
+        0.171,
+        0.188,
+        1,
+        0.399,
+        0.29,
+        0.153,
+        0.575,
+        0.334,
+        0.19
+      ],
+      "timbre": [
+        51.239,
+        41.128,
+        37.351,
+        -37.946,
+        39.385,
+        -7.208,
+        19.748,
+        -0.988,
+        -30.425,
+        -2.091,
+        -21.593,
+        11.34
+      ]
+    },
+    {
+      "start": 159.72943,
+      "duration": 0.27474,
+      "confidence": 0.78,
+      "loudness_start": -14.984,
+      "loudness_max_time": 0.06983,
+      "loudness_max": -6.165,
+      "pitches": [
+        0.535,
+        0.348,
+        0.587,
+        0.25,
+        0.41,
+        0.341,
+        0.13,
+        0.529,
+        0.348,
+        0.979,
+        1,
+        0.393
+      ],
+      "timbre": [
+        51.314,
+        26.269,
+        43.771,
+        -7.868,
+        37.893,
+        1.27,
+        32.667,
+        -19.882,
+        -15.078,
+        -12.011,
+        14.709,
+        -1.408
+      ]
+    },
+    {
+      "start": 160.00417,
+      "duration": 0.13701,
+      "confidence": 0.206,
+      "loudness_start": -10.513,
+      "loudness_max_time": 0.00565,
+      "loudness_max": -4.269,
+      "pitches": [
+        0.092,
+        0.086,
+        0.128,
+        0.048,
+        0.245,
+        0.239,
+        0.786,
+        0.788,
+        0.956,
+        1,
+        0.484,
+        0.024
+      ],
+      "timbre": [
+        52.337,
+        17.56,
+        3.478,
+        -14.358,
+        55.581,
+        -92.713,
+        62.842,
+        12.647,
+        2.019,
+        34.55,
+        -9.578,
+        14.841
+      ]
+    },
+    {
+      "start": 160.14118,
+      "duration": 0.09955,
+      "confidence": 0.092,
+      "loudness_start": -8.56,
+      "loudness_max_time": 0.01864,
+      "loudness_max": -6.591,
+      "pitches": [
+        0.394,
+        0.278,
+        0.218,
+        0.155,
+        0.499,
+        0.535,
+        0.894,
+        0.89,
+        0.98,
+        1,
+        0.718,
+        0.101
+      ],
+      "timbre": [
+        51.858,
+        58.045,
+        -17.287,
+        -19.913,
+        45.681,
+        -65.299,
+        40.877,
+        19.937,
+        -13.982,
+        -11.748,
+        -5.923,
+        16.374
+      ]
+    },
+    {
+      "start": 160.24073,
+      "duration": 0.23329,
+      "confidence": 0.295,
+      "loudness_start": -9.694,
+      "loudness_max_time": 0.03535,
+      "loudness_max": -5.693,
+      "pitches": [
+        0.198,
+        0.392,
+        1,
+        0.588,
+        0.336,
+        0.218,
+        0.285,
+        0.154,
+        0.201,
+        0.41,
+        0.58,
+        0.418
+      ],
+      "timbre": [
+        52.459,
+        12.818,
+        24.305,
+        0.905,
+        30.731,
+        -34.958,
+        43.327,
+        -7.551,
+        -16.545,
+        0.136,
+        -20.621,
+        2.528
+      ]
+    },
+    {
+      "start": 160.47401,
+      "duration": 0.24907,
+      "confidence": 0.624,
+      "loudness_start": -14.482,
+      "loudness_max_time": 0.02205,
+      "loudness_max": -6.04,
+      "pitches": [
+        0.128,
+        0.164,
+        0.755,
+        0.316,
+        0.127,
+        0.127,
+        0.24,
+        0.157,
+        0.091,
+        0.539,
+        1,
+        0.293
+      ],
+      "timbre": [
+        52.206,
+        38.552,
+        46.668,
+        16.778,
+        45.725,
+        -21.459,
+        26.094,
+        -26.353,
+        -23.401,
+        10.014,
+        -2.252,
+        -6.953
+      ]
+    },
+    {
+      "start": 160.72308,
+      "duration": 0.19161,
+      "confidence": 0.324,
+      "loudness_start": -9.989,
+      "loudness_max_time": 0.02909,
+      "loudness_max": -6.85,
+      "pitches": [
+        0.27,
+        0.628,
+        0.693,
+        0.25,
+        0.158,
+        0.361,
+        0.152,
+        0.177,
+        0.706,
+        1,
+        0.753,
+        0.318
+      ],
+      "timbre": [
+        51.911,
+        28.471,
+        63.382,
+        3.747,
+        48.428,
+        -51.321,
+        60.11,
+        11.729,
+        -8.77,
+        -19.752,
+        11.143,
+        3.995
+      ]
+    },
+    {
+      "start": 160.91469,
+      "duration": 0.26068,
+      "confidence": 0.573,
+      "loudness_start": -9.62,
+      "loudness_max_time": 0.05383,
+      "loudness_max": -4.097,
+      "pitches": [
+        0.148,
+        0.399,
+        0.873,
+        0.308,
+        0.186,
+        0.499,
+        0.647,
+        0.387,
+        0.333,
+        0.748,
+        1,
+        0.212
+      ],
+      "timbre": [
+        53.265,
+        36.467,
+        55.938,
+        -8.422,
+        44.097,
+        -14.746,
+        41.994,
+        3.225,
+        -9.799,
+        -16.097,
+        -8.061,
+        -0.694
+      ]
+    },
+    {
+      "start": 161.17537,
+      "duration": 0.13306,
+      "confidence": 0.044,
+      "loudness_start": -8.435,
+      "loudness_max_time": 0.0529,
+      "loudness_max": -6.17,
+      "pitches": [
+        0.41,
+        1,
+        0.797,
+        0.461,
+        0.252,
+        0.598,
+        0.559,
+        0.371,
+        0.499,
+        0.293,
+        0.248,
+        0.538
+      ],
+      "timbre": [
+        52.394,
+        15.707,
+        51.824,
+        6.82,
+        41.733,
+        -32.956,
+        38.657,
+        18.946,
+        -12.886,
+        -24.851,
+        -17.37,
+        9.366
+      ]
+    },
+    {
+      "start": 161.30844,
+      "duration": 0.12916,
+      "confidence": 0.477,
+      "loudness_start": -10.917,
+      "loudness_max_time": 0.05536,
+      "loudness_max": -4.793,
+      "pitches": [
+        0.317,
+        0.61,
+        0.488,
+        1,
+        0.127,
+        0.153,
+        0.095,
+        0.14,
+        0.111,
+        0.188,
+        0.26,
+        0.197
+      ],
+      "timbre": [
+        53.174,
+        32.81,
+        46.919,
+        -9.104,
+        27.928,
+        -10.222,
+        8.289,
+        -20.202,
+        -39.051,
+        10.995,
+        3.719,
+        -3.625
+      ]
+    },
+    {
+      "start": 161.4376,
+      "duration": 0.20798,
+      "confidence": 0.176,
+      "loudness_start": -8.004,
+      "loudness_max_time": 0.11313,
+      "loudness_max": -4.428,
+      "pitches": [
+        0.285,
+        0.512,
+        1,
+        0.322,
+        0.118,
+        0.153,
+        0.186,
+        0.143,
+        0.181,
+        0.494,
+        0.528,
+        0.201
+      ],
+      "timbre": [
+        54.148,
+        23.829,
+        37.48,
+        2.388,
+        1.125,
+        -37.118,
+        25.587,
+        10.88,
+        -4.025,
+        11.379,
+        -23.025,
+        -7.153
+      ]
+    },
+    {
+      "start": 161.64558,
+      "duration": 0.42367,
+      "confidence": 0.616,
+      "loudness_start": -10.463,
+      "loudness_max_time": 0.08036,
+      "loudness_max": -3.719,
+      "pitches": [
+        0.148,
+        0.414,
+        0.494,
+        0.27,
+        0.153,
+        0.441,
+        0.854,
+        1,
+        0.387,
+        0.279,
+        0.352,
+        0.237
+      ],
+      "timbre": [
+        52.803,
+        67.921,
+        70.598,
+        -10.803,
+        20.347,
+        -9.61,
+        24.705,
+        15.067,
+        -9.87,
+        -15.078,
+        8.31,
+        -3.692
+      ]
+    },
+    {
+      "start": 162.06925,
+      "duration": 0.76594,
+      "confidence": 0.152,
+      "loudness_start": -9.7,
+      "loudness_max_time": 0.5174,
+      "loudness_max": -6.187,
+      "pitches": [
+        0.327,
+        0.481,
+        0.574,
+        0.309,
+        0.333,
+        0.489,
+        0.696,
+        1,
+        0.264,
+        0.323,
+        0.22,
+        0.291
+      ],
+      "timbre": [
+        50.874,
+        139.379,
+        115.056,
+        34.253,
+        66.3,
+        -24.245,
+        21.212,
+        27.327,
+        -21.462,
+        2.311,
+        -18.612,
+        25.249
+      ]
+    },
+    {
+      "start": 162.83519,
+      "duration": 0.44807,
+      "confidence": 1,
+      "loudness_start": -20.953,
+      "loudness_max_time": 0.05312,
+      "loudness_max": -5.909,
+      "pitches": [
+        0.336,
+        0.182,
+        0.045,
+        0.071,
+        0.183,
+        1,
+        0.255,
+        0.033,
+        0.029,
+        0.108,
+        0.026,
+        0.047
+      ],
+      "timbre": [
+        49.802,
+        42.231,
+        87.859,
+        -29.137,
+        65.15,
+        33.811,
+        -7.426,
+        32.318,
+        12.232,
+        -13.305,
+        -4.486,
+        7.03
+      ]
+    },
+    {
+      "start": 163.28327,
+      "duration": 0.162,
+      "confidence": 0.926,
+      "loudness_start": -25.233,
+      "loudness_max_time": 0.08653,
+      "loudness_max": -6.64,
+      "pitches": [
+        1,
+        0.622,
+        0.125,
+        0.046,
+        0.112,
+        0.082,
+        0.105,
+        0.218,
+        0.189,
+        0.239,
+        0.381,
+        0.76
+      ],
+      "timbre": [
+        50.886,
+        135.611,
+        44.784,
+        -41.726,
+        10.718,
+        -19.01,
+        -19.136,
+        -67.025,
+        -17.615,
+        8.718,
+        -6.24,
+        11.28
+      ]
+    },
+    {
+      "start": 163.44526,
+      "duration": 0.10463,
+      "confidence": 0.094,
+      "loudness_start": -8.177,
+      "loudness_max_time": 0.0494,
+      "loudness_max": -6.018,
+      "pitches": [
+        0.041,
+        0.097,
+        1,
+        0.204,
+        0.041,
+        0.016,
+        0.06,
+        0.022,
+        0.07,
+        0.875,
+        0.084,
+        0.027
+      ],
+      "timbre": [
+        52.906,
+        89.407,
+        119.355,
+        19.834,
+        51.461,
+        -26.182,
+        -1.749,
+        -0.012,
+        -9.977,
+        -0.248,
+        -2.804,
+        -5.991
+      ]
+    },
+    {
+      "start": 163.54989,
+      "duration": 0.21533,
+      "confidence": 0.213,
+      "loudness_start": -8.115,
+      "loudness_max_time": 0.0643,
+      "loudness_max": -5.269,
+      "pitches": [
+        0.136,
+        0.486,
+        1,
+        0.268,
+        0.073,
+        0.031,
+        0.046,
+        0.034,
+        0.053,
+        0.241,
+        0.058,
+        0.08
+      ],
+      "timbre": [
+        52.166,
+        66.968,
+        73.498,
+        53.421,
+        41.423,
+        -9.5,
+        -24.353,
+        -31.424,
+        -15.505,
+        -22.062,
+        -40.002,
+        4.208
+      ]
+    },
+    {
+      "start": 163.76522,
+      "duration": 0.2951,
+      "confidence": 0.643,
+      "loudness_start": -15.175,
+      "loudness_max_time": 0.05773,
+      "loudness_max": -5.289,
+      "pitches": [
+        0.391,
+        0.367,
+        0.361,
+        0.381,
+        0.381,
+        0.189,
+        0.177,
+        1,
+        0.287,
+        0.125,
+        0.123,
+        0.121
+      ],
+      "timbre": [
+        52.297,
+        128.234,
+        59.545,
+        -30.339,
+        29.968,
+        -19.018,
+        -19.608,
+        -50.412,
+        3.917,
+        17.287,
+        -14.749,
+        2.152
+      ]
+    },
+    {
+      "start": 164.06032,
+      "duration": 0.22063,
+      "confidence": 0.246,
+      "loudness_start": -8.852,
+      "loudness_max_time": 0.17495,
+      "loudness_max": -4.522,
+      "pitches": [
+        0.156,
+        0.132,
+        0.421,
+        0.099,
+        0.117,
+        1,
+        0.222,
+        0.167,
+        0.119,
+        0.144,
+        0.44,
+        0.194
+      ],
+      "timbre": [
+        53.884,
+        101.972,
+        127.325,
+        7.296,
+        73.66,
+        -33.987,
+        20.85,
+        9.334,
+        10.644,
+        -1.511,
+        5.733,
+        7.069
+      ]
+    },
+    {
+      "start": 164.28095,
+      "duration": 0.54721,
+      "confidence": 0.632,
+      "loudness_start": -6.714,
+      "loudness_max_time": 0.01151,
+      "loudness_max": 1.368,
+      "pitches": [
+        0.122,
+        0.141,
+        0.281,
+        0.111,
+        0.101,
+        0.139,
+        0.227,
+        1,
+        0.301,
+        0.115,
+        0.139,
+        0.177
+      ],
+      "timbre": [
+        58.414,
+        41.733,
+        14.181,
+        2.72,
+        24.074,
+        -53.453,
+        8.91,
+        16.097,
+        -11.494,
+        12.016,
+        -15.597,
+        15.501
+      ]
+    },
+    {
+      "start": 164.82816,
+      "duration": 0.13814,
+      "confidence": 0.099,
+      "loudness_start": -4.909,
+      "loudness_max_time": 0.06722,
+      "loudness_max": -2.236,
+      "pitches": [
+        0.875,
+        1,
+        0.867,
+        0.605,
+        0.758,
+        0.775,
+        0.287,
+        0.416,
+        0.501,
+        0.505,
+        0.794,
+        0.242
+      ],
+      "timbre": [
+        56.065,
+        62.379,
+        20.392,
+        -12.832,
+        26.33,
+        -34.091,
+        16.211,
+        0.69,
+        10.297,
+        -3.408,
+        -23.855,
+        -7.265
+      ]
+    },
+    {
+      "start": 164.9663,
+      "duration": 0.26694,
+      "confidence": 0.43,
+      "loudness_start": -6.82,
+      "loudness_max_time": 0.03677,
+      "loudness_max": -1.415,
+      "pitches": [
+        0.858,
+        1,
+        0.868,
+        0.624,
+        0.522,
+        0.679,
+        0.502,
+        0.995,
+        0.991,
+        0.452,
+        0.355,
+        0.963
+      ],
+      "timbre": [
+        55.854,
+        76.963,
+        5.935,
+        -11.985,
+        18.367,
+        -12.673,
+        -6.655,
+        2.235,
+        6.39,
+        -5.819,
+        -10.785,
+        -3.369
+      ]
+    },
+    {
+      "start": 165.23324,
+      "duration": 0.23256,
+      "confidence": 0.666,
+      "loudness_start": -7.18,
+      "loudness_max_time": 0.0124,
+      "loudness_max": 0.321,
+      "pitches": [
+        0.342,
+        0.383,
+        0.39,
+        0.193,
+        0.173,
+        0.556,
+        0.572,
+        1,
+        0.378,
+        0.278,
+        0.443,
+        0.35
+      ],
+      "timbre": [
+        57.865,
+        64.167,
+        -10.869,
+        -10.547,
+        -6.119,
+        -35.079,
+        -22.56,
+        2.687,
+        -17.999,
+        3.54,
+        -22.365,
+        -0.648
+      ]
+    },
+    {
+      "start": 165.4658,
+      "duration": 0.24916,
+      "confidence": 0.472,
+      "loudness_start": -6.941,
+      "loudness_max_time": 0.09399,
+      "loudness_max": -1.081,
+      "pitches": [
+        0.423,
+        0.182,
+        0.151,
+        0.157,
+        0.177,
+        1,
+        0.292,
+        0.63,
+        0.358,
+        0.134,
+        0.121,
+        0.191
+      ],
+      "timbre": [
+        55.961,
+        55.576,
+        9.216,
+        -7.288,
+        12.107,
+        -24.765,
+        -19.588,
+        13.306,
+        -2.676,
+        16.413,
+        -22.296,
+        -10.251
+      ]
+    },
+    {
+      "start": 165.71497,
+      "duration": 0.23846,
+      "confidence": 0.535,
+      "loudness_start": -6.755,
+      "loudness_max_time": 0.07816,
+      "loudness_max": -0.188,
+      "pitches": [
+        0.767,
+        0.886,
+        0.559,
+        0.285,
+        0.15,
+        0.169,
+        0.346,
+        1,
+        0.291,
+        0.194,
+        0.538,
+        0.355
+      ],
+      "timbre": [
+        55.741,
+        53.373,
+        -9.296,
+        -0.341,
+        16.607,
+        -24.829,
+        -7.662,
+        6.9,
+        -18.146,
+        11.104,
+        -35.185,
+        -7.114
+      ]
+    },
+    {
+      "start": 165.95342,
+      "duration": 0.23787,
+      "confidence": 0.743,
+      "loudness_start": -8.385,
+      "loudness_max_time": 0.04378,
+      "loudness_max": -0.907,
+      "pitches": [
+        0.293,
+        0.104,
+        0.178,
+        0.033,
+        0.062,
+        0.049,
+        0.196,
+        1,
+        0.2,
+        0.029,
+        0.056,
+        0.066
+      ],
+      "timbre": [
+        57.699,
+        87.707,
+        25.837,
+        -14.304,
+        21.219,
+        -22.751,
+        1.546,
+        -0.933,
+        2.372,
+        9.547,
+        -5.535,
+        -7.797
+      ]
+    },
+    {
+      "start": 166.19129,
+      "duration": 0.45293,
+      "confidence": 0.329,
+      "loudness_start": -5.555,
+      "loudness_max_time": 0.00622,
+      "loudness_max": 0.767,
+      "pitches": [
+        0.204,
+        0.29,
+        0.636,
+        0.316,
+        0.288,
+        0.208,
+        0.298,
+        1,
+        0.336,
+        0.197,
+        0.162,
+        0.207
+      ],
+      "timbre": [
+        57.811,
+        58.566,
+        -0.975,
+        -11.977,
+        9.498,
+        -47.471,
+        -17.928,
+        7.455,
+        -2.988,
+        -3.998,
+        -25.668,
+        -9.302
+      ]
+    },
+    {
+      "start": 166.64422,
+      "duration": 0.07361,
+      "confidence": 0.409,
+      "loudness_start": -9.336,
+      "loudness_max_time": 0.03927,
+      "loudness_max": -5.492,
+      "pitches": [
+        1,
+        0.938,
+        0.653,
+        0.608,
+        0.551,
+        0.542,
+        0.484,
+        0.477,
+        0.427,
+        0.497,
+        0.827,
+        0.441
+      ],
+      "timbre": [
+        53.668,
+        40.26,
+        4.276,
+        -29.415,
+        13.411,
+        -42.137,
+        37.529,
+        -3.583,
+        15.327,
+        14.111,
+        -2.96,
+        -11.731
+      ]
+    },
+    {
+      "start": 166.71782,
+      "duration": 0.16961,
+      "confidence": 0.117,
+      "loudness_start": -6.35,
+      "loudness_max_time": 0.09112,
+      "loudness_max": -3.707,
+      "pitches": [
+        0.675,
+        0.889,
+        1,
+        0.663,
+        0.568,
+        0.563,
+        0.143,
+        0.246,
+        0.749,
+        0.765,
+        0.762,
+        0.093
+      ],
+      "timbre": [
+        54.883,
+        85.571,
+        8.492,
+        -27.454,
+        4.532,
+        -32.729,
+        16.149,
+        -3.316,
+        -1.656,
+        -4.087,
+        -15.785,
+        -25.131
+      ]
+    },
+    {
+      "start": 166.88744,
+      "duration": 0.2502,
+      "confidence": 0.359,
+      "loudness_start": -7.563,
+      "loudness_max_time": 0.14878,
+      "loudness_max": -2.633,
+      "pitches": [
+        0.992,
+        1,
+        0.76,
+        0.489,
+        0.558,
+        0.824,
+        0.445,
+        0.664,
+        0.792,
+        0.458,
+        0.262,
+        0.736
+      ],
+      "timbre": [
+        56.001,
+        61.528,
+        44.567,
+        -4.823,
+        16.912,
+        -33.895,
+        37.869,
+        0.546,
+        10.896,
+        -6.202,
+        -8.619,
+        -0.29
+      ]
+    },
+    {
+      "start": 167.13764,
+      "duration": 0.24907,
+      "confidence": 0.538,
+      "loudness_start": -5.596,
+      "loudness_max_time": 0.01435,
+      "loudness_max": 0.156,
+      "pitches": [
+        0.531,
+        0.335,
+        0.429,
+        0.183,
+        0.245,
+        0.404,
+        0.481,
+        1,
+        0.336,
+        0.089,
+        0.102,
+        0.353
+      ],
+      "timbre": [
+        57.79,
+        44.927,
+        5.737,
+        -13.95,
+        31.448,
+        -57.425,
+        13.032,
+        5.975,
+        -8.224,
+        6.515,
+        0.42,
+        -1.628
+      ]
+    },
+    {
+      "start": 167.38671,
+      "duration": 0.19238,
+      "confidence": 0.234,
+      "loudness_start": -4.803,
+      "loudness_max_time": 0.03639,
+      "loudness_max": -1.225,
+      "pitches": [
+        0.925,
+        1,
+        0.203,
+        0.117,
+        0.216,
+        0.661,
+        0.192,
+        0.091,
+        0.069,
+        0.139,
+        0.381,
+        0.22
+      ],
+      "timbre": [
+        57.069,
+        71.517,
+        3.549,
+        -18.286,
+        7.539,
+        -27.322,
+        -11.766,
+        5.369,
+        2.949,
+        -7.591,
+        -6.95,
+        -12.979
+      ]
+    },
+    {
+      "start": 167.57909,
+      "duration": 0.2961,
+      "confidence": 0.45,
+      "loudness_start": -5.627,
+      "loudness_max_time": 0.06443,
+      "loudness_max": -1.592,
+      "pitches": [
+        0.587,
+        0.624,
+        0.325,
+        1,
+        0.397,
+        0.152,
+        0.176,
+        0.256,
+        0.107,
+        0.12,
+        0.586,
+        0.466
+      ],
+      "timbre": [
+        56.161,
+        66.726,
+        21.489,
+        -20.491,
+        12.627,
+        -22.609,
+        33.437,
+        -6.535,
+        -12.775,
+        -1.745,
+        -11.625,
+        -7.195
+      ]
+    },
+    {
+      "start": 167.87519,
+      "duration": 0.21995,
+      "confidence": 0.435,
+      "loudness_start": -5.976,
+      "loudness_max_time": 0.02229,
+      "loudness_max": -0.817,
+      "pitches": [
+        0.092,
+        0.11,
+        0.339,
+        1,
+        0.457,
+        0.458,
+        0.065,
+        0.079,
+        0.038,
+        0.12,
+        0.737,
+        0.138
+      ],
+      "timbre": [
+        57.825,
+        51.824,
+        47.258,
+        -0.485,
+        33.159,
+        -41.054,
+        -7.888,
+        2.296,
+        2.149,
+        17.674,
+        -8.973,
+        -33.676
+      ]
+    },
+    {
+      "start": 168.09515,
+      "duration": 0.20812,
+      "confidence": 0.335,
+      "loudness_start": -4.526,
+      "loudness_max_time": 0.0083,
+      "loudness_max": 0.615,
+      "pitches": [
+        1,
+        0.561,
+        0.594,
+        0.957,
+        0.491,
+        0.5,
+        0.418,
+        0.361,
+        0.168,
+        0.245,
+        0.575,
+        0.595
+      ],
+      "timbre": [
+        58.041,
+        46.423,
+        8.143,
+        -6.043,
+        11.177,
+        -62.69,
+        6.063,
+        5.233,
+        -15.265,
+        7.331,
+        -7.56,
+        -18.103
+      ]
+    },
+    {
+      "start": 168.30327,
+      "duration": 0.24426,
+      "confidence": 0.281,
+      "loudness_start": -5.29,
+      "loudness_max_time": 0.12905,
+      "loudness_max": -1.902,
+      "pitches": [
+        0.164,
+        0.381,
+        0.439,
+        1,
+        0.412,
+        0.112,
+        0.069,
+        0.091,
+        0.066,
+        0.117,
+        0.366,
+        0.118
+      ],
+      "timbre": [
+        56.665,
+        72.249,
+        23.838,
+        -35.93,
+        4.926,
+        -23.945,
+        -22.842,
+        10.045,
+        10.531,
+        -1.54,
+        -5.228,
+        -16.751
+      ]
+    },
+    {
+      "start": 168.54753,
+      "duration": 0.38943,
+      "confidence": 0.097,
+      "loudness_start": -4.429,
+      "loudness_max_time": 0.03896,
+      "loudness_max": -1.325,
+      "pitches": [
+        0.672,
+        0.355,
+        0.461,
+        0.34,
+        0.3,
+        1,
+        0.288,
+        0.692,
+        0.586,
+        0.239,
+        0.164,
+        0.193
+      ],
+      "timbre": [
+        56.306,
+        58.114,
+        25.66,
+        -3.373,
+        15.341,
+        -33.846,
+        6.448,
+        -17.916,
+        5.641,
+        29.475,
+        -8.523,
+        -15.977
+      ]
+    },
+    {
+      "start": 168.93696,
+      "duration": 0.0971,
+      "confidence": 0.501,
+      "loudness_start": -6.37,
+      "loudness_max_time": 0.04683,
+      "loudness_max": -0.66,
+      "pitches": [
+        0.686,
+        0.792,
+        0.644,
+        0.61,
+        0.918,
+        0.974,
+        1,
+        0.975,
+        0.781,
+        0.829,
+        0.612,
+        0.304
+      ],
+      "timbre": [
+        57.357,
+        41.652,
+        20.3,
+        -4.493,
+        17.305,
+        -24.558,
+        -5.45,
+        -18.047,
+        -7.638,
+        5.986,
+        -7.613,
+        -1.727
+      ]
+    },
+    {
+      "start": 169.03406,
+      "duration": 0.23959,
+      "confidence": 0.116,
+      "loudness_start": -4.396,
+      "loudness_max_time": 0.02406,
+      "loudness_max": 0.112,
+      "pitches": [
+        0.589,
+        0.388,
+        0.282,
+        0.242,
+        0.333,
+        1,
+        0.485,
+        0.139,
+        0.14,
+        0.149,
+        0.453,
+        0.569
+      ],
+      "timbre": [
+        57.364,
+        25.927,
+        -7.529,
+        -2.113,
+        26.104,
+        -41.47,
+        2.623,
+        -3.415,
+        -21.705,
+        -3.389,
+        4.015,
+        8.107
+      ]
+    },
+    {
+      "start": 169.27365,
+      "duration": 0.24916,
+      "confidence": 0.338,
+      "loudness_start": -6.445,
+      "loudness_max_time": 0.05012,
+      "loudness_max": -2.382,
+      "pitches": [
+        0.449,
+        0.174,
+        0.435,
+        0.117,
+        0.208,
+        1,
+        0.371,
+        0.539,
+        0.101,
+        0.147,
+        0.106,
+        0.281
+      ],
+      "timbre": [
+        55.684,
+        26.947,
+        17.43,
+        -35.401,
+        22.407,
+        -23.434,
+        -23.336,
+        12.706,
+        -5.59,
+        4.705,
+        -2.741,
+        -9.332
+      ]
+    },
+    {
+      "start": 169.52281,
+      "duration": 0.28494,
+      "confidence": 0.018,
+      "loudness_start": -5.452,
+      "loudness_max_time": 0.04288,
+      "loudness_max": -3.304,
+      "pitches": [
+        0.254,
+        0.401,
+        0.329,
+        0.127,
+        0.088,
+        0.157,
+        0.321,
+        1,
+        0.173,
+        0.078,
+        0.113,
+        0.287
+      ],
+      "timbre": [
+        54.969,
+        63.875,
+        -15.313,
+        -10.746,
+        -1.217,
+        -34.059,
+        -28.494,
+        -0.573,
+        2.426,
+        5.703,
+        -22.676,
+        -17.239
+      ]
+    },
+    {
+      "start": 169.80776,
+      "duration": 0.12195,
+      "confidence": 0.363,
+      "loudness_start": -8.63,
+      "loudness_max_time": 0.07171,
+      "loudness_max": -4.952,
+      "pitches": [
+        0.113,
+        0.185,
+        0.427,
+        0.141,
+        0.197,
+        0.327,
+        0.391,
+        1,
+        0.301,
+        0.146,
+        0.156,
+        0.147
+      ],
+      "timbre": [
+        53.412,
+        93.158,
+        -20.518,
+        -45.189,
+        16.785,
+        -25.466,
+        -21.83,
+        16.857,
+        41.42,
+        -2.858,
+        -10.583,
+        -4.688
+      ]
+    },
+    {
+      "start": 169.92971,
+      "duration": 0.28939,
+      "confidence": 0.664,
+      "loudness_start": -8.339,
+      "loudness_max_time": 0.07883,
+      "loudness_max": 0.561,
+      "pitches": [
+        0.669,
+        0.709,
+        0.622,
+        0.473,
+        0.288,
+        0.736,
+        1,
+        0.98,
+        0.335,
+        0.233,
+        0.212,
+        0.557
+      ],
+      "timbre": [
+        56.52,
+        104.14,
+        -2.577,
+        -61.32,
+        10.894,
+        -17.331,
+        -0.441,
+        -40.09,
+        -0.565,
+        28.895,
+        1.269,
+        11.292
+      ]
+    },
+    {
+      "start": 170.21909,
+      "duration": 0.23283,
+      "confidence": 0.094,
+      "loudness_start": -2.687,
+      "loudness_max_time": 0.03195,
+      "loudness_max": -0.367,
+      "pitches": [
+        0.059,
+        0.047,
+        0.217,
+        0.058,
+        0.056,
+        0.084,
+        0.292,
+        1,
+        0.25,
+        0.063,
+        0.06,
+        0.127
+      ],
+      "timbre": [
+        56.541,
+        84.605,
+        26.833,
+        48.247,
+        22.25,
+        -41.816,
+        38.406,
+        20.504,
+        -25.073,
+        0.23,
+        -21.425,
+        -4.077
+      ]
+    },
+    {
+      "start": 170.45193,
+      "duration": 0.44739,
+      "confidence": 0.541,
+      "loudness_start": -7.664,
+      "loudness_max_time": 0.11094,
+      "loudness_max": -1.456,
+      "pitches": [
+        0.348,
+        0.357,
+        0.303,
+        0.341,
+        0.616,
+        0.529,
+        0.561,
+        1,
+        0.381,
+        0.24,
+        0.303,
+        0.219
+      ],
+      "timbre": [
+        56.293,
+        85.04,
+        14.87,
+        -30.482,
+        22.593,
+        -18.877,
+        24.002,
+        -23.122,
+        -17.975,
+        17.358,
+        -14.233,
+        5.997
+      ]
+    },
+    {
+      "start": 170.89932,
+      "duration": 0.37805,
+      "confidence": 0.621,
+      "loudness_start": -6.734,
+      "loudness_max_time": 0.06079,
+      "loudness_max": -0.119,
+      "pitches": [
+        0.305,
+        0.319,
+        0.349,
+        0.19,
+        0.238,
+        0.52,
+        0.618,
+        0.517,
+        0.478,
+        0.509,
+        1,
+        0.318
+      ],
+      "timbre": [
+        56.554,
+        33.882,
+        27.042,
+        -46.274,
+        16.632,
+        -14.309,
+        23.207,
+        7.607,
+        -6.389,
+        -7.078,
+        -3.268,
+        19.429
+      ]
+    },
+    {
+      "start": 171.27737,
+      "duration": 0.15551,
+      "confidence": 0.115,
+      "loudness_start": -5.934,
+      "loudness_max_time": 0.03978,
+      "loudness_max": -1.339,
+      "pitches": [
+        0.197,
+        0.183,
+        0.186,
+        0.104,
+        0.285,
+        0.754,
+        1,
+        0.74,
+        0.513,
+        0.503,
+        0.337,
+        0.128
+      ],
+      "timbre": [
+        56.064,
+        63.824,
+        -29.083,
+        -25.862,
+        22.764,
+        -38.129,
+        -14.985,
+        1.878,
+        13.008,
+        -0.674,
+        -4.283,
+        1.918
+      ]
+    },
+    {
+      "start": 171.43288,
+      "duration": 0.45796,
+      "confidence": 0.387,
+      "loudness_start": -5.877,
+      "loudness_max_time": 0.18825,
+      "loudness_max": -1.008,
+      "pitches": [
+        0.243,
+        0.15,
+        0.29,
+        0.246,
+        0.282,
+        0.179,
+        0.22,
+        1,
+        0.258,
+        0.087,
+        0.178,
+        0.172
+      ],
+      "timbre": [
+        56.938,
+        52.259,
+        29.331,
+        -25.134,
+        24.696,
+        -31.377,
+        25.696,
+        6.552,
+        -6.593,
+        15.478,
+        -9.274,
+        5.074
+      ]
+    },
+    {
+      "start": 171.89084,
+      "duration": 0.45909,
+      "confidence": 0.433,
+      "loudness_start": -5.196,
+      "loudness_max_time": 0.02257,
+      "loudness_max": 0.58,
+      "pitches": [
+        0.158,
+        0.175,
+        0.415,
+        0.235,
+        0.096,
+        0.14,
+        0.287,
+        1,
+        0.401,
+        0.114,
+        0.143,
+        0.183
+      ],
+      "timbre": [
+        57.527,
+        53.587,
+        -1.565,
+        -5.164,
+        20.356,
+        -43.659,
+        -5.251,
+        12.104,
+        -2.384,
+        3.837,
+        7.832,
+        3.888
+      ]
+    },
+    {
+      "start": 172.34993,
+      "duration": 0.23111,
+      "confidence": 0.505,
+      "loudness_start": -10.537,
+      "loudness_max_time": 0.11535,
+      "loudness_max": -4.296,
+      "pitches": [
+        0.865,
+        0.935,
+        0.86,
+        0.518,
+        0.245,
+        0.233,
+        0.611,
+        1,
+        0.209,
+        0.085,
+        0.157,
+        0.67
+      ],
+      "timbre": [
+        53.061,
+        76.924,
+        -12.826,
+        -45.533,
+        5.891,
+        -22.708,
+        -7.621,
+        2.166,
+        -7.23,
+        4.071,
+        -13.64,
+        -27.044
+      ]
+    },
+    {
+      "start": 172.58104,
+      "duration": 0.26998,
+      "confidence": 0.655,
+      "loudness_start": -8.386,
+      "loudness_max_time": 0.11307,
+      "loudness_max": -1.226,
+      "pitches": [
+        0.33,
+        0.361,
+        0.458,
+        0.236,
+        0.219,
+        0.279,
+        0.27,
+        1,
+        0.51,
+        0.161,
+        0.109,
+        0.335
+      ],
+      "timbre": [
+        54.703,
+        87.666,
+        -5.538,
+        -44.955,
+        0.483,
+        -3.668,
+        -27.374,
+        -6.756,
+        0.832,
+        -5.237,
+        -29.311,
+        -10.269
+      ]
+    },
+    {
+      "start": 172.85102,
+      "duration": 0.22467,
+      "confidence": 0.725,
+      "loudness_start": -7.752,
+      "loudness_max_time": 0.01379,
+      "loudness_max": 0.179,
+      "pitches": [
+        0.403,
+        0.461,
+        0.464,
+        0.212,
+        0.17,
+        0.566,
+        0.64,
+        1,
+        0.491,
+        0.152,
+        0.276,
+        0.451
+      ],
+      "timbre": [
+        57.46,
+        60.005,
+        -3.724,
+        -7.679,
+        3.59,
+        -40.894,
+        -5.179,
+        -2.036,
+        -25.505,
+        12.586,
+        -7.231,
+        -5.864
+      ]
+    },
+    {
+      "start": 173.07569,
+      "duration": 0.30694,
+      "confidence": 0.353,
+      "loudness_start": -6.626,
+      "loudness_max_time": 0.27288,
+      "loudness_max": -2.135,
+      "pitches": [
+        0.399,
+        0.172,
+        0.222,
+        0.146,
+        0.138,
+        1,
+        0.333,
+        0.441,
+        0.229,
+        0.11,
+        0.068,
+        0.11
+      ],
+      "timbre": [
+        56.285,
+        88.783,
+        20.202,
+        -32.517,
+        6.826,
+        -30.807,
+        -25.382,
+        -10.751,
+        -4.568,
+        10.11,
+        -5.767,
+        -25.369
+      ]
+    },
+    {
+      "start": 173.38263,
+      "duration": 0.19179,
+      "confidence": 0.176,
+      "loudness_start": -3.348,
+      "loudness_max_time": 0.04956,
+      "loudness_max": -0.212,
+      "pitches": [
+        0.647,
+        0.818,
+        0.359,
+        0.087,
+        0.045,
+        0.162,
+        0.375,
+        1,
+        0.371,
+        0.123,
+        0.615,
+        0.296
+      ],
+      "timbre": [
+        57.201,
+        79.719,
+        0.992,
+        -2.963,
+        -3.099,
+        -16.567,
+        -13.174,
+        -11.588,
+        16.618,
+        -20.91,
+        -23.248,
+        -7.41
+      ]
+    },
+    {
+      "start": 173.57442,
+      "duration": 0.2327,
+      "confidence": 0.516,
+      "loudness_start": -7.117,
+      "loudness_max_time": 0.04588,
+      "loudness_max": -0.982,
+      "pitches": [
+        0.412,
+        0.067,
+        0.169,
+        0.03,
+        0.147,
+        0.043,
+        0.198,
+        1,
+        0.209,
+        0.025,
+        0.052,
+        0.054
+      ],
+      "timbre": [
+        57.631,
+        54.135,
+        37.391,
+        -10.59,
+        26.286,
+        -28.173,
+        25.613,
+        -14.771,
+        -10.223,
+        -13.071,
+        4.907,
+        9.508
+      ]
+    },
+    {
+      "start": 173.80712,
+      "duration": 0.18608,
+      "confidence": 0.299,
+      "loudness_start": -3.457,
+      "loudness_max_time": 0.00961,
+      "loudness_max": 1.308,
+      "pitches": [
+        1,
+        0.92,
+        0.612,
+        0.429,
+        0.276,
+        0.541,
+        0.696,
+        0.706,
+        0.239,
+        0.15,
+        0.19,
+        0.42
+      ],
+      "timbre": [
+        58.733,
+        53.501,
+        9.051,
+        -11.354,
+        11.423,
+        -59.275,
+        7.221,
+        5.804,
+        -17.792,
+        -4.394,
+        -7.813,
+        3.632
+      ]
+    },
+    {
+      "start": 173.9932,
+      "duration": 0.44703,
+      "confidence": 0.236,
+      "loudness_start": -3.846,
+      "loudness_max_time": 0.05315,
+      "loudness_max": -0.079,
+      "pitches": [
+        0.3,
+        0.252,
+        0.457,
+        0.201,
+        0.216,
+        0.334,
+        0.512,
+        1,
+        0.493,
+        0.369,
+        0.292,
+        0.388
+      ],
+      "timbre": [
+        56.52,
+        63.956,
+        11.495,
+        23.655,
+        21.693,
+        -34.726,
+        -3.172,
+        14.326,
+        6.619,
+        -9.275,
+        -19.32,
+        -11.075
+      ]
+    },
+    {
+      "start": 174.44023,
+      "duration": 0.20848,
+      "confidence": 0.522,
+      "loudness_start": -8.491,
+      "loudness_max_time": 0.10975,
+      "loudness_max": -2.985,
+      "pitches": [
+        0.274,
+        0.331,
+        0.321,
+        0.117,
+        0.136,
+        0.15,
+        0.393,
+        1,
+        0.502,
+        0.333,
+        0.291,
+        0.252
+      ],
+      "timbre": [
+        55.03,
+        67.174,
+        22.735,
+        -51.043,
+        6.344,
+        -20.35,
+        6.925,
+        1.116,
+        -4.618,
+        2.039,
+        4.752,
+        -2.291
+      ]
+    },
+    {
+      "start": 174.64871,
+      "duration": 0.10866,
+      "confidence": 0.193,
+      "loudness_start": -4.219,
+      "loudness_max_time": 0.01357,
+      "loudness_max": -0.932,
+      "pitches": [
+        0.591,
+        0.863,
+        0.786,
+        0.683,
+        0.944,
+        0.939,
+        0.978,
+        1,
+        0.724,
+        0.739,
+        0.427,
+        0.041
+      ],
+      "timbre": [
+        55.317,
+        81.197,
+        6.67,
+        17.781,
+        0.919,
+        -69.356,
+        17.073,
+        6.286,
+        -6.561,
+        12.395,
+        -10.171,
+        -9.98
+      ]
+    },
+    {
+      "start": 174.75737,
+      "duration": 0.23333,
+      "confidence": 0.535,
+      "loudness_start": -8.012,
+      "loudness_max_time": 0.01342,
+      "loudness_max": -0.273,
+      "pitches": [
+        0.644,
+        0.368,
+        0.385,
+        0.167,
+        0.185,
+        0.415,
+        0.503,
+        1,
+        0.366,
+        0.107,
+        0.127,
+        0.413
+      ],
+      "timbre": [
+        56.878,
+        52.11,
+        -8.653,
+        -14.194,
+        14.821,
+        -48.965,
+        -10.85,
+        -4.162,
+        -19.058,
+        6.844,
+        -23.424,
+        -7.129
+      ]
+    },
+    {
+      "start": 174.9907,
+      "duration": 0.23224,
+      "confidence": 0.657,
+      "loudness_start": -8.138,
+      "loudness_max_time": 0.0683,
+      "loudness_max": -1.673,
+      "pitches": [
+        0.848,
+        1,
+        0.255,
+        0.076,
+        0.171,
+        0.716,
+        0.161,
+        0.098,
+        0.073,
+        0.145,
+        0.364,
+        0.194
+      ],
+      "timbre": [
+        56.207,
+        55.346,
+        3.287,
+        -18.038,
+        21.558,
+        -7.513,
+        5.385,
+        -14.703,
+        7.258,
+        12.977,
+        -6.208,
+        0.996
+      ]
+    },
+    {
+      "start": 175.22295,
+      "duration": 0.22735,
+      "confidence": 0.515,
+      "loudness_start": -7.871,
+      "loudness_max_time": 0.1293,
+      "loudness_max": -2.043,
+      "pitches": [
+        1,
+        0.533,
+        0.516,
+        0.979,
+        0.478,
+        0.124,
+        0.181,
+        0.309,
+        0.14,
+        0.171,
+        0.62,
+        0.579
+      ],
+      "timbre": [
+        56.03,
+        40.212,
+        12.63,
+        -14.972,
+        26.686,
+        -20.11,
+        17.087,
+        8.245,
+        -5.072,
+        -0.56,
+        -2.108,
+        -6.273
+      ]
+    },
+    {
+      "start": 175.45029,
+      "duration": 0.24871,
+      "confidence": 0.565,
+      "loudness_start": -8.087,
+      "loudness_max_time": 0.13454,
+      "loudness_max": -2.101,
+      "pitches": [
+        0.125,
+        0.15,
+        0.262,
+        1,
+        0.407,
+        0.274,
+        0.052,
+        0.078,
+        0.045,
+        0.105,
+        0.667,
+        0.175
+      ],
+      "timbre": [
+        55.324,
+        75.856,
+        11.552,
+        -32.875,
+        21.842,
+        -5.804,
+        -7.276,
+        -3.827,
+        -16.085,
+        14.703,
+        -25.153,
+        -26.558
+      ]
+    },
+    {
+      "start": 175.699,
+      "duration": 0.25016,
+      "confidence": 0.75,
+      "loudness_start": -10.062,
+      "loudness_max_time": 0.02378,
+      "loudness_max": -0.383,
+      "pitches": [
+        0.642,
+        0.749,
+        0.443,
+        1,
+        0.392,
+        0.553,
+        0.416,
+        0.295,
+        0.162,
+        0.223,
+        0.67,
+        0.588
+      ],
+      "timbre": [
+        56.285,
+        69.569,
+        -25.407,
+        -9.779,
+        3.529,
+        -18.666,
+        -16.075,
+        8.597,
+        -17.312,
+        9.828,
+        14.081,
+        -14.418
+      ]
+    },
+    {
+      "start": 175.94916,
+      "duration": 0.23175,
+      "confidence": 0.328,
+      "loudness_start": -5.832,
+      "loudness_max_time": 0.03474,
+      "loudness_max": -2.368,
+      "pitches": [
+        0.242,
+        0.32,
+        0.463,
+        1,
+        0.467,
+        0.106,
+        0.092,
+        0.09,
+        0.107,
+        0.182,
+        0.382,
+        0.152
+      ],
+      "timbre": [
+        55.773,
+        42.82,
+        19.403,
+        -6.629,
+        31.543,
+        -28.43,
+        11.184,
+        -17.069,
+        -19.616,
+        24.385,
+        -11.231,
+        -0.575
+      ]
+    },
+    {
+      "start": 176.18091,
+      "duration": 0.42943,
+      "confidence": 0.408,
+      "loudness_start": -5.711,
+      "loudness_max_time": 0.06588,
+      "loudness_max": -1.569,
+      "pitches": [
+        0.59,
+        0.285,
+        0.302,
+        0.197,
+        0.23,
+        1,
+        0.252,
+        0.468,
+        0.449,
+        0.163,
+        0.162,
+        0.162
+      ],
+      "timbre": [
+        56.625,
+        60.46,
+        16.544,
+        -21.361,
+        21.889,
+        -35.376,
+        6.43,
+        29.089,
+        -0.838,
+        4.34,
+        3.35,
+        7.137
+      ]
+    },
+    {
+      "start": 176.61034,
+      "duration": 0.30249,
+      "confidence": 0.327,
+      "loudness_start": -4.928,
+      "loudness_max_time": 0.0639,
+      "loudness_max": -0.849,
+      "pitches": [
+        0.488,
+        0.372,
+        0.191,
+        0.195,
+        0.262,
+        1,
+        0.481,
+        0.199,
+        0.188,
+        0.137,
+        0.25,
+        0.301
+      ],
+      "timbre": [
+        55.908,
+        75.043,
+        -10.659,
+        -20.367,
+        13.892,
+        -29.845,
+        -30.151,
+        26.322,
+        -18.604,
+        -0.654,
+        -13.026,
+        -19.585
+      ]
+    },
+    {
+      "start": 176.91283,
+      "duration": 0.2322,
+      "confidence": 0.482,
+      "loudness_start": -7.129,
+      "loudness_max_time": 0.04741,
+      "loudness_max": -2.084,
+      "pitches": [
+        0.469,
+        0.19,
+        0.282,
+        0.106,
+        0.212,
+        1,
+        0.398,
+        0.506,
+        0.081,
+        0.138,
+        0.235,
+        0.24
+      ],
+      "timbre": [
+        56.322,
+        64.909,
+        25.496,
+        -16.786,
+        7.21,
+        -20.69,
+        -12.44,
+        -3.628,
+        -20.113,
+        16.972,
+        -0.536,
+        -9.927
+      ]
+    },
+    {
+      "start": 177.14503,
+      "duration": 0.42803,
+      "confidence": 0.005,
+      "loudness_start": -5.625,
+      "loudness_max_time": 0.04291,
+      "loudness_max": -2.685,
+      "pitches": [
+        0.14,
+        0.189,
+        0.334,
+        0.281,
+        0.264,
+        0.207,
+        0.242,
+        1,
+        0.314,
+        0.116,
+        0.128,
+        0.109
+      ],
+      "timbre": [
+        55.053,
+        58.639,
+        -10.214,
+        5.534,
+        -1.024,
+        -37.92,
+        -36.133,
+        8.791,
+        5.221,
+        4.97,
+        -22.599,
+        -20.975
+      ]
+    },
+    {
+      "start": 177.57306,
+      "duration": 0.1761,
+      "confidence": 0.812,
+      "loudness_start": -10.738,
+      "loudness_max_time": 0.05347,
+      "loudness_max": -0.759,
+      "pitches": [
+        0.47,
+        0.505,
+        0.312,
+        0.299,
+        0.413,
+        0.561,
+        0.931,
+        1,
+        0.868,
+        0.777,
+        0.664,
+        0.169
+      ],
+      "timbre": [
+        53.946,
+        53.988,
+        -21.606,
+        -58.079,
+        8.923,
+        9.735,
+        -0.005,
+        13.234,
+        -1.572,
+        -8.968,
+        -10.633,
+        0.628
+      ]
+    },
+    {
+      "start": 177.74916,
+      "duration": 0.34848,
+      "confidence": 0.314,
+      "loudness_start": -6.82,
+      "loudness_max_time": 0.10958,
+      "loudness_max": -2.98,
+      "pitches": [
+        0.067,
+        0.063,
+        0.198,
+        0.031,
+        0.033,
+        0.06,
+        0.119,
+        1,
+        0.109,
+        0.051,
+        0.394,
+        0.173
+      ],
+      "timbre": [
+        55.067,
+        82.488,
+        -13.446,
+        -21.939,
+        5.489,
+        -16.738,
+        -28.464,
+        -31.162,
+        4.725,
+        6.031,
+        -17.599,
+        -0.75
+      ]
+    },
+    {
+      "start": 178.09764,
+      "duration": 0.44259,
+      "confidence": 0.582,
+      "loudness_start": -7.547,
+      "loudness_max_time": 0.17,
+      "loudness_max": -1.75,
+      "pitches": [
+        0.196,
+        0.208,
+        0.436,
+        0.198,
+        0.131,
+        0.168,
+        0.202,
+        1,
+        0.345,
+        0.154,
+        0.214,
+        0.131
+      ],
+      "timbre": [
+        56.912,
+        55.1,
+        16.888,
+        -25.113,
+        24.806,
+        -39.295,
+        -1.842,
+        14.463,
+        -0.635,
+        2.228,
+        -9.63,
+        -9.492
+      ]
+    },
+    {
+      "start": 178.54023,
+      "duration": 0.27093,
+      "confidence": 0.716,
+      "loudness_start": -9.068,
+      "loudness_max_time": 0.03825,
+      "loudness_max": -0.845,
+      "pitches": [
+        0.535,
+        0.387,
+        0.149,
+        0.152,
+        0.209,
+        1,
+        0.449,
+        0.227,
+        0.134,
+        0.185,
+        0.252,
+        0.334
+      ],
+      "timbre": [
+        55.693,
+        59.852,
+        -19.996,
+        -34.909,
+        24.297,
+        -5.894,
+        0.95,
+        -13.245,
+        -19.647,
+        16.389,
+        -4.284,
+        -13.757
+      ]
+    },
+    {
+      "start": 178.81116,
+      "duration": 0.19134,
+      "confidence": 0.475,
+      "loudness_start": -5.111,
+      "loudness_max_time": 0.00505,
+      "loudness_max": -0.351,
+      "pitches": [
+        0.392,
+        0.259,
+        0.177,
+        0.103,
+        0.314,
+        1,
+        0.7,
+        0.475,
+        0.287,
+        0.259,
+        0.444,
+        0.343
+      ],
+      "timbre": [
+        58.353,
+        49.121,
+        0.213,
+        -43.768,
+        2.169,
+        -44.066,
+        -23.505,
+        5.084,
+        -9.636,
+        -10.101,
+        -15.234,
+        -10.819
+      ]
+    },
+    {
+      "start": 179.00249,
+      "duration": 0.48807,
+      "confidence": 0.451,
+      "loudness_start": -3.928,
+      "loudness_max_time": 0.09057,
+      "loudness_max": 0.879,
+      "pitches": [
+        0.269,
+        0.355,
+        0.511,
+        1,
+        0.491,
+        0.331,
+        0.35,
+        0.368,
+        0.489,
+        0.342,
+        0.904,
+        0.275
+      ],
+      "timbre": [
+        57.494,
+        76.259,
+        24.277,
+        -26.868,
+        15.304,
+        -19.962,
+        -38.271,
+        -11.622,
+        6.993,
+        6.052,
+        -18.725,
+        -17.612
+      ]
+    },
+    {
+      "start": 179.49057,
+      "duration": 0.278,
+      "confidence": 0.322,
+      "loudness_start": -3.771,
+      "loudness_max_time": 0.04102,
+      "loudness_max": 0.093,
+      "pitches": [
+        0.158,
+        0.193,
+        0.269,
+        1,
+        0.489,
+        0.682,
+        0.594,
+        0.265,
+        0.187,
+        0.256,
+        0.686,
+        0.268
+      ],
+      "timbre": [
+        57.947,
+        83.842,
+        13.64,
+        -16.486,
+        22.704,
+        -42.786,
+        -0.294,
+        19.935,
+        -4.625,
+        3.34,
+        1.744,
+        -0.859
+      ]
+    },
+    {
+      "start": 179.76857,
+      "duration": 0.58091,
+      "confidence": 0.318,
+      "loudness_start": -3.936,
+      "loudness_max_time": 0.02856,
+      "loudness_max": 0.888,
+      "pitches": [
+        0.517,
+        0.395,
+        0.933,
+        0.865,
+        0.667,
+        1,
+        0.748,
+        0.555,
+        0.54,
+        0.397,
+        0.881,
+        0.544
+      ],
+      "timbre": [
+        59.06,
+        72.559,
+        52.903,
+        -2.192,
+        22.925,
+        -40.207,
+        25.031,
+        5.911,
+        -19.015,
+        -0.225,
+        10.491,
+        10.957
+      ]
+    },
+    {
+      "start": 180.34948,
+      "duration": 0.12213,
+      "confidence": 0.167,
+      "loudness_start": -4.153,
+      "loudness_max_time": 0.01763,
+      "loudness_max": -0.813,
+      "pitches": [
+        0.499,
+        1,
+        0.47,
+        0.643,
+        0.312,
+        0.24,
+        0.416,
+        0.468,
+        0.69,
+        0.797,
+        0.616,
+        0.571
+      ],
+      "timbre": [
+        58.268,
+        70.101,
+        45.897,
+        -9.358,
+        -2.373,
+        -38.121,
+        -12.515,
+        -2.526,
+        -15.935,
+        1.43,
+        -2.382,
+        -6.549
+      ]
+    },
+    {
+      "start": 180.47161,
+      "duration": 0.21406,
+      "confidence": 0.166,
+      "loudness_start": -2.529,
+      "loudness_max_time": 0.0142,
+      "loudness_max": 0.461,
+      "pitches": [
+        0.395,
+        0.317,
+        0.512,
+        1,
+        0.54,
+        0.837,
+        0.698,
+        0.33,
+        0.205,
+        0.315,
+        0.731,
+        0.376
+      ],
+      "timbre": [
+        58.317,
+        80.252,
+        3.737,
+        -8.805,
+        9.42,
+        -50.9,
+        -13.503,
+        21.406,
+        -11.152,
+        5.086,
+        -4.475,
+        4.311
+      ]
+    },
+    {
+      "start": 180.68567,
+      "duration": 0.25569,
+      "confidence": 0.506,
+      "loudness_start": -5.147,
+      "loudness_max_time": 0.07791,
+      "loudness_max": 0.302,
+      "pitches": [
+        0.558,
+        0.252,
+        0.353,
+        1,
+        0.55,
+        0.636,
+        0.325,
+        0.199,
+        0.118,
+        0.224,
+        0.856,
+        0.266
+      ],
+      "timbre": [
+        57.205,
+        97.103,
+        35.676,
+        -45.542,
+        10.151,
+        -19.723,
+        -26.202,
+        -11.944,
+        -7.008,
+        6.223,
+        -7.753,
+        -16.108
+      ]
+    },
+    {
+      "start": 180.94136,
+      "duration": 0.12753,
+      "confidence": 0.332,
+      "loudness_start": -2.841,
+      "loudness_max_time": 0.06625,
+      "loudness_max": 1.319,
+      "pitches": [
+        0.475,
+        0.556,
+        0.511,
+        0.321,
+        0.535,
+        0.534,
+        0.804,
+        1,
+        0.979,
+        0.965,
+        0.869,
+        0.127
+      ],
+      "timbre": [
+        59.284,
+        95.992,
+        42.2,
+        -12.954,
+        -38.921,
+        -10.069,
+        -19.696,
+        -8.145,
+        -12.123,
+        0.986,
+        -11.248,
+        -19.992
+      ]
+    },
+    {
+      "start": 181.06889,
+      "duration": 0.36005,
+      "confidence": 0.039,
+      "loudness_start": -2.328,
+      "loudness_max_time": 0.25778,
+      "loudness_max": 0.297,
+      "pitches": [
+        0.15,
+        0.164,
+        0.361,
+        0.101,
+        0.101,
+        0.217,
+        0.661,
+        1,
+        0.397,
+        0.143,
+        0.335,
+        0.247
+      ],
+      "timbre": [
+        59.027,
+        106.638,
+        36.728,
+        -11.147,
+        -17.176,
+        -28.031,
+        -24.57,
+        11.537,
+        0.082,
+        4.942,
+        -3.551,
+        -13.179
+      ]
+    },
+    {
+      "start": 181.42893,
+      "duration": 0.25578,
+      "confidence": 0.235,
+      "loudness_start": -3.015,
+      "loudness_max_time": 0.00574,
+      "loudness_max": 0.206,
+      "pitches": [
+        0.093,
+        0.084,
+        0.287,
+        0.101,
+        0.087,
+        0.469,
+        0.437,
+        1,
+        0.222,
+        0.132,
+        0.083,
+        0.12
+      ],
+      "timbre": [
+        58.055,
+        79.308,
+        1.272,
+        -20.156,
+        6.895,
+        -53.956,
+        -5.373,
+        12.124,
+        -14.663,
+        0.301,
+        -8.559,
+        13.774
+      ]
+    },
+    {
+      "start": 181.68472,
+      "duration": 0.1859,
+      "confidence": 0.295,
+      "loudness_start": -3.756,
+      "loudness_max_time": 0.02915,
+      "loudness_max": -0.145,
+      "pitches": [
+        0.129,
+        0.158,
+        0.34,
+        0.178,
+        0.296,
+        0.617,
+        0.844,
+        1,
+        0.448,
+        0.314,
+        0.404,
+        0.221
+      ],
+      "timbre": [
+        58.268,
+        53.602,
+        28.628,
+        -4.632,
+        8.681,
+        -37.117,
+        -18.355,
+        -8.864,
+        -14.202,
+        6.507,
+        -10.269,
+        12.738
+      ]
+    },
+    {
+      "start": 181.87061,
+      "duration": 0.5044,
+      "confidence": 0.249,
+      "loudness_start": -4.211,
+      "loudness_max_time": 0.35724,
+      "loudness_max": 0.842,
+      "pitches": [
+        0.309,
+        0.367,
+        0.623,
+        0.397,
+        0.517,
+        0.331,
+        0.483,
+        1,
+        0.4,
+        0.218,
+        0.264,
+        0.318
+      ],
+      "timbre": [
+        58.826,
+        76.041,
+        41.539,
+        -30.501,
+        27.307,
+        -34.281,
+        4.864,
+        14.389,
+        -6.362,
+        9.479,
+        -5.232,
+        5.259
+      ]
+    },
+    {
+      "start": 182.37501,
+      "duration": 0.2498,
+      "confidence": 0.244,
+      "loudness_start": -2.948,
+      "loudness_max_time": 0.01518,
+      "loudness_max": 1.097,
+      "pitches": [
+        0.131,
+        0.118,
+        0.438,
+        0.109,
+        0.086,
+        0.306,
+        0.438,
+        1,
+        0.214,
+        0.158,
+        0.08,
+        0.23
+      ],
+      "timbre": [
+        59.175,
+        82.696,
+        12.614,
+        -6.935,
+        1.62,
+        -42.985,
+        -5.875,
+        19.037,
+        -23.914,
+        -1.978,
+        -11.409,
+        0.28
+      ]
+    },
+    {
+      "start": 182.62481,
+      "duration": 0.4702,
+      "confidence": 0.162,
+      "loudness_start": -4.178,
+      "loudness_max_time": 0.28313,
+      "loudness_max": -0.446,
+      "pitches": [
+        0.514,
+        0.515,
+        0.425,
+        0.397,
+        0.376,
+        0.6,
+        0.589,
+        1,
+        0.427,
+        0.385,
+        0.377,
+        0.492
+      ],
+      "timbre": [
+        58.247,
+        59.186,
+        42.228,
+        -21.542,
+        0.187,
+        -35.156,
+        2.368,
+        8.642,
+        -12.19,
+        7.206,
+        5.239,
+        -7.167
+      ]
+    },
+    {
+      "start": 183.09501,
+      "duration": 0.21524,
+      "confidence": 0.243,
+      "loudness_start": -1.973,
+      "loudness_max_time": 0.12095,
+      "loudness_max": 0.668,
+      "pitches": [
+        0.652,
+        1,
+        0.604,
+        0.216,
+        0.101,
+        0.046,
+        0.169,
+        0.1,
+        0.105,
+        0.298,
+        0.164,
+        0.102
+      ],
+      "timbre": [
+        59.579,
+        88.019,
+        45.101,
+        -5.87,
+        23.355,
+        -38.261,
+        21.797,
+        12.47,
+        -1.841,
+        0.944,
+        -9.722,
+        -16.272
+      ]
+    },
+    {
+      "start": 183.31025,
+      "duration": 0.26667,
+      "confidence": 0.166,
+      "loudness_start": -3.357,
+      "loudness_max_time": 0.03296,
+      "loudness_max": 0.776,
+      "pitches": [
+        0.22,
+        0.666,
+        1,
+        0.316,
+        0.119,
+        0.45,
+        0.584,
+        0.275,
+        0.197,
+        0.558,
+        0.243,
+        0.198
+      ],
+      "timbre": [
+        58.66,
+        58.097,
+        10.874,
+        -13.188,
+        45.92,
+        -43.269,
+        20.853,
+        18.861,
+        5.559,
+        3.876,
+        6.036,
+        11.854
+      ]
+    },
+    {
+      "start": 183.57692,
+      "duration": 0.17429,
+      "confidence": 0.365,
+      "loudness_start": -3.532,
+      "loudness_max_time": 0.02016,
+      "loudness_max": 0.999,
+      "pitches": [
+        0.548,
+        1,
+        0.761,
+        0.516,
+        0.132,
+        0.12,
+        0.62,
+        0.726,
+        0.781,
+        0.792,
+        0.345,
+        0.132
+      ],
+      "timbre": [
+        58.529,
+        86.647,
+        24.718,
+        13.558,
+        26.912,
+        -34.52,
+        25.861,
+        6.469,
+        -4.323,
+        -4.761,
+        -5.387,
+        2.108
+      ]
+    },
+    {
+      "start": 183.7512,
+      "duration": 0.52825,
+      "confidence": 0.438,
+      "loudness_start": -5.21,
+      "loudness_max_time": 0.08124,
+      "loudness_max": -0.643,
+      "pitches": [
+        0.632,
+        0.605,
+        0.9,
+        0.262,
+        0.444,
+        0.42,
+        1,
+        0.518,
+        0.334,
+        0.515,
+        0.431,
+        0.412
+      ],
+      "timbre": [
+        57.289,
+        66.454,
+        54.136,
+        -36.513,
+        9.116,
+        -23.979,
+        5.893,
+        1.045,
+        -6.013,
+        -1.683,
+        -6.49,
+        -11.911
+      ]
+    },
+    {
+      "start": 184.27946,
+      "duration": 0.23224,
+      "confidence": 0.353,
+      "loudness_start": -2.186,
+      "loudness_max_time": 0.01048,
+      "loudness_max": 1.899,
+      "pitches": [
+        0.449,
+        0.886,
+        1,
+        0.488,
+        0.19,
+        0.643,
+        0.846,
+        0.274,
+        0.164,
+        0.678,
+        0.326,
+        0.155
+      ],
+      "timbre": [
+        58.874,
+        49.603,
+        15.95,
+        10.014,
+        24.72,
+        -54.121,
+        7.928,
+        13.945,
+        -10.74,
+        7.644,
+        -14.306,
+        21.747
+      ]
+    },
+    {
+      "start": 184.5117,
+      "duration": 0.18562,
+      "confidence": 0.487,
+      "loudness_start": -5.271,
+      "loudness_max_time": 0.07472,
+      "loudness_max": -0.157,
+      "pitches": [
+        0.383,
+        1,
+        0.392,
+        0.332,
+        0.194,
+        0.183,
+        0.523,
+        0.64,
+        0.86,
+        0.771,
+        0.437,
+        0.122
+      ],
+      "timbre": [
+        57.472,
+        67.429,
+        38.901,
+        -25.77,
+        15.504,
+        -28.248,
+        12.249,
+        2.354,
+        -18.339,
+        3.402,
+        0.214,
+        -4.4
+      ]
+    },
+    {
+      "start": 184.69732,
+      "duration": 0.1571,
+      "confidence": 0.211,
+      "loudness_start": -2.643,
+      "loudness_max_time": 0.07124,
+      "loudness_max": 0.512,
+      "pitches": [
+        0.633,
+        0.935,
+        0.214,
+        0.325,
+        0.585,
+        0.434,
+        0.523,
+        0.54,
+        0.711,
+        1,
+        0.843,
+        0.267
+      ],
+      "timbre": [
+        58.878,
+        91.256,
+        63.586,
+        -7.13,
+        -22.417,
+        -23.858,
+        -14.739,
+        6.815,
+        -16.017,
+        5.682,
+        -10.797,
+        -24.192
+      ]
+    },
+    {
+      "start": 184.85442,
+      "duration": 0.28989,
+      "confidence": 0.223,
+      "loudness_start": -2.395,
+      "loudness_max_time": 0.06766,
+      "loudness_max": 0.645,
+      "pitches": [
+        0.604,
+        1,
+        0.434,
+        0.38,
+        0.394,
+        0.272,
+        0.23,
+        0.227,
+        0.326,
+        0.528,
+        0.318,
+        0.332
+      ],
+      "timbre": [
+        59.192,
+        97.72,
+        46.662,
+        6.618,
+        -5.229,
+        -19.419,
+        -17.263,
+        -0.083,
+        -8.649,
+        -7.865,
+        -17.597,
+        -20.493
+      ]
+    },
+    {
+      "start": 185.14431,
+      "duration": 0.56875,
+      "confidence": 0.288,
+      "loudness_start": -4.25,
+      "loudness_max_time": 0.10061,
+      "loudness_max": 0.564,
+      "pitches": [
+        0.494,
+        0.908,
+        1,
+        0.639,
+        0.571,
+        0.675,
+        0.799,
+        0.914,
+        0.565,
+        0.831,
+        0.526,
+        0.496
+      ],
+      "timbre": [
+        57.843,
+        101.617,
+        30.676,
+        -26.494,
+        18.102,
+        -23.028,
+        -3.353,
+        -13.224,
+        -2.396,
+        1.698,
+        -9.353,
+        5.973
+      ]
+    },
+    {
+      "start": 185.71306,
+      "duration": 0.42957,
+      "confidence": 0.478,
+      "loudness_start": -5.172,
+      "loudness_max_time": 0.09983,
+      "loudness_max": 0.584,
+      "pitches": [
+        0.788,
+        0.708,
+        0.747,
+        0.648,
+        0.587,
+        1,
+        0.754,
+        0.709,
+        0.533,
+        0.752,
+        0.423,
+        0.535
+      ],
+      "timbre": [
+        58.843,
+        47.032,
+        26.356,
+        -7.45,
+        16.587,
+        -41.111,
+        6.712,
+        -0.105,
+        6.133,
+        1.784,
+        -15.951,
+        14.598
+      ]
+    },
+    {
+      "start": 186.14263,
+      "duration": 0.27297,
+      "confidence": 0.486,
+      "loudness_start": -4.43,
+      "loudness_max_time": 0.05798,
+      "loudness_max": 0.73,
+      "pitches": [
+        0.42,
+        0.353,
+        0.394,
+        0.211,
+        0.243,
+        1,
+        0.662,
+        0.427,
+        0.31,
+        0.507,
+        0.829,
+        0.332
+      ],
+      "timbre": [
+        58.1,
+        77.112,
+        27.367,
+        -15.741,
+        23.422,
+        -19.408,
+        7.069,
+        -16.956,
+        -1.164,
+        5.746,
+        -9.048,
+        2.05
+      ]
+    },
+    {
+      "start": 186.4156,
+      "duration": 0.20354,
+      "confidence": 0.13,
+      "loudness_start": -4.301,
+      "loudness_max_time": 0.0469,
+      "loudness_max": -1.913,
+      "pitches": [
+        0.133,
+        0.487,
+        1,
+        0.202,
+        0.087,
+        0.107,
+        0.167,
+        0.058,
+        0.044,
+        0.351,
+        0.073,
+        0.185
+      ],
+      "timbre": [
+        54.968,
+        44.804,
+        39.309,
+        52.451,
+        44.221,
+        -7.257,
+        -13.135,
+        -19.979,
+        -5.877,
+        -5.263,
+        -63.652,
+        8.536
+      ]
+    },
+    {
+      "start": 186.61914,
+      "duration": 0.48141,
+      "confidence": 0.869,
+      "loudness_start": -14.13,
+      "loudness_max_time": 0.42378,
+      "loudness_max": -1.365,
+      "pitches": [
+        0.312,
+        0.121,
+        0.322,
+        0.266,
+        0.212,
+        0.235,
+        0.231,
+        1,
+        0.37,
+        0.126,
+        0.174,
+        0.183
+      ],
+      "timbre": [
+        55.709,
+        105.849,
+        27.168,
+        -57.058,
+        32.852,
+        -13.698,
+        13.055,
+        -24.409,
+        15.249,
+        22.608,
+        2.194,
+        6.958
+      ]
+    },
+    {
+      "start": 187.10054,
+      "duration": 0.74839,
+      "confidence": 0.286,
+      "loudness_start": -3.936,
+      "loudness_max_time": 0.05094,
+      "loudness_max": 0.331,
+      "pitches": [
+        0.173,
+        0.156,
+        0.332,
+        0.14,
+        0.129,
+        0.228,
+        0.405,
+        1,
+        0.359,
+        0.151,
+        0.161,
+        0.205
+      ],
+      "timbre": [
+        56.695,
+        78.535,
+        -5.264,
+        1.243,
+        28.913,
+        -26.973,
+        -6.457,
+        16.669,
+        7.843,
+        7.234,
+        -28.003,
+        11.328
+      ]
+    },
+    {
+      "start": 187.84893,
+      "duration": 0.2376,
+      "confidence": 0.594,
+      "loudness_start": -9.113,
+      "loudness_max_time": 0.01484,
+      "loudness_max": -3.477,
+      "pitches": [
+        0.936,
+        0.966,
+        0.797,
+        0.506,
+        0.514,
+        0.626,
+        0.326,
+        1,
+        0.826,
+        0.367,
+        0.283,
+        0.942
+      ],
+      "timbre": [
+        54.848,
+        98.655,
+        -8.338,
+        -10.498,
+        -5.789,
+        -29.986,
+        -29.027,
+        -8.435,
+        -5.499,
+        20.861,
+        -22.273,
+        -17.104
+      ]
+    },
+    {
+      "start": 188.08653,
+      "duration": 0.22753,
+      "confidence": 0.744,
+      "loudness_start": -7.602,
+      "loudness_max_time": 0.04371,
+      "loudness_max": -0.549,
+      "pitches": [
+        0.364,
+        0.379,
+        0.43,
+        0.184,
+        0.162,
+        0.54,
+        0.587,
+        1,
+        0.422,
+        0.215,
+        0.548,
+        0.384
+      ],
+      "timbre": [
+        57.509,
+        71.845,
+        -22.117,
+        -16.346,
+        -5.066,
+        -21.772,
+        -24.132,
+        2.938,
+        -20.915,
+        5.139,
+        -11.372,
+        -1.426
+      ]
+    },
+    {
+      "start": 188.31406,
+      "duration": 0.24934,
+      "confidence": 0.494,
+      "loudness_start": -6.926,
+      "loudness_max_time": 0.07779,
+      "loudness_max": -1.802,
+      "pitches": [
+        0.462,
+        0.169,
+        0.161,
+        0.188,
+        0.185,
+        1,
+        0.301,
+        0.38,
+        0.301,
+        0.122,
+        0.082,
+        0.156
+      ],
+      "timbre": [
+        55.71,
+        67.601,
+        15.802,
+        -3.197,
+        8.121,
+        -12.52,
+        -11.279,
+        9.517,
+        -2.788,
+        6.317,
+        -21.823,
+        -7.83
+      ]
+    },
+    {
+      "start": 188.5634,
+      "duration": 0.24961,
+      "confidence": 0.591,
+      "loudness_start": -7.51,
+      "loudness_max_time": 0.0879,
+      "loudness_max": -0.436,
+      "pitches": [
+        0.794,
+        0.908,
+        0.627,
+        0.321,
+        0.17,
+        0.248,
+        0.362,
+        1,
+        0.263,
+        0.207,
+        0.651,
+        0.468
+      ],
+      "timbre": [
+        54.947,
+        63.772,
+        -17.241,
+        -4.753,
+        21.594,
+        -16.43,
+        -3.92,
+        -1.852,
+        -7.703,
+        22.044,
+        -34.513,
+        -12.454
+      ]
+    },
+    {
+      "start": 188.81302,
+      "duration": 0.23415,
+      "confidence": 0.777,
+      "loudness_start": -9.611,
+      "loudness_max_time": 0.10554,
+      "loudness_max": -0.755,
+      "pitches": [
+        0.424,
+        0.08,
+        0.143,
+        0.033,
+        0.057,
+        0.032,
+        0.184,
+        1,
+        0.186,
+        0.019,
+        0.044,
+        0.067
+      ],
+      "timbre": [
+        57.541,
+        76.418,
+        29.836,
+        -23.425,
+        24.53,
+        -24.908,
+        6.813,
+        -5.955,
+        1.065,
+        15.208,
+        -11.787,
+        -2.169
+      ]
+    },
+    {
+      "start": 189.04717,
+      "duration": 0.45011,
+      "confidence": 0.208,
+      "loudness_start": -5.563,
+      "loudness_max_time": 0.00796,
+      "loudness_max": 0.409,
+      "pitches": [
+        0.21,
+        0.315,
+        0.612,
+        0.322,
+        0.288,
+        0.223,
+        0.296,
+        1,
+        0.346,
+        0.197,
+        0.162,
+        0.221
+      ],
+      "timbre": [
+        57.809,
+        58.052,
+        0.2,
+        -5.044,
+        8.245,
+        -45.027,
+        -13.812,
+        9.694,
+        -4.535,
+        -3.22,
+        -22.608,
+        -8.138
+      ]
+    },
+    {
+      "start": 189.49728,
+      "duration": 0.24526,
+      "confidence": 0.541,
+      "loudness_start": -10.07,
+      "loudness_max_time": 0.16482,
+      "loudness_max": -4.312,
+      "pitches": [
+        0.747,
+        1,
+        0.53,
+        0.222,
+        0.107,
+        0.129,
+        0.383,
+        0.574,
+        0.148,
+        0.108,
+        0.109,
+        0.356
+      ],
+      "timbre": [
+        53.993,
+        65.728,
+        16.947,
+        -36.051,
+        12.654,
+        -29.894,
+        25.508,
+        21.325,
+        11.91,
+        9.171,
+        5.263,
+        -13.925
+      ]
+    },
+    {
+      "start": 189.74254,
+      "duration": 0.22585,
+      "confidence": 0.578,
+      "loudness_start": -7.285,
+      "loudness_max_time": 0.03656,
+      "loudness_max": -0.79,
+      "pitches": [
+        1,
+        0.733,
+        0.806,
+        0.469,
+        0.448,
+        0.592,
+        0.418,
+        0.999,
+        0.915,
+        0.553,
+        0.297,
+        0.653
+      ],
+      "timbre": [
+        57.427,
+        88.28,
+        41.982,
+        -7.099,
+        27.242,
+        -25.173,
+        33.793,
+        5.478,
+        23.006,
+        3.007,
+        -3.53,
+        7.86
+      ]
+    },
+    {
+      "start": 189.96839,
+      "duration": 0.49923,
+      "confidence": 0.467,
+      "loudness_start": -4.492,
+      "loudness_max_time": 0.03967,
+      "loudness_max": 0.111,
+      "pitches": [
+        0.482,
+        0.322,
+        0.269,
+        0.326,
+        0.467,
+        0.694,
+        0.52,
+        1,
+        0.543,
+        0.332,
+        0.536,
+        0.42
+      ],
+      "timbre": [
+        57.915,
+        64.649,
+        15.872,
+        -26.43,
+        27.85,
+        -30.78,
+        18.549,
+        14.797,
+        2.106,
+        4.798,
+        8.608,
+        1.441
+      ]
+    },
+    {
+      "start": 190.46762,
+      "duration": 0.24943,
+      "confidence": 0.25,
+      "loudness_start": -5.643,
+      "loudness_max_time": 0.06794,
+      "loudness_max": -2.019,
+      "pitches": [
+        0.695,
+        0.697,
+        0.388,
+        1,
+        0.495,
+        0.128,
+        0.117,
+        0.205,
+        0.097,
+        0.132,
+        0.449,
+        0.292
+      ],
+      "timbre": [
+        56.511,
+        67.214,
+        33.013,
+        -6.249,
+        -4.132,
+        -27.857,
+        29.238,
+        -7.372,
+        -8.565,
+        -0.256,
+        -5.399,
+        -12.573
+      ]
+    },
+    {
+      "start": 190.71705,
+      "duration": 0.23791,
+      "confidence": 0.342,
+      "loudness_start": -6.65,
+      "loudness_max_time": 0.02569,
+      "loudness_max": -1.636,
+      "pitches": [
+        0.095,
+        0.115,
+        0.27,
+        1,
+        0.427,
+        0.302,
+        0.063,
+        0.083,
+        0.04,
+        0.104,
+        0.761,
+        0.128
+      ],
+      "timbre": [
+        56.732,
+        61.041,
+        24.944,
+        -19.081,
+        26.203,
+        -24.976,
+        0.029,
+        -13.167,
+        -1.787,
+        4.176,
+        9.714,
+        -17.608
+      ]
+    },
+    {
+      "start": 190.95497,
+      "duration": 0.44721,
+      "confidence": 0.288,
+      "loudness_start": -4.358,
+      "loudness_max_time": 0.00576,
+      "loudness_max": -0.075,
+      "pitches": [
+        0.344,
+        0.146,
+        0.232,
+        1,
+        0.27,
+        0.168,
+        0.199,
+        0.233,
+        0.227,
+        0.138,
+        0.439,
+        0.228
+      ],
+      "timbre": [
+        57.987,
+        47.101,
+        8.662,
+        -15.426,
+        10.065,
+        -55.584,
+        -7.347,
+        5.955,
+        -0.917,
+        12.761,
+        -9.053,
+        -8.856
+      ]
+    },
+    {
+      "start": 191.40218,
+      "duration": 0.34871,
+      "confidence": 0.125,
+      "loudness_start": -4.584,
+      "loudness_max_time": 0.03397,
+      "loudness_max": -2.021,
+      "pitches": [
+        1,
+        0.941,
+        0.251,
+        0.211,
+        0.191,
+        0.922,
+        0.259,
+        0.266,
+        0.07,
+        0.116,
+        0.11,
+        0.227
+      ],
+      "timbre": [
+        56.81,
+        51.047,
+        33.803,
+        -9.034,
+        19.178,
+        -36.127,
+        5.3,
+        0.64,
+        9.627,
+        7.779,
+        -4.784,
+        -22.352
+      ]
+    },
+    {
+      "start": 191.75088,
+      "duration": 0.37755,
+      "confidence": 0.386,
+      "loudness_start": -6.178,
+      "loudness_max_time": 0.16286,
+      "loudness_max": -0.166,
+      "pitches": [
+        0.322,
+        0.238,
+        0.194,
+        0.26,
+        0.39,
+        1,
+        0.683,
+        0.429,
+        0.287,
+        0.195,
+        0.192,
+        0.185
+      ],
+      "timbre": [
+        56.694,
+        48.294,
+        6.592,
+        -12.735,
+        38.545,
+        -21.974,
+        -2.826,
+        -7.244,
+        -7.497,
+        7.898,
+        -6.072,
+        0.209
+      ]
+    },
+    {
+      "start": 192.12844,
+      "duration": 0.53302,
+      "confidence": 0.324,
+      "loudness_start": -7.317,
+      "loudness_max_time": 0.2627,
+      "loudness_max": -2.021,
+      "pitches": [
+        0.46,
+        0.332,
+        0.76,
+        0.47,
+        0.27,
+        0.5,
+        0.689,
+        1,
+        0.581,
+        0.375,
+        0.377,
+        0.528
+      ],
+      "timbre": [
+        55.387,
+        49.952,
+        17.209,
+        -29.531,
+        14.696,
+        -20.42,
+        -22.661,
+        14.894,
+        2.865,
+        7.02,
+        -3.716,
+        -9.473
+      ]
+    },
+    {
+      "start": 192.66145,
+      "duration": 0.15102,
+      "confidence": 0.258,
+      "loudness_start": -6.001,
+      "loudness_max_time": 0.07499,
+      "loudness_max": -2.303,
+      "pitches": [
+        0.231,
+        0.242,
+        0.685,
+        0.261,
+        0.258,
+        0.284,
+        0.454,
+        1,
+        0.206,
+        0.132,
+        0.185,
+        0.266
+      ],
+      "timbre": [
+        55.876,
+        87.159,
+        20.1,
+        -34.475,
+        8.304,
+        -29.384,
+        -5.279,
+        21.602,
+        2.387,
+        -0.648,
+        -6.495,
+        -0.564
+      ]
+    },
+    {
+      "start": 192.81247,
+      "duration": 0.5229,
+      "confidence": 0.543,
+      "loudness_start": -6.371,
+      "loudness_max_time": 0.05322,
+      "loudness_max": 0.641,
+      "pitches": [
+        0.099,
+        0.112,
+        0.337,
+        0.225,
+        0.17,
+        0.227,
+        0.333,
+        1,
+        0.349,
+        0.13,
+        0.167,
+        0.216
+      ],
+      "timbre": [
+        56.38,
+        95.067,
+        7.583,
+        -16.238,
+        -1.422,
+        -13.272,
+        -2.265,
+        14.556,
+        -19.334,
+        21.879,
+        -32.51,
+        11.217
+      ]
+    },
+    {
+      "start": 193.33537,
+      "duration": 0.4463,
+      "confidence": 0.668,
+      "loudness_start": -8.521,
+      "loudness_max_time": 0.19265,
+      "loudness_max": -1.532,
+      "pitches": [
+        0.183,
+        0.387,
+        0.492,
+        0.358,
+        0.351,
+        0.425,
+        0.41,
+        1,
+        0.514,
+        0.273,
+        0.144,
+        0.192
+      ],
+      "timbre": [
+        56.244,
+        47.619,
+        17.33,
+        -4.026,
+        10.043,
+        -26.664,
+        18.147,
+        7.399,
+        0.76,
+        13.545,
+        -9.471,
+        7.96
+      ]
+    },
+    {
+      "start": 193.78168,
+      "duration": 0.1288,
+      "confidence": 0.618,
+      "loudness_start": -8.093,
+      "loudness_max_time": 0.03478,
+      "loudness_max": -1.12,
+      "pitches": [
+        0.445,
+        0.336,
+        0.318,
+        0.158,
+        0.177,
+        0.832,
+        1,
+        0.636,
+        0.445,
+        0.279,
+        0.308,
+        0.377
+      ],
+      "timbre": [
+        56.285,
+        81.534,
+        -28.633,
+        -36.621,
+        -9.839,
+        -15.679,
+        -14.633,
+        -17.908,
+        -15.315,
+        25.011,
+        -0.957,
+        -4.757
+      ]
+    },
+    {
+      "start": 193.91048,
+      "duration": 0.33202,
+      "confidence": 0.112,
+      "loudness_start": -5.092,
+      "loudness_max_time": 0.02177,
+      "loudness_max": -1.187,
+      "pitches": [
+        0.612,
+        1,
+        0.652,
+        0.268,
+        0.533,
+        0.99,
+        0.375,
+        0.365,
+        0.279,
+        0.511,
+        0.294,
+        0.415
+      ],
+      "timbre": [
+        56.52,
+        53.233,
+        -1.145,
+        -10.191,
+        0.552,
+        -34.554,
+        -3.889,
+        6.797,
+        -9.803,
+        8.273,
+        -7.844,
+        -11.754
+      ]
+    },
+    {
+      "start": 194.24249,
+      "duration": 0.31238,
+      "confidence": 0.427,
+      "loudness_start": -8.844,
+      "loudness_max_time": 0.08093,
+      "loudness_max": -3.731,
+      "pitches": [
+        0.495,
+        0.341,
+        0.347,
+        0.516,
+        1,
+        0.607,
+        0.232,
+        0.949,
+        0.213,
+        0.163,
+        0.141,
+        0.314
+      ],
+      "timbre": [
+        54.072,
+        98.21,
+        39.057,
+        -20.99,
+        18.55,
+        -21.027,
+        1.033,
+        -20.069,
+        15.064,
+        11.715,
+        9.464,
+        -19.528
+      ]
+    },
+    {
+      "start": 194.55488,
+      "duration": 0.26608,
+      "confidence": 0.104,
+      "loudness_start": -7.465,
+      "loudness_max_time": 0.03395,
+      "loudness_max": -4.606,
+      "pitches": [
+        0.092,
+        0.058,
+        0.117,
+        0.159,
+        0.411,
+        1,
+        0.091,
+        0.031,
+        0.017,
+        0.03,
+        0.334,
+        0.092
+      ],
+      "timbre": [
+        53.768,
+        112.689,
+        107.154,
+        19.703,
+        71.292,
+        -32.594,
+        8.988,
+        1.253,
+        26.327,
+        5.079,
+        -2.06,
+        -21.559
+      ]
+    },
+    {
+      "start": 194.82095,
+      "duration": 0.42463,
+      "confidence": 0.196,
+      "loudness_start": -6.96,
+      "loudness_max_time": 0.11884,
+      "loudness_max": -4.157,
+      "pitches": [
+        0.038,
+        0.035,
+        0.279,
+        0.051,
+        0.24,
+        0.239,
+        0.116,
+        1,
+        0.073,
+        0.055,
+        0.065,
+        0.15
+      ],
+      "timbre": [
+        53.519,
+        101.665,
+        58.173,
+        33.206,
+        52.271,
+        -13.691,
+        -9.909,
+        -17.316,
+        -1.447,
+        -2.427,
+        -38.366,
+        32.007
+      ]
+    },
+    {
+      "start": 195.24558,
+      "duration": 0.9449,
+      "confidence": 0.254,
+      "loudness_start": -15.743,
+      "loudness_max_time": 0.0207,
+      "loudness_max": -10.684,
+      "loudness_end": -60,
+      "pitches": [
+        0.161,
+        0.209,
+        0.136,
+        0.212,
+        1,
+        0.179,
+        0.155,
+        0.19,
+        0.123,
+        0.12,
+        0.122,
+        0.115
+      ],
+      "timbre": [
+        29.623,
+        127.82,
+        -162.658,
+        352.432,
+        21.054,
+        -85.43,
+        -70.811,
+        63.27,
+        3.584,
+        -90.209,
+        -61.687,
+        2.022
+      ]
+    }
+  ]
+}
+},{}],513:[function(require,module,exports){
+module.exports={
+  "danceability": 0.567,
+  "energy": 0.881,
+  "key": 3,
+  "loudness": -2.881,
+  "mode": 1,
+  "speechiness": 0.062,
+  "acousticness": 0.0257,
+  "instrumentalness": 0,
+  "liveness": 0.544,
+  "valence": 0.765,
+  "tempo": 125.921,
+  "type": "audio_features",
+  "id": "36SF0nHL9x6DowLbJHOrBk",
+  "uri": "spotify:track:36SF0nHL9x6DowLbJHOrBk",
+  "track_href": "https://api.spotify.com/v1/tracks/36SF0nHL9x6DowLbJHOrBk",
+  "analysis_url": "https://api.spotify.com/v1/audio-analysis/36SF0nHL9x6DowLbJHOrBk",
+  "duration_ms": 196190,
+  "time_signature": 4
+}
+},{}]},{},[509]);
+=======
 },{"pixi.js":42}],565:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
@@ -85923,3 +121572,4 @@ function Physics(game, curvePoints) {
 
 module.exports = Physics;
 },{"./GameObject":562,"pixi.js":42,"planck-js":69}]},{},[561]);
+>>>>>>> planck

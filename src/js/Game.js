@@ -2,6 +2,7 @@ const PIXI = require("pixi.js");
 const InputManager = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
+const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const Planck = require("planck-js");
 const GenerateCurve = require("./GenerationAlgorithm");
@@ -24,7 +25,7 @@ const exampleAnalysis = {
 			"duration": 1.0,
 			"confidence": 0.652
 		}
-],
+	],
 	"beats": [
 		{
 			"start": 251.98282,
@@ -41,71 +42,65 @@ const exampleAnalysis = {
 			"duration": 0.5,
 			"confidence": 0.652
 		}
-],
-	"sections": [
-		{
-			"start": 237.02356,
-			"duration": 18.32542,
-			"confidence": 1,
-			"loudness": -20.074,
-			"tempo": 98.253,
-			"tempo_confidence": 0.767,
-			"key": 5,
-			"key_confidence": 0.327,
-			"mode": 1,
-			"mode_confidence": 0.566,
-			"time_signature": 4,
-			"time_signature_confidence": 1
-		}
-],
-	"segments": [
-		{
-			"start": 252.15601,
-			"duration": 3.19297,
-			"confidence": 0.522,
-			"loudness_start": -23.356,
-			"loudness_max_time": 0.06971,
-			"loudness_max": -18.121,
-			"loudness_end": -60,
-			"pitches": [
-				0.709,
-				0.092,
-				0.196,
-				0.084,
-				0.352,
-				0.134,
-				0.161,
-				1,
-				0.17,
-				0.161,
-				0.211,
-				0.15
-			],
-			"timbre": [
-				23.312,
-				-7.374,
-				-45.719,
-				294.874,
-				51.869,
-				-79.384,
-				-89.048,
-				143.322,
-				-4.676,
-				-51.303,
-				-33.274,
-				-19.037
-			]
-		}
-],
-	"tatums": [
-		{
-			"start": 251.98282,
-			"duration": 0.29765,
-			"confidence": 0.652
-		}
 	],
+	"sections": [{
+		"start": 237.02356,
+		"duration": 18.32542,
+		"confidence": 1,
+		"loudness": -20.074,
+		"tempo": 98.253,
+		"tempo_confidence": 0.767,
+		"key": 5,
+		"key_confidence": 0.327,
+		"mode": 1,
+		"mode_confidence": 0.566,
+		"time_signature": 4,
+		"time_signature_confidence": 1
+	}],
+	"segments": [{
+		"start": 252.15601,
+		"duration": 3.19297,
+		"confidence": 0.522,
+		"loudness_start": -23.356,
+		"loudness_max_time": 0.06971,
+		"loudness_max": -18.121,
+		"loudness_end": -60,
+		"pitches": [
+			0.709,
+			0.092,
+			0.196,
+			0.084,
+			0.352,
+			0.134,
+			0.161,
+			1,
+			0.17,
+			0.161,
+			0.211,
+			0.15
+		],
+		"timbre": [
+			23.312,
+			-7.374,
+			-45.719,
+			294.874,
+			51.869,
+			-79.384,
+			-89.048,
+			143.322,
+			-4.676,
+			-51.303,
+			-33.274,
+			-19.037
+		]
+	}],
+	"tatums": [{
+		"start": 251.98282,
+		"duration": 0.29765,
+		"confidence": 0.652
+	}],
 	"track": {
-	"duration": 255.34898,
+		"duration": 255.34898,
 		"sample_md5": "",
 		"offset_seconds": 0,
 		"window_seconds": 0,
@@ -151,7 +146,7 @@ const exampleFeatures = {
 	"track_href" : "https://api.spotify.com/v1/tracks/06AKEBrKUckW0KREUWRnvT",
 	"analysis_url" : "https://api.spotify.com/v1/audio-analysis/06AKEBrKUckW0KREUWRnvT",
 	"type" : "audio_features"
-}
+};
 
 
 
@@ -159,32 +154,79 @@ const exampleFeatures = {
 const manager = new InputManager();
 
 // bind one or more actions (appends to existing actions)
-manager.bindAction("a", "Action1");
+manager.bindAction("a", "moveLeft");
+manager.bindAction("s", "moveDown");
+manager.bindAction("d", "moveRight");
+manager.bindAction("w", "moveUp");
 
 // get observable
 const observable = manager.getObservable();
-
-// this handler will simply print to the console the actions being performed
-const handler = ( action ) => console.log(action, " hello");
-
-// subscribe to handle events
-observable.subscribe(handler);
 
 const canvas = document.getElementById("mycanvas");
 
 const game = new PIXI.Application({
 	view: canvas,
 	width: window.innerWidth,
-	height: 384,
-	antialias: true,
-	backgroundColor: 0x333333
+	height: window.innerHeight,
+	antialias: true
 });
 
+/*
+const actionState = {};
+
+const viewport = Viewport(game);
+Parallax(game);
+game.stage.addChild(viewport);
+Bezier(viewport);
+const character = addCharacter(game, viewport);
+
+// Adds the current action being sent to the actionState array
+const handler = (action => {
+	for (let i = 0; i < action.actions.length; i++) {
+		actionState[action.actions[i]] = action.type;
+	}
+});
+
+// subscribe to handle events
+observable.subscribe(handler);
+
+game.ticker.add(handleActions);
+
+function handleActions() {
+	if (actionState.moveLeft === "press")
+	{character.x -= 15;}
+	else if (actionState.moveRight === "press")
+	{character.x += 15;}
+	else if (actionState.moveUp === "press")
+	{character.y -= 15;}
+	else if (actionState.moveDown === "press")
+	{character.y += 15;}
+	else if (actionState.moveLeft === "release")
+	{character.x -= 0;}
+	else if (actionState.moveRight === "release")
+	{character.x += 0;}
+	else if (actionState.moveUp === "release")
+	{character.y -= 0;}
+	else if (actionState.moveDown === "release")
+	{character.y += 0;}
+}
+
+function addCharacter(game, viewport) {
+	const character = new PIXI.Sprite.from("../img/snowboarder.png");
+	character.anchor.set(0.5);
+
+	character.x = game.screen.width / 2;
+	character.y = game.screen.height / 2;
+
+	viewport.addChild(character);
+	viewport.follow(character);
+	viewport.zoomPercent(0.25);
+
+	return character;
+}
+*/
+
 let ticker = PIXI.Ticker.shared;
-
-//Parallax(game);
-//Bezier(game);
-
 
 let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
 console.log(curves);

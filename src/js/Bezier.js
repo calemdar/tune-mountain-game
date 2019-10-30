@@ -1,167 +1,169 @@
 const PIXI = require("pixi.js");
+let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Planck = require("planck-js");
 
-const songAnal = {
-	"bars": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"beats": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"sections": [{
-		"start": 237.02356,
-		"duration": 18.32542,
-		"confidence": 1,
-		"loudness": -20.074,
-		"tempo": 98.253,
-		"tempo_confidence": 0.767,
-		"key": 5,
-		"key_confidence": 0.327,
-		"mode": 1,
-		"mode_confidence": 0.566,
-		"time_signature": 4,
-		"time_signature_confidence": 1
-	}],
-	"segments": [{
-		"start": 252.15601,
-		"duration": 3.19297,
-		"confidence": 0.522,
-		"loudness_start": -23.356,
-		"loudness_max_time": 0.06971,
-		"loudness_max": -18.121,
-		"loudness_end": -60,
-		"pitches": [
-			0.709,
-			0.092,
-			0.196,
-			0.084,
-			0.352,
-			0.134,
-			0.161,
-			1,
-			0.17,
-			0.161,
-			0.211,
-			0.15
-		],
-		"timbre": [
-			23.312,
-			-7.374,
-			-45.719,
-			294.874,
-			51.869,
-			-79.384,
-			-89.048,
-			143.322,
-			-4.676,
-			-51.303,
-			-33.274,
-			-19.037
-		]
-	}],
-	"tatums": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"track": {
-		"duration": 255.34898,
-		"sample_md5": "",
-		"offset_seconds": 0,
-		"window_seconds": 0,
-		"analysis_sample_rate": 22050,
-		"analysis_channels": 1,
-		"end_of_fade_in": 0,
-		"start_of_fade_out": 251.73333,
-		"loudness": -11.84,
-		"tempo": 98.002,
-		"tempo_confidence": 0.423,
-		"time_signature": 4,
-		"time_signature_confidence": 1,
-		"key": 5,
-		"key_confidence": 0.36,
-		"mode": 0,
-		"mode_confidence": 0.414,
-		"codestring": "eJxVnAmS5DgOBL-ST-B9_P9j4x7M6qoxW9tpsZQSCeI...",
-		"code_version": 3.15,
-		"echoprintstring": "eJzlvQmSHDmStHslxw4cB-v9j_A-tahhVKV0IH9...",
-		"echoprint_version": 4.12,
-		"synchstring": "eJx1mIlx7ToORFNRCCK455_YoE9Dtt-vmrKsK3EBsTY...",
-		"synch_version": 1,
-		"rhythmstring": "eJyNXAmOLT2r28pZQuZh_xv7g21Iqu_3pCd160xV...",
-		"rhythm_version": 1
-	}
-};
 
-function Bezier(game) {
+function Bezier(viewport) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
-
-
+	const texture = PIXI.Texture.from("..//img/husky.png");
 
 	// Initialize graphics elements
-	points.lineStyle(0); // draw a circle, set the lineStyle to zero so the circle doesn't have an outline
+	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
 	bezier.lineStyle(5, 0xAA0000, 1);
-	bezier.position.x = 25;
-	bezier.position.y = 25;
+	bezier.beginTextureFill(texture);
+	bezier.position.x = 15;
+	bezier.position.y = 15;
+
+	drawCurves(bezier, points);
+
+	points.endFill();
+
+	viewport.addChild(bezier);
+	viewport.addChild(points);
+}
+
+/*
+function Bezier(viewport) {
+	console.log(songAnalysis);
+}
+*/
+
+module.exports = Bezier;
+
+
+function drawCurves(bezier, points) {
 
 	let currentPos = {
 		x: bezier.position.x,
 		y: bezier.position.y
 	};
+	let j = 0;
 
-	/**  First two params: first control point
-	 Second two params: second control point
-	 Final params: destination point
-	 Draw curves
-	 */
-	bezier.bezierCurveTo(100, 200, 200, 200, 240, 150);
-	bezier.bezierCurveTo(350, 100, 450, 350, 700, 200);
+	for (let i = 0; i < songAnalysis.bars.length; i++) {
+		/*
+		let barStart = songAnalysis.bars[i].start;
+		let barFinish = songAnalysis.bars[i].duration + barStart;
+		let segments = [];
+		let addedSegment = false;
 
-	// Draw control and final position points
-	points.drawCircle(100, 200, 2);
-	points.drawCircle(200, 200, 2);
-	points.drawCircle(350, 100, 2);
-	points.drawCircle(450, 350, 2);
-	points.endFill();
-	points.beginFill(0x00AA00, 1);
-	points.drawCircle(240, 250, 2);
-	points.drawCircle(700, 200, 2);
-	points.endFill();
+		for (j; j <= songAnalysis.segments.length; j++) {
+			let segmentStart = songAnalysis.segments[j].start;
+			let segmentFinish = songAnalysis.segments[j].duration + barStart;
+			if (segmentStart >= barStart && segmentFinish <= barFinish) {
+				segments.push(songAnalysis.segments[j]);
 
-	game.stage.addChild(bezier);
-	game.stage.addChild(points);
+				if (!addedSegment)
+					addedSegment = true;
+			}
+			else {
+				if (addedSegment)
+					break;
+			}
+		}
+		*/
+
+		const finalXVariation = songAnalysis.bars[i].duration;
+		const controlPoint1X = currentPos.x + featuretoPixel(songFeatures.acousticness, finalXVariation * 5);
+		const controlPoint1Y = currentPos.y + featuretoPixel(songFeatures.danceability, finalXVariation * 5);
+		const controlPoint2X = currentPos.x + featuretoPixel(songFeatures.valence, finalXVariation * 5);
+		const controlPoint2Y = currentPos.y + featuretoPixel(songFeatures.energy, finalXVariation * 5);
+		const finalPointX = currentPos.x + finalXVariation * 10;
+		const finalPointY = currentPos.y + loudnessToPixels(songFeatures.loudness, finalXVariation * 10);
+
+		/**  First two params: first control point
+			 Second two params: second control point
+			 Final params: destination point
+			 Draw curves
+			 MAX CPY change - 175 pixels
+			 MAX CPX change -
+		 */
+		bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
+			controlPoint2X, controlPoint2Y,
+			finalPointX, finalPointY);
+
+		// Not necessary, just for viewing points
+		points.drawCircle(controlPoint1X, controlPoint1Y, 2);
+		points.drawCircle(controlPoint2X, controlPoint2Y, 2);
+		points.drawCircle(finalPointX, finalPointY, 2);
+
+		currentPos.x = finalPointX;
+		currentPos.y = finalPointY;
+	}
+
+	bezier.lineTo(15, currentPos.y);
+	bezier.lineTo(15, 15);
+	bezier.closePath();
+	bezier.endFill();
 }
 
-module.exports = Bezier;
 
-/**
-for (let i = 0; i <= songAnal.bars.length; i++) {
-	// What value from songAnal are we going to use to change the control points?
-	// Pitches from songAnal.segments[i].pitches[num] could be useful, I feel like we talked about it
-	// But so many pitches per segment, and segments per beat....how to handle
-	const controlPoint1X = currentPos.x + ;
-	const controlPoint1Y = currentPos.y + ;
-	const controlPoint2X = currentPos.x + ;
-	const controlPoint2Y = currentPos.y + ;
-	const finalPointX = currentPos.x + (songAnal.bars[i].duration * 100);
-	const finalPointY = currentPos.y + (songFeat.danceability * 100);
+function loudnessToPixels(loudness, xDistance) {
+	let finalY;
 
-	bezier.bezierCurveTo(controlPoint1X, controlPoint1Y,
-						 controlPoint2X, controlPoint2Y,
-						 finalPointX, finalPointY);
+	switch(true) {
+	case loudness > -10:
+		finalY = xDistance * 2;
+		break;
+	case (loudness > -30 && loudness <= -10):
+		finalY = xDistance * 1.5;
+		break;
+	case (loudness > -50 && loudness <= -30):
+		finalY = xDistance;
+		break;
+	case loudness <= -50:
+		finalY = xDistance * 0.5;
+		break;
+	}
 
-	// Not necessary, just for viewing points
-	points.drawCircle(controlPoint1X, controlPoint1Y, 2);
-	points.drawCircle(controlPoint2X, controlPoint2Y, 2);
-	points.drawCircle(finalPointX, finalPointY, 2);
+	return finalY;
+}
 
-	currentPos.x = finalPointX;
-	currentPos.y = finalPointY;
+function featuretoPixel(feature, finalXDistance) {
+	let distance;
+
+	switch(true) {
+	case feature > 0.9:
+		distance = finalXDistance * 2;
+		break;
+	case (feature > 0.6 && feature <= 0.9):
+		distance = finalXDistance * 1.5;
+		break;
+	case (feature > 0.3 && feature <= 0.6):
+		distance = finalXDistance;
+		break;
+	case feature <= 0.3:
+		distance = finalXDistance * 0.5;
+		break;
+	}
+
+	return distance;
+}
+
+/*
+// Dancability to determine vertical displacement between control points
+		// Valence to determine horizontal displacement
+		// Energy to determine max values for just vertical - max would be 175px
+function createControlPoint(point, currentPos) {
+	let maxY;
+	let xDisplacement;
+	let yDisplacement;
+
+	switch(true) {
+	case songFeatures.energy > 0.9:
+		maxY = 175;
+		break;
+	case (songFeatures.energy > 0.6 && songFeatures.energy <= 0.9):
+		maxY = 125;
+		break;
+	case (songFeatures.energy > 0.3 && songFeatures.energy <= 0.6):
+		maxY = 100;
+		break;
+	case songFeatures.energy <= 0.3:
+		maxY = 50;
+		break;
+	}
 }
  */
