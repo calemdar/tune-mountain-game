@@ -171,13 +171,16 @@ const game = new PIXI.Application({
 	antialias: true
 });
 
-/*
 const actionState = {};
+
+let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
+console.log(curves);
+const allPoints = Physics(game, curves);
 
 const viewport = Viewport(game);
 Parallax(game);
 game.stage.addChild(viewport);
-Bezier(viewport);
+Bezier(viewport, curves);
 const character = addCharacter(game, viewport);
 
 // Adds the current action being sent to the actionState array
@@ -219,16 +222,8 @@ function addCharacter(game, viewport) {
 	character.y = game.screen.height / 2;
 
 	viewport.addChild(character);
-	viewport.follow(character);
-	viewport.zoomPercent(0.25);
+	//viewport.follow(character);
+	//viewport.zoomPercent(0.25);
 
 	return character;
 }
-*/
-
-let ticker = PIXI.Ticker.shared;
-
-let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
-console.log(curves);
-Physics(game, curves);
-ticker.start();

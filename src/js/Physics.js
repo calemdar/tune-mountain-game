@@ -29,7 +29,7 @@ function Physics(game, curvePoints) {
 	// physics object
 	let box = world.createBody().setDynamic();
 	box.createFixture(pl.Circle(0.5), 1.0);
-	box.setPosition(Vec2(60.0, 20.0));
+	box.setPosition(Vec2(60.0, -10.0));
 	box.setMassData({
 		mass : 5,
 		center : Vec2(),
@@ -225,7 +225,7 @@ function Physics(game, curvePoints) {
 
 
 	game.ticker.add(renderStep);
-
+	return allCurvePoints;
 }
 
 module.exports = Physics;
