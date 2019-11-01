@@ -108,6 +108,7 @@ function Physics(game, curvePoints) {
 
 	const physicalBezierCurve = function (points) {
 		let line;
+		let newAngle;
 
 		let drawVertex1 = new PIXI.Graphics();
 		drawVertex1.beginFill(0x00FF00, 1);
@@ -120,26 +121,16 @@ function Physics(game, curvePoints) {
 			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
 			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
 
+
+
 			line = world.createBody();
-
-			drawVertex1.drawRect(vertex1.x, vertex1.y, 0.01, 0.01);
-			drawVertex1.drawRect(vertex2.x, vertex2.y, 0.01, 0.01);
-
-			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x, 0.01), 1.0);
-			//line.createFixture(pl.Edge(points[i], points[i+1]), 0.0);
+			line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
 			line.setPosition(findMidpoint(vertex1, vertex2));
+			newAngle = findAngle(vertex1, vertex2);
+			line.setAngle(newAngle);
 
-			// Find start of new curve
-			if(i === 19){
 
-				let vertex0 = points[i-1];
-				line.setAngle(findAngle(vertex0, vertex2));
-			}
-			else{
-				line.setAngle(findAngle(vertex1, vertex2));
-			}
-
-			console.log("Point " + i + " Angle " + findAngle(vertex1, vertex2));
+			console.log("Point " + i + " Angle " + (findAngle(vertex1, vertex2) * (180 / Math.PI)));
 
 		}
 
@@ -188,6 +179,11 @@ function Physics(game, curvePoints) {
 
 		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
 		return angle;
+	};
+
+	const findMagnitude = function(point1){
+		let magnitude = Math.sqrt((point1.x * point1.x) + (point1.y * point1.y));
+		return magnitude;
 	};
 
 	const getCurvePoints = function (){
