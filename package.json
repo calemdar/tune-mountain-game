@@ -4,15 +4,21 @@
   "description": "Tune Mountain MQP",
   "author": "Cem Alemdar",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "hot-reload": "watchify ./src/js/Game.js -o ./static/bundle.js -v"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "http-server": "^0.11.1",
     "mime": "^2.4.4",
-    "pixi.js": "^5.1.2"
+    "pixi-viewport": "^4.2.3",
+    "pixi.js": "^5.1.2",
+    "planck-js": "^0.3.10",
+    "tune-mountain-input-manager": "github:calemdar/tune-mountain-input#master"
   },
   "devDependencies": {
-    "eslint": "^6.3.0"
+    "express": "^4.17.1",
+    "http-server": "^0.11.1",
+    "browserify": "^16.5.0",
+    "eslint": "^6.3.0",
+    "watchify": "^3.11.1"
   }
 }
