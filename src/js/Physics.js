@@ -3,10 +3,10 @@ const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
 
-function Physics(game, curvePoints) {
+function Physics(game, viewport, curvePoints) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
-	const world = new pl.World(Vec2(0, 10));
+	const world = new pl.World(Vec2(0, 75));
 	const obj = new GameObject();
 
 	let COUNT = 10;
@@ -28,7 +28,8 @@ function Physics(game, curvePoints) {
 
 	// physics object
 	let box = world.createBody().setDynamic();
-	box.createFixture(pl.Circle(0.5), 1.0);
+	//box.createFixture(pl.Circle(0.5), 1.0);
+	box.createFixture(pl.Box(3, 0.1), 1.0);
 	box.setPosition(Vec2(60.0, -10.0));
 	box.setMassData({
 		mass : 5,
@@ -36,33 +37,17 @@ function Physics(game, curvePoints) {
 		I : 1
 	});
 
-	const texture = PIXI.Texture.from("../img/ball.png");
+	const texture = PIXI.Texture.from("../img/snowboarder.png");
 	const husky = new PIXI.Sprite(texture);
 	husky.interactive = true;
 	husky.buttonMode = true;
 
 	let gameCube = obj.create({name: "Cube", sprite: husky, physics: box, position: Vec2(10.0, 10.0), anchor: Vec2(0.5, 1), mass: box.getMass()});
 
-	/*
-	gameCube.sprite.on("tap", (event) => {
-		//handle event
-		console.log("clicked");
-		gameCube.physics.applyAngularImpulse(-100.0, true);
-	});
-	*/
-
-	// add game object to scene
-	game.stage.addChild(gameCube.sprite);
-
-	/*
-	gameCube.sprite = husky;
-	gameCube.position.Planck = box.getPosition();
-	gameCube.scale = 1.0;
-	gameCube.mass = box.getMass();s
-	gameCube.physics.body = box;
-	*/
-
-	//console.log(gameCube);
+	// add game object to viewport
+	viewport.addChild(gameCube.sprite);
+	viewport.follow(gameCube.sprite);
+	viewport.zoomPercent(0.25);
 
 	// Physics Bezier Curve
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
@@ -110,18 +95,10 @@ function Physics(game, curvePoints) {
 		let line;
 		let newAngle;
 
-		let drawVertex1 = new PIXI.Graphics();
-		drawVertex1.beginFill(0x00FF00, 1);
 		for(let i = 0; i < points.length - 1; i+=1){
 
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
-
-			// Pixi drawing
-			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
-			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
-
-
 
 			line = world.createBody();
 			line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
@@ -134,9 +111,6 @@ function Physics(game, curvePoints) {
 
 		}
 
-		drawVertex1.endFill();
-
-		game.stage.addChild(drawVertex1);
 	};
 
 	const multiplyVec = function (vector, number){
@@ -214,7 +188,7 @@ function Physics(game, curvePoints) {
 
 			//console.log(body.getPosition());
 		}
-		let physicsPos = obj.renderPosition(gameCube, game);
+		let physicsPos = obj.renderPosition(gameCube);
 
 	};
 

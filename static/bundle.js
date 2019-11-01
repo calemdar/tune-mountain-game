@@ -85350,8 +85350,6 @@ const exampleFeatures = {
 	"type" : "audio_features"
 };
 
-
-
 // Game code
 const manager = new InputManager();
 
@@ -85377,13 +85375,12 @@ const actionState = {};
 
 let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
 console.log(curves);
-const allPoints = Physics(game, curves);
 
 const viewport = Viewport(game);
 Parallax(game);
 game.stage.addChild(viewport);
+const allPoints = Physics(game, viewport, curves);
 Bezier(viewport, curves);
-const character = addCharacter(game, viewport);
 
 // Adds the current action being sent to the actionState array
 const handler = (action => {
@@ -85395,6 +85392,7 @@ const handler = (action => {
 // subscribe to handle events
 observable.subscribe(handler);
 
+/*
 game.ticker.add(handleActions);
 
 function handleActions() {
@@ -85415,20 +85413,7 @@ function handleActions() {
 	else if (actionState.moveDown === "release")
 	{character.y += 0;}
 }
-
-function addCharacter(game, viewport) {
-	const character = new PIXI.Sprite.from("../img/snowboarder.png");
-	character.anchor.set(0.5);
-
-	character.x = game.screen.width / 2;
-	character.y = game.screen.height / 2;
-
-	viewport.addChild(character);
-	//viewport.follow(character);
-	//viewport.zoomPercent(0.25);
-
-	return character;
-}
+ */
 },{"./Bezier":561,"./GenerationAlgorithm":564,"./Parallax":565,"./Physics":566,"./Viewport":567,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":104}],563:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
@@ -85450,20 +85435,10 @@ function GameObject () {
 
 		return object;
 	};
-	GameObject.prototype.renderPosition = (object, game) => {
+	GameObject.prototype.renderPosition = (object) => {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
-
-		let circle = new PIXI.Graphics();
-		circle.beginFill(0xFF0000, 1);
-
-		circle.drawCircle(physicsPos.x, physicsPos.y, 2);
-		//circle.endFill();
-
-		game.stage.addChild(circle);
-
-
 		object.sprite.position.x = physicsPos.x;
 		object.sprite.position.y = physicsPos.y;
 		//console.log("Physics Pos: " + physicsPos);
@@ -85489,11 +85464,13 @@ module.exports = GameObject;
 },{"./Bezier":561,"./Physics":566,"pixi.js":43,"planck-js":70}],564:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
+let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Vec2 = Planck.Vec2;
 
 
 // Algorithm to generate the tune mountain
-function GenerationAlgoritm (audioAnalysis, audioFeatures){
+function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let startPoint = Vec2(5, 5);
 	let currentPoint = Vec2(5,5);
 	let songLength = audioAnalysis.track.duration;
@@ -85503,22 +85480,27 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 
 
-	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
+	for(let i = 0; i < songAnalysis.bars.length; i+=1){
 		let start, end, c0, c1, cMax, cMin;
-		let currentBar = audioAnalysis.bars[i];
+		let currentBar = songAnalysis.bars[i];
 
 		start = currentPoint;
 		// delete this
 		console.log(currentPoint);
 
-		end = Vec2(start.x + (currentBar.duration * 300), start.y + (audioFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
+		end = Vec2(start.x + (currentBar.duration * 300), start.y + (songFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
 
 
 		c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
+		/*
+		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y + (audioFeatures.energy * 100)); // create control Box
+		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 100));
 
-		//cMax = Vec2(end.x + (audioFeatures.energy * 100), );
-		//c0 = Vec2();
+		let divideBox = (cMax.x - cMin.x) / audioFeatures.time_signiture;
+		c0 = Vec2(cMin.x + (divideBox), cMin.y + (audioFeatures.danceability));
+
+		 */
 
 		singleCurvePoints.push(start, c0, c1, end);
 		curves.push(singleCurvePoints);
@@ -85553,8 +85535,8 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 }
 
-module.exports = GenerationAlgoritm;
-},{"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
+module.exports = GenerationAlgorithm;
+},{"../../static/json/SmokeandGunsAnalysis":568,"../../static/json/SmokeandGunsFeatures":569,"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 /**
@@ -85648,10 +85630,10 @@ const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
 
-function Physics(game, curvePoints) {
+function Physics(game, viewport, curvePoints) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
-	const world = new pl.World(Vec2(0, 10));
+	const world = new pl.World(Vec2(0, 75));
 	const obj = new GameObject();
 
 	let COUNT = 10;
@@ -85673,7 +85655,8 @@ function Physics(game, curvePoints) {
 
 	// physics object
 	let box = world.createBody().setDynamic();
-	box.createFixture(pl.Circle(0.5), 1.0);
+	//box.createFixture(pl.Circle(0.5), 1.0);
+	box.createFixture(pl.Box(3, 0.1), 1.0);
 	box.setPosition(Vec2(60.0, -10.0));
 	box.setMassData({
 		mass : 5,
@@ -85681,33 +85664,17 @@ function Physics(game, curvePoints) {
 		I : 1
 	});
 
-	const texture = PIXI.Texture.from("../img/ball.png");
+	const texture = PIXI.Texture.from("../img/snowboarder.png");
 	const husky = new PIXI.Sprite(texture);
 	husky.interactive = true;
 	husky.buttonMode = true;
 
 	let gameCube = obj.create({name: "Cube", sprite: husky, physics: box, position: Vec2(10.0, 10.0), anchor: Vec2(0.5, 1), mass: box.getMass()});
 
-	/*
-	gameCube.sprite.on("tap", (event) => {
-		//handle event
-		console.log("clicked");
-		gameCube.physics.applyAngularImpulse(-100.0, true);
-	});
-	*/
-
-	// add game object to scene
-	game.stage.addChild(gameCube.sprite);
-
-	/*
-	gameCube.sprite = husky;
-	gameCube.position.Planck = box.getPosition();
-	gameCube.scale = 1.0;
-	gameCube.mass = box.getMass();s
-	gameCube.physics.body = box;
-	*/
-
-	//console.log(gameCube);
+	// add game object to viewport
+	viewport.addChild(gameCube.sprite);
+	viewport.follow(gameCube.sprite);
+	viewport.zoomPercent(0.25);
 
 	// Physics Bezier Curve
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
@@ -85753,44 +85720,24 @@ function Physics(game, curvePoints) {
 
 	const physicalBezierCurve = function (points) {
 		let line;
+		let newAngle;
 
-		let drawVertex1 = new PIXI.Graphics();
-		drawVertex1.beginFill(0x00FF00, 1);
 		for(let i = 0; i < points.length - 1; i+=1){
 
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
 
-			// Pixi drawing
-			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
-			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
-
 			line = world.createBody();
-
-			drawVertex1.drawRect(vertex1.x, vertex1.y, 0.01, 0.01);
-			drawVertex1.drawRect(vertex2.x, vertex2.y, 0.01, 0.01);
-
-			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x, 0.01), 1.0);
-			//line.createFixture(pl.Edge(points[i], points[i+1]), 0.0);
+			line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
 			line.setPosition(findMidpoint(vertex1, vertex2));
+			newAngle = findAngle(vertex1, vertex2);
+			line.setAngle(newAngle);
 
-			// Find start of new curve
-			if(i === 19){
 
-				let vertex0 = points[i-1];
-				line.setAngle(findAngle(vertex0, vertex2));
-			}
-			else{
-				line.setAngle(findAngle(vertex1, vertex2));
-			}
-
-			console.log("Point " + i + " Angle " + findAngle(vertex1, vertex2));
+			console.log("Point " + i + " Angle " + (findAngle(vertex1, vertex2) * (180 / Math.PI)));
 
 		}
 
-		drawVertex1.endFill();
-
-		game.stage.addChild(drawVertex1);
 	};
 
 	const multiplyVec = function (vector, number){
@@ -85835,6 +85782,11 @@ function Physics(game, curvePoints) {
 		return angle;
 	};
 
+	const findMagnitude = function(point1){
+		let magnitude = Math.sqrt((point1.x * point1.x) + (point1.y * point1.y));
+		return magnitude;
+	};
+
 	const getCurvePoints = function (){
 
 		for(let i = 0; i < curvePoints.length; i+=1){
@@ -85863,7 +85815,7 @@ function Physics(game, curvePoints) {
 
 			//console.log(body.getPosition());
 		}
-		let physicsPos = obj.renderPosition(gameCube, game);
+		let physicsPos = obj.renderPosition(gameCube);
 
 	};
 

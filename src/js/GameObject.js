@@ -18,20 +18,10 @@ function GameObject () {
 
 		return object;
 	};
-	GameObject.prototype.renderPosition = (object, game) => {
+	GameObject.prototype.renderPosition = (object) => {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
-
-		let circle = new PIXI.Graphics();
-		circle.beginFill(0xFF0000, 1);
-
-		circle.drawCircle(physicsPos.x, physicsPos.y, 2);
-		//circle.endFill();
-
-		game.stage.addChild(circle);
-
-
 		object.sprite.position.x = physicsPos.x;
 		object.sprite.position.y = physicsPos.y;
 		//console.log("Physics Pos: " + physicsPos);
