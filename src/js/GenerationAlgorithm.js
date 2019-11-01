@@ -1,10 +1,12 @@
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
+let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Vec2 = Planck.Vec2;
 
 
 // Algorithm to generate the tune mountain
-function GenerationAlgoritm (audioAnalysis, audioFeatures){
+function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let startPoint = Vec2(5, 5);
 	let currentPoint = Vec2(5,5);
 	let songLength = audioAnalysis.track.duration;
@@ -14,22 +16,27 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 
 
-	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
+	for(let i = 0; i < songAnalysis.bars.length; i+=1){
 		let start, end, c0, c1, cMax, cMin;
-		let currentBar = audioAnalysis.bars[i];
+		let currentBar = songAnalysis.bars[i];
 
 		start = currentPoint;
 		// delete this
 		console.log(currentPoint);
 
-		end = Vec2(start.x + (currentBar.duration * 300), start.y + (audioFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
+		end = Vec2(start.x + (currentBar.duration * 300), start.y + (songFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
 
 
 		c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
+		/*
+		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y + (audioFeatures.energy * 100)); // create control Box
+		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 100));
 
-		//cMax = Vec2(end.x + (audioFeatures.energy * 100), );
-		//c0 = Vec2();
+		let divideBox = (cMax.x - cMin.x) / audioFeatures.time_signiture;
+		c0 = Vec2(cMin.x + (divideBox), cMin.y + (audioFeatures.danceability));
+
+		 */
 
 		singleCurvePoints.push(start, c0, c1, end);
 		curves.push(singleCurvePoints);
@@ -64,4 +71,4 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 }
 
-module.exports = GenerationAlgoritm;
+module.exports = GenerationAlgorithm;

@@ -148,8 +148,6 @@ const exampleFeatures = {
 	"type" : "audio_features"
 };
 
-
-
 // Game code
 const manager = new InputManager();
 
@@ -171,14 +169,16 @@ const game = new PIXI.Application({
 	antialias: true
 });
 
-/*
 const actionState = {};
+
+let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
+console.log(curves);
 
 const viewport = Viewport(game);
 Parallax(game);
 game.stage.addChild(viewport);
-Bezier(viewport);
-const character = addCharacter(game, viewport);
+const allPoints = Physics(game, viewport, curves);
+Bezier(viewport, curves);
 
 // Adds the current action being sent to the actionState array
 const handler = (action => {
@@ -190,6 +190,7 @@ const handler = (action => {
 // subscribe to handle events
 observable.subscribe(handler);
 
+/*
 game.ticker.add(handleActions);
 
 function handleActions() {
@@ -210,25 +211,4 @@ function handleActions() {
 	else if (actionState.moveDown === "release")
 	{character.y += 0;}
 }
-
-function addCharacter(game, viewport) {
-	const character = new PIXI.Sprite.from("../img/snowboarder.png");
-	character.anchor.set(0.5);
-
-	character.x = game.screen.width / 2;
-	character.y = game.screen.height / 2;
-
-	viewport.addChild(character);
-	viewport.follow(character);
-	viewport.zoomPercent(0.25);
-
-	return character;
-}
-*/
-
-let ticker = PIXI.Ticker.shared;
-
-let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
-console.log(curves);
-Physics(game, curves);
-ticker.start();
+ */

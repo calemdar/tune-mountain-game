@@ -3,10 +3,10 @@ const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
 
-function Physics(game, curvePoints) {
+function Physics(game, viewport, curvePoints) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
-	const world = new pl.World(Vec2(0, 10));
+	const world = new pl.World(Vec2(0, 75));
 	const obj = new GameObject();
 
 	let COUNT = 10;
@@ -28,41 +28,26 @@ function Physics(game, curvePoints) {
 
 	// physics object
 	let box = world.createBody().setDynamic();
-	box.createFixture(pl.Circle(0.5), 1.0);
-	box.setPosition(Vec2(60.0, 20.0));
+	//box.createFixture(pl.Circle(0.5), 1.0);
+	box.createFixture(pl.Box(3, 0.1), 1.0);
+	box.setPosition(Vec2(60.0, -10.0));
 	box.setMassData({
 		mass : 5,
 		center : Vec2(),
 		I : 1
 	});
 
-	const texture = PIXI.Texture.from("../img/ball.png");
+	const texture = PIXI.Texture.from("../img/snowboarder.png");
 	const husky = new PIXI.Sprite(texture);
 	husky.interactive = true;
 	husky.buttonMode = true;
 
 	let gameCube = obj.create({name: "Cube", sprite: husky, physics: box, position: Vec2(10.0, 10.0), anchor: Vec2(0.5, 1), mass: box.getMass()});
 
-	/*
-	gameCube.sprite.on("tap", (event) => {
-		//handle event
-		console.log("clicked");
-		gameCube.physics.applyAngularImpulse(-100.0, true);
-	});
-	*/
-
-	// add game object to scene
-	game.stage.addChild(gameCube.sprite);
-
-	/*
-	gameCube.sprite = husky;
-	gameCube.position.Planck = box.getPosition();
-	gameCube.scale = 1.0;
-	gameCube.mass = box.getMass();s
-	gameCube.physics.body = box;
-	*/
-
-	//console.log(gameCube);
+	// add game object to viewport
+	viewport.addChild(gameCube.sprite);
+	viewport.follow(gameCube.sprite);
+	viewport.zoomPercent(0.25);
 
 	// Physics Bezier Curve
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
@@ -108,44 +93,24 @@ function Physics(game, curvePoints) {
 
 	const physicalBezierCurve = function (points) {
 		let line;
+		let newAngle;
 
-		let drawVertex1 = new PIXI.Graphics();
-		drawVertex1.beginFill(0x00FF00, 1);
 		for(let i = 0; i < points.length - 1; i+=1){
 
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
 
-			// Pixi drawing
-			drawVertex1.drawCircle(vertex1.x, vertex1.y, 2);
-			drawVertex1.drawCircle(vertex2.x, vertex2.y, 2);
-
 			line = world.createBody();
-
-			drawVertex1.drawRect(vertex1.x, vertex1.y, 0.01, 0.01);
-			drawVertex1.drawRect(vertex2.x, vertex2.y, 0.01, 0.01);
-
-			line.createFixture(pl.Box(subtractVec(vertex2, vertex1).x, 0.01), 1.0);
-			//line.createFixture(pl.Edge(points[i], points[i+1]), 0.0);
+			line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
 			line.setPosition(findMidpoint(vertex1, vertex2));
+			newAngle = findAngle(vertex1, vertex2);
+			line.setAngle(newAngle);
 
-			// Find start of new curve
-			if(i === 19){
 
-				let vertex0 = points[i-1];
-				line.setAngle(findAngle(vertex0, vertex2));
-			}
-			else{
-				line.setAngle(findAngle(vertex1, vertex2));
-			}
-
-			console.log("Point " + i + " Angle " + findAngle(vertex1, vertex2));
+			console.log("Point " + i + " Angle " + (findAngle(vertex1, vertex2) * (180 / Math.PI)));
 
 		}
 
-		drawVertex1.endFill();
-
-		game.stage.addChild(drawVertex1);
 	};
 
 	const multiplyVec = function (vector, number){
@@ -190,6 +155,11 @@ function Physics(game, curvePoints) {
 		return angle;
 	};
 
+	const findMagnitude = function(point1){
+		let magnitude = Math.sqrt((point1.x * point1.x) + (point1.y * point1.y));
+		return magnitude;
+	};
+
 	const getCurvePoints = function (){
 
 		for(let i = 0; i < curvePoints.length; i+=1){
@@ -218,14 +188,14 @@ function Physics(game, curvePoints) {
 
 			//console.log(body.getPosition());
 		}
-		let physicsPos = obj.renderPosition(gameCube, game);
+		let physicsPos = obj.renderPosition(gameCube);
 
 	};
 
 
 
 	game.ticker.add(renderStep);
-
+	return allCurvePoints;
 }
 
 module.exports = Physics;
