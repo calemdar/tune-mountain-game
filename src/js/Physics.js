@@ -3,51 +3,30 @@ const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
 
-function Physics(game, viewport, curvePoints) {
+function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
-	const world = new pl.World(Vec2(0, 75));
-	const obj = new GameObject();
-
-	let COUNT = 10;
-	let bodies = [];
-	// Hard coded curves
 	let allCurvePoints = [];
 
 	let ground = world.createBody();
 	ground.createFixture(pl.Edge(Vec2(0.0, 100.0), Vec2(100.0, 200.0)), 1.0);
 	ground.setPosition(Vec2(0, 100));
 
-	let circle = pl.Circle(1.0);
-
-	for (let i = 0; i < COUNT; ++i) {
-		bodies[i] = world.createDynamicBody(Vec2(0.0, 4.0 + 3.0 * i));
-		bodies[i].createFixture(circle, 1.0);
-		bodies[i].setLinearVelocity(Vec2(0.0, -50.0));
-	}
-
 	// physics object
 	let box = world.createBody().setDynamic();
 	//box.createFixture(pl.Circle(0.5), 1.0);
 	box.createFixture(pl.Box(3, 0.1), 1.0);
-	box.setPosition(Vec2(60.0, -10.0));
+	box.setPosition(Vec2(150.0, -10.0));
 	box.setMassData({
 		mass : 5,
 		center : Vec2(),
 		I : 1
 	});
 
-	const texture = PIXI.Texture.from("../img/snowboarder.png");
-	const husky = new PIXI.Sprite(texture);
-	husky.interactive = true;
-	husky.buttonMode = true;
-
-	let gameCube = obj.create({name: "Cube", sprite: husky, physics: box, position: Vec2(10.0, 10.0), anchor: Vec2(0.5, 1), mass: box.getMass()});
-
-	// add game object to viewport
-	viewport.addChild(gameCube.sprite);
-	viewport.follow(gameCube.sprite);
-	viewport.zoomPercent(0.25);
+	player.physics = box;
+	player.position = box.getPosition();
+	player.anchor = Vec2(0.5, 1);
+	player.mass = box.getMass();
 
 	// Physics Bezier Curve
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
@@ -77,18 +56,13 @@ function Physics(game, viewport, curvePoints) {
 		let t;
 		let numPoints = 20;
 		let point = Vec2();
-		let curvePoints = [];
-		let currentPoint = 1;
 
 		for(let i = 0; i < numPoints; i++){
 			t = i / numPoints;
 			point = cubicBezierPoint(t, p0, p1, c0, c1);
 
 			allCurvePoints.push(point);
-			currentPoint++;
 		}
-
-		//return curvePoints;
 	};
 
 	const physicalBezierCurve = function (points) {
@@ -101,14 +75,13 @@ function Physics(game, viewport, curvePoints) {
 			let vertex2 = points[i+1];
 
 			line = world.createBody();
-			line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
+			let currentCurve = line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
+			currentCurve.setFriction(.1);
 			line.setPosition(findMidpoint(vertex1, vertex2));
 			newAngle = findAngle(vertex1, vertex2);
 			line.setAngle(newAngle);
 
-
-			console.log("Point " + i + " Angle " + (findAngle(vertex1, vertex2) * (180 / Math.PI)));
-
+			//console.log("Point " + i + " Angle " + (findAngle(vertex1, vertex2) * (180 / Math.PI)));
 		}
 
 	};
@@ -169,27 +142,32 @@ function Physics(game, viewport, curvePoints) {
 			bezierCurvePoints(curvePoints[i][0], curvePoints[i][1], curvePoints[i][2], curvePoints[i][3]);
 		}
 
-
 		physicalBezierCurve(allCurvePoints);
 	};
 
 	// Testing
 	getCurvePoints();
 
-
 	const renderStep = function() {
+
 		world.step(1 / 60);
+
 		// iterate over bodies and fixtures
 		for (let body = world.getBodyList(); body; body = body.getNext()) {
-
 			for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
 				// draw or update fixture
 			}
-
-			//console.log(body.getPosition());
 		}
-		let physicsPos = obj.renderPosition(gameCube);
 
+		console.log(player.physics.getLinearVelocity());
+		/*
+		if (player.position.x > 250 && !reachedPosition) {
+			player.physics.applyForce(Vec2(500, 0), player.position, true);
+			reachedPosition = true;
+		}
+		*/
+
+		let physicsPos = obj.renderPosition(player);
 	};
 
 
