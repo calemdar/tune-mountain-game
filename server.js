@@ -29,5 +29,5 @@ app.get("/js/app.js", function(req, res) {
 
 let server = http.createServer(app);
 server.listen(port, function () {
-	console.log("server started running");
+	console.log("Tune-Mountain-Game local Node.js testing server is running on port " + port);
 });

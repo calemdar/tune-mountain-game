@@ -2,16 +2,19 @@
   "name": "tune-mountain",
   "version": "0.1.0",
   "description": "Tune Mountain MQP",
-  "author": "Cem Alemdar",
+  "author": "Cem Alemdar, Jarod Thompson, Léo Gonsalves",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "hot-reload": "watchify ./src/js/app.js -o ./static/bundle.js -v"
+    "start": "browserify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js && node server.js",
+    "hot-reload": "watchify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js -v",
+    "compile": "browserify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js"
   },
   "dependencies": {
     "mime": "^2.4.4",
     "pixi-viewport": "^4.2.3",
     "pixi.js": "^5.1.2",
     "planck-js": "^0.3.10",
+    "rxjs": "^5.5.12",
     "tune-mountain-input-manager": "github:calemdar/tune-mountain-input#master"
   },
   "devDependencies": {
