@@ -1,257 +1,187 @@
+// npm imports
 const PIXI = require("pixi.js");
+const Planck = require("planck-js");
+
+// local modules
 const InputManager = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Viewport = require("./Viewport");
 const Physics = require("./Physics");
-const Planck = require("planck-js");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-let CAN_JUMP = false;
 
-// example data
-const exampleAnalysis = {
-	"bars": [
-		{
-			"start": 251.98282,
-			"duration": 1.0,
-			"confidence": 0.652
-		},
-		{
-			"start": 252.98282,
-			"duration": 1.0,
-			"confidence": 0.652
-		},
-		{
-			"start": 253.98282,
-			"duration": 1.0,
-			"confidence": 0.652
-		}
-	],
-	"beats": [
-		{
-			"start": 251.98282,
-			"duration": 0.5,
-			"confidence": 0.652
-		},
-		{
-			"start": 252.98282,
-			"duration": 0.5,
-			"confidence": 0.652
-		},
-		{
-			"start": 253.98282,
-			"duration": 0.5,
-			"confidence": 0.652
-		}
-	],
-	"sections": [{
-		"start": 237.02356,
-		"duration": 18.32542,
-		"confidence": 1,
-		"loudness": -20.074,
-		"tempo": 98.253,
-		"tempo_confidence": 0.767,
-		"key": 5,
-		"key_confidence": 0.327,
-		"mode": 1,
-		"mode_confidence": 0.566,
-		"time_signature": 4,
-		"time_signature_confidence": 1
-	}],
-	"segments": [{
-		"start": 252.15601,
-		"duration": 3.19297,
-		"confidence": 0.522,
-		"loudness_start": -23.356,
-		"loudness_max_time": 0.06971,
-		"loudness_max": -18.121,
-		"loudness_end": -60,
-		"pitches": [
-			0.709,
-			0.092,
-			0.196,
-			0.084,
-			0.352,
-			0.134,
-			0.161,
-			1,
-			0.17,
-			0.161,
-			0.211,
-			0.15
-		],
-		"timbre": [
-			23.312,
-			-7.374,
-			-45.719,
-			294.874,
-			51.869,
-			-79.384,
-			-89.048,
-			143.322,
-			-4.676,
-			-51.303,
-			-33.274,
-			-19.037
-		]
-	}],
-	"tatums": [{
-		"start": 251.98282,
-		"duration": 0.29765,
-		"confidence": 0.652
-	}],
-	"track": {
-		"duration": 255.34898,
-		"sample_md5": "",
-		"offset_seconds": 0,
-		"window_seconds": 0,
-		"analysis_sample_rate": 22050,
-		"analysis_channels": 1,
-		"end_of_fade_in": 0,
-		"start_of_fade_out": 251.73333,
-		"loudness": -11.84,
-		"tempo": 98.002,
-		"tempo_confidence": 0.423,
-		"time_signature": 4,
-		"time_signature_confidence": 1,
-		"key": 5,
-		"key_confidence": 0.36,
-		"mode": 0,
-		"mode_confidence": 0.414,
-		"codestring": "eJxVnAmS5DgOBL-ST-B9_P9j4x7M6qoxW9tpsZQSCeI...",
-		"code_version": 3.15,
-		"echoprintstring": "eJzlvQmSHDmStHslxw4cB-v9j_A-tahhVKV0IH9...",
-		"echoprint_version": 4.12,
-		"synchstring": "eJx1mIlx7ToORFNRCCK455_YoE9Dtt-vmrKsK3EBsTY...",
-		"synch_version": 1,
-		"rhythmstring": "eJyNXAmOLT2r28pZQuZh_xv7g21Iqu_3pCd160xV...",
-		"rhythm_version": 1
-	}
-};
-const exampleFeatures = {
-	"duration_ms" : 255349,
-	"key" : 5,
-	"mode" : 0,
-	"time_signature" : 4,
-	"acousticness" : 0.514,
-	"danceability" : 0.735,
-	"energy" : 0.578,
-	"instrumentalness" : 0.0902,
-	"liveness" : 0.159,
-	"loudness" : -11.840,
-	"speechiness" : 0.0461,
-	"valence" : 0.624,
-	"tempo" : 98.002,
-	"id" : "06AKEBrKUckW0KREUWRnvT",
-	"uri" : "spotify:track:06AKEBrKUckW0KREUWRnvT",
-	"track_href" : "https://api.spotify.com/v1/tracks/06AKEBrKUckW0KREUWRnvT",
-	"analysis_url" : "https://api.spotify.com/v1/audio-analysis/06AKEBrKUckW0KREUWRnvT",
-	"type" : "audio_features"
-};
-
-// Game code
-const manager = new InputManager();
-
-// bind one or more actions (appends to existing actions)
-/*
-manager.bindAction("a", "moveLeft");
-manager.bindAction("s", "moveDown");
-manager.bindAction("d", "moveRight");
-manager.bindAction("w", "moveUp");
+/**
+ *  The object that will represent the game that will be attached to the application.
+ *
+ *  This class will have to be instantiated with:
+ *  	-> stateController: an Rx.Observable that will be listened to for game state changes
+ *  	-> canvas: a reference to an HTML canvas element for rendering
+ *
+ *  This is the main export of the entire Tune-Mountain-Game module.
+ *
+ *  In production, the game state will be controlled by the subscriptions stateController,
+ *  and will reactively switch states based on what they receive from the web app that
+ *  controls it.
+ *
+ *  In development, one can call the methods on this class directly in order to force these state changes.
  */
-manager.bindAction("Spacebar", "jump");
-manager.bindAction("j", "jump");
-manager.bindAction(" ", "jump");
+class Game {
 
-// get observable
-const observable = manager.getObservable();
+	constructor(stateController, canvas) {
 
-const canvas = document.getElementById("mycanvas");
+		// must have both for game to work
+		if (!stateController || !canvas) {
+			throw new Error("No state controller or canvas passed to Game initialization.");
+		}
 
-const game = new PIXI.Application({
-	view: canvas,
-	width: window.innerWidth,
-	height: window.innerHeight,
-	antialias: true
-});
+		// initialize action state tracker
+		this.actionState = {};
 
-const actionState = {};
+		// needed for controlling state
+		this.stateController = stateController;
 
-let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
-//console.log(curves);
+		//****** INITIALIZING INPUT MANAGER *******//
+		const inputManager = new InputManager();
 
-const viewport = Viewport(game);
-Parallax(game);
+		// bind actions
+		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
+		inputManager.bindAction("j", "jump");
+		inputManager.bindAction(" ", "jump");
 
-game.stage.addChild(viewport);
+		// keep track of actions being performed
+		const inputStreamObservable = inputManager.getObservable();
 
-const world = new Planck.World(Planck.Vec2(0, 75));
-const obj = new GameObject();
-const texture = PIXI.Texture.from("../img/snowboarder.png");
-const snowboarder = new PIXI.Sprite(texture);
-let player = obj.create({name: "Player", sprite: snowboarder});
+		// Adds the current action being sent to the actionState array every time an action is received
+		const inputPerformedHandler = action => {
+			// TODO: maybe use function ForEach() for this, it's a bit cleaner
+			for (let i = 0; i < action.actions.length; i++) {
+				this.actionState[action.actions[i]] = action.type;
+			}
+		};
 
-const allPoints = Physics(game, viewport, curves, player, obj, world);
+		// subscribe to handle events
+		inputStreamObservable.subscribe(inputPerformedHandler);
 
-// add game object to viewport
-viewport.addChild(player.sprite);
-viewport.follow(player.sprite);
-viewport.zoomPercent(0.25);
+		//****** INITIALIZING PIXI *******//
+		this.pixiApp = new PIXI.Application({
+			view: canvas,
+			width: window.innerWidth,
+			height: window.innerHeight,
+			antialias: true
+		});
 
-Bezier(viewport, curves);
+		this.CAN_JUMP = false;
 
-// Adds the current action being sent to the actionState array
-const handler = (action => {
-	for (let i = 0; i < action.actions.length; i++) {
-		actionState[action.actions[i]] = action.type;
+		// TODO: must subscribe to state controller for ALL state changes we handle
+		// handles when controller emits a request for an idle state
+		stateController
+			.filter(msg => msg.state === "IDLE")
+			.subscribe(() => this.idleState());
+
+		// handles when controller emits song information
+		stateController
+			.filter(msg => msg.state === "GENERATE")
+			.subscribe(msg => this.generateMountainState(
+				msg.body.analysis,
+				msg.body.features
+			));
 	}
-});
 
-// subscribe to handle events
-observable.subscribe(handler);
+	//			*************		  //
+	// ***  state switch handlers *** //
+	//			*************		  //
 
-world.on("pre-solve", function(contact) {
-	let fixtureA = contact.getFixtureA();
-	let fixtureB = contact.getFixtureB();
-
-	let bodyA = fixtureA.getBody();
-	let bodyB = fixtureB.getBody();
-
-	let playerA = bodyA === player.physics;
-	let playerB = bodyB === player.physics;
-
-	if (playerA || playerB) {
-		CAN_JUMP = true;
+	/**
+	 * On a request from state controller to switch to Idle state, this function is run.
+	 */
+	idleState() {
+		// should render an idle thing in canvas
 	}
-});
 
-game.ticker.add(handleActions);
+	/**
+	 *  Generate Mountain when a song is received.
+	 *
+	 *  I'M GONNA TEMPORARILY MAKE THIS FUNCTION PERFORM EVERYTHING ELSE GAME.JS DID
+	 *  PRIOR TO THIS REFACTOR!! SO PLS FIGURE IT OUT IF I F*CKED SOMETHING UP.
+	 */
+	generateMountainState(analysis, features) {
 
+		// check for no pixi
+		if (!this.pixiApp) {
+			throw new Error("Pixi not initialized properly. Check code.");
+		}
 
-function handleActions() {
-	if (actionState.jump === "press" && CAN_JUMP === true) {
-		player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-		CAN_JUMP = false;
+		// legacy code
+		const curves = GenerateCurve(analysis, features);
+		const viewport = Viewport(this.pixiApp);
+
+		Parallax(this.pixiApp);
+
+		this.pixiApp.stage.addChild(viewport);
+
+		const world = new Planck.World(Planck.Vec2(0, 75));
+		const obj = new GameObject();
+		const texture = PIXI.Texture.from("../img/snowboarder.png");
+		const snowboarder = new PIXI.Sprite(texture);
+		let player = obj.create({name: "Player", sprite: snowboarder});
+
+		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
+
+		// add game object to viewport
+		viewport.addChild(player.sprite);
+		viewport.follow(player.sprite);
+		viewport.zoomPercent(0.25);
+
+		Bezier(viewport, curves);
+
+		world.on("pre-solve", contact => {
+			let fixtureA = contact.getFixtureA();
+			let fixtureB = contact.getFixtureB();
+
+			let bodyA = fixtureA.getBody();
+			let bodyB = fixtureB.getBody();
+
+			let playerA = bodyA === player.physics;
+			let playerB = bodyB === player.physics;
+
+			if (playerA || playerB) {
+				this.CAN_JUMP = true;
+			}
+		});
+
+		const handleActions = () => {
+			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
+				player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
+				this.CAN_JUMP = false;
+			}
+		};
+
+		this.pixiApp.ticker.add(handleActions);
+
 	}
+
+	/**
+	 * Allows input to be received and affect characters in game. Notifies website
+	 * to initiate song playback!
+	 *
+	 * // TODO: actually implement a 2-way comm between modules here
+	 */
+	playLevelState() {
+		// do stuff
+	}
+
+	/**
+	 *  Should prevent inputs from affecting game, and notifies website to pause
+	 *  playback. Should also be executed when website requires game to pause for whatever reason.
+	 */
+	pauseState() {
+		// don't stuff
+	}
+
+	// add more states as needed... etc. Not all of these should be implemented for A-Fest
+	// but its good to have them here for planning purposes.
+
 }
-/*
-function handleActions() {
-	if (actionState.moveLeft === "press")
-	{character.x -= 15;}
-	else if (actionState.moveRight === "press")
-	{character.x += 15;}
-	else if (actionState.moveUp === "press")
-	{character.y -= 15;}
-	else if (actionState.moveDown === "press")
-	{character.y += 15;}
-	else if (actionState.moveLeft === "release")
-	{character.x -= 0;}
-	else if (actionState.moveRight === "release")
-	{character.x += 0;}
-	else if (actionState.moveUp === "release")
-	{character.y -= 0;}
-	else if (actionState.moveDown === "release")
-	{character.y += 0;}
-}
- */
+
+module.exports = Game;
