@@ -6,6 +6,8 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const Planck = require("planck-js");
 const GenerateCurve = require("./GenerationAlgorithm");
+const GameObject = require("./GameObject");
+let CAN_JUMP = false;
 
 // example data
 const exampleAnalysis = {
@@ -148,16 +150,19 @@ const exampleFeatures = {
 	"type" : "audio_features"
 };
 
-
-
 // Game code
 const manager = new InputManager();
 
 // bind one or more actions (appends to existing actions)
+/*
 manager.bindAction("a", "moveLeft");
 manager.bindAction("s", "moveDown");
 manager.bindAction("d", "moveRight");
 manager.bindAction("w", "moveUp");
+ */
+manager.bindAction("Spacebar", "jump");
+manager.bindAction("j", "jump");
+manager.bindAction(" ", "jump");
 
 // get observable
 const observable = manager.getObservable();
@@ -171,14 +176,30 @@ const game = new PIXI.Application({
 	antialias: true
 });
 
-/*
 const actionState = {};
+
+let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
+//console.log(curves);
 
 const viewport = Viewport(game);
 Parallax(game);
+
 game.stage.addChild(viewport);
-Bezier(viewport);
-const character = addCharacter(game, viewport);
+
+const world = new Planck.World(Planck.Vec2(0, 75));
+const obj = new GameObject();
+const texture = PIXI.Texture.from("../img/snowboarder.png");
+const snowboarder = new PIXI.Sprite(texture);
+let player = obj.create({name: "Player", sprite: snowboarder});
+
+const allPoints = Physics(game, viewport, curves, player, obj, world);
+
+// add game object to viewport
+viewport.addChild(player.sprite);
+viewport.follow(player.sprite);
+viewport.zoomPercent(0.25);
+
+Bezier(viewport, curves);
 
 // Adds the current action being sent to the actionState array
 const handler = (action => {
@@ -190,8 +211,31 @@ const handler = (action => {
 // subscribe to handle events
 observable.subscribe(handler);
 
+world.on("pre-solve", function(contact) {
+	let fixtureA = contact.getFixtureA();
+	let fixtureB = contact.getFixtureB();
+
+	let bodyA = fixtureA.getBody();
+	let bodyB = fixtureB.getBody();
+
+	let playerA = bodyA === player.physics;
+	let playerB = bodyB === player.physics;
+
+	if (playerA || playerB) {
+		CAN_JUMP = true;
+	}
+});
+
 game.ticker.add(handleActions);
 
+
+function handleActions() {
+	if (actionState.jump === "press" && CAN_JUMP === true) {
+		player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
+		CAN_JUMP = false;
+	}
+}
+/*
 function handleActions() {
 	if (actionState.moveLeft === "press")
 	{character.x -= 15;}
@@ -210,25 +254,4 @@ function handleActions() {
 	else if (actionState.moveDown === "release")
 	{character.y += 0;}
 }
-
-function addCharacter(game, viewport) {
-	const character = new PIXI.Sprite.from("../img/snowboarder.png");
-	character.anchor.set(0.5);
-
-	character.x = game.screen.width / 2;
-	character.y = game.screen.height / 2;
-
-	viewport.addChild(character);
-	viewport.follow(character);
-	viewport.zoomPercent(0.25);
-
-	return character;
-}
-*/
-
-let ticker = PIXI.Ticker.shared;
-
-let curves = GenerateCurve(exampleAnalysis, exampleFeatures);
-console.log(curves);
-Physics(game, curves);
-ticker.start();
+ */

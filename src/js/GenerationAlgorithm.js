@@ -6,7 +6,7 @@ const Vec2 = Planck.Vec2;
 
 
 // Algorithm to generate the tune mountain
-function GenerationAlgoritm (audioAnalysis, audioFeatures){
+function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let startPoint = Vec2(5, 5);
 	let currentPoint = Vec2(5,5);
 	let songLength = audioAnalysis.track.duration;
@@ -14,17 +14,15 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	let currentCurve = new PIXI.Graphics();
 	let singleCurvePoints = [];
 
-
-
-	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
+	for(let i = 0; i < songAnalysis.bars.length; i+=1){
 		let start, end, c0, c1, cMax, cMin;
-		let currentBar = audioAnalysis.bars[i];
+		let currentBar = songAnalysis.bars[i];
 
 		start = currentPoint;
 		// delete this
-		console.log(currentPoint);
+		// console.log(currentPoint);
 
-		end = Vec2(start.x + (currentBar.duration * 300), start.y + (audioFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
+		end = Vec2(start.x + (currentBar.duration * 300), start.y + (songFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
 
 
 		c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
@@ -71,4 +69,4 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 }
 
-module.exports = GenerationAlgoritm;
+module.exports = GenerationAlgorithm;
