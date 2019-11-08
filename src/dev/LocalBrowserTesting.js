@@ -1,8 +1,6 @@
 const {BehaviorSubject} = require("rxjs");
-const {
-    exampleAnalysis,
-    exampleFeatures
-} = require("../dev/ExampleSpotifyMetadata");
+const exampleAnalysis = require("../../static/json/SmokeandGunsAnalysis"),
+      exampleFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Game = require("../js/Game");
 
 // script that will run on website --> root for bundle
