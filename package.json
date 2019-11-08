@@ -2,7 +2,8 @@
   "name": "tune-mountain",
   "version": "0.1.0",
   "description": "Tune Mountain MQP",
-  "author": "Cem Alemdar",
+  "author": "Cem Alemdar, Jarod Thompson, Léo Gonsalves",
+  "main": "index.js",
   "scripts": {
     "start": "browserify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js && node server.js",
     "hot-reload": "watchify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js -v",
