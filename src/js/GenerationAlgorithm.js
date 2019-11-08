@@ -14,15 +14,13 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let currentCurve = new PIXI.Graphics();
 	let singleCurvePoints = [];
 
-
-
 	for(let i = 0; i < songAnalysis.bars.length; i+=1){
 		let start, end, c0, c1, cMax, cMin;
 		let currentBar = songAnalysis.bars[i];
 
 		start = currentPoint;
 		// delete this
-		console.log(currentPoint);
+		// console.log(currentPoint);
 
 		end = Vec2(start.x + (currentBar.duration * 300), start.y + (songFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
 
