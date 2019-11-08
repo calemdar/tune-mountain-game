@@ -1,3 +1,16 @@
+const Game = require("./Game");
+const PIXI = require("pixi.js");
+const InputManager = require("tune-mountain-input-manager");
+const Parallax = require("./Parallax");
+const Bezier = require("./Bezier");
+const Viewport = require("./Viewport");
+const Physics = require("./Physics");
+const Planck = require("planck-js");
+const GenerateCurve = require("./GenerationAlgorithm");
+const GameObject = require("./GameObject");
+let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+let songFeatures = require("../../static/json/SmokeandGunsFeatures");
+
 const canvas = document.getElementById("mycanvas");
 
 const game = new PIXI.Application({
@@ -7,19 +20,4 @@ const game = new PIXI.Application({
 	antialias: true
 });
 
-//const renderer = new PIXI.Renderer({});
-
-const texture = PIXI.Texture.from("../img/husky.png");
-const husky = new PIXI.Sprite(texture);
-
-husky.x = game.renderer.width / 2;
-husky.y = game.renderer.height / 2;
-husky.anchor.x = 0.5;
-husky.anchor.y = 0.5;
-
-game.stage.addChild(husky);
-game.ticker.add(animate);
-
-function animate() {
-	husky.rotation += 0.01;
-}
+Game(songAnalysis, songFeatures, game);

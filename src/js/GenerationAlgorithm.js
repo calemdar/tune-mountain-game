@@ -14,27 +14,32 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let currentCurve = new PIXI.Graphics();
 	let singleCurvePoints = [];
 
-	for(let i = 0; i < songAnalysis.bars.length; i+=1){
+
+
+	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
 		let start, end, c0, c1, cMax, cMin;
-		let currentBar = songAnalysis.bars[i];
+		let currentBar = audioAnalysis.bars[i];
 
 		start = currentPoint;
 		// delete this
-		// console.log(currentPoint);
+		console.log(currentPoint);
 
-		end = Vec2(start.x + (currentBar.duration * 300), start.y + (songFeatures.loudness + 200)); // add bar duration and loudness to move endpoint
+		end = Vec2(start.x + (currentBar.duration * 100), start.y + (audioFeatures.loudness + 100)); // add bar duration and loudness to move endpoint
 
 
 		c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
+
 		/*
-		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y + (audioFeatures.energy * 100)); // create control Box
+		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 100)); // create control Box
 		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 100));
 
-		let divideBox = (cMax.x - cMin.x) / audioFeatures.time_signiture;
-		c0 = Vec2(cMin.x + (divideBox), cMin.y + (audioFeatures.danceability));
 
-		 */
+		let divideBox = (cMax.x - cMin.x) / audioFeatures.time_signature;         // divide control box into time signature number
+		c0 = Vec2(cMin.x + (divideBox), cMin.y + (audioFeatures.danceability * 10));
+		c1 = Vec2(cMax.x - (divideBox), cMax.y +  (audioFeatures.danceability * 10));
+
+		*/
 
 		singleCurvePoints.push(start, c0, c1, end);
 		curves.push(singleCurvePoints);
@@ -50,7 +55,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	}
 
 	// move matrix calculations into seperate module
-	function addVec (vector1, vector2){
+	function addVec(vector1, vector2) {
 		let result = Vec2();
 
 		result.x = vector1.x + vector2.x;
@@ -60,7 +65,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	}
 
 	// check data confidence
-	function checkConfidence(conf){
+	function checkConfidence(conf) {
 		let maxConf = 0.6;
 		return conf > maxConf; // true if confidence is higher, false otherwise
 	}
