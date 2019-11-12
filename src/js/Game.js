@@ -147,6 +147,7 @@ class Game {
 
 			if (playerA || playerB) {
 				this.CAN_JUMP = true;
+				player.physics.applyForce(Planck.Vec2(300, -10.0), player.position, true);
 			}
 		});
 
