@@ -16,19 +16,19 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	let start, end, beatIterator, curveBeats;
 
 
-	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
+	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
 		let  c0, c1, cMax, cMin;
-		let currentBar = audioAnalysis.bars[i];
-		let currentSection = getCurrentSection(currentBar.start);
+		//let currentBar = audioAnalysis.bars[i];
+		//let currentSection = getCurrentSection(currentBar.start);
+		let currentSection = audioAnalysis.sections[i];
 
 		start = currentPoint;
-
+		/*
 		end = Vec2(start.x + (currentBar.duration * 100), start.y - (currentSection.loudness * 20)); // add bar duration and loudness to move endpoint
 
 
 		//c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		//c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
-
 
 		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 50) + (currentBar.confidence * 100)); // create control Box
 		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 50) - (currentBar.confidence * 100));
@@ -37,7 +37,11 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 		let divideBox = (cMax.x - cMin.x) / (audioFeatures.time_signature * currentSection.key);         // divide control box into time signature number
 		c0 = Vec2(cMin.x + (divideBox), cMin.y - (audioFeatures.danceability * 100));
 		c1 = Vec2(cMax.x - (divideBox), cMin.y -  (audioFeatures.danceability * 100));
+		*/
 
+		end = Vec2(start.x + (currentSection.duration * 50), start.y - (currentSection.loudness * 50)); // add bar duration and loudness to move endpoint
+		c0 = Vec2(start.x + (currentSection.tempo / currentSection.time_signature), start.y + (currentSection.key * 50));
+		c1 = Vec2(end.x - (currentSection.tempo / currentSection.time_signature), end.y + (currentSection.key * 10));
 
 		singleCurvePoints.push(start, c0, c1, end);
 		curves.push(singleCurvePoints);
@@ -47,7 +51,7 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 		singleCurvePoints = [];
 
 		// add one long line at the end
-		if(i === (audioAnalysis.bars.length - 1)){
+		if(i === (audioAnalysis.sections.length - 1)){
 			start = end;
 			c0 = start;
 			c0.x += 100;
@@ -57,6 +61,8 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 			singleCurvePoints.push(start, c0, c1, end);
 			curves.push(singleCurvePoints);
+			currentPoint = end;
+			singleCurvePoints = [];
 		}
 
 	}
