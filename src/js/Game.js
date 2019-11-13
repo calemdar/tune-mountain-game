@@ -3,7 +3,7 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 
 // local modules
-const InputManager = require("tune-mountain-input-manager");
+const {InputManager} = require("tune-mountain-input-manager");
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Viewport = require("./Viewport");

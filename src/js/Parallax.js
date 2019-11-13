@@ -91,7 +91,7 @@ function createTilingSprite(game, location, y, vertShader, fragShader, uniforms)
 	);
 
 	// adding the shader
-	tilingSprite.filters = [shader];
+	//tilingSprite.filters = [shader];
 
 	game.stage.addChild(tilingSprite);
 

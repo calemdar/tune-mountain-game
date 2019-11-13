@@ -30,8 +30,8 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 		//c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 
 
-		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 50)); // create control Box
-		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 50));
+		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 50) + (currentBar.confidence * 100)); // create control Box
+		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 50) - (currentBar.confidence * 100));
 
 
 		let divideBox = (cMax.x - cMin.x) / (audioFeatures.time_signature * currentSection.key);         // divide control box into time signature number
