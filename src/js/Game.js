@@ -10,6 +10,7 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
+const Coins = require("./Coins");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -127,6 +128,9 @@ class Game {
 		let player = obj.create({name: "Player", sprite: snowboarder});
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
+
+		// add coins
+		Coins(analysis, allPoints, viewport);
 
 		// add game object to viewport
 		viewport.addChild(player.sprite);

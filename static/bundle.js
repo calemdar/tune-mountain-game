@@ -85308,7 +85308,7 @@ const canvas = document.getElementById("mycanvas");
 // init game
 
 new Game(mockStateController, canvas);
-},{"../../static/json/SmokeandGunsAnalysis":571,"../../static/json/SmokeandGunsFeatures":572,"../js/Game":565,"rxjs":111}],564:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":572,"../../static/json/SmokeandGunsFeatures":573,"../js/Game":566,"rxjs":111}],564:[function(require,module,exports){
 const PIXI = require("pixi.js");
 let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
 let songFeatures = require("../../static/json/SmokeandGunsFeatures");
@@ -85387,7 +85387,66 @@ function drawCurves(bezier, points, curvePoints) {
 	bezier.closePath();
 	bezier.endFill();
 }
-},{"../../static/json/SmokeandGunsAnalysis":571,"../../static/json/SmokeandGunsFeatures":572,"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":572,"../../static/json/SmokeandGunsFeatures":573,"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
+const PIXI = require("pixi.js");
+const Viewport = require("./Viewport");
+
+function Coins(analysis, allPoints, viewport) {
+	let currentSection;
+	let pointCounter = 0;
+	let coinSprites = [];
+	let sectionBeats;
+
+	const texture = PIXI.Texture.from("../img/ball.png");
+
+	for(let i = 0; i < analysis.sections.length; i+=1){
+		currentSection = analysis.sections[i];
+		sectionBeats = getBeatsInSection(currentSection);
+		console.log(sectionBeats);
+
+		for(let k = 0; k < sectionBeats.length; k+=1) {
+
+			if((k % 4) === 0){
+				let coin = new PIXI.Sprite(texture);
+				coin.size = 0.2;
+				coin.position.x = allPoints[pointCounter].x;
+				coin.position.y = allPoints[pointCounter].y - 30;
+
+
+				coinSprites.push(coin);
+				viewport.addChild(coin);
+			}
+
+			if(pointCounter < allPoints.length) {
+				pointCounter += (Math.floor(60 / sectionBeats.length));
+			}
+
+		}
+
+	}
+
+	function getBeatsInSection(section) {
+		let beats = [];
+		let currBeat;
+		let currBeatEnd;
+		let sectionEnd = section.start + section.duration;
+
+		for(let k = 0; k < analysis.beats.length; k += 1) {
+			currBeat = analysis.beats[k];
+			currBeatEnd = currBeat.start + currBeat.duration;
+
+			if(currBeat.start >= section.start && currBeatEnd <= sectionEnd) {
+				beats.push(currBeat);
+			}
+		}
+
+		return beats;
+	}
+	return coinSprites;
+}
+
+module.exports = Coins;
+},{"./Viewport":571,"pixi.js":43}],566:[function(require,module,exports){
 // npm imports
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
@@ -85400,6 +85459,7 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
+const Coins = require("./Coins");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -85518,6 +85578,9 @@ class Game {
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
+		// add coins
+		Coins(analysis, allPoints, viewport);
+
 		// add game object to viewport
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
@@ -85577,7 +85640,7 @@ class Game {
 
 module.exports = Game;
 
-},{"./Bezier":564,"./GameObject":566,"./GenerationAlgorithm":567,"./Parallax":568,"./Physics":569,"./Viewport":570,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":555}],566:[function(require,module,exports){
+},{"./Bezier":564,"./Coins":565,"./GameObject":567,"./GenerationAlgorithm":568,"./Parallax":569,"./Physics":570,"./Viewport":571,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":555}],567:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -85624,7 +85687,7 @@ console.log(rectangle);
 */
 
 module.exports = GameObject;
-},{"./Bezier":564,"./Physics":569,"pixi.js":43,"planck-js":70}],567:[function(require,module,exports){
+},{"./Bezier":564,"./Physics":570,"pixi.js":43,"planck-js":70}],568:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
@@ -85738,7 +85801,7 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 }
 
 module.exports = GenerationAlgoritm;
-},{"../../static/json/SmokeandGunsAnalysis":571,"../../static/json/SmokeandGunsFeatures":572,"pixi.js":43,"planck-js":70}],568:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":572,"../../static/json/SmokeandGunsFeatures":573,"pixi.js":43,"planck-js":70}],569:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 
@@ -85848,7 +85911,7 @@ module.exports = Parallax;
 
 
 
-},{"pixi.js":43}],569:[function(require,module,exports){
+},{"pixi.js":43}],570:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
@@ -85906,7 +85969,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
-		let numPoints = 20;
+		let numPoints = 60;
 		let point = Vec2();
 
 		for(let i = 0; i < numPoints; i++){
@@ -86029,7 +86092,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 }
 
 module.exports = Physics;
-},{"./GameObject":566,"pixi.js":43,"planck-js":70}],570:[function(require,module,exports){
+},{"./GameObject":567,"pixi.js":43,"planck-js":70}],571:[function(require,module,exports){
 
 const Viewport = require("pixi-viewport").Viewport;
 
@@ -86058,7 +86121,7 @@ function CreateViewport(game) {
 }
 
 module.exports = CreateViewport;
-},{"pixi-viewport":42}],571:[function(require,module,exports){
+},{"pixi-viewport":42}],572:[function(require,module,exports){
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",
@@ -119680,7 +119743,7 @@ module.exports={
     }
   ]
 }
-},{}],572:[function(require,module,exports){
+},{}],573:[function(require,module,exports){
 module.exports={
   "danceability": 0.567,
   "energy": 0.881,

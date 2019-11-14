@@ -55,7 +55,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
-		let numPoints = 20;
+		let numPoints = 60;
 		let point = Vec2();
 
 		for(let i = 0; i < numPoints; i++){
