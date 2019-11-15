@@ -59,8 +59,8 @@ function Parallax(game) {
 	const vShader = document.getElementById("vertShader").innerText;
 	const fShader = document.getElementById("fragShader").innerText;
 
-	console.log(vShader);
-	console.log(fShader);
+	//console.log(vShader);
+	//console.log(fShader);
 	let uniforms = {
 		delta: 0
 	};

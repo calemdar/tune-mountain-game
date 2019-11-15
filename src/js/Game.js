@@ -11,6 +11,7 @@ const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
+const Collisions = require("./Collisions");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -130,7 +131,7 @@ class Game {
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
 		// add coins
-		Coins(analysis, allPoints, viewport);
+		let coinSprites = Coins(analysis, allPoints, viewport, player);
 
 		// add game object to viewport
 		viewport.addChild(player.sprite);
@@ -138,7 +139,9 @@ class Game {
 		viewport.zoomPercent(0.25);
 
 		Bezier(viewport, curves);
+		Collisions(this.pixiApp, viewport, player, coinSprites);
 
+		// world on collision for physics
 		world.on("pre-solve", contact => {
 			let fixtureA = contact.getFixtureA();
 			let fixtureB = contact.getFixtureB();

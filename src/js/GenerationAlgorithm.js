@@ -93,8 +93,8 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 		let section;
 		for(let i = 0; i < audioAnalysis.sections.length; i += 1){
 			section = audioAnalysis.sections[i];
-			console.log(section);
-			console.log(currentTime);
+			//console.log(section);
+			//console.log(currentTime);
 
 			// checks if within the correct duration
 			if(section.start <= currentTime && ((section.start + section.duration) > currentTime)){
