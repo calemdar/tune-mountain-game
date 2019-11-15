@@ -1,5 +1,7 @@
 const PIXI = require("pixi.js");
 
+
+
 /**
 class Old {
 
@@ -49,28 +51,48 @@ class Old {
 	}
 
 }
-*/
+ */
 
 function Parallax(game) {
 
-	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", 0);
-	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 128);
+	// Shader stuff
+	const vShader = document.getElementById("vertShader").innerText;
+	const fShader = document.getElementById("fragShader").innerText;
 
+	//console.log(vShader);
+	//console.log(fShader);
+	let uniforms = {
+		delta: 0
+	};
+
+	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", 0, vShader, fShader, uniforms);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 128, vShader, fShader, uniforms);
+
+	let delta = 0;
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
 		tilingSprite2.tilePosition.x -= 0.64;
+
+		delta += 0.1;
+		uniforms.delta = Math.sin(delta) * 0.5;
 	});
 
 }
 
-function createTilingSprite(game, location, y) {
+function createTilingSprite(game, location, y, vertShader, fragShader, uniforms) {
+
 	const texture = PIXI.Texture.from(location);
+	const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
 
 	const tilingSprite = new PIXI.TilingSprite(
 		texture,
 		game.screen.width,
 		game.screen.height,
 	);
+
+	// adding the shader
+	//tilingSprite.filters = [shader];
+
 	game.stage.addChild(tilingSprite);
 
 	tilingSprite.position.x = 0;

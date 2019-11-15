@@ -13,20 +13,21 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	ground.setPosition(Vec2(0, 100));
 
 	// physics object
-	let box = world.createBody().setDynamic();
+	let playerBody = world.createBody().setDynamic();
 	//box.createFixture(pl.Circle(0.5), 1.0);
-	box.createFixture(pl.Box(3, 0.1), 1.0);
-	box.setPosition(Vec2(150.0, -10.0));
-	box.setMassData({
+	playerBody.createFixture(pl.Box(3, 0.1), 1.0);
+	playerBody.setPosition(Vec2(150.0, -10.0));
+	//playerBody.setLinearVelocity(Vec2(120, 0.0));
+	playerBody.setMassData({
 		mass : 5,
 		center : Vec2(),
 		I : 1
 	});
 
-	player.physics = box;
-	player.position = box.getPosition();
+	player.physics = playerBody;
+	player.position = playerBody.getPosition();
 	player.anchor = Vec2(0.5, 1);
-	player.mass = box.getMass();
+	player.mass = playerBody.getMass();
 
 	// Physics Bezier Curve
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
@@ -54,7 +55,8 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
-		let numPoints = 20;
+		// TODO Tie this value to tempo or beats
+		let numPoints = 60;
 		let point = Vec2();
 
 		for(let i = 0; i < numPoints; i++){
@@ -159,7 +161,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 			}
 		}
 
-		console.log(player.physics.getLinearVelocity());
+		//console.log(player.physics.getLinearVelocity());
 		/*
 		if (player.position.x > 250 && !reachedPosition) {
 			player.physics.applyForce(Vec2(500, 0), player.position, true);

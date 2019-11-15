@@ -61,15 +61,17 @@ function drawCurves(bezier, points, curvePoints) {
 			finalPointX, finalPointY);
 
 		// Not necessary, just for viewing points
-		points.drawCircle(controlPoint1X, controlPoint1Y, 2);
-		points.drawCircle(controlPoint2X, controlPoint2Y, 2);
-		points.drawCircle(finalPointX, finalPointY, 2);
+		//points.drawCircle(controlPoint1X, controlPoint1Y, 2);
+		//points.drawCircle(controlPoint2X, controlPoint2Y, 2);
+		//points.drawCircle(finalPointX, finalPointY, 2);
 
 		currentPos.x = finalPointX;
 		currentPos.y = finalPointY;
 	}
 
-	bezier.lineTo(5, currentPos.y);
+	bezier.lineTo(currentPos.x, currentPos.y + 200);
+	bezier.lineTo(-100, currentPos.y + 200);
+	bezier.lineTo(-100, 5);
 	bezier.lineTo(5, 5);
 	bezier.closePath();
 	bezier.endFill();
