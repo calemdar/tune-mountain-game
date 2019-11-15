@@ -3,7 +3,12 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 
 // local modules
-const {InputManager} = require("tune-mountain-input-manager");
+const {
+	InputManager,
+	GameStateController,
+	GameStateEnums
+} = require("tune-mountain-input-manager");
+
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Viewport = require("./Viewport");
@@ -30,6 +35,12 @@ const Collisions = require("./Collisions");
  */
 class Game {
 
+	/**
+	 * Constructor for class.
+	 *
+	 * @param {GameStateController} stateController game state controller object
+	 * @param {Node} canvas HTML canvas element
+	 */
 	constructor(stateController, canvas) {
 
 		// must have both for game to work
@@ -66,39 +77,47 @@ class Game {
 		inputStreamObservable.subscribe(inputPerformedHandler);
 
 		//****** INITIALIZING PIXI *******//
-		this.pixiApp = new PIXI.Application({
-			view: canvas,
-			width: window.innerWidth,
-			height: window.innerHeight,
-			antialias: true
-		});
+		this.pixiApp = null;
 
 		this.CAN_JUMP = false;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController
-			.filter(msg => msg.state === "IDLE")
-			.subscribe(() => this.idleState());
+		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
 
 		// handles when controller emits song information
-		stateController
-			.filter(msg => msg.state === "GENERATE")
-			.subscribe(msg => this.generateMountainState(
-				msg.body.analysis,
-				msg.body.features
-			));
+		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
+			this.generateMountainState(request.body.analysis, request.body.features)
+		));
 	}
 
 	//			*************		  //
 	// ***  state switch handlers *** //
 	//			*************		  //
 
+	getPixiApp(canvas) {
+		if (!this.pixiApp) {
+			this.pixiApp = new PIXI.Application({
+				view: canvas,
+				width: window.innerWidth,
+				height: window.innerHeight,
+				antialias: true
+			});
+		}
+
+		return this.pixiApp;
+	}
+
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState() {
-		// should render an idle thing in canvas
+	idleState(canvas) {
+		this.getPixiApp(canvas);
+
+		const texture = PIXI.Texture.from("../img/idleBG.jpg");
+
+		const background = new PIXI.Sprite(texture);
+		this.pixiApp.stage.addChild(background);
 	}
 
 	/**

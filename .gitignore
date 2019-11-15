@@ -1,3 +1,4 @@
 /node_modules
 /.idea
 static/bundle.js
+package-lock.json
