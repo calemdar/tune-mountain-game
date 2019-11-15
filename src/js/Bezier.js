@@ -12,7 +12,7 @@ function Bezier(viewport, curvePoints) {
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
-	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.lineStyle(5, 0x0000AA, 1);
 	bezier.beginTextureFill(texture);
 	bezier.position.x = 5;
 	bezier.position.y = 5;

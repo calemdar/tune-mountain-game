@@ -74,18 +74,13 @@ class Game {
 		inputStreamObservable.subscribe(inputPerformedHandler);
 
 		//****** INITIALIZING PIXI *******//
-		this.pixiApp = new PIXI.Application({
-			view: canvas,
-			width: window.innerWidth,
-			height: window.innerHeight,
-			antialias: true
-		});
+		this.pixiApp = null;
 
 		this.CAN_JUMP = false;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController.onRequestTo(GameStateEnums.IDLE, this.idleState);
+		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
 
 		// handles when controller emits song information
 		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
@@ -97,11 +92,29 @@ class Game {
 	// ***  state switch handlers *** //
 	//			*************		  //
 
+	getPixiApp(canvas) {
+		if (!this.pixiApp) {
+			this.pixiApp = new PIXI.Application({
+				view: canvas,
+				width: window.innerWidth,
+				height: window.innerHeight,
+				antialias: true
+			});
+		}
+
+		return this.pixiApp;
+	}
+
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState() {
-		// should render an idle thing in canvas
+	idleState(canvas) {
+		this.getPixiApp(canvas);
+
+		const texture = PIXI.Texture.from("../img/idleBG.jpg");
+
+		const background = new PIXI.Sprite(texture);
+		this.pixiApp.stage.addChild(background);
 	}
 
 	/**
