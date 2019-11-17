@@ -25,12 +25,6 @@ function Bezier(viewport, curvePoints) {
 	viewport.addChild(points);
 }
 
-/*
-function Bezier(viewport) {
-	console.log(songAnalysis);
-}
-*/
-
 module.exports = Bezier;
 
 
