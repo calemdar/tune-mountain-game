@@ -21,10 +21,6 @@
             "error",
             "tab"
         ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
         "quotes": [
             "error",
             "double"
@@ -32,6 +28,9 @@
         "semi": [
             "error",
             "always"
+        ],
+        "no-unused-vars": [
+            "warn"
         ],
         "curly": [
             "error",
