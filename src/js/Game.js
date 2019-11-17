@@ -3,13 +3,20 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 
 // local modules
-const InputManager = require("tune-mountain-input-manager");
+const {
+	InputManager,
+	GameStateController,
+	GameStateEnums
+} = require("tune-mountain-input-manager");
+
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
+const Coins = require("./Coins");
+const Collisions = require("./Collisions");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -28,6 +35,12 @@ const GameObject = require("./GameObject");
  */
 class Game {
 
+	/**
+	 * Constructor for class.
+	 *
+	 * @param {GameStateController} stateController game state controller object
+	 * @param {Node} canvas HTML canvas element
+	 */
 	constructor(stateController, canvas) {
 
 		// must have both for game to work
@@ -64,39 +77,47 @@ class Game {
 		inputStreamObservable.subscribe(inputPerformedHandler);
 
 		//****** INITIALIZING PIXI *******//
-		this.pixiApp = new PIXI.Application({
-			view: canvas,
-			width: window.innerWidth,
-			height: window.innerHeight,
-			antialias: true
-		});
+		this.pixiApp = null;
 
 		this.CAN_JUMP = false;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController
-			.filter(msg => msg.state === "IDLE")
-			.subscribe(() => this.idleState());
+		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
 
 		// handles when controller emits song information
-		stateController
-			.filter(msg => msg.state === "GENERATE")
-			.subscribe(msg => this.generateMountainState(
-				msg.body.analysis,
-				msg.body.features
-			));
+		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
+			this.generateMountainState(request.body.analysis, request.body.features)
+		));
 	}
 
 	//			*************		  //
 	// ***  state switch handlers *** //
 	//			*************		  //
 
+	getPixiApp(canvas) {
+		if (!this.pixiApp) {
+			this.pixiApp = new PIXI.Application({
+				view: canvas,
+				width: window.innerWidth,
+				height: window.innerHeight,
+				antialias: true
+			});
+		}
+
+		return this.pixiApp;
+	}
+
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState() {
-		// should render an idle thing in canvas
+	idleState(canvas) {
+		this.getPixiApp(canvas);
+
+		const texture = PIXI.Texture.from("../img/idleBG.jpg");
+
+		const background = new PIXI.Sprite(texture);
+		this.pixiApp.stage.addChild(background);
 	}
 
 	/**
@@ -128,13 +149,18 @@ class Game {
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
+		// add coins
+		let coinSprites = Coins(analysis, allPoints, viewport, player);
+
 		// add game object to viewport
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
 		viewport.zoomPercent(0.25);
 
 		Bezier(viewport, curves);
+		Collisions(this.pixiApp, viewport, player, coinSprites);
 
+		// world on collision for physics
 		world.on("pre-solve", contact => {
 			let fixtureA = contact.getFixtureA();
 			let fixtureB = contact.getFixtureB();
@@ -147,6 +173,7 @@ class Game {
 
 			if (playerA || playerB) {
 				this.CAN_JUMP = true;
+				player.physics.applyForce(Planck.Vec2(400, -15.0), player.position, true);
 			}
 		});
 
