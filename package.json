@@ -1,5 +1,5 @@
 {
-  "name": "tune-mountain",
+  "name": "tune-mountain-game",
   "version": "0.1.0",
   "description": "Tune Mountain MQP",
   "author": "Cem Alemdar, Jarod Thompson, Léo Gonsalves",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "mime": "^2.4.4",
+    "moment": "^2.24.0",
     "pixi-viewport": "^4.2.3",
     "pixi.js": "^5.1.2",
     "planck-js": "^0.3.10",

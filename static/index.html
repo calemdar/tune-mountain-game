@@ -6,9 +6,35 @@
   <title>Tune Mountain</title>
 </head>
 
-<body>
+<body style="margin: 0 0 0 0">
     <canvas id="mycanvas"></canvas>
+    <script type="x-shader/x-vert" id="vertShader">
+        attribute vec2 aVertexPosition;
+        attribute vec2 aTextureCoord;
+        uniform mat3 projectionMatrix;
+        varying vec2 vTextureCoord;
+
+        void main() {
+            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+            vTextureCoord = aTextureCoord;
+        }
+    </script>
+    <script type="x-shader/x-frag" id="fragShader">
+        varying vec2 vTextureCoord;
+        uniform sampler2D uSampler;
+        uniform float delta;
+
+        void main(){
+            vec4 color = texture2D(uSampler, vTextureCoord);
+
+            color.r += delta;
+            color.g -= delta;
+            color.b += delta;
+            gl_FragColor = color;
+        }
+    </script>
     <script src="bundle.js"></script>
+
 
 </body>
 
