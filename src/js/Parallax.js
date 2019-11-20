@@ -13,12 +13,12 @@ function Parallax(game) {
 	};
 
 	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", 0, vShader, fShader, uniforms);
-	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 128, vShader, fShader, uniforms);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 100, vShader, fShader, uniforms);
 
 	let delta = 0;
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 0.128;
-		tilingSprite2.tilePosition.x -= 0.64;
+		tilingSprite2.tilePosition.x -= 0.30;
 
 		delta += 0.1;
 		uniforms.delta = Math.sin(delta) * 0.5;

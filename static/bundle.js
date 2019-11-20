@@ -85283,20 +85283,18 @@ module.exports = {
 };
 
 },{}],563:[function(require,module,exports){
-const {BehaviorSubject} = require("rxjs");
 const exampleAnalysis = require("../../static/json/SmokeandGunsAnalysis"),
 	exampleFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Game = require("../js/Game");
+const {GameStateController, GameStateEnums} = require("tune-mountain-input-manager");
 
 // script that will run on website --> root for bundle
 
 // this will immediately emit a generate message with generic analysis and features
-const mockStateController = new BehaviorSubject({
-	"state": "GENERATE",
-	"body": {
-		"features": exampleFeatures,
-		"analysis": exampleAnalysis
-	}
+const mockStateController = new GameStateController();
+mockStateController.request(GameStateEnums.GENERATE, {
+	"analysis": exampleAnalysis,
+	"features": exampleFeatures
 });
 
 // if you want to test state switching, do the following:
@@ -85308,7 +85306,7 @@ const canvas = document.getElementById("mycanvas");
 // init game
 
 new Game(mockStateController, canvas);
-},{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"../js/Game":567,"rxjs":111}],564:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"../js/Game":567,"tune-mountain-input-manager":555}],564:[function(require,module,exports){
 const PIXI = require("pixi.js");
 let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
 let songFeatures = require("../../static/json/SmokeandGunsFeatures");
@@ -85323,7 +85321,7 @@ function Bezier(viewport, curvePoints) {
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
-	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.lineStyle(5, 0x0000AA, 1);
 	bezier.beginTextureFill(texture);
 	bezier.position.x = 5;
 	bezier.position.y = 5;
@@ -85335,12 +85333,6 @@ function Bezier(viewport, curvePoints) {
 	viewport.addChild(bezier);
 	viewport.addChild(points);
 }
-
-/*
-function Bezier(viewport) {
-	console.log(songAnalysis);
-}
-*/
 
 module.exports = Bezier;
 
@@ -85387,9 +85379,7 @@ function drawCurves(bezier, points, curvePoints) {
 	bezier.closePath();
 	bezier.endFill();
 }
-<<<<<<< HEAD
-},{"../../static/json/SmokeandGunsAnalysis":569,"../../static/json/SmokeandGunsFeatures":570,"pixi.js":43,"planck-js":70}],562:[function(require,module,exports){
-=======
+
 },{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
@@ -85474,7 +85464,6 @@ function Coins(analysis, allPoints, viewport, player) {
 
 module.exports = Coins;
 },{"./GameObject":568,"./Viewport":572,"pixi.js":43,"planck-js":70}],566:[function(require,module,exports){
->>>>>>> dev
 const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
 const GameObject = require("./GameObject");
@@ -85527,121 +85516,18 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 
 // local modules
-const {InputManager} = require("tune-mountain-input-manager");
+const {
+	InputManager,
+	GameStateController,
+	GameStateEnums
+} = require("tune-mountain-input-manager");
+
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-<<<<<<< HEAD
-let CAN_JUMP = false;
-
-function Game(analysis, features, game) {
-	// Game code
-	const manager = new InputManager();
-
-	// bind one or more actions (appends to existing actions)
-	/*
-	manager.bindAction("a", "moveLeft");
-	manager.bindAction("s", "moveDown");
-	manager.bindAction("d", "moveRight");
-	manager.bindAction("w", "moveUp");
-	 */
-	manager.bindAction("Spacebar", "jump");
-	manager.bindAction("j", "jump");
-	manager.bindAction(" ", "jump");
-
-	// get observable
-	const observable = manager.getObservable();
-
-
-
-	const actionState = {};
-
-	let curves = GenerateCurve(analysis, features);
-	//console.log(curves);
-
-	const viewport = Viewport(game);
-	Parallax(game);
-
-	game.stage.addChild(viewport);
-
-	const world = new Planck.World(Planck.Vec2(0, 75));
-	const obj = new GameObject();
-	const texture = PIXI.Texture.from("../img/snowboarder.png");
-	const snowboarder = new PIXI.Sprite(texture);
-	let player = obj.create({name: "Player", sprite: snowboarder});
-
-	const allPoints = Physics(game, viewport, curves, player, obj, world);
-
-	// add game object to viewport
-	viewport.addChild(player.sprite);
-	viewport.follow(player.sprite);
-	viewport.zoomPercent(0.25);
-
-	Bezier(viewport, curves);
-
-	// Adds the current action being sent to the actionState array
-	const handler = (action => {
-		for (let i = 0; i < action.actions.length; i++) {
-			actionState[action.actions[i]] = action.type;
-		}
-	});
-
-	// subscribe to handle events
-	observable.subscribe(handler);
-
-	world.on("pre-solve", function(contact) {
-		let fixtureA = contact.getFixtureA();
-		let fixtureB = contact.getFixtureB();
-
-		let bodyA = fixtureA.getBody();
-		let bodyB = fixtureB.getBody();
-
-		let playerA = bodyA === player.physics;
-		let playerB = bodyB === player.physics;
-
-		if (playerA || playerB) {
-			CAN_JUMP = true;
-		}
-	});
-
-	game.ticker.add(handleActions);
-
-
-	function handleActions() {
-		if (actionState.jump === "press" && CAN_JUMP === true) {
-			player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-			CAN_JUMP = false;
-		}
-	}
-	/*
-	function handleActions() {
-		if (actionState.moveLeft === "press")
-		{character.x -= 15;}
-		else if (actionState.moveRight === "press")
-		{character.x += 15;}
-		else if (actionState.moveUp === "press")
-		{character.y -= 15;}
-		else if (actionState.moveDown === "press")
-		{character.y += 15;}
-		else if (actionState.moveLeft === "release")
-		{character.x -= 0;}
-		else if (actionState.moveRight === "release")
-		{character.x += 0;}
-		else if (actionState.moveUp === "release")
-		{character.y -= 0;}
-		else if (actionState.moveDown === "release")
-		{character.y += 0;}
-	}
-	 */
-}
-
-
-module.exports = Game;
-},{"./Bezier":561,"./GameObject":563,"./GenerationAlgorithm":564,"./Parallax":565,"./Physics":566,"./Viewport":567,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":104}],563:[function(require,module,exports){
-=======
 const Coins = require("./Coins");
 const Collisions = require("./Collisions");
 
@@ -85662,6 +85548,12 @@ const Collisions = require("./Collisions");
  */
 class Game {
 
+	/**
+	 * Constructor for class.
+	 *
+	 * @param {GameStateController} stateController game state controller object
+	 * @param {Node} canvas HTML canvas element
+	 */
 	constructor(stateController, canvas) {
 
 		// must have both for game to work
@@ -85698,39 +85590,47 @@ class Game {
 		inputStreamObservable.subscribe(inputPerformedHandler);
 
 		//****** INITIALIZING PIXI *******//
-		this.pixiApp = new PIXI.Application({
-			view: canvas,
-			width: window.innerWidth,
-			height: window.innerHeight,
-			antialias: true
-		});
+		this.pixiApp = null;
 
 		this.CAN_JUMP = false;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController
-			.filter(msg => msg.state === "IDLE")
-			.subscribe(() => this.idleState());
+		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
 
 		// handles when controller emits song information
-		stateController
-			.filter(msg => msg.state === "GENERATE")
-			.subscribe(msg => this.generateMountainState(
-				msg.body.analysis,
-				msg.body.features
-			));
+		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
+			this.generateMountainState(request.body.analysis, request.body.features)
+		));
 	}
 
 	//			*************		  //
 	// ***  state switch handlers *** //
 	//			*************		  //
 
+	getPixiApp(canvas) {
+		if (!this.pixiApp) {
+			this.pixiApp = new PIXI.Application({
+				view: canvas,
+				width: window.innerWidth,
+				height: window.innerHeight,
+				antialias: true
+			});
+		}
+
+		return this.pixiApp;
+	}
+
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState() {
-		// should render an idle thing in canvas
+	idleState(canvas) {
+		this.getPixiApp(canvas);
+
+		const texture = PIXI.Texture.from("../img/idleBG.jpg");
+
+		const background = new PIXI.Sprite(texture);
+		this.pixiApp.stage.addChild(background);
 	}
 
 	/**
@@ -85827,7 +85727,6 @@ class Game {
 module.exports = Game;
 
 },{"./Bezier":564,"./Coins":565,"./Collisions":566,"./GameObject":568,"./GenerationAlgorithm":569,"./Parallax":570,"./Physics":571,"./Viewport":572,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":555}],568:[function(require,module,exports){
->>>>>>> dev
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -85893,46 +85792,20 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	let start, end, beatIterator, curveBeats;
 
 
-<<<<<<< HEAD
-
-	for(let i = 0; i < audioAnalysis.bars.length; i+=1){
-		let start, end, c0, c1, cMax, cMin;
-		let currentBar = audioAnalysis.bars[i];
-=======
 	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
 		let  c0, c1, cMax, cMin;
 		//let currentBar = audioAnalysis.bars[i];
 		//let currentSection = getCurrentSection(currentBar.start);
 		let currentSection = audioAnalysis.sections[i];
->>>>>>> dev
 
 		start = currentPoint;
 		/*
 		end = Vec2(start.x + (currentBar.duration * 100), start.y - (currentSection.loudness * 20)); // add bar duration and loudness to move endpoint
 
-<<<<<<< HEAD
-		end = Vec2(start.x + (currentBar.duration * 100), start.y + (audioFeatures.loudness + 100)); // add bar duration and loudness to move endpoint
-=======
->>>>>>> dev
 
 		//c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		//c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 
-<<<<<<< HEAD
-		c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
-		c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
-
-		/*
-		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 100)); // create control Box
-		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 100));
-
-
-		let divideBox = (cMax.x - cMin.x) / audioFeatures.time_signature;         // divide control box into time signature number
-		c0 = Vec2(cMin.x + (divideBox), cMin.y + (audioFeatures.danceability * 10));
-		c1 = Vec2(cMax.x - (divideBox), cMax.y +  (audioFeatures.danceability * 10));
-
-		*/
-=======
 		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 50) + (currentBar.confidence * 100)); // create control Box
 		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 50) - (currentBar.confidence * 100));
 
@@ -85945,7 +85818,6 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 		end = Vec2(start.x + (currentSection.duration * 50), start.y - (currentSection.loudness * 50)); // add bar duration and loudness to move endpoint
 		c0 = Vec2(start.x + (currentSection.tempo / currentSection.time_signature), start.y + (currentSection.key * 50));
 		c1 = Vec2(end.x - (currentSection.tempo / currentSection.time_signature), end.y + (currentSection.key * 10));
->>>>>>> dev
 
 		singleCurvePoints.push(start, c0, c1, end);
 		curves.push(singleCurvePoints);
@@ -86014,76 +85886,18 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 }
 
-<<<<<<< HEAD
-module.exports = GenerationAlgorithm;
-},{"../../static/json/SmokeandGunsAnalysis":569,"../../static/json/SmokeandGunsFeatures":570,"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
-=======
 module.exports = GenerationAlgoritm;
 },{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"pixi.js":43,"planck-js":70}],570:[function(require,module,exports){
->>>>>>> dev
 const PIXI = require("pixi.js");
-
-
-
-/**
-class Old {
-
-	constructor (gameRef) {
-
-		this.game = gameRef;
-
-	}
-
-	init() {
-
-		const { game } = this;
-
-		var texture1 = PIXI.Texture.from("../img/bg-far.png");
-
-		const tilingSprite1 = new PIXI.TilingSprite(
-			texture1,
-			game.screen.width,
-			game.screen.height,
-		);
-		game.stage.addChild(tilingSprite1);
-
-		tilingSprite1.position.x = 0;
-		tilingSprite1.position.y = 0;
-		tilingSprite1.tilePosition.x = 0;
-		tilingSprite1.tilePosition.y = 0;
-
-		var texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-		const tilingSprite2 = new PIXI.TilingSprite(
-			texture2,
-			game.screen.width,
-			game.screen.height,
-		);
-		game.stage.addChild(tilingSprite2);
-
-		tilingSprite2.position.x = 0;
-		tilingSprite2.position.y = 128;
-		tilingSprite2.tilePosition.x = 0;
-		tilingSprite2.tilePosition.y = 0;
-
-		game.ticker.add(() => {
-			tilingSprite1.tilePosition.x -= 0.128;
-			tilingSprite2.tilePosition.x -= 0.64;
-		});
-
-	}
-
-}
- */
 
 function Parallax(game) {
 
 	// Shader stuff
-	const vShader = document.getElementById("vertShader").innerText;
-	const fShader = document.getElementById("fragShader").innerText;
+	//const vShader = document.getElementById("vertShader").innerText;
+	//const fShader = document.getElementById("fragShader").innerText;
 
-	//console.log(vShader);
-	//console.log(fShader);
+	const vShader = null;
+	const fShader = null;
 	let uniforms = {
 		delta: 0
 	};
@@ -86105,7 +85919,7 @@ function Parallax(game) {
 function createTilingSprite(game, location, y, vertShader, fragShader, uniforms) {
 
 	const texture = PIXI.Texture.from(location);
-	const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
+	//const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
 
 	const tilingSprite = new PIXI.TilingSprite(
 		texture,
@@ -86148,32 +85962,19 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	// physics object
 	let playerBody = world.createBody().setDynamic();
 	//box.createFixture(pl.Circle(0.5), 1.0);
-<<<<<<< HEAD
-	box.createFixture(pl.Box(3, 0.1), 1.0);
-	box.setPosition(Vec2(150.0, -10.0));
-	box.setMassData({
-=======
 	playerBody.createFixture(pl.Box(3, 0.1), 1.0);
 	playerBody.setPosition(Vec2(150.0, -10.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({
->>>>>>> dev
 		mass : 5,
 		center : Vec2(),
 		I : 1
 	});
 
-<<<<<<< HEAD
-	player.physics = box;
-	player.position = box.getPosition();
-	player.anchor = Vec2(0.5, 1);
-	player.mass = box.getMass();
-=======
 	player.physics = playerBody;
 	player.position = playerBody.getPosition();
 	player.anchor = Vec2(0.5, 1);
 	player.mass = playerBody.getMass();
->>>>>>> dev
 
 	// Physics Bezier Curve
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
@@ -86307,11 +86108,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 			}
 		}
 
-<<<<<<< HEAD
-		console.log(player.physics.getLinearVelocity());
-=======
 		//console.log(player.physics.getLinearVelocity());
->>>>>>> dev
 		/*
 		if (player.position.x > 250 && !reachedPosition) {
 			player.physics.applyForce(Vec2(500, 0), player.position, true);
@@ -86358,35 +86155,7 @@ function CreateViewport(game) {
 }
 
 module.exports = CreateViewport;
-<<<<<<< HEAD
-},{"pixi-viewport":42}],568:[function(require,module,exports){
-const Game = require("./Game");
-const PIXI = require("pixi.js");
-const InputManager = require("tune-mountain-input-manager");
-const Parallax = require("./Parallax");
-const Bezier = require("./Bezier");
-const Viewport = require("./Viewport");
-const Physics = require("./Physics");
-const Planck = require("planck-js");
-const GenerateCurve = require("./GenerationAlgorithm");
-const GameObject = require("./GameObject");
-let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
-let songFeatures = require("../../static/json/SmokeandGunsFeatures");
-
-const canvas = document.getElementById("mycanvas");
-
-const game = new PIXI.Application({
-	view: canvas,
-	width: window.innerWidth,
-	height: window.innerHeight,
-	antialias: true
-});
-
-Game(songAnalysis, songFeatures, game);
-},{"../../static/json/SmokeandGunsAnalysis":569,"../../static/json/SmokeandGunsFeatures":570,"./Bezier":561,"./Game":562,"./GameObject":563,"./GenerationAlgorithm":564,"./Parallax":565,"./Physics":566,"./Viewport":567,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":104}],569:[function(require,module,exports){
-=======
 },{"pixi-viewport":42}],573:[function(require,module,exports){
->>>>>>> dev
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",
@@ -120008,11 +119777,7 @@ module.exports={
     }
   ]
 }
-<<<<<<< HEAD
-},{}],570:[function(require,module,exports){
-=======
 },{}],574:[function(require,module,exports){
->>>>>>> dev
 module.exports={
   "danceability": 0.567,
   "energy": 0.881,
@@ -120033,8 +119798,4 @@ module.exports={
   "duration_ms": 196190,
   "time_signature": 4
 }
-<<<<<<< HEAD
-},{}]},{},[568]);
-=======
 },{}]},{},[563]);
->>>>>>> dev

@@ -141,7 +141,7 @@ class Game {
 
 		this.pixiApp.stage.addChild(viewport);
 
-		const world = new Planck.World(Planck.Vec2(0, 75));
+		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
 		const texture = PIXI.Texture.from("../img/snowboarder.png");
 		const snowboarder = new PIXI.Sprite(texture);
@@ -173,13 +173,13 @@ class Game {
 
 			if (playerA || playerB) {
 				this.CAN_JUMP = true;
-				player.physics.applyForce(Planck.Vec2(400, -15.0), player.position, true);
+				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
 			}
 		});
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
-				player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
+				player.physics.applyLinearImpulse(Planck.Vec2(200, -200), player.position, true);
 				this.CAN_JUMP = false;
 			}
 		};

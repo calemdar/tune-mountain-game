@@ -70,14 +70,16 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const physicalBezierCurve = function (points) {
 		let line;
 		let newAngle;
+		let lineOffset = 0.03;
 
 		for(let i = 0; i < points.length - 1; i+=1){
 
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
+			let lineLength = findMagnitude(subtractVec(vertex2, vertex1));
 
 			line = world.createBody();
-			let currentCurve = line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
+			let currentCurve = line.createFixture(pl.Box(lineLength - lineOffset, 0.01), 1.0);
 			currentCurve.setFriction(.1);
 			line.setPosition(findMidpoint(vertex1, vertex2));
 			newAngle = findAngle(vertex1, vertex2);
@@ -132,7 +134,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	const findMagnitude = function(point1){
 		let magnitude = Math.sqrt((point1.x * point1.x) + (point1.y * point1.y));
-		return magnitude;
+		return magnitude / 2;
 	};
 
 	const getCurvePoints = function (){
