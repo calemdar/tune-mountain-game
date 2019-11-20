@@ -143,10 +143,13 @@ class Game {
 		this.songAnalysis = analysis;
 		this.songFeatures = features;
 
+		this.generateMountainState();
+		/*
 		PIXI.Loader.shared
 			.add("/img/Idle.json")
 			.add("/img/Jump.json")
 			.load(this.generateMountainState());
+		 */
 	}
 
 	/**
@@ -157,7 +160,28 @@ class Game {
 	 */
 	generateMountainState() {
 
-		let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
+		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
+		let idle = ["idle_frame_1.png","idle_frame_2.png","idle_frame_3.png",
+			"idle_frame_4.png","idle_frame_5.png", "idle_frame_6.png"];
+
+		let jump = ["jump_frame_1.png","jump_frame_2.png","jump_frame_3.png",
+			"jump_frame_4.png","jump_frame_5.png", "jump_frame_6.png",
+			"jump_frame_7.png","jump_frame_8.png", "jump_frame_9.png",
+			"jump_frame_10.png","jump_frame_11.png", "jump_frame_12.png",
+			"jump_frame_13.png","jump_frame_14.png"];
+
+		let idleArray = [];
+		let jumpArray = [];
+
+		for (let i=0; i < 4; i++) {
+			let texture = PIXI.Texture.from("/img/" + idle[i]);
+			idleArray.push(texture);
+		}
+
+		for (let i=0; i < 4; i++) {
+			let texture = PIXI.Texture.from("/img/" + idle[i]);
+			jumpArray.push(texture);
+		}
 
 		// check for no pixi
 		if (!this.pixiApp) {
@@ -175,10 +199,12 @@ class Game {
 		// GRAVITY VALUE HERE
 		const world = new Planck.World(Planck.Vec2(0, 75));
 		const obj = new GameObject();
-		const texture = PIXI.Texture.from("../img/snowboarder.png");
-		const snowboarder = new PIXI.Sprite(texture);
-		//const snowboarder = new PIXI.AnimatedSprite(sheet.animations["idle_frame"]);
-		let player = obj.create({name: "Player", sprite: snowboarder});
+		//const texture = PIXI.Texture.from("../img/snowboarder.png");
+		//const snowboarder = new PIXI.Sprite(texture);
+		const snowboarder = new PIXI.AnimatedSprite(idleArray);
+		snowboarder.animationSpeed = .15;
+		snowboarder.play();
+		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
@@ -205,6 +231,15 @@ class Game {
 			let playerB = bodyB === player.physics;
 
 			if (playerA || playerB) {
+				/*
+				if (!this.CAN_JUMP) {
+					this.CAN_JUMP = true;
+					player.sprite = new PIXI.AnimatedSprite(player.animation1);
+					snowboarder.animationSpeed = .15;
+					snowboarder.play();
+				}
+				 */
+
 				this.CAN_JUMP = true;
 				player.physics.applyForce(Planck.Vec2(400, -15.0), player.position, true);
 			}
@@ -212,13 +247,21 @@ class Game {
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
+				/*
+				player.sprite.destroy();
+				player.sprite = new PIXI.AnimatedSprite(player.animation2);
+				snowboarder.animationSpeed = .15;
+				snowboarder.play();
+				viewport.addChild(player.sprite);
+				viewport.follow(player.sprite);
+				 */
 				player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				this.CAN_JUMP = false;
 			}
 		};
 
 		this.pixiApp.ticker.add(handleActions);
-		
+
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}
 
