@@ -1,18 +1,14 @@
 const PIXI = require("pixi.js");
-let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
-let songFeatures = require("../../static/json/SmokeandGunsFeatures");
-const Planck = require("planck-js");
-
 
 function Bezier(viewport, curvePoints) {
 	const bezier = new PIXI.Graphics();
 	const points = new PIXI.Graphics();
-	const texture = PIXI.Texture.from("..//img/husky.png");
+	const texture = PIXI.Texture.from("..//img/slope tile.png", {wrapMode: PIXI.WRAP_MODES.REPEAT});
 
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
-	bezier.lineStyle(5, 0x0000AA, 1);
+	bezier.lineStyle(5, 0xFFFFFF, 1);
 	bezier.beginTextureFill(texture);
 	bezier.position.x = 5;
 	bezier.position.y = 5;
@@ -34,7 +30,6 @@ function drawCurves(bezier, points, curvePoints) {
 		x: bezier.position.x,
 		y: bezier.position.y
 	};
-	let j = 0;
 
 	for (let i = 0; i < curvePoints.length; i++) {
 

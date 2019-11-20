@@ -5,14 +5,14 @@ const GameObject = require("./GameObject");
 function Collisions(game, viewport, player, coins) {
 
 
-	console.log(coins);
+	//console.log(coins);
 	function collectCoin() {
 		let currCoin;
 
 		for(let i = 0; i < coins.length; i++){
 			currCoin = coins[i].sprite;
 			if(hitTest(player.sprite, currCoin)){
-				console.log("Player collision");
+				//console.log("Player collision");
 				deleteCoin(currCoin);
 				//currCoin.destroy();
 				break;
