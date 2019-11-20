@@ -144,8 +144,8 @@ class Game {
 		this.songFeatures = features;
 
 		PIXI.Loader.shared
-			.add("../img/Idle.json")
-			.add("../img/Jump.json")
+			.add("/img/Idle.json")
+			.add("/img/Jump.json")
 			.load(this.generateMountainState());
 	}
 
@@ -156,6 +156,8 @@ class Game {
 	 *  PRIOR TO THIS REFACTOR!! SO PLS FIGURE IT OUT IF I F*CKED SOMETHING UP.
 	 */
 	generateMountainState() {
+
+		let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
 
 		// check for no pixi
 		if (!this.pixiApp) {
@@ -216,7 +218,8 @@ class Game {
 		};
 
 		this.pixiApp.ticker.add(handleActions);
-
+		
+		this.stateController.notify(GameStateEnums.PLAY, null);
 	}
 
 	/**
