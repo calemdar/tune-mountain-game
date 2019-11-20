@@ -118,7 +118,7 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	}
 	// returns the length of section depending on total time
 	function timeToLength(section){
-		let multiplier = 50;
+		let multiplier = 10;
 		let durationPercent = (section.duration / songLength) * 100;
 		//let curveLength = durationPercent;
 		return durationPercent * multiplier;
