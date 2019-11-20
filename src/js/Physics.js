@@ -70,7 +70,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const physicalBezierCurve = function (points) {
 		let line;
 		let newAngle;
-		let lineOffset = 0.03;
+		let lineOffset = 0.015;
 
 		for(let i = 0; i < points.length - 1; i+=1){
 
@@ -163,7 +163,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 			}
 		}
 
-		//console.log(player.physics.getLinearVelocity());
+		console.log(player.physics.getLinearVelocity());
 		/*
 		if (player.position.x > 250 && !reachedPosition) {
 			player.physics.applyForce(Vec2(500, 0), player.position, true);
@@ -172,6 +172,9 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		*/
 
 		let physicsPos = obj.renderPosition(player);
+
+		// new speed test
+
 	};
 
 

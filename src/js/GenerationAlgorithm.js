@@ -7,7 +7,7 @@ const Vec2 = Planck.Vec2;
 
 // Algorithm to generate the tune mountain
 // y = -1 up, y = +1 down, x = -1 left, x = +1 right
-function GenerationAlgoritm (audioAnalysis, audioFeatures){
+function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let startPoint = Vec2(5, 5);
 	let currentPoint = Vec2(5,5);
 	let songLength = audioAnalysis.track.duration;
@@ -128,4 +128,4 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 }
 
-module.exports = GenerationAlgoritm;
+module.exports = GenerationAlgorithm;

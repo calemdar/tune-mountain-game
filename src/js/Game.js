@@ -210,13 +210,13 @@ class Game {
 		// add coins
 		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 
+		Bezier(viewport, curves);
+		Collisions(this.pixiApp, viewport, player, coinSprites);
+
 		// add game object to viewport
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
-		viewport.zoomPercent(0.25);
-
-		Bezier(viewport, curves);
-		Collisions(this.pixiApp, viewport, player, coinSprites);
+		viewport.zoomPercent(0.15);
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {

@@ -14,14 +14,14 @@ function CreateViewport(game) {
 
 	// add the viewport to the stage
 	//game.stage.addChild(viewport);
-
+	/*
 	// activate plugins
 	viewport
 		.drag()
 		.pinch()
 		.wheel()
 		.decelerate();
-
+	*/
 	return viewport;
 }
 

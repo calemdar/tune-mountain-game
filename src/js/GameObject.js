@@ -23,8 +23,8 @@ function GameObject () {
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
 		object.sprite.position.x = physicsPos.x;
-		object.sprite.position.y = physicsPos.y;
-		if(object.physics.getAngle() < (Math.PI / 3.5)) {    				// if the angle is more than 180 degree (PI radians)
+		object.sprite.position.y = physicsPos.y + 15;
+		if(object.physics.getAngle() < (Math.PI / 3.5) && object.physics.getAngle() > (- Math.PI / 3.5)) {    				// if the angle is more than 180 degree (PI radians)
 			object.sprite.rotation = object.physics.getAngle();
 		}
 		else{
@@ -37,6 +37,14 @@ function GameObject () {
 	GameObject.prototype.error = function error (object) {
 		console.log(object.errorMessage);
 	};
+
+	GameObject.prototype.swapSprites = function swapSprites(object, newSprite) {
+		let tempSprite = object.sprite;
+		tempSprite.alpha = 0;
+
+		object.sprite = newSprite;
+
+	}
 
 }
 
