@@ -255,7 +255,7 @@ class Game {
 				viewport.follow(player.sprite);
 				 */
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-				player.physics.applyLinearImpulse(Planck.Vec2(200, -200), player.position, true);
+				player.physics.applyLinearImpulse(Planck.Vec2(400, -200), player.position, true);
 				this.CAN_JUMP = false;
 			}
 		};

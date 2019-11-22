@@ -74,7 +74,7 @@ function Coins(analysis, allPoints, viewport, player) {
 
 	function beatsToPoints(numBeats){
 		let numPoints = allPoints.length / analysis.sections.length;
-		console.log("Num points per curve: " + numPoints);
+		//console.log("Num points per curve: " + numPoints);
 		let length;
 		if(numBeats > 0) {
 			length = Math.ceil(numPoints / numBeats);

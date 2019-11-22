@@ -1,7 +1,7 @@
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
-let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
-let songFeatures = require("../../static/json/SmokeandGunsFeatures");
+//let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+//let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Vec2 = Planck.Vec2;
 
 
@@ -31,23 +31,18 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 		start = currentPoint;
 		/*
-		end = Vec2(start.x + (currentBar.duration * 100), start.y - (currentSection.loudness * 20)); // add bar duration and loudness to move endpoint
-
+		// Random points
 
 		//c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		//c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 
-
-		let divideBox = (cMax.x - cMin.x) / (audioFeatures.time_signature * currentSection.key);         // divide control box into time signature number
-		c0 = Vec2(cMin.x + (divideBox), cMin.y - (audioFeatures.danceability * 100));
-		c1 = Vec2(cMax.x - (divideBox), cMin.y -  (audioFeatures.danceability * 100));
 		*/
 
-		console.log(durationMultiplier);
+		//console.log(durationMultiplier);
 		end = Vec2(start.x + (currentSection.duration * durationMultiplier), start.y + ((50 + currentSection.loudness) * 20)); // add bar duration and loudness to move endpoint
 
-		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 100)); // create control Box
-		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 100));
+		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 50)); // create control Box
+		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 50));
 
 		let divideBox = (cMax.x - cMin.x) / (timeSignature);         // divide control box into time signature number
 
@@ -118,7 +113,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	}
 	// returns the length of section depending on total time
 	function timeToLength(section){
-		let multiplier = 10;
+		let multiplier = 9;
 		let durationPercent = (section.duration / songLength) * 100;
 		//let curveLength = durationPercent;
 		return durationPercent * multiplier;

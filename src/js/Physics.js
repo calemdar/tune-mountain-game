@@ -15,7 +15,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	// physics object
 	let playerBody = world.createBody().setDynamic();
 	//box.createFixture(pl.Circle(0.5), 1.0);
-	playerBody.createFixture(pl.Box(3, 1), 1.0);
+	playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
 	playerBody.setPosition(Vec2(150.0, -10.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({
@@ -70,7 +70,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const physicalBezierCurve = function (points) {
 		let line;
 		let newAngle;
-		let lineOffset = 0.015;
+		let lineOffset = 0.03;
 
 		for(let i = 0; i < points.length - 1; i+=1){
 
@@ -78,7 +78,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 			let vertex2 = points[i+1];
 			let lineLength = findMagnitude(subtractVec(vertex2, vertex1));
 
-			line = world.createBody();
+			line = world.createBody().setStatic();
 			let currentCurve = line.createFixture(pl.Box(lineLength - lineOffset, 0.01), 1.0);
 			currentCurve.setFriction(.1);
 			line.setPosition(findMidpoint(vertex1, vertex2));
@@ -163,13 +163,8 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 			}
 		}
 
-		console.log(player.physics.getLinearVelocity());
-		/*
-		if (player.position.x > 250 && !reachedPosition) {
-			player.physics.applyForce(Vec2(500, 0), player.position, true);
-			reachedPosition = true;
-		}
-		*/
+		//console.log(player.physics.getLinearVelocity());
+
 
 		let physicsPos = obj.renderPosition(player);
 
