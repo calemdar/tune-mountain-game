@@ -256,6 +256,7 @@ class Game {
 				 */
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(400, -200), player.position, true);
+				player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
 		};

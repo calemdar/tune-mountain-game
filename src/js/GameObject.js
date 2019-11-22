@@ -26,13 +26,13 @@ function GameObject () {
 		object.sprite.position.y = physicsPos.y + 15;
 
 		// change this later
-		//object.sprite.rotation = object.physics.getAngle();
+		object.sprite.rotation = object.physics.getAngle();
 
 		if(object.physics.getAngle() < (Math.PI / 3.5) && object.physics.getAngle() > (- Math.PI / 3.5)) {    				// if the angle is more than 180 degree (PI radians)
-			object.sprite.rotation = object.physics.getAngle();
+			//object.sprite.rotation = object.physics.getAngle();
 		}
 		else{
-			object.sprite.rotation = (Math.PI / 3.5);
+			//object.sprite.rotation = (Math.PI / 3.5);
 		}
 
 		//console.log("Physics Pos: " + physicsPos);
