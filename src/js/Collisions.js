@@ -4,8 +4,7 @@ const GameObject = require("./GameObject");
 
 function Collisions(game, viewport, player, coins) {
 
-
-	//console.log(coins);
+	// Collect coin if the sprites collided
 	function collectCoin() {
 		let currCoin;
 
@@ -20,6 +19,9 @@ function Collisions(game, viewport, player, coins) {
 		}
 
 	}
+
+	// Check collision between sprites
+	// TODO add rotation into account
 	function playerHitTest(player, s2){
 		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
 			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
@@ -34,6 +36,7 @@ function Collisions(game, viewport, player, coins) {
 		return false;
 	}
 
+	// psuedo delete the sprite by moving it out of screen
 	function deleteCoin(coin){
 
 		coin.position.x = -1000;

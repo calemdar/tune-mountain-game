@@ -6,6 +6,7 @@ const Vec2 = Planck.Vec2;
 
 function GameObject () {
 
+	// Object constructor
 	GameObject.prototype.create =({name, position=Vec2(0,0), scale=1, anchor=1, mass=1, sprite=1, physics=1})  => {
 		let object = {};
 
@@ -18,6 +19,8 @@ function GameObject () {
 
 		return object;
 	};
+
+	// Render given object
 	GameObject.prototype.renderPosition = (object) => {
 
 		let physicsPos = object.physics.getPosition();
@@ -42,24 +45,15 @@ function GameObject () {
 		console.log(object.errorMessage);
 	};
 
+	// Change sprite of current game object
 	GameObject.prototype.swapSprites = function swapSprites(object, newSprite) {
 		let tempSprite = object.sprite;
 		tempSprite.alpha = 0;
 
 		object.sprite = newSprite;
 
-	}
+	};
 
 }
-
-/*
-let cube = obj.create("Cube", {Pixi:{x:0, y:0}, Planck: {x:0, y:0}}, 1.0);
-let sphere = obj.create("Sphere", {Pixi:{x:0, y:0}, Planck: {x:0, y:0}});
-let rectangle = obj.create( {Pixi:{x:5, y:5}, Planck: {x:0, y:0}});
-
-console.log(cube);
-console.log(sphere);
-console.log(rectangle);
-*/
 
 module.exports = GameObject;

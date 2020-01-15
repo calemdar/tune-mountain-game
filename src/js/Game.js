@@ -202,6 +202,8 @@ class Game {
 		//const snowboarder = new PIXI.Sprite(texture);
 		const snowboarder = new PIXI.AnimatedSprite(idleArray);
 		snowboarder.animationSpeed = .15;
+		snowboarder.scale.x = 0.4;
+		snowboarder.scale.y = 0.4;
 		snowboarder.play();
 		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
@@ -214,6 +216,7 @@ class Game {
 		Collisions(this.pixiApp, viewport, player, coinSprites);
 
 		// add game object to viewport
+
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
 		viewport.zoomPercent(0.15);
@@ -255,7 +258,7 @@ class Game {
 				viewport.follow(player.sprite);
 				 */
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-				player.physics.applyLinearImpulse(Planck.Vec2(400, -200), player.position, true);
+				player.physics.applyLinearImpulse(Planck.Vec2(100, -200), player.position, true);
 				player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
