@@ -20,8 +20,8 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	// Player object
 	let playerBody = world.createBody().setDynamic();
 	//box.createFixture(pl.Circle(0.5), 1.0);
-	playerBody.createFixture(pl.Box(1, 0.1), 1.0);
-	playerBody.setPosition(Vec2(150.0, -10.0));
+	playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
+	playerBody.setPosition(Vec2(0.0, -15.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({
 		mass : 5,
@@ -33,6 +33,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	player.position = playerBody.getPosition();
 	player.anchor = Vec2(0.5, 1);
 	player.mass = playerBody.getMass();
+
 
 	// Physics Bezier Curve
 	// creates single point for the given Bezier curve
@@ -88,7 +89,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const physicalBezierCurve = function (points) {
 		let line;
 		let newAngle;
-		let lineOffset = 0.05;
+		let lineOffset = 0.0;
 
 		for(let i = 0; i < points.length - 1; i+=1){
 

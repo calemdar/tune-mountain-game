@@ -7,7 +7,7 @@ const Vec2 = Planck.Vec2;
 function GameObject () {
 
 	// Object constructor
-	GameObject.prototype.create =({name, position=Vec2(0,0), scale=1, anchor=1, mass=1, sprite=1, physics=1})  => {
+	GameObject.prototype.create =({name, position=Vec2(0,0), scale=Vec2(1.0, 1.0), anchor=1, mass=1, sprite=1, physics=1})  => {
 		let object = {};
 
 		if(!name || typeof(name) != "string") {
@@ -25,6 +25,7 @@ function GameObject () {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
+		//object.sprite.scale = object.scale;
 		object.sprite.position.x = physicsPos.x;
 		object.sprite.position.y = physicsPos.y + 15;
 

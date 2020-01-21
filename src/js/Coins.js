@@ -22,8 +22,8 @@ function Coins(analysis, allPoints, viewport, player) {
 		beatLength = beatsToPoints(sectionBeats.length);
 		currentSection = analysis.sections[i];
 		sectionBeats = getBeatsInSection(currentSection);
-		console.log(sectionBeats);
-		console.log(beatLength);
+		//console.log(sectionBeats);
+		//console.log(beatLength);
 
 		for(let k = 0; k < sectionBeats.length; k+=1) {
 			let coinSprite = new PIXI.Sprite(texture);

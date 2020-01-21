@@ -212,14 +212,15 @@ class Game {
 		// add coins
 		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 
-		Bezier(viewport, curves);
+		Bezier(viewport, allPoints);
 		Collisions(this.pixiApp, viewport, player, coinSprites);
 
 		// add game object to viewport
 
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
-		viewport.zoomPercent(0.15);
+		viewport.zoomPercent(0.30);
+
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -246,6 +247,7 @@ class Game {
 				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
 			}
 		});
+
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
