@@ -15,6 +15,7 @@ function Coins(analysis, allPoints, viewport, player) {
 	let beatLength;						// num beats / curve resolution
 
 	const texture = PIXI.Texture.from("../img/coin.png");
+	// lay coins
 
 	for(let i = 0; i < analysis.sections.length; i+=1){
 		coinPlacer = 0;
