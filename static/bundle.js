@@ -85283,20 +85283,18 @@ module.exports = {
 };
 
 },{}],563:[function(require,module,exports){
-const {BehaviorSubject} = require("rxjs");
 const exampleAnalysis = require("../../static/json/SmokeandGunsAnalysis"),
 	exampleFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Game = require("../js/Game");
+const {GameStateController, GameStateEnums} = require("tune-mountain-input-manager");
 
 // script that will run on website --> root for bundle
 
 // this will immediately emit a generate message with generic analysis and features
-const mockStateController = new BehaviorSubject({
-	"state": "GENERATE",
-	"body": {
-		"features": exampleFeatures,
-		"analysis": exampleAnalysis
-	}
+const mockStateController = new GameStateController();
+mockStateController.request(GameStateEnums.GENERATE, {
+	"analysis": exampleAnalysis,
+	"features": exampleFeatures
 });
 
 // if you want to test state switching, do the following:
@@ -85308,7 +85306,7 @@ const canvas = document.getElementById("mycanvas");
 // init game
 
 new Game(mockStateController, canvas);
-},{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"../js/Game":567,"rxjs":111}],564:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"../js/Game":567,"tune-mountain-input-manager":555}],564:[function(require,module,exports){
 const PIXI = require("pixi.js");
 let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
 let songFeatures = require("../../static/json/SmokeandGunsFeatures");
@@ -85323,7 +85321,7 @@ function Bezier(viewport, curvePoints) {
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
-	bezier.lineStyle(5, 0xAA0000, 1);
+	bezier.lineStyle(5, 0x0000AA, 1);
 	bezier.beginTextureFill(texture);
 	bezier.position.x = 5;
 	bezier.position.y = 5;
@@ -85335,12 +85333,6 @@ function Bezier(viewport, curvePoints) {
 	viewport.addChild(bezier);
 	viewport.addChild(points);
 }
-
-/*
-function Bezier(viewport) {
-	console.log(songAnalysis);
-}
-*/
 
 module.exports = Bezier;
 
@@ -85387,6 +85379,7 @@ function drawCurves(bezier, points, curvePoints) {
 	bezier.closePath();
 	bezier.endFill();
 }
+
 },{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"pixi.js":43,"planck-js":70}],565:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
@@ -85523,7 +85516,12 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 
 // local modules
-const {InputManager} = require("tune-mountain-input-manager");
+const {
+	InputManager,
+	GameStateController,
+	GameStateEnums
+} = require("tune-mountain-input-manager");
+
 const Parallax = require("./Parallax");
 const Bezier = require("./Bezier");
 const Viewport = require("./Viewport");
@@ -85550,6 +85548,12 @@ const Collisions = require("./Collisions");
  */
 class Game {
 
+	/**
+	 * Constructor for class.
+	 *
+	 * @param {GameStateController} stateController game state controller object
+	 * @param {Node} canvas HTML canvas element
+	 */
 	constructor(stateController, canvas) {
 
 		// must have both for game to work
@@ -85586,39 +85590,47 @@ class Game {
 		inputStreamObservable.subscribe(inputPerformedHandler);
 
 		//****** INITIALIZING PIXI *******//
-		this.pixiApp = new PIXI.Application({
-			view: canvas,
-			width: window.innerWidth,
-			height: window.innerHeight,
-			antialias: true
-		});
+		this.pixiApp = null;
 
 		this.CAN_JUMP = false;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController
-			.filter(msg => msg.state === "IDLE")
-			.subscribe(() => this.idleState());
+		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
 
 		// handles when controller emits song information
-		stateController
-			.filter(msg => msg.state === "GENERATE")
-			.subscribe(msg => this.generateMountainState(
-				msg.body.analysis,
-				msg.body.features
-			));
+		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
+			this.generateMountainState(request.body.analysis, request.body.features)
+		));
 	}
 
 	//			*************		  //
 	// ***  state switch handlers *** //
 	//			*************		  //
 
+	getPixiApp(canvas) {
+		if (!this.pixiApp) {
+			this.pixiApp = new PIXI.Application({
+				view: canvas,
+				width: window.innerWidth,
+				height: window.innerHeight,
+				antialias: true
+			});
+		}
+
+		return this.pixiApp;
+	}
+
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState() {
-		// should render an idle thing in canvas
+	idleState(canvas) {
+		this.getPixiApp(canvas);
+
+		const texture = PIXI.Texture.from("../img/idleBG.jpg");
+
+		const background = new PIXI.Sprite(texture);
+		this.pixiApp.stage.addChild(background);
 	}
 
 	/**
@@ -85838,7 +85850,7 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	}
 
 	// move matrix calculations into seperate module
-	function addVec (vector1, vector2){
+	function addVec(vector1, vector2) {
 		let result = Vec2();
 
 		result.x = vector1.x + vector2.x;
@@ -85848,7 +85860,7 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	}
 
 	// check data confidence
-	function checkConfidence(conf){
+	function checkConfidence(conf) {
 		let maxConf = 0.6;
 		return conf > maxConf; // true if confidence is higher, false otherwise
 	}
@@ -85878,67 +85890,14 @@ module.exports = GenerationAlgoritm;
 },{"../../static/json/SmokeandGunsAnalysis":573,"../../static/json/SmokeandGunsFeatures":574,"pixi.js":43,"planck-js":70}],570:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
-
-
-/**
-class Old {
-
-	constructor (gameRef) {
-
-		this.game = gameRef;
-
-	}
-
-	init() {
-
-		const { game } = this;
-
-		var texture1 = PIXI.Texture.from("../img/bg-far.png");
-
-		const tilingSprite1 = new PIXI.TilingSprite(
-			texture1,
-			game.screen.width,
-			game.screen.height,
-		);
-		game.stage.addChild(tilingSprite1);
-
-		tilingSprite1.position.x = 0;
-		tilingSprite1.position.y = 0;
-		tilingSprite1.tilePosition.x = 0;
-		tilingSprite1.tilePosition.y = 0;
-
-		var texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-		const tilingSprite2 = new PIXI.TilingSprite(
-			texture2,
-			game.screen.width,
-			game.screen.height,
-		);
-		game.stage.addChild(tilingSprite2);
-
-		tilingSprite2.position.x = 0;
-		tilingSprite2.position.y = 128;
-		tilingSprite2.tilePosition.x = 0;
-		tilingSprite2.tilePosition.y = 0;
-
-		game.ticker.add(() => {
-			tilingSprite1.tilePosition.x -= 0.128;
-			tilingSprite2.tilePosition.x -= 0.64;
-		});
-
-	}
-
-}
- */
-
 function Parallax(game) {
 
 	// Shader stuff
-	const vShader = document.getElementById("vertShader").innerText;
-	const fShader = document.getElementById("fragShader").innerText;
+	//const vShader = document.getElementById("vertShader").innerText;
+	//const fShader = document.getElementById("fragShader").innerText;
 
-	//console.log(vShader);
-	//console.log(fShader);
+	const vShader = null;
+	const fShader = null;
 	let uniforms = {
 		delta: 0
 	};
@@ -85960,7 +85919,7 @@ function Parallax(game) {
 function createTilingSprite(game, location, y, vertShader, fragShader, uniforms) {
 
 	const texture = PIXI.Texture.from(location);
-	const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
+	//const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
 
 	const tilingSprite = new PIXI.TilingSprite(
 		texture,

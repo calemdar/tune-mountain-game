@@ -7,7 +7,8 @@
   "scripts": {
     "start": "browserify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js && node server.js",
     "hot-reload": "watchify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js -v",
-    "compile": "browserify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js"
+    "compile": "browserify ./src/dev/LocalBrowserTesting.js -o ./static/bundle.js",
+    "update-tm-pkg": "npm i calemdar/tune-mountain-input#master"
   },
   "dependencies": {
     "mime": "^2.4.4",

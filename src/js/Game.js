@@ -81,13 +81,16 @@ class Game {
 
 		this.CAN_JUMP = false;
 
+		this.songAnalysis = null;
+		this.songFeatures = null;
+
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
 		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
 
 		// handles when controller emits song information
 		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
-			this.generateMountainState(request.body.analysis, request.body.features)
+			this.generateMountain(request.body.analysis, request.body.features)
 		));
 	}
 
@@ -101,6 +104,7 @@ class Game {
 				view: canvas,
 				width: window.innerWidth,
 				height: window.innerHeight,
+				backgroundColor: 0x42daf5,
 				antialias: true
 			});
 		}
@@ -114,10 +118,38 @@ class Game {
 	idleState(canvas) {
 		this.getPixiApp(canvas);
 
-		const texture = PIXI.Texture.from("../img/idleBG.jpg");
+		const texture1 = PIXI.Texture.from("../img/bg-far.png");
+		const texture2 = PIXI.Texture.from("../img/bg-mid.png");
 
-		const background = new PIXI.Sprite(texture);
-		this.pixiApp.stage.addChild(background);
+		const background1 = new PIXI.Sprite(texture1);
+		const background2 = new PIXI.Sprite(texture2);
+
+		background1.position.x = 0;
+		background1.position.y = -325;
+		background1.scale.x = 1.75;
+		background1.scale.y = 1.5;
+
+		background2.position.x = 0;
+		background2.position.y = 0;
+		background2.scale.x = 1.75;
+		background2.scale.y = 1.5;
+
+		this.pixiApp.stage.addChild(background1);
+		this.pixiApp.stage.addChild(background2);
+	}
+
+	generateMountain(analysis, features) {
+
+		this.songAnalysis = analysis;
+		this.songFeatures = features;
+
+		this.generateMountainState();
+		/*
+		PIXI.Loader.shared
+			.add("/img/Idle.json")
+			.add("/img/Jump.json")
+			.load(this.generateMountainState());
+		 */
 	}
 
 	/**
@@ -126,7 +158,30 @@ class Game {
 	 *  I'M GONNA TEMPORARILY MAKE THIS FUNCTION PERFORM EVERYTHING ELSE GAME.JS DID
 	 *  PRIOR TO THIS REFACTOR!! SO PLS FIGURE IT OUT IF I F*CKED SOMETHING UP.
 	 */
-	generateMountainState(analysis, features) {
+	generateMountainState() {
+
+		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
+		let idle = ["idle_frame_1.png","idle_frame_2.png","idle_frame_3.png",
+			"idle_frame_4.png","idle_frame_5.png", "idle_frame_6.png"];
+
+		let jump = ["jump_frame_1.png","jump_frame_2.png","jump_frame_3.png",
+			"jump_frame_4.png","jump_frame_5.png", "jump_frame_6.png",
+			"jump_frame_7.png","jump_frame_8.png", "jump_frame_9.png",
+			"jump_frame_10.png","jump_frame_11.png", "jump_frame_12.png",
+			"jump_frame_13.png","jump_frame_14.png"];
+
+		let idleArray = [];
+		let jumpArray = [];
+
+		for (let i=0; i < 4; i++) {
+			let texture = PIXI.Texture.from("/img/" + idle[i]);
+			idleArray.push(texture);
+		}
+
+		for (let i=0; i < 4; i++) {
+			let texture = PIXI.Texture.from("/img/" + idle[i]);
+			jumpArray.push(texture);
+		}
 
 		// check for no pixi
 		if (!this.pixiApp) {
@@ -134,31 +189,38 @@ class Game {
 		}
 
 		// legacy code
-		const curves = GenerateCurve(analysis, features);
+		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
 		const viewport = Viewport(this.pixiApp);
 
 		Parallax(this.pixiApp);
 
 		this.pixiApp.stage.addChild(viewport);
 
-		const world = new Planck.World(Planck.Vec2(0, 75));
+		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
-		const texture = PIXI.Texture.from("../img/snowboarder.png");
-		const snowboarder = new PIXI.Sprite(texture);
-		let player = obj.create({name: "Player", sprite: snowboarder});
+		//const texture = PIXI.Texture.from("../img/snowboarder.png");
+		//const snowboarder = new PIXI.Sprite(texture);
+		const snowboarder = new PIXI.AnimatedSprite(idleArray);
+		snowboarder.animationSpeed = .15;
+		snowboarder.scale.x = 0.4;
+		snowboarder.scale.y = 0.4;
+		snowboarder.play();
+		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
 		// add coins
-		let coinSprites = Coins(analysis, allPoints, viewport, player);
+		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
+
+		Bezier(viewport, allPoints);
+		Collisions(this.pixiApp, viewport, player, coinSprites);
 
 		// add game object to viewport
+
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
-		viewport.zoomPercent(0.25);
+		viewport.zoomPercent(0.30);
 
-		Bezier(viewport, curves);
-		Collisions(this.pixiApp, viewport, player, coinSprites);
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -172,20 +234,41 @@ class Game {
 			let playerB = bodyB === player.physics;
 
 			if (playerA || playerB) {
+				/*
+				if (!this.CAN_JUMP) {
+					this.CAN_JUMP = true;
+					player.sprite = new PIXI.AnimatedSprite(player.animation1);
+					snowboarder.animationSpeed = .15;
+					snowboarder.play();
+				}
+				 */
+
 				this.CAN_JUMP = true;
-				player.physics.applyForce(Planck.Vec2(400, -15.0), player.position, true);
+				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
 			}
 		});
 
+
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
-				player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
+				/*
+				player.sprite.destroy();
+				player.sprite = new PIXI.AnimatedSprite(player.animation2);
+				snowboarder.animationSpeed = .15;
+				snowboarder.play();
+				viewport.addChild(player.sprite);
+				viewport.follow(player.sprite);
+				 */
+				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
+				player.physics.applyLinearImpulse(Planck.Vec2(100, -200), player.position, true);
+				player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
 		};
 
 		this.pixiApp.ticker.add(handleActions);
 
+		this.stateController.notify(GameStateEnums.PLAY, null);
 	}
 
 	/**

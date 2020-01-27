@@ -1,52 +1,61 @@
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
-let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
-let songFeatures = require("../../static/json/SmokeandGunsFeatures");
+//let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
+//let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Vec2 = Planck.Vec2;
 
 
 // Algorithm to generate the tune mountain
-function GenerationAlgoritm (audioAnalysis, audioFeatures){
-	let startPoint = Vec2(5, 5);
-	let currentPoint = Vec2(5,5);
+// y = -1 up, y = +1 down, x = -1 left, x = +1 right
+function GenerationAlgorithm (audioAnalysis, audioFeatures){
+
+	let currentPoint = Vec2(-10,0);
+	let maxMountainLength = Vec2(100, 300);
 	let songLength = audioAnalysis.track.duration;
+	let timeSignature = audioFeatures.time_signature;
 	let curves = [];
 	let currentCurve = new PIXI.Graphics();
 	let singleCurvePoints = [];
 	let start, end, beatIterator, curveBeats;
+	let currentTime = 0;
 
-
+	// Run thorugh all sections
 	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
 		let  c0, c1, cMax, cMin;
-		//let currentBar = audioAnalysis.bars[i];
-		//let currentSection = getCurrentSection(currentBar.start);
+
 		let currentSection = audioAnalysis.sections[i];
+		currentTime = currentSection.start;
 
-		start = currentPoint;
+		let durationMultiplier = timeToLength(currentSection);
+
 		/*
-		end = Vec2(start.x + (currentBar.duration * 100), start.y - (currentSection.loudness * 20)); // add bar duration and loudness to move endpoint
-
+		// Random points
 
 		//c0 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 		//c1 = Vec2(getRandomInt(start.x, end.x), getRandomInt(start.y - 3, end.y + 3)); // get a random control point between start and end points
 
-		cMax = Vec2(end.x + (audioFeatures.valence * 100), start.y - (audioFeatures.energy * 50) + (currentBar.confidence * 100)); // create control Box
-		cMin = Vec2(start.x - (audioFeatures.valence * 100), end.y + (audioFeatures.energy * 50) - (currentBar.confidence * 100));
-
-
-		let divideBox = (cMax.x - cMin.x) / (audioFeatures.time_signature * currentSection.key);         // divide control box into time signature number
-		c0 = Vec2(cMin.x + (divideBox), cMin.y - (audioFeatures.danceability * 100));
-		c1 = Vec2(cMax.x - (divideBox), cMin.y -  (audioFeatures.danceability * 100));
 		*/
 
-		end = Vec2(start.x + (currentSection.duration * 50), start.y - (currentSection.loudness * 50)); // add bar duration and loudness to move endpoint
-		c0 = Vec2(start.x + (currentSection.tempo / currentSection.time_signature), start.y + (currentSection.key * 50));
-		c1 = Vec2(end.x - (currentSection.tempo / currentSection.time_signature), end.y + (currentSection.key * 10));
+		// Start and end points of new section curve
+		start = currentPoint;
+		end = Vec2(start.x + (currentSection.duration * durationMultiplier), start.y + ((50 + currentSection.loudness) * (durationMultiplier / 2)));
 
+		// Create control Box for section curve
+		cMax = Vec2(end.x + (audioFeatures.valence * 10), start.y - (audioFeatures.energy * 5));
+		cMin = Vec2(start.x - (audioFeatures.valence * 10), end.y + (audioFeatures.energy * 5));
+
+		// Divide control box into time signature number
+		let divideBox = (cMax.x - cMin.x) / (timeSignature);
+
+		// Section curve control points
+		c0 = Vec2(cMin.x + (divideBox), cMin.y + (currentSection.key));
+		c1 = Vec2(cMax.x - (divideBox * (timeSignature / 2)), cMax.y - (currentSection.key * 10));
+
+		// Push current section curve into curve arrays
 		singleCurvePoints.push(start, c0, c1, end);
 		curves.push(singleCurvePoints);
 
-
+		// Change current point to the end of the section curve
 		currentPoint = end;
 		singleCurvePoints = [];
 
@@ -67,14 +76,12 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 	}
 
-
-
 	function getRandomInt(min, max) {
 		return Math.random() * (max - min) + min;
 	}
 
 	// move matrix calculations into seperate module
-	function addVec (vector1, vector2){
+	function addVec(vector1, vector2) {
 		let result = Vec2();
 
 		result.x = vector1.x + vector2.x;
@@ -84,11 +91,12 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 	}
 
 	// check data confidence
-	function checkConfidence(conf){
+	function checkConfidence(conf) {
 		let maxConf = 0.6;
 		return conf > maxConf; // true if confidence is higher, false otherwise
 	}
 
+	// helper function to looki into sections
 	function getCurrentSection(currentTime) {
 		let section;
 		for(let i = 0; i < audioAnalysis.sections.length; i += 1){
@@ -106,8 +114,16 @@ function GenerationAlgoritm (audioAnalysis, audioFeatures){
 
 	}
 
+	// returns a float representing the length of section within the entire song
+	function timeToLength(section){
+
+		let durationPercent = ((section.duration / songLength) * 100);
+		//let curveLength = durationPercent;
+		return durationPercent;
+	}
+
 	return curves;
 
 }
 
-module.exports = GenerationAlgoritm;
+module.exports = GenerationAlgorithm;
