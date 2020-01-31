@@ -21,7 +21,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	// Run thorugh all sections
 	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
-		let  c0, c1, cMax, cMin;
+		let  c0, c1, cUp, cBottom;
 
 		let currentSection = audioAnalysis.sections[i];
 		currentTime = currentSection.start;
@@ -41,15 +41,15 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		end = Vec2(start.x + (currentSection.duration * durationMultiplier), start.y + ((50 + currentSection.loudness) * (durationMultiplier / 2)));
 
 		// Create control Box for section curve
-		cMax = Vec2(end.x + (audioFeatures.valence * 10), start.y - (audioFeatures.energy * 5));
-		cMin = Vec2(start.x - (audioFeatures.valence * 10), end.y + (audioFeatures.energy * 5));
+		cUp = Vec2(start.x - (audioFeatures.valence * 10), start.y + (audioFeatures.energy * 5));
+		cBottom = Vec2(end.x + (audioFeatures.valence * 10), end.y - (audioFeatures.energy * 5));
 
 		// Divide control box into time signature number
-		let divideBox = (cMax.x - cMin.x) / (timeSignature);
+		let divideBox = (cBottom.x - cUp.x) / (timeSignature);
 
 		// Section curve control points
-		c0 = Vec2(cMin.x + (divideBox), cMin.y + (currentSection.key));
-		c1 = Vec2(cMax.x - (divideBox * (timeSignature / 2)), cMax.y - (currentSection.key * 10));
+		c0 = Vec2(cBottom.x + (divideBox), cBottom.y + (currentSection.key));
+		c1 = Vec2(cUp.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
 
 		// Push current section curve into curve arrays
 		singleCurvePoints.push(start, c0, c1, end);
@@ -63,7 +63,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		if(i === (audioAnalysis.sections.length - 1)){
 			start = end;
 			c0 = start;
-			c0.x += 100;
+			c0.x += 200;
 			c1 = c0;
 			end = start;
 			end.x += 500;

@@ -17,6 +17,7 @@ const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
 const Collisions = require("./Collisions");
+const Score = require("./Score");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -206,6 +207,13 @@ class Game {
 		snowboarder.scale.y = 0.4;
 		snowboarder.play();
 		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
+
+		// Score
+		let score = new Score(this.stateController);
+		console.log("Score: " + score.getScore());
+		score.updateScore(50);
+		console.log("NewScore: " + score.getScore());
+
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
