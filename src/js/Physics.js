@@ -19,8 +19,8 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	// Player object
 	let playerBody = world.createBody().setDynamic();
-	//box.createFixture(pl.Circle(0.5), 1.0);
-	playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
+	playerBody.createFixture(pl.Circle(0.5), 1.0);
+	//playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
 	playerBody.setPosition(Vec2(0.0, -15.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({

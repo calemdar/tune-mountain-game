@@ -10,7 +10,6 @@ const Vec2 = Planck.Vec2;
 function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	let currentPoint = Vec2(-10,0);
-	let maxMountainLength = Vec2(100, 300);
 	let songLength = audioAnalysis.track.duration;
 	let timeSignature = audioFeatures.time_signature;
 	let curves = [];
@@ -40,6 +39,10 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		start = currentPoint;
 		end = Vec2(start.x + (currentSection.duration * durationMultiplier), start.y + ((50 + currentSection.loudness) * (durationMultiplier / 2)));
 
+		console.log("Curve " + i + " Angle: " + radianToDegree(findAngle(start, end)) + " Section length: " + currentSection.duration + " X disp: " + (end.x - start.x));
+
+
+
 		// Create control Box for section curve
 		cUp = Vec2(start.x - (audioFeatures.valence * 10), start.y + (audioFeatures.energy * 5));
 		cBottom = Vec2(end.x + (audioFeatures.valence * 10), end.y - (audioFeatures.energy * 5));
@@ -48,8 +51,8 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let divideBox = (cBottom.x - cUp.x) / (timeSignature);
 
 		// Section curve control points
-		c0 = Vec2(cBottom.x + (divideBox), cBottom.y + (currentSection.key));
-		c1 = Vec2(cUp.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
+		c0 = Vec2(cUp.x + (divideBox), cBottom.y + (currentSection.key));
+		c1 = Vec2(cBottom.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
 
 		// Push current section curve into curve arrays
 		singleCurvePoints.push(start, c0, c1, end);
@@ -114,9 +117,21 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	}
 
+	// Utility to find the angle between two Vec2 points in radians
+	function findAngle(point1, point2) {
+
+		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+		return angle;
+	}
+
+	function radianToDegree(radian) {
+		let degree = radian * 180 / Math.PI;
+		return degree;
+	}
+
 	// returns a float representing the length of section within the entire song
 	function timeToLength(section){
-
+		//let multiplier = 4;
 		let durationPercent = ((section.duration / songLength) * 100);
 		//let curveLength = durationPercent;
 		return durationPercent;

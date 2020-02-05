@@ -227,7 +227,7 @@ class Game {
 
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
-		viewport.zoomPercent(0.30);
+		viewport.zoomPercent(1.0);
 
 
 		// world on collision for physics
@@ -252,7 +252,9 @@ class Game {
 				 */
 
 				this.CAN_JUMP = true;
-				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
+				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
+				//console.log(this.songAnalysis.track.tempo);
+				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
 			}
 		});
 
