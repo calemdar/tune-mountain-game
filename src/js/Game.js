@@ -71,11 +71,8 @@ class Game {
 		const inputStreamObservable = inputManager.getObservable();
 
 		// Adds the current action being sent to the actionState array every time an action is received
-		const inputPerformedHandler = action => {
-			// TODO: maybe use function ForEach() for this, it's a bit cleaner
-			for (let i = 0; i < action.actions.length; i++) {
-				this.actionState[action.actions[i]] = action.type;
-			}
+		const inputPerformedHandler = actionEventObj => {
+			this.actionState[actionEventObj.action] = actionEventObj.type;
 		};
 
 		// subscribe to handle events
