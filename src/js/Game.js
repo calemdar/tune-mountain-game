@@ -253,7 +253,7 @@ class Game {
 
 				this.CAN_JUMP = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
-				//console.log(this.songAnalysis.track.tempo);
+				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
 			}
 		});
@@ -270,13 +270,35 @@ class Game {
 				viewport.follow(player.sprite);
 				 */
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-				player.physics.applyLinearImpulse(Planck.Vec2(100, -200), player.position, true);
+				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
 		};
 
+
+		// Timing stuff
+		let time0 = performance.now();  // in milliseconds
+		let lastCurveTime = time0;
+		let curveEndIndex = 0;
+		let nextCurveEnding = curves[curveEndIndex][3];
+		const handleTime = () => {
+			//console.log(player.position);
+			if(player.position.x > nextCurveEnding.x && curveEndIndex < curves.length - 1){
+				let currentTime = performance.now();
+				let timePassed = (currentTime - lastCurveTime) / 1000.0;   // in seconds
+				curveEndIndex += 1;
+				nextCurveEnding = curves[curveEndIndex][3];
+
+
+				console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
+				console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
+				lastCurveTime = currentTime;
+			}
+		};
+
 		this.pixiApp.ticker.add(handleActions);
+		this.pixiApp.ticker.add(handleTime);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}

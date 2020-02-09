@@ -26,7 +26,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		currentTime = currentSection.start;
 
 		let durationMultiplier = timeToLength(currentSection);
-
+		console.log("Section time: " + currentSection.duration);
 		/*
 		// Random points
 
@@ -37,15 +37,13 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 		// Start and end points of new section curve
 		start = currentPoint;
-		end = Vec2(start.x + (currentSection.duration * durationMultiplier), start.y + ((50 + currentSection.loudness) * (durationMultiplier / 2)));
+		end = Vec2(start.x + (currentSection.duration), start.y + ((50 + currentSection.loudness)));
 
-		console.log("Curve " + i + " Angle: " + radianToDegree(findAngle(start, end)) + " Section length: " + currentSection.duration + " X disp: " + (end.x - start.x));
-
-
+		end = extendCurve(currentSection, start, end, audioFeatures.tempo);
 
 		// Create control Box for section curve
-		cUp = Vec2(start.x - (audioFeatures.valence * 10), start.y + (audioFeatures.energy * 5));
-		cBottom = Vec2(end.x + (audioFeatures.valence * 10), end.y - (audioFeatures.energy * 5));
+		cUp = Vec2(start.x - (audioFeatures.valence * 100), start.y + (audioFeatures.energy * 50));
+		cBottom = Vec2(end.x + (audioFeatures.valence * 100), end.y - (audioFeatures.energy * 50));
 
 		// Divide control box into time signature number
 		let divideBox = (cBottom.x - cUp.x) / (timeSignature);
@@ -133,8 +131,65 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	function timeToLength(section){
 		//let multiplier = 4;
 		let durationPercent = ((section.duration / songLength) * 100);
-		//let curveLength = durationPercent;
+
 		return durationPercent;
+	}
+
+	function extendCurve(section, startPoint, endPoint, tempo){
+		let sectionAngle = radianToDegree(findAngle(startPoint, endPoint));
+		let durationMultiplier = timeToLength(section);
+		let xLength = (endPoint.x - startPoint.x);
+		let yLength = (endPoint.y - startPoint.y);
+		console.log("Initial curve X len: " + xLength + " Y len: " + yLength + " Angle: " + sectionAngle);
+
+		if (sectionAngle > 0 && sectionAngle <= 10){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 10 && sectionAngle <= 20){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 20 && sectionAngle <= 30){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 30 && sectionAngle <= 40){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 40 && sectionAngle <= 50){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 50 && sectionAngle <= 60){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 60 && sectionAngle <= 70){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 70 && sectionAngle <= 80){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		else if (sectionAngle > 80 && sectionAngle <= 90){
+			endPoint.x += xLength * tempo;
+			endPoint.y += yLength * tempo;
+
+		}
+		console.log("Final curve X len: " + (endPoint.x - startPoint.x) + " Y len: " + (endPoint.y - startPoint.y) + " Angle: " + radianToDegree(findAngle(startPoint, endPoint)));
+
+		return endPoint;
 	}
 
 	return curves;
