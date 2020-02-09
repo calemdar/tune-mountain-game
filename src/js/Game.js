@@ -17,6 +17,7 @@ const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
 const Collisions = require("./Collisions");
+const Score = require("./Score");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -247,6 +248,13 @@ class Game {
 		snowboarder.play();
 		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
+		// Score
+		let score = new Score(this.stateController);
+		console.log("Score: " + score.getScore());
+		score.updateScore(50);
+		console.log("NewScore: " + score.getScore());
+
+
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
 		// add coins
@@ -259,7 +267,7 @@ class Game {
 
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
-		viewport.zoomPercent(1);
+		viewport.zoomPercent(1.0);
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -283,7 +291,9 @@ class Game {
 				 */
 
 				this.CAN_JUMP = true;
-				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
+				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
+				//console.log(player.physics.getLinearVelocity());
+				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
 			}
 
 			if (playerA) {
@@ -308,7 +318,7 @@ class Game {
 				viewport.follow(player.sprite);
 				 */
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-				player.physics.applyLinearImpulse(Planck.Vec2(100, -200), player.position, true);
+				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
@@ -323,7 +333,29 @@ class Game {
 			}
 		};
 
+
+		// Timing stuff
+		let time0 = performance.now();  // in milliseconds
+		let lastCurveTime = time0;
+		let curveEndIndex = 0;
+		let nextCurveEnding = curves[curveEndIndex][3];
+		const handleTime = () => {
+			//console.log(player.position);
+			if(player.position.x > nextCurveEnding.x && curveEndIndex < curves.length - 1){
+				let currentTime = performance.now();
+				let timePassed = (currentTime - lastCurveTime) / 1000.0;   // in seconds
+				curveEndIndex += 1;
+				nextCurveEnding = curves[curveEndIndex][3];
+
+
+				console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
+				console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
+				lastCurveTime = currentTime;
+			}
+		};
+
 		this.pixiApp.ticker.add(handleActions);
+		this.pixiApp.ticker.add(handleTime);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}
