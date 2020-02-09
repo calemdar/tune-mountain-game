@@ -51,6 +51,9 @@ class Game {
 		// initialize action state tracker
 		this.actionState = {};
 
+		// initialize the sprite tracker
+		this.sprites = {};
+
 		// needed for controlling state
 		this.stateController = stateController;
 
@@ -61,16 +64,15 @@ class Game {
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
 		inputManager.bindAction("j", "jump");
 		inputManager.bindAction(" ", "jump");
+		inputManager.bindAction("p", "stop");
+		inputManager.bindAction("m", "start");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
 
 		// Adds the current action being sent to the actionState array every time an action is received
-		const inputPerformedHandler = action => {
-			// TODO: maybe use function ForEach() for this, it's a bit cleaner
-			for (let i = 0; i < action.actions.length; i++) {
-				this.actionState[action.actions[i]] = action.type;
-			}
+		const inputPerformedHandler = actionEventObj => {
+			this.actionState[actionEventObj.action] = actionEventObj.type;
 		};
 
 		// subscribe to handle events
@@ -92,6 +94,12 @@ class Game {
 		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
 			this.generateMountain(request.body.analysis, request.body.features)
 		));
+
+		// handles when controller emits pause request
+		stateController.onRequestTo(GameStateEnums.PAUSE, () => this.pauseState());
+
+		// handles when controller emits play request
+		stateController.onRequestTo(GameStateEnums.PLAY, () => this.playLevelState());
 	}
 
 	//			*************		  //
@@ -105,7 +113,8 @@ class Game {
 				width: window.innerWidth,
 				height: window.innerHeight,
 				backgroundColor: 0x42daf5,
-				antialias: true
+				antialias: true,
+				sharedTicker: true
 			});
 		}
 
@@ -118,6 +127,7 @@ class Game {
 	idleState(canvas) {
 		this.getPixiApp(canvas);
 
+		/*
 		const texture1 = PIXI.Texture.from("../img/bg-far.png");
 		const texture2 = PIXI.Texture.from("../img/bg-mid.png");
 
@@ -136,6 +146,17 @@ class Game {
 
 		this.pixiApp.stage.addChild(background1);
 		this.pixiApp.stage.addChild(background2);
+
+		 */
+
+		const texture = PIXI.Texture.from("../img/title page.png");
+		const background = new PIXI.Sprite(texture);
+		background.position.x = 0;
+		background.position.y = -175;
+		background.scale.x = 1.75;
+		background.scale.y = 1.25;
+		this.pixiApp.stage.addChild(background);
+		this.sprites.title = background;
 	}
 
 	generateMountain(analysis, features) {
@@ -160,15 +181,34 @@ class Game {
 	 */
 	generateMountainState() {
 
-		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
-		let idle = ["idle_frame_1.png","idle_frame_2.png","idle_frame_3.png",
-			"idle_frame_4.png","idle_frame_5.png", "idle_frame_6.png"];
+		this.pixiApp.stage.removeChild(this.sprites.title);
 
-		let jump = ["jump_frame_1.png","jump_frame_2.png","jump_frame_3.png",
-			"jump_frame_4.png","jump_frame_5.png", "jump_frame_6.png",
-			"jump_frame_7.png","jump_frame_8.png", "jump_frame_9.png",
-			"jump_frame_10.png","jump_frame_11.png", "jump_frame_12.png",
-			"jump_frame_13.png","jump_frame_14.png"];
+		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
+		let idle = [
+			"idle_frame_1.png",
+			"idle_frame_2.png",
+			"idle_frame_3.png",
+			"idle_frame_4.png",
+			"idle_frame_5.png",
+			"idle_frame_6.png"
+		];
+
+		let jump = [
+			"jump_frame_1.png",
+			"jump_frame_2.png",
+			"jump_frame_3.png",
+			"jump_frame_4.png",
+			"jump_frame_5.png",
+			"jump_frame_6.png",
+			"jump_frame_7.png",
+			"jump_frame_8.png",
+			"jump_frame_9.png",
+			"jump_frame_10.png",
+			"jump_frame_11.png",
+			"jump_frame_12.png",
+			"jump_frame_13.png",
+			"jump_frame_14.png"
+		];
 
 		let idleArray = [];
 		let jumpArray = [];
@@ -202,8 +242,8 @@ class Game {
 		//const snowboarder = new PIXI.Sprite(texture);
 		const snowboarder = new PIXI.AnimatedSprite(idleArray);
 		snowboarder.animationSpeed = .15;
-		snowboarder.scale.x = 0.4;
-		snowboarder.scale.y = 0.4;
+		snowboarder.scale.x = 0.5;
+		snowboarder.scale.y = 0.5;
 		snowboarder.play();
 		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
@@ -219,8 +259,7 @@ class Game {
 
 		viewport.addChild(player.sprite);
 		viewport.follow(player.sprite);
-		viewport.zoomPercent(0.30);
-
+		viewport.zoomPercent(1);
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -246,6 +285,15 @@ class Game {
 				this.CAN_JUMP = true;
 				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
 			}
+
+			if (playerA) {
+				// eslint-disable-next-line no-mixed-spaces-and-tabs
+			    player.sprite.rotation = bodyB.getAngle();
+			}
+			else {
+				// eslint-disable-next-line no-mixed-spaces-and-tabs
+				player.sprite.rotation = bodyA.getAngle();
+			}
 		});
 
 
@@ -264,6 +312,15 @@ class Game {
 				player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
+
+			if (this.actionState.stop === "press") {
+				this.pauseState();
+			}
+
+			if (this.actionState.start === "press") {
+				console.log("hello restart");
+			    this.playLevelState();
+			}
 		};
 
 		this.pixiApp.ticker.add(handleActions);
@@ -278,7 +335,7 @@ class Game {
 	 * // TODO: actually implement a 2-way comm between modules here
 	 */
 	playLevelState() {
-		// do stuff
+		this.pixiApp.ticker.start();
 	}
 
 	/**
@@ -286,7 +343,7 @@ class Game {
 	 *  playback. Should also be executed when website requires game to pause for whatever reason.
 	 */
 	pauseState() {
-		// don't stuff
+		this.pixiApp.ticker.stop();
 	}
 
 	// add more states as needed... etc. Not all of these should be implemented for A-Fest
