@@ -261,7 +261,7 @@ class Game {
 		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 
 		Bezier(viewport, allPoints);
-		Collisions(this.pixiApp, viewport, player, coinSprites);
+		Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 
