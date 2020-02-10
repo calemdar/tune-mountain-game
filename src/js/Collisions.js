@@ -4,18 +4,24 @@ const GameObject = require("./GameObject");
 
 function Collisions(game, viewport, player, coins) {
 
+	let tempoCounter = 0;
+
 	// Collect coin if the sprites collided
 	function collectCoin() {
 		let currCoin;
+		let tempo = 120;
 
 		for(let i = 0; i < coins.length; i++){
 			currCoin = coins[i].sprite;
+			/*
 			if(playerHitTest(player.sprite, currCoin)){
 				//console.log("Player collision");
-				deleteCoin(currCoin);
+				//deleteCoin(currCoin);
 				//currCoin.destroy();
 				break;
 			}
+			 */
+			//if(tempo)
 		}
 
 	}
@@ -34,6 +40,18 @@ function Collisions(game, viewport, player, coins) {
 		}
 
 		return false;
+	}
+
+	function pulse(tempo, sprite){
+		if(tempoCounter < tempo){
+			sprite.scale.x += 0.02;
+			sprite.scale.y += 0.02;
+			//tempoCounter++;
+		}
+		else if(tempoCounter >= tempo){
+			sprite.scale.x -= 0.02;
+			sprite.scale.y -= 0.02;
+		}
 	}
 
 	// psuedo delete the sprite by moving it out of screen
