@@ -53,7 +53,12 @@ class Game {
 		this.actionState = {};
 
 		// initialize the sprite tracker
-		this.sprites = {};
+		this.sprites = {
+			title: null,
+			idle: null,
+			jump: null,
+			trick1: null
+		};
 
 		// needed for controlling state
 		this.stateController = stateController;
@@ -128,34 +133,12 @@ class Game {
 	idleState(canvas) {
 		this.getPixiApp(canvas);
 
-		/*
-		const texture1 = PIXI.Texture.from("../img/bg-far.png");
-		const texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-		const background1 = new PIXI.Sprite(texture1);
-		const background2 = new PIXI.Sprite(texture2);
-
-		background1.position.x = 0;
-		background1.position.y = -325;
-		background1.scale.x = 1.75;
-		background1.scale.y = 1.5;
-
-		background2.position.x = 0;
-		background2.position.y = 0;
-		background2.scale.x = 1.75;
-		background2.scale.y = 1.5;
-
-		this.pixiApp.stage.addChild(background1);
-		this.pixiApp.stage.addChild(background2);
-
-		 */
-
 		const texture = PIXI.Texture.from("../img/title page.png");
 		const background = new PIXI.Sprite(texture);
 		background.position.x = 0;
 		background.position.y = -175;
 		background.scale.x = 1.75;
-		background.scale.y = 1.25;
+		background.scale.y = 1.5;
 		this.pixiApp.stage.addChild(background);
 		this.sprites.title = background;
 	}
@@ -181,6 +164,11 @@ class Game {
 	 *  PRIOR TO THIS REFACTOR!! SO PLS FIGURE IT OUT IF I F*CKED SOMETHING UP.
 	 */
 	generateMountainState() {
+
+		// check for no pixi
+		if (!this.pixiApp) {
+			throw new Error("Pixi not initialized properly. Check code.");
+		}
 
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
@@ -214,22 +202,16 @@ class Game {
 		let idleArray = [];
 		let jumpArray = [];
 
-		for (let i=0; i < 4; i++) {
+		for (let i = 0; i < 6; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
 			idleArray.push(texture);
 		}
 
-		for (let i=0; i < 4; i++) {
-			let texture = PIXI.Texture.from("/img/" + idle[i]);
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + jump[i]);
 			jumpArray.push(texture);
 		}
 
-		// check for no pixi
-		if (!this.pixiApp) {
-			throw new Error("Pixi not initialized properly. Check code.");
-		}
-
-		// legacy code
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
 		const viewport = Viewport(this.pixiApp);
 
@@ -241,19 +223,26 @@ class Game {
 		const obj = new GameObject();
 		//const texture = PIXI.Texture.from("../img/snowboarder.png");
 		//const snowboarder = new PIXI.Sprite(texture);
-		const snowboarder = new PIXI.AnimatedSprite(idleArray);
-		snowboarder.animationSpeed = .15;
-		snowboarder.scale.x = 0.5;
-		snowboarder.scale.y = 0.5;
-		snowboarder.play();
-		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
+		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
+		idleSnowboarder.animationSpeed = .15;
+		idleSnowboarder.scale.x = 0.5;
+		idleSnowboarder.scale.y = 0.5;
+		idleSnowboarder.play();
+		let player = obj.create({name: "Player", sprite: idleSnowboarder, animation1: idleArray, animation2: jumpArray});
+
+		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
+		jumpSnowboarder.animationSpeed = .15;
+		jumpSnowboarder.scale.x = 0.5;
+		jumpSnowboarder.scale.y = 0.5;
+
+		this.sprites.idle = idleSnowboarder;
+		this.sprites.jump = jumpSnowboarder;
 
 		// Score
 		let score = new Score(this.stateController);
 		console.log("Score: " + score.getScore());
 		score.updateScore(50);
 		console.log("NewScore: " + score.getScore());
-
 
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
@@ -281,14 +270,12 @@ class Game {
 			let playerB = bodyB === player.physics;
 
 			if (playerA || playerB) {
-				/*
-				if (!this.CAN_JUMP) {
-					this.CAN_JUMP = true;
-					player.sprite = new PIXI.AnimatedSprite(player.animation1);
-					snowboarder.animationSpeed = .15;
-					snowboarder.play();
-				}
-				 */
+
+				viewport.removeChild(this.sprites.jump);
+				player.sprite = this.sprites.idle;
+				player.sprite.play();
+				viewport.addChild(player.sprite);
+				viewport.follow(player.sprite);
 
 				this.CAN_JUMP = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
@@ -309,17 +296,18 @@ class Game {
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
-				/*
-				player.sprite.destroy();
-				player.sprite = new PIXI.AnimatedSprite(player.animation2);
-				snowboarder.animationSpeed = .15;
-				snowboarder.play();
+
+				let rotation = player.sprite.rotation;
+				viewport.removeChild(this.sprites.idle);
+				player.sprite = this.sprites.jump;
+				player.sprite.rotation = rotation;
+				player.sprite.play();
 				viewport.addChild(player.sprite);
 				viewport.follow(player.sprite);
-				 */
+
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
-				player.physics.setAngle(0);
+				//player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
 
