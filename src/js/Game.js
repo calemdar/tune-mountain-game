@@ -221,14 +221,17 @@ class Game {
 
 		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
-		//const texture = PIXI.Texture.from("../img/snowboarder.png");
-		//const snowboarder = new PIXI.Sprite(texture);
+
+		const texture = PIXI.Texture.from("../img/snowboarder.png");
+		const followSprite = new PIXI.Sprite(texture);
+		followSprite.visible = false;
+
 		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
 		idleSnowboarder.animationSpeed = .15;
 		idleSnowboarder.scale.x = 0.5;
 		idleSnowboarder.scale.y = 0.5;
 		idleSnowboarder.play();
-		let player = obj.create({name: "Player", sprite: idleSnowboarder, animation1: idleArray, animation2: jumpArray});
+		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
 		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
 		jumpSnowboarder.animationSpeed = .15;
@@ -254,8 +257,9 @@ class Game {
 
 		// add game object to viewport
 
+		viewport.addChild(player.followSprite);
 		viewport.addChild(player.sprite);
-		viewport.follow(player.sprite);
+		viewport.follow(player.followSprite);
 		viewport.zoomPercent(1.0);
 
 		// world on collision for physics
@@ -271,11 +275,16 @@ class Game {
 
 			if (playerA || playerB) {
 
-				viewport.removeChild(this.sprites.jump);
-				player.sprite = this.sprites.idle;
-				player.sprite.play();
-				viewport.addChild(player.sprite);
-				viewport.follow(player.sprite);
+				if (this.CAN_JUMP === false) {
+					let xposition = player.sprite.position.x;
+					let yposition = player.sprite.position.y;
+					viewport.removeChild(this.sprites.jump);
+					player.sprite = this.sprites.idle;
+					player.sprite.position.x = xposition;
+					player.sprite.position.y = yposition;
+					player.sprite.gotoAndPlay(0);
+					viewport.addChild(player.sprite);
+				}
 
 				this.CAN_JUMP = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
@@ -298,12 +307,15 @@ class Game {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
 
 				let rotation = player.sprite.rotation;
+				let xposition = player.sprite.position.x;
+				let yposition = player.sprite.position.y;
 				viewport.removeChild(this.sprites.idle);
 				player.sprite = this.sprites.jump;
 				player.sprite.rotation = rotation;
-				player.sprite.play();
+				player.sprite.position.x = xposition;
+				player.sprite.position.y = yposition;
+				player.sprite.gotoAndPlay(0);
 				viewport.addChild(player.sprite);
-				viewport.follow(player.sprite);
 
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
@@ -317,7 +329,7 @@ class Game {
 
 			if (this.actionState.start === "press") {
 				console.log("hello restart");
-			    this.playLevelState();
+				this.playLevelState();
 			}
 		};
 
