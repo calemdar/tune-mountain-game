@@ -52,14 +52,6 @@ class Game {
 		// initialize action state tracker
 		this.actionState = {};
 
-		// initialize the sprite tracker
-		this.sprites = {
-			title: null,
-			idle: null,
-			jump: null,
-			trick1: null
-		};
-
 		// needed for controlling state
 		this.stateController = stateController;
 
@@ -70,8 +62,7 @@ class Game {
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
 		inputManager.bindAction("j", "jump");
 		inputManager.bindAction(" ", "jump");
-		inputManager.bindAction("p", "stop");
-		inputManager.bindAction("m", "start");
+		inputManager.bindAction("w", "trick1");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
@@ -91,6 +82,16 @@ class Game {
 
 		this.songAnalysis = null;
 		this.songFeatures = null;
+
+		// initialize the sprite tracker
+		this.sprites = {
+			title: null,
+			idle: null,
+			jump: null,
+			trick1: null
+		};
+
+		this.score = null;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
@@ -199,8 +200,22 @@ class Game {
 			"jump_frame_14.png"
 		];
 
+		let trick = [
+			"trick1.png",
+			"trick2.png",
+			"trick3.png",
+			"trick4.png",
+			"trick5.png",
+			"trick6.png",
+			"trick7.png",
+			"trick8.png",
+			"trick9.png",
+			"trick10.png"
+		];
+
 		let idleArray = [];
 		let jumpArray = [];
+		let trickArray = [];
 
 		for (let i = 0; i < 6; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
@@ -210,6 +225,11 @@ class Game {
 		for (let i = 0; i < 14; i++) {
 			let texture = PIXI.Texture.from("/img/" + jump[i]);
 			jumpArray.push(texture);
+		}
+
+		for (let i = 0; i < 10; i++) {
+			let texture = PIXI.Texture.from("/img/" + trick[i]);
+			trickArray.push(texture);
 		}
 
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
@@ -238,15 +258,22 @@ class Game {
 		jumpSnowboarder.scale.x = 0.5;
 		jumpSnowboarder.scale.y = 0.5;
 
+		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
+		trickSnowboarder.animationSpeed = .15;
+		trickSnowboarder.scale.x = 0.5;
+		trickSnowboarder.scale.y = 0.5;
+		trickSnowboarder.loop = false;
+		trickSnowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
+		};
+
+		// Assign sprites and score to the Game
 		this.sprites.idle = idleSnowboarder;
 		this.sprites.jump = jumpSnowboarder;
+		this.sprites.trick1 = trickSnowboarder;
+		this.score = new Score(this.stateController);
 
-		// Score
-		let score = new Score(this.stateController);
-		console.log("Score: " + score.getScore());
-		score.updateScore(50);
-		console.log("NewScore: " + score.getScore());
-
+		// Generate physics points for curves
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
 		// add coins
@@ -276,14 +303,7 @@ class Game {
 			if (playerA || playerB) {
 
 				if (this.CAN_JUMP === false) {
-					let xposition = player.sprite.position.x;
-					let yposition = player.sprite.position.y;
-					viewport.removeChild(this.sprites.jump);
-					player.sprite = this.sprites.idle;
-					player.sprite.position.x = xposition;
-					player.sprite.position.y = yposition;
-					player.sprite.gotoAndPlay(0);
-					viewport.addChild(player.sprite);
+					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
 
 				this.CAN_JUMP = true;
@@ -306,16 +326,7 @@ class Game {
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
 
-				let rotation = player.sprite.rotation;
-				let xposition = player.sprite.position.x;
-				let yposition = player.sprite.position.y;
-				viewport.removeChild(this.sprites.idle);
-				player.sprite = this.sprites.jump;
-				player.sprite.rotation = rotation;
-				player.sprite.position.x = xposition;
-				player.sprite.position.y = yposition;
-				player.sprite.gotoAndPlay(0);
-				viewport.addChild(player.sprite);
+				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
@@ -323,16 +334,11 @@ class Game {
 				this.CAN_JUMP = false;
 			}
 
-			if (this.actionState.stop === "press") {
-				this.pauseState();
+			if (this.actionState.trick1 === "press") {
+				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
 			}
 
-			if (this.actionState.start === "press") {
-				console.log("hello restart");
-				this.playLevelState();
-			}
 		};
-
 
 		// Timing stuff
 		let time0 = performance.now();  // in milliseconds
@@ -358,6 +364,26 @@ class Game {
 		this.pixiApp.ticker.add(handleTime);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
+	}
+
+	swapSprites(player, viewport, sprite, trick) {
+
+		if (trick === "trick1 complete") {
+			this.score.updateScore(100);
+			console.log("NewScore: " + this.score.getScore());
+		}
+
+		let rotation = player.sprite.rotation;
+		let xposition = player.sprite.position.x;
+		let yposition = player.sprite.position.y;
+		player.sprite.stop();
+		viewport.removeChild(player.sprite);
+		player.sprite = sprite;
+		player.sprite.rotation = rotation;
+		player.sprite.position.x = xposition;
+		player.sprite.position.y = yposition;
+		player.sprite.gotoAndPlay(0);
+		viewport.addChild(player.sprite);
 	}
 
 	/**
