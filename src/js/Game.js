@@ -182,7 +182,14 @@ class Game {
 	 */
 	generateMountainState() {
 
+		let canvas = document.getElementById("mycanvas");
 		this.pixiApp.stage.removeChild(this.sprites.title);
+
+		// check for no pixi
+		if (!this.pixiApp) {
+			//throw new Error("Pixi not initialized properly. Check code.");
+			this.getPixiApp(canvas);
+		}
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
 		let idle = [
@@ -222,11 +229,6 @@ class Game {
 		for (let i=0; i < 4; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
 			jumpArray.push(texture);
-		}
-
-		// check for no pixi
-		if (!this.pixiApp) {
-			throw new Error("Pixi not initialized properly. Check code.");
 		}
 
 		// legacy code
