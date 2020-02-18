@@ -9,49 +9,50 @@ function Coins(analysis, allPoints, viewport, player) {
 	let currentSection;
 	let allPointCounter = 0;			// counts all points from the physics
 	let coinObjects = [];				// stores all coin sprite objects
-	let sectionBeats;					// all beats for a given section
+	let sectionBeats = [];					// all beats for a given section
 	let coinPlacer = 0;					// counter for coin placement
 	let maxCoinSeries = 4;				// max count of coins to spread in series
+	let beatLength;						// num beats / curve resolution
 
-	const texture = PIXI.Texture.from("../img/coin.png");
+	const texture = PIXI.Texture.from("../img/tree2_snowy.png");
+	// lay coins
 
 	for(let i = 0; i < analysis.sections.length; i+=1){
 		coinPlacer = 0;
+		beatLength = beatsToPoints(sectionBeats.length);
 		currentSection = analysis.sections[i];
 		sectionBeats = getBeatsInSection(currentSection);
 		//console.log(sectionBeats);
+		//console.log(beatLength);
 
 		for(let k = 0; k < sectionBeats.length; k+=1) {
 			let coinSprite = new PIXI.Sprite(texture);
 
-			if(coinPlacer <= maxCoinSeries) {
-
-
-				coinSprite.size = 0.3;
-				coinSprite.anchor.x = 0.5;
-				coinSprite.anchor.y = 0.5;
-				coinSprite.position.x = allPoints[allPointCounter].x;
-				coinSprite.position.y = allPoints[allPointCounter].y - 30;
-				let coinObj = obj.create({name: "Coin", position: coinSprite.position, sprite: coinSprite, scale: coinSprite.size});
-
-				coinObjects.push(coinObj);
-				viewport.addChild(coinSprite);
-
-
+			if(allPointCounter >= allPoints.length){
+				break;
 			}
+
+			coinSprite.scale.x = 1.0;
+			coinSprite.scale.y = 1.0;
+			coinSprite.anchor.x = 0.5;
+			coinSprite.anchor.y = 1.0;
+
+			coinSprite.position.x = allPoints[allPointCounter].x;
+			coinSprite.position.y = allPoints[allPointCounter].y;
+
+			let coinObj = obj.create({name: "Coin", position: coinSprite.position, sprite: coinSprite, scale: coinSprite.size});
+
+			coinObjects.push(coinObj);
+			viewport.addChild(coinSprite);
+
 			coinPlacer += 1;
-			allPointCounter += 1;
+			allPointCounter += beatLength;
+
 
 			// reset coin placer when doubled coin series
-			if(coinPlacer > (currentSection.time_signature * maxCoinSeries)) {
+			if(coinPlacer > (currentSection.time_signature)) {
 				coinPlacer = 0;
 			}
-
-
-			if(allPointCounter < allPoints.length) {
-				//allPointCounter += (Math.floor(60 / sectionBeats.length));
-			}
-
 		}
 
 	}
@@ -70,11 +71,20 @@ function Coins(analysis, allPoints, viewport, player) {
 				beats.push(currBeat);
 			}
 		}
-
 		return beats;
 	}
 
+	function beatsToPoints(numBeats){
+		let numPoints = allPoints.length / analysis.sections.length;
+		//console.log("Num points per curve: " + numPoints);
+		let length;
+		if(numBeats > 0) {
+			length = Math.ceil(numPoints / numBeats);
+		}
+		else {length = 1;}
 
+		return length;
+	}
 
 	return coinObjects;
 }

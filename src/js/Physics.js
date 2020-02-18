@@ -2,21 +2,26 @@ const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
 
-
+/**
+ * Create all physical objects.
+ *
+ * @param {PixiApp} game app to draw alll the objects on
+ * @param {Viewport} viewport to add all Sprites to
+ * @param {Array} curvePoints that has all the points on the Bezier curves
+ * @param {GameObject} player that is the player to control
+ * @param {GameObject} obj the Game object constructor
+ * @param {PlanckWorld} world created using Planck.js
+ */
 function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
 	let allCurvePoints = [];
 
-	let ground = world.createBody();
-	ground.createFixture(pl.Edge(Vec2(0.0, 100.0), Vec2(100.0, 200.0)), 1.0);
-	ground.setPosition(Vec2(0, 100));
-
-	// physics object
+	// Player object
 	let playerBody = world.createBody().setDynamic();
-	//box.createFixture(pl.Circle(0.5), 1.0);
-	playerBody.createFixture(pl.Box(3, 0.1), 1.0);
-	playerBody.setPosition(Vec2(150.0, -10.0));
+	playerBody.createFixture(pl.Circle(0.5), 1.0);
+	//playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
+	playerBody.setPosition(Vec2(0.0, -15.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({
 		mass : 5,
@@ -26,20 +31,27 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	player.physics = playerBody;
 	player.position = playerBody.getPosition();
-	player.anchor = Vec2(0.5, 1);
+	player.anchor = Vec2(0.3, 1.0);
 	player.mass = playerBody.getMass();
 
+
 	// Physics Bezier Curve
+	// creates single point for the given Bezier curve
+	// t = varying value between 0 and 1
+	// p0 = start point of curve
+	// p1 = end point of curve
+	// c0 = first control point
+	// c1 = second control point
 	const cubicBezierPoint = function (t, p0, p1, c0, c1) {
 
 		//return (1-t)^3 * p0 + 3*(1-t)^2 * t * c0 + 3*(1-t) * t^2 * c1 + t^3 * p1
 		//       {   first   }  {      second     }  {      third      }  { fourth }
 		let point;
 		let addVectors;
-		let first = multiplyVec(p0, ((1-t)*(1-t)*(1-t)));
-		let second = multiplyVec(c0, (3 * ((1-t)*(1-t)) * t));
-		let third = multiplyVec(c1, (3 * (1-t) * (t*t)));
-		let fourth = multiplyVec(p1, (t*t*t));
+		let first = scaleVec(p0, ((1-t)*(1-t)*(1-t)));
+		let second = scaleVec(c0, (3 * ((1-t)*(1-t)) * t));
+		let third = scaleVec(c1, (3 * (1-t) * (t*t)));
+		let fourth = scaleVec(p1, (t*t*t));
 
 
 		addVectors = addVec(first, second);
@@ -52,6 +64,11 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	};
 
+	// Creates the Bezier curve with the resolution of "numPoints"
+	// p0 = start point of curve
+	// p1 = end point of curve
+	// c0 = first control point
+	// c1 = second control point
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
@@ -67,17 +84,21 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		}
 	};
 
+	// Create physical lines between all the points created by bezierCurvePoints
+	// points = all points created by bezierCurvePoints
 	const physicalBezierCurve = function (points) {
 		let line;
 		let newAngle;
+		let lineOffset = 0.0;
 
 		for(let i = 0; i < points.length - 1; i+=1){
 
 			let vertex1 = points[i];
 			let vertex2 = points[i+1];
+			let lineLength = findMagnitude(subtractVec(vertex2, vertex1));
 
-			line = world.createBody();
-			let currentCurve = line.createFixture(pl.Box(findMagnitude(subtractVec(vertex2, vertex1)) / 2, 0.01), 1.0);
+			line = world.createBody().setStatic();
+			let currentCurve = line.createFixture(pl.Box(lineLength - lineOffset, 0.01), 1.0);
 			currentCurve.setFriction(.1);
 			line.setPosition(findMidpoint(vertex1, vertex2));
 			newAngle = findAngle(vertex1, vertex2);
@@ -88,7 +109,8 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	};
 
-	const multiplyVec = function (vector, number){
+	// Utility to scale Vec2 with a number
+	const scaleVec = function (vector, number){
 		let result = Vec2();
 
 		result.x = vector.x * number;
@@ -97,6 +119,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		return result;
 	};
 
+	// Utility to add two Vec2 together
 	const addVec = function (vector1, vector2){
 		let result = Vec2();
 
@@ -106,6 +129,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		return result;
 	};
 
+	// Utility to subtract two Vec2 together
 	const subtractVec = function (vector1, vector2){
 		let result = Vec2();
 
@@ -115,6 +139,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		return result;
 	};
 
+	// Utility to find the midpoint between two Vec2 points
 	const findMidpoint = function (point1, point2){
 		let result = Vec2();
 
@@ -124,16 +149,19 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		return result;
 	};
 
+	// Utility to find the angle between two Vec2 points
 	const findAngle = function (point1, point2) {
 
 		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
 		return angle;
 	};
 
-	const findMagnitude = function(point1){
-		let magnitude = Math.sqrt((point1.x * point1.x) + (point1.y * point1.y));
-		return magnitude;
+	// Utility to find the magnitude of a Vec2
+	const findMagnitude = function(vector){
+		let magnitude = Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+		return magnitude / 2;
 	};
+
 
 	const getCurvePoints = function (){
 
@@ -150,6 +178,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	// Testing
 	getCurvePoints();
 
+	// Render everything in the physics world
 	const renderStep = function() {
 
 		world.step(1 / 60);
@@ -162,17 +191,13 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		}
 
 		//console.log(player.physics.getLinearVelocity());
-		/*
-		if (player.position.x > 250 && !reachedPosition) {
-			player.physics.applyForce(Vec2(500, 0), player.position, true);
-			reachedPosition = true;
-		}
-		*/
+
 
 		let physicsPos = obj.renderPosition(player);
+
+		// new speed test
+
 	};
-
-
 
 	game.ticker.add(renderStep);
 	return allCurvePoints;
