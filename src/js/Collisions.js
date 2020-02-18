@@ -2,7 +2,10 @@ const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
 const GameObject = require("./GameObject");
 
-function Collisions(game, viewport, player, coins) {
+function Collisions(game, viewport, player, coins, songFeatures) {
+
+	let tempoCounter = 0;
+	let tempoFlag = true;		// true = getting bigger, false = getting smaller
 
 	// Collect coin if the sprites collided
 	function collectCoin() {
@@ -10,12 +13,15 @@ function Collisions(game, viewport, player, coins) {
 
 		for(let i = 0; i < coins.length; i++){
 			currCoin = coins[i].sprite;
+			/*
 			if(playerHitTest(player.sprite, currCoin)){
 				//console.log("Player collision");
-				deleteCoin(currCoin);
+				//deleteCoin(currCoin);
 				//currCoin.destroy();
 				break;
 			}
+			 */
+			//if(tempo)
 		}
 
 	}
@@ -36,6 +42,52 @@ function Collisions(game, viewport, player, coins) {
 		return false;
 	}
 
+	function pulseUp(sprite){
+		sprite.scale.x += 0.004;
+		sprite.scale.y += 0.004;
+
+
+	}
+	function pulseDown(sprite){
+
+		sprite.scale.x -= 0.004;
+		sprite.scale.y -= 0.004;
+
+	}
+	
+	const pulseTrees = () => {
+		let currCoin;
+		let tempo = songFeatures.tempo / 2.0;
+
+
+		if(tempoCounter === 0){
+			tempoFlag = true;
+		}
+		else if(tempoCounter >= tempo){
+			tempoFlag = false;
+		}
+
+		for(let i = 0; i < coins.length; i++) {
+			currCoin = coins[i].sprite;
+
+			if(tempoFlag){
+				pulseUp(currCoin);
+			}
+			else {
+				pulseDown(currCoin);
+			}
+		}
+
+		// incrementation
+		if(tempoFlag){
+			tempoCounter++;
+		}
+		else {
+			tempoCounter--;
+		}
+		console.log(tempoCounter);
+	};
+
 	// psuedo delete the sprite by moving it out of screen
 	function deleteCoin(coin){
 
@@ -43,7 +95,7 @@ function Collisions(game, viewport, player, coins) {
 		coin.position.y = -1000;
 	}
 
-	game.ticker.add(collectCoin);
+	game.ticker.add(pulseTrees);
 }
 
 module.exports = Collisions;

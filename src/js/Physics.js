@@ -31,7 +31,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	player.physics = playerBody;
 	player.position = playerBody.getPosition();
-	player.anchor = Vec2(0.5, 1);
+	player.anchor = Vec2(0.3, 1.0);
 	player.mass = playerBody.getMass();
 
 

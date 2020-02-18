@@ -166,12 +166,14 @@ class Game {
 	 */
 	generateMountainState() {
 
+		let canvas = document.getElementById("mycanvas");
+		this.pixiApp.stage.removeChild(this.sprites.title);
+
 		// check for no pixi
 		if (!this.pixiApp) {
-			throw new Error("Pixi not initialized properly. Check code.");
+			//throw new Error("Pixi not initialized properly. Check code.");
+			this.getPixiApp(canvas);
 		}
-
-		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
 		let idle = [
@@ -248,20 +250,20 @@ class Game {
 
 		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
 		idleSnowboarder.animationSpeed = .15;
-		idleSnowboarder.scale.x = 0.5;
-		idleSnowboarder.scale.y = 0.5;
+		idleSnowboarder.scale.x = 0.2;
+		idleSnowboarder.scale.y = 0.2;
 		idleSnowboarder.play();
 		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
 		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
 		jumpSnowboarder.animationSpeed = .15;
-		jumpSnowboarder.scale.x = 0.5;
-		jumpSnowboarder.scale.y = 0.5;
+		jumpSnowboarder.scale.x = 0.2;
+		jumpSnowboarder.scale.y = 0.2;
 
 		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
 		trickSnowboarder.animationSpeed = .15;
-		trickSnowboarder.scale.x = 0.5;
-		trickSnowboarder.scale.y = 0.5;
+		trickSnowboarder.scale.x = 0.2;
+		trickSnowboarder.scale.y = 0.2;
 		trickSnowboarder.loop = false;
 		trickSnowboarder.onComplete = () => {
 			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
@@ -280,14 +282,17 @@ class Game {
 		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 
 		Bezier(viewport, allPoints);
-		Collisions(this.pixiApp, viewport, player, coinSprites);
+		Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 
 		viewport.addChild(player.followSprite);
 		viewport.addChild(player.sprite);
-		viewport.follow(player.followSprite);
-		viewport.zoomPercent(1.0);
+		viewport.zoomPercent(6.0);
+
+		const followPlayer = () => {
+			viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
+		};
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -362,6 +367,7 @@ class Game {
 
 		this.pixiApp.ticker.add(handleActions);
 		this.pixiApp.ticker.add(handleTime);
+		this.pixiApp.ticker.add(followPlayer);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}

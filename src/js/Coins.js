@@ -14,7 +14,7 @@ function Coins(analysis, allPoints, viewport, player) {
 	let maxCoinSeries = 4;				// max count of coins to spread in series
 	let beatLength;						// num beats / curve resolution
 
-	const texture = PIXI.Texture.from("../img/coin.png");
+	const texture = PIXI.Texture.from("../img/tree2_snowy.png");
 	// lay coins
 
 	for(let i = 0; i < analysis.sections.length; i+=1){
@@ -32,12 +32,13 @@ function Coins(analysis, allPoints, viewport, player) {
 				break;
 			}
 
-			coinSprite.size = 0.3;
+			coinSprite.scale.x = 0.5;
+			coinSprite.scale.y = 0.5;
 			coinSprite.anchor.x = 0.5;
-			coinSprite.anchor.y = 0.5;
+			coinSprite.anchor.y = 1.0;
 
-			coinSprite.position.x = allPoints[allPointCounter].x + 20;
-			coinSprite.position.y = allPoints[allPointCounter].y - 20;
+			coinSprite.position.x = allPoints[allPointCounter].x;
+			coinSprite.position.y = allPoints[allPointCounter].y;
 
 			let coinObj = obj.create({name: "Coin", position: coinSprite.position, sprite: coinSprite, scale: coinSprite.size});
 

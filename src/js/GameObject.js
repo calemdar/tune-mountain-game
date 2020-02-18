@@ -26,7 +26,7 @@ function GameObject () {
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
 		object.sprite.position.x = physicsPos.x;
-		object.sprite.position.y = physicsPos.y + 15;
+		object.sprite.position.y = physicsPos.y + 5;
 
 		object.followSprite.anchor = object.anchor;
 		object.followSprite.position.x = physicsPos.x;
