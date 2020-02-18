@@ -288,8 +288,11 @@ class Game {
 
 		viewport.addChild(player.followSprite);
 		viewport.addChild(player.sprite);
-		viewport.follow(player.followSprite);
 		viewport.zoomPercent(6.0);
+
+		const followPlayer = () => {
+			viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
+		};
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -364,6 +367,7 @@ class Game {
 
 		this.pixiApp.ticker.add(handleActions);
 		this.pixiApp.ticker.add(handleTime);
+		this.pixiApp.ticker.add(followPlayer);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}

@@ -32,8 +32,8 @@ function Coins(analysis, allPoints, viewport, player) {
 				break;
 			}
 
-			coinSprite.scale.x = 1.0;
-			coinSprite.scale.y = 1.0;
+			coinSprite.scale.x = 0.5;
+			coinSprite.scale.y = 0.5;
 			coinSprite.anchor.x = 0.5;
 			coinSprite.anchor.y = 1.0;
 
