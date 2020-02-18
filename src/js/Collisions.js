@@ -85,7 +85,6 @@ function Collisions(game, viewport, player, coins, songFeatures) {
 		else {
 			tempoCounter--;
 		}
-		console.log(tempoCounter);
 	};
 
 	// psuedo delete the sprite by moving it out of screen
