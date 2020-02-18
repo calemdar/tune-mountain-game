@@ -250,20 +250,20 @@ class Game {
 
 		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
 		idleSnowboarder.animationSpeed = .15;
-		idleSnowboarder.scale.x = 0.5;
-		idleSnowboarder.scale.y = 0.5;
+		idleSnowboarder.scale.x = 0.2;
+		idleSnowboarder.scale.y = 0.2;
 		idleSnowboarder.play();
 		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
 		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
 		jumpSnowboarder.animationSpeed = .15;
-		jumpSnowboarder.scale.x = 0.5;
-		jumpSnowboarder.scale.y = 0.5;
+		jumpSnowboarder.scale.x = 0.2;
+		jumpSnowboarder.scale.y = 0.2;
 
 		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
 		trickSnowboarder.animationSpeed = .15;
-		trickSnowboarder.scale.x = 0.5;
-		trickSnowboarder.scale.y = 0.5;
+		trickSnowboarder.scale.x = 0.2;
+		trickSnowboarder.scale.y = 0.2;
 		trickSnowboarder.loop = false;
 		trickSnowboarder.onComplete = () => {
 			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
@@ -289,7 +289,7 @@ class Game {
 		viewport.addChild(player.followSprite);
 		viewport.addChild(player.sprite);
 		viewport.follow(player.followSprite);
-		viewport.zoomPercent(1.0);
+		viewport.zoomPercent(6.0);
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
