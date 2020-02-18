@@ -52,9 +52,6 @@ class Game {
 		// initialize action state tracker
 		this.actionState = {};
 
-		// initialize the sprite tracker
-		this.sprites = {};
-
 		// needed for controlling state
 		this.stateController = stateController;
 
@@ -65,8 +62,7 @@ class Game {
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
 		inputManager.bindAction("j", "jump");
 		inputManager.bindAction(" ", "jump");
-		inputManager.bindAction("p", "stop");
-		inputManager.bindAction("m", "start");
+		inputManager.bindAction("w", "trick1");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
@@ -86,6 +82,16 @@ class Game {
 
 		this.songAnalysis = null;
 		this.songFeatures = null;
+
+		// initialize the sprite tracker
+		this.sprites = {
+			title: null,
+			idle: null,
+			jump: null,
+			trick1: null
+		};
+
+		this.score = null;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
@@ -128,34 +134,12 @@ class Game {
 	idleState(canvas) {
 		this.getPixiApp(canvas);
 
-		/*
-		const texture1 = PIXI.Texture.from("../img/bg-far.png");
-		const texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-		const background1 = new PIXI.Sprite(texture1);
-		const background2 = new PIXI.Sprite(texture2);
-
-		background1.position.x = 0;
-		background1.position.y = -325;
-		background1.scale.x = 1.75;
-		background1.scale.y = 1.5;
-
-		background2.position.x = 0;
-		background2.position.y = 0;
-		background2.scale.x = 1.75;
-		background2.scale.y = 1.5;
-
-		this.pixiApp.stage.addChild(background1);
-		this.pixiApp.stage.addChild(background2);
-
-		 */
-
 		const texture = PIXI.Texture.from("../img/title page.png");
 		const background = new PIXI.Sprite(texture);
 		background.position.x = 0;
 		background.position.y = -175;
 		background.scale.x = 1.75;
-		background.scale.y = 1.25;
+		background.scale.y = 1.5;
 		this.pixiApp.stage.addChild(background);
 		this.sprites.title = background;
 	}
@@ -218,20 +202,38 @@ class Game {
 			"jump_frame_14.png"
 		];
 
+		let trick = [
+			"trick1.png",
+			"trick2.png",
+			"trick3.png",
+			"trick4.png",
+			"trick5.png",
+			"trick6.png",
+			"trick7.png",
+			"trick8.png",
+			"trick9.png",
+			"trick10.png"
+		];
+
 		let idleArray = [];
 		let jumpArray = [];
+		let trickArray = [];
 
-		for (let i=0; i < 4; i++) {
+		for (let i = 0; i < 6; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
 			idleArray.push(texture);
 		}
 
-		for (let i=0; i < 4; i++) {
-			let texture = PIXI.Texture.from("/img/" + idle[i]);
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + jump[i]);
 			jumpArray.push(texture);
 		}
 
-		// legacy code
+		for (let i = 0; i < 10; i++) {
+			let texture = PIXI.Texture.from("/img/" + trick[i]);
+			trickArray.push(texture);
+		}
+
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
 		const viewport = Viewport(this.pixiApp);
 
@@ -241,22 +243,39 @@ class Game {
 
 		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
-		//const texture = PIXI.Texture.from("../img/snowboarder.png");
-		//const snowboarder = new PIXI.Sprite(texture);
-		const snowboarder = new PIXI.AnimatedSprite(idleArray);
-		snowboarder.animationSpeed = .15;
-		snowboarder.scale.x = 0.5;
-		snowboarder.scale.y = 0.5;
-		snowboarder.play();
-		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
-		// Score
-		let score = new Score(this.stateController);
-		console.log("Score: " + score.getScore());
-		score.updateScore(50);
-		console.log("NewScore: " + score.getScore());
+		const texture = PIXI.Texture.from("../img/snowboarder.png");
+		const followSprite = new PIXI.Sprite(texture);
+		followSprite.visible = false;
 
+		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
+		idleSnowboarder.animationSpeed = .15;
+		idleSnowboarder.scale.x = 0.5;
+		idleSnowboarder.scale.y = 0.5;
+		idleSnowboarder.play();
+		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
+		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
+		jumpSnowboarder.animationSpeed = .15;
+		jumpSnowboarder.scale.x = 0.5;
+		jumpSnowboarder.scale.y = 0.5;
+
+		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
+		trickSnowboarder.animationSpeed = .15;
+		trickSnowboarder.scale.x = 0.5;
+		trickSnowboarder.scale.y = 0.5;
+		trickSnowboarder.loop = false;
+		trickSnowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
+		};
+
+		// Assign sprites and score to the Game
+		this.sprites.idle = idleSnowboarder;
+		this.sprites.jump = jumpSnowboarder;
+		this.sprites.trick1 = trickSnowboarder;
+		this.score = new Score(this.stateController);
+
+		// Generate physics points for curves
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
 		// add coins
@@ -267,8 +286,9 @@ class Game {
 
 		// add game object to viewport
 
+		viewport.addChild(player.followSprite);
 		viewport.addChild(player.sprite);
-		viewport.follow(player.sprite);
+		viewport.follow(player.followSprite);
 		viewport.zoomPercent(1.0);
 
 		// world on collision for physics
@@ -283,14 +303,10 @@ class Game {
 			let playerB = bodyB === player.physics;
 
 			if (playerA || playerB) {
-				/*
-				if (!this.CAN_JUMP) {
-					this.CAN_JUMP = true;
-					player.sprite = new PIXI.AnimatedSprite(player.animation1);
-					snowboarder.animationSpeed = .15;
-					snowboarder.play();
+
+				if (this.CAN_JUMP === false) {
+					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
-				 */
 
 				this.CAN_JUMP = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
@@ -311,30 +327,20 @@ class Game {
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
-				/*
-				player.sprite.destroy();
-				player.sprite = new PIXI.AnimatedSprite(player.animation2);
-				snowboarder.animationSpeed = .15;
-				snowboarder.play();
-				viewport.addChild(player.sprite);
-				viewport.follow(player.sprite);
-				 */
+
+				this.swapSprites(player, viewport, this.sprites.jump, "jump");
+
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
-				player.physics.setAngle(0);
+				//player.physics.setAngle(0);
 				this.CAN_JUMP = false;
 			}
 
-			if (this.actionState.stop === "press") {
-				this.pauseState();
+			if (this.actionState.trick1 === "press") {
+				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
 			}
 
-			if (this.actionState.start === "press") {
-				console.log("hello restart");
-			    this.playLevelState();
-			}
 		};
-
 
 		// Timing stuff
 		let time0 = performance.now();  // in milliseconds
@@ -360,6 +366,26 @@ class Game {
 		this.pixiApp.ticker.add(handleTime);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
+	}
+
+	swapSprites(player, viewport, sprite, trick) {
+
+		if (trick === "trick1 complete") {
+			this.score.updateScore(100);
+			console.log("NewScore: " + this.score.getScore());
+		}
+
+		let rotation = player.sprite.rotation;
+		let xposition = player.sprite.position.x;
+		let yposition = player.sprite.position.y;
+		player.sprite.stop();
+		viewport.removeChild(player.sprite);
+		player.sprite = sprite;
+		player.sprite.rotation = rotation;
+		player.sprite.position.x = xposition;
+		player.sprite.position.y = yposition;
+		player.sprite.gotoAndPlay(0);
+		viewport.addChild(player.sprite);
 	}
 
 	/**

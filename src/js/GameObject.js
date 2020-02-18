@@ -7,7 +7,7 @@ const Vec2 = Planck.Vec2;
 function GameObject () {
 
 	// Object constructor
-	GameObject.prototype.create =({name, position=Vec2(0,0), scale=Vec2(1.0, 1.0), anchor=1, mass=1, sprite=1, physics=1})  => {
+	GameObject.prototype.create =({name, position=Vec2(0,0), scale=Vec2(1.0, 1.0), anchor=1, mass=1, sprite=1, followSprite=1, physics=1})  => {
 		let object = {};
 
 		if(!name || typeof(name) != "string") {
@@ -15,7 +15,7 @@ function GameObject () {
 			return object;
 		}
 
-		object = { name, position, scale, anchor, mass, sprite, physics };
+		object = { name, position, scale, anchor, mass, sprite, followSprite, physics };
 
 		return object;
 	};
@@ -25,22 +25,12 @@ function GameObject () {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
-		//object.sprite.scale = object.scale;
 		object.sprite.position.x = physicsPos.x;
 		object.sprite.position.y = physicsPos.y + 15;
 
-		// change this later
-		//object.sprite.rotation = object.physics.getAngle();
-
-		if(object.physics.getAngle() < (Math.PI / 3.5) && object.physics.getAngle() > (- Math.PI / 3.5)) {    				// if the angle is more than 180 degree (PI radians)
-			//object.sprite.rotation = object.physics.getAngle();
-		}
-		else{
-			//object.sprite.rotation = (Math.PI / 3.5);
-		}
-
-		//console.log("Physics Pos: " + physicsPos);
-		//console.log("Pixi Pos: " + object.sprite.position.x);
+		object.followSprite.anchor = object.anchor;
+		object.followSprite.position.x = physicsPos.x;
+		object.followSprite.position.y = physicsPos.y + 15;
 	};
 	GameObject.prototype.error = function error (object) {
 		console.log(object.errorMessage);

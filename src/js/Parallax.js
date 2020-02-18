@@ -19,7 +19,7 @@ function Parallax(game) {
 
 	let delta = 0;
 	game.ticker.add(() => {
-		tilingSprite1.tilePosition.x -= 0.512; // 0.128
+		tilingSprite1.tilePosition.x -= 1.28; // 0.128
 		tilingSprite2.tilePosition.x -= 0.64; // 0.64
 		tilingSprite3.tilePosition.x -= 0.32;
 		tilingSprite4.tilePosition.x -= 0.16;
