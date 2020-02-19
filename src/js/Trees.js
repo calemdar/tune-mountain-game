@@ -4,21 +4,20 @@ const Planck = require("planck-js");
 const Vec2 = Planck.Vec2;
 const GameObject = require("./GameObject");
 
-function Coins(analysis, allPoints, viewport, player) {
+function Trees(analysis, allPoints, viewport, player) {
 	const obj = new GameObject();
 	let currentSection;
 	let allPointCounter = 0;			// counts all points from the physics
-	let coinObjects = [];				// stores all coin sprite objects
+	let treeObjects = [];				// stores all tree sprite objects
 	let sectionBeats = [];					// all beats for a given section
-	let coinPlacer = 0;					// counter for coin placement
-	let maxCoinSeries = 4;				// max count of coins to spread in series
+	let treePlacer = 0;					// counter for tree placement
+	let maxtreeSeries = 4;				// max count of trees to spread in series
 	let beatLength;						// num beats / curve resolution
 
 	const texture = PIXI.Texture.from("../img/tree2_snowy.png");
-	// lay coins
 
 	for(let i = 0; i < analysis.sections.length; i+=1){
-		coinPlacer = 0;
+		treePlacer = 0;
 		beatLength = beatsToPoints(sectionBeats.length);
 		currentSection = analysis.sections[i];
 		sectionBeats = getBeatsInSection(currentSection);
@@ -26,32 +25,32 @@ function Coins(analysis, allPoints, viewport, player) {
 		//console.log(beatLength);
 
 		for(let k = 0; k < sectionBeats.length; k+=1) {
-			let coinSprite = new PIXI.Sprite(texture);
+			let treeSprite = new PIXI.Sprite(texture);
 
 			if(allPointCounter >= allPoints.length){
 				break;
 			}
 
-			coinSprite.scale.x = 0.5;
-			coinSprite.scale.y = 0.5;
-			coinSprite.anchor.x = 0.5;
-			coinSprite.anchor.y = 1.0;
+			treeSprite.scale.x = 0.5;
+			treeSprite.scale.y = 0.5;
+			treeSprite.anchor.x = 0.5;
+			treeSprite.anchor.y = 1.0;
 
-			coinSprite.position.x = allPoints[allPointCounter].x;
-			coinSprite.position.y = allPoints[allPointCounter].y;
+			treeSprite.position.x = allPoints[allPointCounter].x;
+			treeSprite.position.y = allPoints[allPointCounter].y;
 
-			let coinObj = obj.create({name: "Coin", position: coinSprite.position, sprite: coinSprite, scale: coinSprite.size});
+			let treeObj = obj.create({name: "Tree", position: treeSprite.position, sprite: treeSprite, scale: treeSprite.size});
 
-			coinObjects.push(coinObj);
-			viewport.addChild(coinSprite);
+			treeObjects.push(treeObj);
+			viewport.addChild(treeSprite);
 
-			coinPlacer += 1;
+			treePlacer += 1;
 			allPointCounter += beatLength;
 
 
-			// reset coin placer when doubled coin series
-			if(coinPlacer > (currentSection.time_signature)) {
-				coinPlacer = 0;
+			// reset tree placer when doubled tree series
+			if(treePlacer > (currentSection.time_signature)) {
+				treePlacer = 0;
 			}
 		}
 
@@ -86,7 +85,7 @@ function Coins(analysis, allPoints, viewport, player) {
 		return length;
 	}
 
-	return coinObjects;
+	return treeObjects;
 }
 
-module.exports = Coins;
+module.exports = Trees;

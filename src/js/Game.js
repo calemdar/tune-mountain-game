@@ -15,8 +15,8 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-const Coins = require("./Coins");
-const Collisions = require("./Collisions");
+const Trees = require("./Trees");
+const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 
 /**
@@ -278,11 +278,11 @@ class Game {
 		// Generate physics points for curves
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
-		// add coins
-		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
+		// add trees
+		let treeSprites = Trees(this.songAnalysis, allPoints, viewport, player);
 
 		Bezier(viewport, allPoints);
-		Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
+		PulseTrees(this.pixiApp, viewport, player, treeSprites, this.songFeatures);
 
 		// add game object to viewport
 
