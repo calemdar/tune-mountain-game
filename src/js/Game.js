@@ -167,12 +167,13 @@ class Game {
 	generateMountainState() {
 
 		let canvas = document.getElementById("mycanvas");
-
 		// check for no pixi
 		if (!this.pixiApp) {
 			//throw new Error("Pixi not initialized properly. Check code.");
 			this.getPixiApp(canvas);
 		}
+		this.pixiApp.stage.removeChild(this.sprites.title);
+
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;

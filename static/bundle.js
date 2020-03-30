@@ -37180,7 +37180,7 @@ exports.trimCanvas = trimCanvas;
 exports.uid = uid;
 
 
-},{"@pixi/constants":3,"@pixi/settings":26,"earcut":35,"eventemitter3":37,"url":561}],35:[function(require,module,exports){
+},{"@pixi/constants":3,"@pixi/settings":26,"earcut":35,"eventemitter3":37,"url":562}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = earcut;
@@ -84002,7 +84002,7 @@ module.exports = {
     GameStateController
 };
 
-},{"./src/GameStateController":557,"./src/Manager":558,"./src/utils/GameStateEnums":560}],556:[function(require,module,exports){
+},{"./src/GameStateController":557,"./src/Manager":558,"./src/utils/GameStateEnums":561}],556:[function(require,module,exports){
 /**
  * This class is responsible for keeping track of all buttons and what actions are tied to them.
  *
@@ -84033,8 +84033,12 @@ class ActionRegistry {
     }
 
     /**
+     * @deprecated No longer applies to current way of doing things.
+     *
      * Adds a action to a key binding. If the key is not bound yet, then it
      * adds key to register and binds action to it.
+     *
+     * No longer works as binding is now 1:1
      *
      * @see setBindingTo()
      * @see checkBindingOf()
@@ -84043,6 +84047,8 @@ class ActionRegistry {
      * @param {Array<String>} actionOrActionArray a string or an array of strings describing the action
      */
     bindActionToKey(keyValue, actionOrActionArray) {
+
+        console.error('Warning: deprecated function. Definition of key binding has changed. See documentation.');
 
         const binding = this.bindings[keyValue];
 
@@ -84064,20 +84070,21 @@ class ActionRegistry {
     }
 
     /**
-     * Replaces current binding with the action array
+     * Replaces current binding with new action
      * @param keyValue {String} value of key, described in
      * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-     * @param actionArray {Array} an array of actions (Strings)
+     * @param action {String} new action to bind
      */
-    setBindingTo(keyValue, actionArray) {
+    setBindingTo(keyValue, action) {
 
-        this.bindings[keyValue] = actionArray;
+        this.bindings[keyValue] = action;
 
     }
 
     /**
-     * Returns an array of values for a given key, or null if no actions are bound to it.
-     * @param keyValue
+     * Returns action bound to key, or null if no actions are bound to it.
+     * @param keyValue value to map to
+     * @returns {String} action
      */
     getActionsForKey(keyValue) {
 
@@ -84241,8 +84248,9 @@ class GameStateController {
 
 module.exports = GameStateController;
 
-},{"./utils/GameStateEnums":560,"rxjs":111}],558:[function(require,module,exports){
+},{"./utils/GameStateEnums":561,"rxjs":111}],558:[function(require,module,exports){
 const ActionRegistry = require('./ActionRegistry');
+const ActionHistoryUtil = require('./utils/ActionHistory');
 const ActionEvent = require('./utils/ActionEvent');
 const Rx = require('rxjs/Rx');
 
@@ -84269,16 +84277,12 @@ class Manager {
      * attaches it to entire document.
      * @param {Node} DOMElement the desired element
      * @param {Object} bindings map of key values to an array of actions
-     * @param {Object} identifiers object containing the ids that will be used for this manager (i.e. userID, sessionID,
      * etc)
      */
-    constructor(DOMElement = document, bindings = {}, identifiers = {}) {
+    constructor(DOMElement = document, bindings = {}) {
 
-        // define which identifiers will be used
-        const {
-            userID,
-            sessionID
-        } = identifiers;
+        // flags
+        this._emitActions = true;
 
         // init action registry
         this.actionRegistry = new ActionRegistry(bindings);
@@ -84312,18 +84316,58 @@ class Manager {
             buttonEvent => {
 
                 // create action event
-                const evt = new ActionEvent({
-                    actions: this.actionRegistry.getActionsForKey(buttonEvent.key),
+                const evt = new ActionEvent({// todo: modify binding to 1:1
+                    action: this.actionRegistry.getActionsForKey(buttonEvent.key),
                     boundKey: buttonEvent.key,
-                    type: buttonEvent.type,
-                    userID,
-                    sessionID
+                    type: buttonEvent.type
                 });
 
                 // emit action event
-                this._actionObservable.next(evt);
+                if (this._emitActions) this._actionObservable.next(evt);
             }
         );
+
+
+        // init action history observer
+        this.actionHistory = new ActionHistoryUtil(this._actionObservable);
+    }
+
+    /**
+     * Toggles whether inputs are emitted;
+     */
+    toggleEmissions() {
+        this._emitActions = !this._emitActions;
+    }
+
+    /**
+     * Starts session and timer. Turns on both emissions and recording, if not already on.
+     * Assumes song timer is at zero.
+     */
+    startSession() {
+        this.actionHistory.startSession();
+    }
+
+    /**
+     * Terminates session and returns array of action events recorded.
+     *
+     * @returns {Array<ActionEvent>} all action events recorded.
+     */
+    terminateSession() {
+        return this.actionHistory.terminateSession();
+    }
+
+    /**
+     * Pauses recording and timer, if session is ongoing.
+     */
+    pauseSession() {
+        this.actionHistory.pauseSession();
+    }
+
+    /**
+     * Resumes recording and timer, if session is ongoing.
+     */
+    resumeSession() {
+        this.actionHistory.resumeSession();
     }
 
     /**
@@ -84342,28 +84386,30 @@ class Manager {
     }
 
     /**
-     * Binds one or more actions to a given key. If key already has one or more actions bound
-     * to it, it appends the action to the existing actions.
+     *
+     * Binds one action to a given key. If key already has an action bound
+     * to it, it replaces the action to the existing actions.
      *
      * @param {String} key the value of a key as defined in https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-     * @param {Array<String>} action one (String) or more (Array<String>) actions to be bound to the key
+     * @param {String} action to be bound to key
      */
     bindAction(key, action) {
 
-        this.actionRegistry.bindActionToKey(key, action);
+        this.actionRegistry.setBindingTo(key, action);
 
     }
 
     /**
+     * @deprecated
      * Binds an array of actions to a given key.
      * WARNING: this will erase all previous bindings.
      *
      * @param {String} key the value of a key as defined in https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-     * @param {Array<String>} actions an array of actions to be bound
+     * @param {String} action an array of actions to be bound
      */
-    setBinding(key, actions) {
+    setBinding(key, action) {
 
-        this.actionRegistry.setBindingTo(key, actions)
+        this.actionRegistry.setBindingTo(key, action)
 
     }
 
@@ -84371,21 +84417,13 @@ class Manager {
 
 module.exports = Manager;
 
-},{"./ActionRegistry":556,"./utils/ActionEvent":559,"rxjs/Rx":111}],559:[function(require,module,exports){
+},{"./ActionRegistry":556,"./utils/ActionEvent":559,"./utils/ActionHistory":560,"rxjs/Rx":111}],559:[function(require,module,exports){
 /**
  * This class defines the packet that contains the ActionEvent
  * that is emitted when a button is pressed.
  *
- * An event will contain an array of actions (Strings) and a key that was bound to it at
- * the time the action was performed. The event also contains the timestamp of when said action was performed.
- *
- * This class has the following fields that can be publicly accessed:
- *      actions: Array<String>  -> actions that are being done
- *      boundKey: String        -> key bound to said actions that was pressed
- *      type: String            -> either "up" or "down"
- *      timestamp: Date         -> when key was pressed (optional)
- *      sessionID: String       -> Identifier for the current play session (optional)
- *      userID: String          -> Identifier for use (Spotify in Tune Mountain) (optional)
+ * An event will contain an encapsulate an action, the key bound to it at the time of pressing, and the time in which it was pressed.
+ * The type of press can be either "press" or "release"
  */
 class ActionEvent {
 
@@ -84395,10 +84433,8 @@ class ActionEvent {
      * Properties may contain:
      *      actions: Array<String> -> actions that are being done
      *      boundKey: String -> key bound to said actions that was pressed
-     *      type: String -> either "up" or "down"
-     *      timestamp: Date -> when key was pressed (optional)
-     *      sessionID: String -> Identifier for the current play session (optional)
-     *      userID: String -> Identifier for use (Spotify in Tune Mountain) (optional)
+     *      type: String -> either "press" or "release"
+     *      timestamp: Date.now() when key was pressed
      *
      * Optional properties may be added using setter functions, with the exception of the timestamp.
      *
@@ -84407,16 +84443,14 @@ class ActionEvent {
     constructor (properties = {}) {
 
         const {
-            actions,
+            action,
             boundKey,
             type,
-            timestamp,
-            sessionID,
-            userID
+            timestamp
         } = properties;
 
         // if required props aren't passed, throw error
-        if (!actions || !boundKey || !type) {
+        if (!action || !boundKey || !type) {
             throw new Error('No \'actions\', \'boundKey\', or \'type\' passed to ActionEvent during instantiation!');
         }
 
@@ -84424,24 +84458,22 @@ class ActionEvent {
         if (timestamp) {
             this._timestamp = timestamp;
         } else {
-            this._timestamp = new Date();
+            this._timestamp = Date.now();
         }
 
         // assign to object properties
-        this._actions = actions;
+        this._action = action;
         this._boundKey = boundKey;
         this._type = type;
-        this._sessionID = sessionID;
-        this._userID = userID;
 
     }
 
     /**
      * Returns an array of actions performed.
-     * @returns {Array<String>} all actions performed
+     * @returns {String} all actions performed
      */
-    get actions() {
-        return this._actions;
+    get action() {
+        return this._action;
     }
 
     /**
@@ -84469,35 +84501,11 @@ class ActionEvent {
     }
 
     /**
-     * Returns the session ID where this action was performed.
-     * @returns {*}
+     * Sets timestamp to new value
+     * @param newTime
      */
-    get sessionID() {
-        return this._sessionID;
-    }
-
-    /**
-     * Defines the session ID for the current action.
-     * @param id the ID of the sessions
-     */
-    set sessionID(id) {
-        this._sessionID = id;
-    }
-
-    /**
-     * Returns the user ID of the user that performed the action.
-     * @returns {*}
-     */
-    get userID() {
-        return this._userID;
-    }
-
-    /**
-     * Sets an ID for the user that performed the action.
-     * @param value
-     */
-    set userID(value) {
-        this._userID = value;
+    set timestamp(newTime) {
+        this._timestamp = newTime;
     }
 
     /**
@@ -84509,8 +84517,6 @@ class ActionEvent {
     'type': ${this._type}
     'actions': ${this._actions}
     'timestamp': ${this._timestamp}
-    'userID': ${this._userID}
-    'sessionID': ${this._sessionID}
 }`
     }
 
@@ -84519,18 +84525,152 @@ class ActionEvent {
 module.exports = ActionEvent;
 
 },{}],560:[function(require,module,exports){
-// define possible states
+const DEFAULT_DELAY_MS = 350;
+
+/**
+ * Utility that keeps track of all actions recorded and saves them
+ * with timestamp relative to start of session, allowing for ease of
+ * synchronization with song.
+ */
+class ActionHistoryUtil {
+
+    constructor(actionObservable, delayMs = DEFAULT_DELAY_MS) {
+
+        if (!actionObservable) throw new Error('No action stream. Must pass a reference to action observable.');
+
+        this._actionHistory = [];
+        this._recordActions = false;
+        this._sessionStarted = false;
+        this._initialTime = -1;
+        this._pauseOffset = 0; // should be zero until there's a pause event
+        this._actionStream = actionObservable;
+        this._delayMs = delayMs;
+
+        this.onNewActionEvent = this.onNewActionEvent.bind(this);
+
+        // subscribe to update values
+        this._actionStream
+            .filter(() => this._recordActions)
+            .subscribe(actionEvent => this.onNewActionEvent(actionEvent));
+
+    }
+
+    /**
+     * Initializes timer, and allows for recording of sessions.
+     * Can only be performed if session has not started.
+     *
+     * Warning: previous history is reset with this action.
+     */
+    startSession() {
+        if (this._sessionStarted) {
+            console.error('Session currently running. Must terminate before starting.');
+        } else {
+            this._recordActions = true;
+            this._sessionStarted = true;
+            this._initialTime = Date.now();
+            this._actionHistory = [];
+        }
+    }
+
+    /**
+     * Terminates session, resets timer and stops recording actions.
+     *
+     * @returns {Array} session history or null if session has not started
+     */
+    terminateSession() {
+        if (this._sessionStarted) {
+            this._recordActions = false;
+            this._sessionStarted = false;
+            this._initialTime = -1;
+
+            return this._actionHistory;
+        }
+        console.error('Cannot terminate session that has not started.');
+
+        return null;
+    }
+
+    /**
+     * Function for handling the subscription to the stream of actions.
+     *
+     * @param {ActionEvent} actionEvent action event coming from stream
+     */
+    onNewActionEvent(actionEvent) {
+
+
+        // set action event time to relative time
+        actionEvent.timestamp = actionEvent.timestamp - this._initialTime + this._pauseOffset - this._delayMs;
+        console.log('Recorded timestamp', actionEvent.timestamp);
+
+        // save in history
+        this._actionHistory.push(actionEvent);
+
+    }
+
+    /**
+     *  Pauses recording of actions. Relative time is preserved.
+     */
+    pauseSession() {
+
+        if (this._recordActions) {
+
+            // always accumulate pause offset
+            // const lastTimestamp = this._actionHistory[this._actionHistory.length];
+
+            this._pauseOffset += Date.now() - this._initialTime;
+            this._recordActions = false;
+
+        } else console.error('Session already paused.');
+
+    }
+
+    /**
+     *  Adapts timer and resumes session.
+     */
+    resumeSession() {
+
+        if (this._recordActions) {
+            console.error('Cannot resume an unpaused session.');
+        } else {
+
+            this._recordActions = true;
+            this._initialTime = Date.now();
+
+        }
+
+    }
+
+    /**
+     * Getter for history of actions.
+     * @returns {Array<ActionEvent>} array containing all action event objects collected so far
+     */
+    get history() {
+        return this._actionHistory;
+    }
+
+}
+
+module.exports = ActionHistoryUtil;
+
+},{}],561:[function(require,module,exports){
+/**
+ * Definition of Game States used by GameStateController.
+ *
+ * @see GameStateController
+ * @type {Readonly<{PAUSE: string, PLAY: string, IDLE: string, ERROR: string, GENERATE: string, SCORE_CHANGED: string}>}
+ */
 const GameStateEnums = Object.freeze({
     'IDLE': 'IDLE',
     'GENERATE': 'GENERATE',
     'PLAY': 'PLAY',
     'PAUSE': 'PAUSE',
-    'ERROR': 'ERROR'
+    'ERROR': 'ERROR',
+    'SCORE_CHANGED': 'SCORE_CHANGED'
 });
 
 module.exports = GameStateEnums;
 
-},{}],561:[function(require,module,exports){
+},{}],562:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -85264,7 +85404,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":562,"punycode":98,"querystring":101}],562:[function(require,module,exports){
+},{"./util":563,"punycode":98,"querystring":101}],563:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -85282,7 +85422,7 @@ module.exports = {
   }
 };
 
-},{}],563:[function(require,module,exports){
+},{}],564:[function(require,module,exports){
 const exampleAnalysis = require("../../static/json/SmokeandGunsAnalysis"),
 	exampleFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Game = require("../js/Game");
@@ -85306,7 +85446,7 @@ const canvas = document.getElementById("mycanvas");
 // init game
 
 new Game(mockStateController, canvas);
-},{"../../static/json/SmokeandGunsAnalysis":574,"../../static/json/SmokeandGunsFeatures":575,"../js/Game":567,"tune-mountain-input-manager":555}],564:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":575,"../../static/json/SmokeandGunsFeatures":576,"../js/Game":568,"tune-mountain-input-manager":555}],565:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Bezier(viewport, curvePoints) {
@@ -85382,7 +85522,7 @@ function drawCurves(bezier, points, curvePoints) {
 	bezier.endFill();
 }
 
-},{"pixi.js":43}],565:[function(require,module,exports){
+},{"pixi.js":43}],566:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
 const Planck = require("planck-js");
@@ -85399,7 +85539,7 @@ function Coins(analysis, allPoints, viewport, player) {
 	let maxCoinSeries = 4;				// max count of coins to spread in series
 	let beatLength;						// num beats / curve resolution
 
-	const texture = PIXI.Texture.from("../img/coin.png");
+	const texture = PIXI.Texture.from("../img/tree2_snowy.png");
 	// lay coins
 
 	for(let i = 0; i < analysis.sections.length; i+=1){
@@ -85417,12 +85557,13 @@ function Coins(analysis, allPoints, viewport, player) {
 				break;
 			}
 
-			coinSprite.size = 0.3;
+			coinSprite.scale.x = 0.3;
+			coinSprite.scale.y = 0.3;
 			coinSprite.anchor.x = 0.5;
-			coinSprite.anchor.y = 0.5;
+			coinSprite.anchor.y = 1.0;
 
-			coinSprite.position.x = allPoints[allPointCounter].x + 20;
-			coinSprite.position.y = allPoints[allPointCounter].y - 20;
+			coinSprite.position.x = allPoints[allPointCounter].x;
+			coinSprite.position.y = allPoints[allPointCounter].y;
 
 			let coinObj = obj.create({name: "Coin", position: coinSprite.position, sprite: coinSprite, scale: coinSprite.size});
 
@@ -85474,12 +85615,16 @@ function Coins(analysis, allPoints, viewport, player) {
 }
 
 module.exports = Coins;
-},{"./GameObject":568,"./Viewport":573,"pixi.js":43,"planck-js":70}],566:[function(require,module,exports){
+
+},{"./GameObject":569,"./Viewport":574,"pixi.js":43,"planck-js":70}],567:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
 const GameObject = require("./GameObject");
 
-function Collisions(game, viewport, player, coins) {
+function Collisions(game, viewport, player, coins, songFeatures) {
+
+	let tempoCounter = 0;
+	let tempoFlag = true;		// true = getting bigger, false = getting smaller
 
 	// Collect coin if the sprites collided
 	function collectCoin() {
@@ -85487,12 +85632,15 @@ function Collisions(game, viewport, player, coins) {
 
 		for(let i = 0; i < coins.length; i++){
 			currCoin = coins[i].sprite;
+			/*
 			if(playerHitTest(player.sprite, currCoin)){
 				//console.log("Player collision");
-				deleteCoin(currCoin);
+				//deleteCoin(currCoin);
 				//currCoin.destroy();
 				break;
 			}
+			 */
+			//if(tempo)
 		}
 
 	}
@@ -85513,6 +85661,51 @@ function Collisions(game, viewport, player, coins) {
 		return false;
 	}
 
+	function pulseUp(sprite){
+		sprite.scale.x += 0.004;
+		sprite.scale.y += 0.004;
+
+
+	}
+	function pulseDown(sprite){
+
+		sprite.scale.x -= 0.004;
+		sprite.scale.y -= 0.004;
+
+	}
+	
+	const pulseTrees = () => {
+		let currCoin;
+		let tempo = songFeatures.tempo / 2.0;
+
+
+		if(tempoCounter === 0){
+			tempoFlag = true;
+		}
+		else if(tempoCounter >= tempo){
+			tempoFlag = false;
+		}
+
+		for(let i = 0; i < coins.length; i++) {
+			currCoin = coins[i].sprite;
+
+			if(tempoFlag){
+				pulseUp(currCoin);
+			}
+			else {
+				pulseDown(currCoin);
+			}
+		}
+
+		// incrementation
+		if(tempoFlag){
+			tempoCounter++;
+		}
+		else {
+			tempoCounter--;
+		}
+	};
+
 	// psuedo delete the sprite by moving it out of screen
 	function deleteCoin(coin){
 
@@ -85520,12 +85713,12 @@ function Collisions(game, viewport, player, coins) {
 		coin.position.y = -1000;
 	}
 
-	game.ticker.add(collectCoin);
+	game.ticker.add(pulseTrees);
 }
 
 module.exports = Collisions;
 
-},{"./GameObject":568,"./Viewport":573,"pixi.js":43}],567:[function(require,module,exports){
+},{"./GameObject":569,"./Viewport":574,"pixi.js":43}],568:[function(require,module,exports){
 // npm imports
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
@@ -85590,16 +85783,14 @@ class Game {
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
 		inputManager.bindAction("j", "jump");
 		inputManager.bindAction(" ", "jump");
+		inputManager.bindAction("w", "trick1");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
 
 		// Adds the current action being sent to the actionState array every time an action is received
-		const inputPerformedHandler = action => {
-			// TODO: maybe use function ForEach() for this, it's a bit cleaner
-			for (let i = 0; i < action.actions.length; i++) {
-				this.actionState[action.actions[i]] = action.type;
-			}
+		const inputPerformedHandler = actionEventObj => {
+			this.actionState[actionEventObj.action] = actionEventObj.type;
 		};
 
 		// subscribe to handle events
@@ -85613,6 +85804,16 @@ class Game {
 		this.songAnalysis = null;
 		this.songFeatures = null;
 
+		// initialize the sprite tracker
+		this.sprites = {
+			title: null,
+			idle: null,
+			jump: null,
+			trick1: null
+		};
+
+		this.score = null;
+
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
 		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
@@ -85621,6 +85822,12 @@ class Game {
 		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
 			this.generateMountain(request.body.analysis, request.body.features)
 		));
+
+		// handles when controller emits pause request
+		stateController.onRequestTo(GameStateEnums.PAUSE, () => this.pauseState());
+
+		// handles when controller emits play request
+		stateController.onRequestTo(GameStateEnums.PLAY, () => this.playLevelState());
 	}
 
 	//			*************		  //
@@ -85634,7 +85841,8 @@ class Game {
 				width: window.innerWidth,
 				height: window.innerHeight,
 				backgroundColor: 0x42daf5,
-				antialias: true
+				antialias: true,
+				sharedTicker: true
 			});
 		}
 
@@ -85647,24 +85855,14 @@ class Game {
 	idleState(canvas) {
 		this.getPixiApp(canvas);
 
-		const texture1 = PIXI.Texture.from("../img/bg-far.png");
-		const texture2 = PIXI.Texture.from("../img/bg-mid.png");
-
-		const background1 = new PIXI.Sprite(texture1);
-		const background2 = new PIXI.Sprite(texture2);
-
-		background1.position.x = 0;
-		background1.position.y = -325;
-		background1.scale.x = 1.75;
-		background1.scale.y = 1.5;
-
-		background2.position.x = 0;
-		background2.position.y = 0;
-		background2.scale.x = 1.75;
-		background2.scale.y = 1.5;
-
-		this.pixiApp.stage.addChild(background1);
-		this.pixiApp.stage.addChild(background2);
+		const texture = PIXI.Texture.from("../img/title page.png");
+		const background = new PIXI.Sprite(texture);
+		background.position.x = 0;
+		background.position.y = -175;
+		background.scale.x = 1.75;
+		background.scale.y = 1.5;
+		this.pixiApp.stage.addChild(background);
+		this.sprites.title = background;
 	}
 
 	generateMountain(analysis, features) {
@@ -85689,35 +85887,74 @@ class Game {
 	 */
 	generateMountainState() {
 
-		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
-		let idle = ["idle_frame_1.png","idle_frame_2.png","idle_frame_3.png",
-			"idle_frame_4.png","idle_frame_5.png", "idle_frame_6.png"];
+		let canvas = document.getElementById("mycanvas");
+		// check for no pixi
+		if (!this.pixiApp) {
+			//throw new Error("Pixi not initialized properly. Check code.");
+			this.getPixiApp(canvas);
+		}
 
-		let jump = ["jump_frame_1.png","jump_frame_2.png","jump_frame_3.png",
-			"jump_frame_4.png","jump_frame_5.png", "jump_frame_6.png",
-			"jump_frame_7.png","jump_frame_8.png", "jump_frame_9.png",
-			"jump_frame_10.png","jump_frame_11.png", "jump_frame_12.png",
-			"jump_frame_13.png","jump_frame_14.png"];
+		this.pixiApp.stage.removeChild(this.sprites.title);
+
+		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
+		let idle = [
+			"idle_frame_1.png",
+			"idle_frame_2.png",
+			"idle_frame_3.png",
+			"idle_frame_4.png",
+			"idle_frame_5.png",
+			"idle_frame_6.png"
+		];
+
+		let jump = [
+			"jump_frame_1.png",
+			"jump_frame_2.png",
+			"jump_frame_3.png",
+			"jump_frame_4.png",
+			"jump_frame_5.png",
+			"jump_frame_6.png",
+			"jump_frame_7.png",
+			"jump_frame_8.png",
+			"jump_frame_9.png",
+			"jump_frame_10.png",
+			"jump_frame_11.png",
+			"jump_frame_12.png",
+			"jump_frame_13.png",
+			"jump_frame_14.png"
+		];
+
+		let trick = [
+			"trick1.png",
+			"trick2.png",
+			"trick3.png",
+			"trick4.png",
+			"trick5.png",
+			"trick6.png",
+			"trick7.png",
+			"trick8.png",
+			"trick9.png",
+			"trick10.png"
+		];
 
 		let idleArray = [];
 		let jumpArray = [];
+		let trickArray = [];
 
-		for (let i=0; i < 4; i++) {
+		for (let i = 0; i < 6; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
 			idleArray.push(texture);
 		}
 
-		for (let i=0; i < 4; i++) {
-			let texture = PIXI.Texture.from("/img/" + idle[i]);
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + jump[i]);
 			jumpArray.push(texture);
 		}
 
-		// check for no pixi
-		if (!this.pixiApp) {
-			throw new Error("Pixi not initialized properly. Check code.");
+		for (let i = 0; i < 10; i++) {
+			let texture = PIXI.Texture.from("/img/" + trick[i]);
+			trickArray.push(texture);
 		}
 
-		// legacy code
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
 		const viewport = Viewport(this.pixiApp);
 
@@ -85727,36 +85964,56 @@ class Game {
 
 		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
-		//const texture = PIXI.Texture.from("../img/snowboarder.png");
-		//const snowboarder = new PIXI.Sprite(texture);
-		const snowboarder = new PIXI.AnimatedSprite(idleArray);
-		snowboarder.animationSpeed = .15;
-		snowboarder.scale.x = 0.4;
-		snowboarder.scale.y = 0.4;
-		snowboarder.play();
-		let player = obj.create({name: "Player", sprite: snowboarder, animation1: idleArray, animation2: jumpArray});
 
-		// Score
-		let score = new Score(this.stateController);
-		console.log("Score: " + score.getScore());
-		score.updateScore(50);
-		console.log("NewScore: " + score.getScore());
+		const texture = PIXI.Texture.from("../img/snowboarder.png");
+		const followSprite = new PIXI.Sprite(texture);
+		followSprite.visible = false;
 
+		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
+		idleSnowboarder.animationSpeed = .15;
+		idleSnowboarder.scale.x = 0.2;
+		idleSnowboarder.scale.y = 0.2;
+		idleSnowboarder.play();
+		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
+		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
+		jumpSnowboarder.animationSpeed = .15;
+		jumpSnowboarder.scale.x = 0.2;
+		jumpSnowboarder.scale.y = 0.2;
+
+		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
+		trickSnowboarder.animationSpeed = .15;
+		trickSnowboarder.scale.x = 0.2;
+		trickSnowboarder.scale.y = 0.2;
+		trickSnowboarder.loop = false;
+		trickSnowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
+		};
+
+		// Assign sprites and score to the Game
+		this.sprites.idle = idleSnowboarder;
+		this.sprites.jump = jumpSnowboarder;
+		this.sprites.trick1 = trickSnowboarder;
+		this.score = new Score(this.stateController);
+
+		// Generate physics points for curves
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
 		// add coins
 		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 
 		Bezier(viewport, allPoints);
-		Collisions(this.pixiApp, viewport, player, coinSprites);
+		Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 
+		viewport.addChild(player.followSprite);
 		viewport.addChild(player.sprite);
-		viewport.follow(player.sprite);
-		viewport.zoomPercent(0.30);
+		viewport.zoomPercent(6.0);
 
+		const followPlayer = () => {
+			viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
+		};
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
@@ -85770,41 +86027,90 @@ class Game {
 			let playerB = bodyB === player.physics;
 
 			if (playerA || playerB) {
-				/*
-				if (!this.CAN_JUMP) {
-					this.CAN_JUMP = true;
-					player.sprite = new PIXI.AnimatedSprite(player.animation1);
-					snowboarder.animationSpeed = .15;
-					snowboarder.play();
+
+				if (this.CAN_JUMP === false) {
+					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
-				 */
 
 				this.CAN_JUMP = true;
-				player.physics.applyForce(Planck.Vec2(1000, -150.0), player.position, true);
+				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
+				//console.log(player.physics.getLinearVelocity());
+				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
+			}
+
+			if (playerA) {
+				// eslint-disable-next-line no-mixed-spaces-and-tabs
+			    player.sprite.rotation = bodyB.getAngle();
+			}
+			else {
+				// eslint-disable-next-line no-mixed-spaces-and-tabs
+				player.sprite.rotation = bodyA.getAngle();
 			}
 		});
 
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
-				/*
-				player.sprite.destroy();
-				player.sprite = new PIXI.AnimatedSprite(player.animation2);
-				snowboarder.animationSpeed = .15;
-				snowboarder.play();
-				viewport.addChild(player.sprite);
-				viewport.follow(player.sprite);
-				 */
+
+				this.swapSprites(player, viewport, this.sprites.jump, "jump");
+
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
-				player.physics.applyLinearImpulse(Planck.Vec2(100, -200), player.position, true);
-				player.physics.setAngle(0);
+				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
+				//player.physics.setAngle(0);
 				this.CAN_JUMP = false;
+			}
+
+			if (this.actionState.trick1 === "press") {
+				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
+			}
+
+		};
+
+		// Timing stuff
+		let time0 = performance.now();  // in milliseconds
+		let lastCurveTime = time0;
+		let curveEndIndex = 0;
+		let nextCurveEnding = curves[curveEndIndex][3];
+		const handleTime = () => {
+			//console.log(player.position);
+			if(player.position.x > nextCurveEnding.x && curveEndIndex < curves.length - 1){
+				let currentTime = performance.now();
+				let timePassed = (currentTime - lastCurveTime) / 1000.0;   // in seconds
+				curveEndIndex += 1;
+				nextCurveEnding = curves[curveEndIndex][3];
+
+
+				console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
+				console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
+				lastCurveTime = currentTime;
 			}
 		};
 
 		this.pixiApp.ticker.add(handleActions);
+		this.pixiApp.ticker.add(handleTime);
+		this.pixiApp.ticker.add(followPlayer);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
+	}
+
+	swapSprites(player, viewport, sprite, trick) {
+
+		if (trick === "trick1 complete") {
+			this.score.updateScore(100);
+			console.log("NewScore: " + this.score.getScore());
+		}
+
+		let rotation = player.sprite.rotation;
+		let xposition = player.sprite.position.x;
+		let yposition = player.sprite.position.y;
+		player.sprite.stop();
+		viewport.removeChild(player.sprite);
+		player.sprite = sprite;
+		player.sprite.rotation = rotation;
+		player.sprite.position.x = xposition;
+		player.sprite.position.y = yposition;
+		player.sprite.gotoAndPlay(0);
+		viewport.addChild(player.sprite);
 	}
 
 	/**
@@ -85814,7 +86120,7 @@ class Game {
 	 * // TODO: actually implement a 2-way comm between modules here
 	 */
 	playLevelState() {
-		// do stuff
+		this.pixiApp.ticker.start();
 	}
 
 	/**
@@ -85822,7 +86128,7 @@ class Game {
 	 *  playback. Should also be executed when website requires game to pause for whatever reason.
 	 */
 	pauseState() {
-		// don't stuff
+		this.pixiApp.ticker.stop();
 	}
 
 	// add more states as needed... etc. Not all of these should be implemented for A-Fest
@@ -85832,7 +86138,7 @@ class Game {
 
 module.exports = Game;
 
-},{"./Bezier":564,"./Coins":565,"./Collisions":566,"./GameObject":568,"./GenerationAlgorithm":569,"./Parallax":570,"./Physics":571,"./Score":572,"./Viewport":573,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":555}],568:[function(require,module,exports){
+},{"./Bezier":565,"./Coins":566,"./Collisions":567,"./GameObject":569,"./GenerationAlgorithm":570,"./Parallax":571,"./Physics":572,"./Score":573,"./Viewport":574,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":555}],569:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -85842,7 +86148,7 @@ const Vec2 = Planck.Vec2;
 function GameObject () {
 
 	// Object constructor
-	GameObject.prototype.create =({name, position=Vec2(0,0), scale=Vec2(1.0, 1.0), anchor=1, mass=1, sprite=1, physics=1})  => {
+	GameObject.prototype.create =({name, position=Vec2(0,0), scale=Vec2(1.0, 1.0), anchor=1, mass=1, sprite=1, followSprite=1, physics=1})  => {
 		let object = {};
 
 		if(!name || typeof(name) != "string") {
@@ -85850,7 +86156,7 @@ function GameObject () {
 			return object;
 		}
 
-		object = { name, position, scale, anchor, mass, sprite, physics };
+		object = { name, position, scale, anchor, mass, sprite, followSprite, physics };
 
 		return object;
 	};
@@ -85860,22 +86166,12 @@ function GameObject () {
 
 		let physicsPos = object.physics.getPosition();
 		object.sprite.anchor = object.anchor;
-		//object.sprite.scale = object.scale;
 		object.sprite.position.x = physicsPos.x;
-		object.sprite.position.y = physicsPos.y + 15;
+		object.sprite.position.y = physicsPos.y + 5;
 
-		// change this later
-		object.sprite.rotation = object.physics.getAngle();
-
-		if(object.physics.getAngle() < (Math.PI / 3.5) && object.physics.getAngle() > (- Math.PI / 3.5)) {    				// if the angle is more than 180 degree (PI radians)
-			//object.sprite.rotation = object.physics.getAngle();
-		}
-		else{
-			//object.sprite.rotation = (Math.PI / 3.5);
-		}
-
-		//console.log("Physics Pos: " + physicsPos);
-		//console.log("Pixi Pos: " + object.sprite.position.x);
+		object.followSprite.anchor = object.anchor;
+		object.followSprite.position.x = physicsPos.x;
+		object.followSprite.position.y = physicsPos.y + 15;
 	};
 	GameObject.prototype.error = function error (object) {
 		console.log(object.errorMessage);
@@ -85893,7 +86189,8 @@ function GameObject () {
 }
 
 module.exports = GameObject;
-},{"./Bezier":564,"./Physics":571,"pixi.js":43,"planck-js":70}],569:[function(require,module,exports){
+
+},{"./Bezier":565,"./Physics":572,"pixi.js":43,"planck-js":70}],570:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 //let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
@@ -85906,7 +86203,6 @@ const Vec2 = Planck.Vec2;
 function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	let currentPoint = Vec2(-10,0);
-	let maxMountainLength = Vec2(100, 300);
 	let songLength = audioAnalysis.track.duration;
 	let timeSignature = audioFeatures.time_signature;
 	let curves = [];
@@ -85923,7 +86219,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		currentTime = currentSection.start;
 
 		let durationMultiplier = timeToLength(currentSection);
-
+		console.log("Section time: " + currentSection.duration);
 		/*
 		// Random points
 
@@ -85934,18 +86230,20 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 		// Start and end points of new section curve
 		start = currentPoint;
-		end = Vec2(start.x + (currentSection.duration * durationMultiplier), start.y + ((50 + currentSection.loudness) * (durationMultiplier / 2)));
+		end = Vec2(start.x + (currentSection.duration), start.y + ((50 + currentSection.loudness)));
+
+		end = extendCurve(currentSection, start, end, audioFeatures.tempo);
 
 		// Create control Box for section curve
-		cUp = Vec2(start.x - (audioFeatures.valence * 10), start.y + (audioFeatures.energy * 5));
-		cBottom = Vec2(end.x + (audioFeatures.valence * 10), end.y - (audioFeatures.energy * 5));
+		cUp = Vec2(start.x - (audioFeatures.valence * 100), start.y + (audioFeatures.energy * 50));
+		cBottom = Vec2(end.x + (audioFeatures.valence * 100), end.y - (audioFeatures.energy * 50));
 
 		// Divide control box into time signature number
 		let divideBox = (cBottom.x - cUp.x) / (timeSignature);
 
 		// Section curve control points
-		c0 = Vec2(cBottom.x + (divideBox), cBottom.y + (currentSection.key));
-		c1 = Vec2(cUp.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
+		c0 = Vec2(cUp.x + (divideBox), cBottom.y + (currentSection.key));
+		c1 = Vec2(cBottom.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
 
 		// Push current section curve into curve arrays
 		singleCurvePoints.push(start, c0, c1, end);
@@ -85962,7 +86260,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 			c0.x += 200;
 			c1 = c0;
 			end = start;
-			end.x += 500;
+			end.x += 1000;
 
 			singleCurvePoints.push(start, c0, c1, end);
 			curves.push(singleCurvePoints);
@@ -86010,12 +86308,82 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	}
 
+	// Utility to find the angle between two Vec2 points in radians
+	function findAngle(point1, point2) {
+
+		let angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
+		return angle;
+	}
+
+	function radianToDegree(radian) {
+		let degree = radian * 180 / Math.PI;
+		return degree;
+	}
+
 	// returns a float representing the length of section within the entire song
 	function timeToLength(section){
-
+		//let multiplier = 4;
 		let durationPercent = ((section.duration / songLength) * 100);
-		//let curveLength = durationPercent;
+
 		return durationPercent;
+	}
+
+	function extendCurve(section, startPoint, endPoint, tempo){
+
+		let sectionAngle = radianToDegree(findAngle(startPoint, endPoint));
+		let durationMultiplier = timeToLength(section);
+		let xLength = (endPoint.x - startPoint.x);
+		let yLength = (endPoint.y - startPoint.y);
+		console.log("Initial curve X len: " + xLength + " Y len: " + yLength + " Angle: " + sectionAngle);
+
+		if (sectionAngle > 0 && sectionAngle <= 10){
+			endPoint.x += xLength * (tempo / 1.60) ;
+			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+
+		}
+		else if (sectionAngle > 10 && sectionAngle <= 20){
+			endPoint.x += xLength * (tempo / 1.62);
+			endPoint.y += (yLength * (tempo / 1.62)) / 3.0;
+
+		}
+		else if (sectionAngle > 20 && sectionAngle <= 30){
+			endPoint.x += xLength * (tempo / 1.64);
+			endPoint.y += (yLength * (tempo / 1.64)) / 3.0;
+
+		}
+		else if (sectionAngle > 30 && sectionAngle <= 40){
+			endPoint.x += xLength * (tempo / 1.66);
+			endPoint.y += (yLength * (tempo / 1.66)) / 3.0;
+
+		}
+		else if (sectionAngle > 40 && sectionAngle <= 50){
+			endPoint.x += xLength * (tempo / 1.70);
+			endPoint.y += (yLength * (tempo / 1.70)) / 3.0;
+
+		}
+		else if (sectionAngle > 50 && sectionAngle <= 60){
+			endPoint.x += xLength * (tempo / 1.75);
+			endPoint.y += (yLength * (tempo / 1.72)) / 3.0;
+
+		}
+		else if (sectionAngle > 60 && sectionAngle <= 70){
+			endPoint.x += xLength * (tempo / 1.75);
+			endPoint.y += (yLength * (tempo / 1.75)) / 3.0;
+
+		}
+		else if (sectionAngle > 70 && sectionAngle <= 80){
+			endPoint.x += xLength * (tempo / 1.70);
+			endPoint.y += (yLength * (tempo / 1.70)) / 3.0;
+
+		}
+		else if (sectionAngle > 80 && sectionAngle <= 90){
+			endPoint.x += xLength * (tempo / 1.70);
+			endPoint.y += (yLength * (tempo / 1.70)) / 3.0;
+
+		}
+		console.log("Final curve X len: " + (endPoint.x - startPoint.x) + " Y len: " + (endPoint.y - startPoint.y) + " Angle: " + radianToDegree(findAngle(startPoint, endPoint)));
+
+		return endPoint;
 	}
 
 	return curves;
@@ -86023,7 +86391,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 }
 
 module.exports = GenerationAlgorithm;
-},{"pixi.js":43,"planck-js":70}],570:[function(require,module,exports){
+},{"pixi.js":43,"planck-js":70}],571:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Parallax(game) {
@@ -86038,13 +86406,17 @@ function Parallax(game) {
 		delta: 0
 	};
 
-	const tilingSprite1 = createTilingSprite(game, "../img/bg-far.png", -325, vShader, fShader, uniforms);
-	const tilingSprite2 = createTilingSprite(game, "../img/bg-mid.png", 0, vShader, fShader, uniforms);
+	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, vShader, fShader, uniforms);
+	const tilingSprite3 = createTilingSprite(game, "../img/bg_layer3.png", -65, vShader, fShader, uniforms);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg_layer2.png", -33, vShader, fShader, uniforms);
+	const tilingSprite1 = createTilingSprite(game, "../img/bg_layer1.png", 0, vShader, fShader, uniforms);
 
 	let delta = 0;
 	game.ticker.add(() => {
-		tilingSprite1.tilePosition.x -= 0.0; // 0.128
-		tilingSprite2.tilePosition.x -= 0.0; // 0.64
+		tilingSprite1.tilePosition.x -= 1.28; // 0.128
+		tilingSprite2.tilePosition.x -= 0.64; // 0.64
+		tilingSprite3.tilePosition.x -= 0.32;
+		tilingSprite4.tilePosition.x -= 0.16;
 
 		delta += 0.1;
 		uniforms.delta = Math.sin(delta) * 0.5;
@@ -86072,8 +86444,8 @@ function createTilingSprite(game, location, y, vertShader, fragShader, uniforms)
 	tilingSprite.position.y = y;
 	tilingSprite.tilePosition.x = 0;
 	tilingSprite.tilePosition.y = 0;
-	tilingSprite.scale.x = 1.75;
-	tilingSprite.scale.y = 1.5;
+	//tilingSprite.scale.x = 0.75;
+	//tilingSprite.scale.y = 0.75;
 
 	return tilingSprite;
 }
@@ -86082,7 +86454,7 @@ module.exports = Parallax;
 
 
 
-},{"pixi.js":43}],571:[function(require,module,exports){
+},{"pixi.js":43}],572:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
@@ -86104,8 +86476,8 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	// Player object
 	let playerBody = world.createBody().setDynamic();
-	//box.createFixture(pl.Circle(0.5), 1.0);
-	playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
+	playerBody.createFixture(pl.Circle(0.5), 1.0);
+	//playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
 	playerBody.setPosition(Vec2(0.0, -15.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({
@@ -86116,7 +86488,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 	player.physics = playerBody;
 	player.position = playerBody.getPosition();
-	player.anchor = Vec2(0.5, 1);
+	player.anchor = Vec2(0.3, 1.0);
 	player.mass = playerBody.getMass();
 
 
@@ -86289,8 +86661,10 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 }
 
 module.exports = Physics;
-},{"./GameObject":568,"pixi.js":43,"planck-js":70}],572:[function(require,module,exports){
+
+},{"./GameObject":569,"pixi.js":43,"planck-js":70}],573:[function(require,module,exports){
 const {
+	InputManager,
 	GameStateController,
 	GameStateEnums
 } = require("tune-mountain-input-manager");
@@ -86313,7 +86687,7 @@ function Score(stateController) {
 }
 
 module.exports = Score;
-},{"tune-mountain-input-manager":555}],573:[function(require,module,exports){
+},{"tune-mountain-input-manager":555}],574:[function(require,module,exports){
 
 const Viewport = require("pixi-viewport").Viewport;
 
@@ -86342,7 +86716,7 @@ function CreateViewport(game) {
 }
 
 module.exports = CreateViewport;
-},{"pixi-viewport":42}],574:[function(require,module,exports){
+},{"pixi-viewport":42}],575:[function(require,module,exports){
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",
@@ -119964,7 +120338,7 @@ module.exports={
     }
   ]
 }
-},{}],575:[function(require,module,exports){
+},{}],576:[function(require,module,exports){
 module.exports={
   "danceability": 0.567,
   "energy": 0.881,
@@ -119985,4 +120359,4 @@ module.exports={
   "duration_ms": 196190,
   "time_signature": 4
 }
-},{}]},{},[563]);
+},{}]},{},[564]);
