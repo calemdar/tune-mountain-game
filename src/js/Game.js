@@ -174,8 +174,6 @@ class Game {
 		}
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
-		this.pixiApp.stage.removeChild(this.sprites.title);
-
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
 		let idle = [
 			"idle_frame_1.png",
