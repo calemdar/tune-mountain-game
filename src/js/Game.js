@@ -1,5 +1,6 @@
 // npm imports
 const PIXI = require("pixi.js");
+const particles = require("pixi-particles");
 const Planck = require("planck-js");
 
 // local modules
@@ -124,7 +125,7 @@ class Game {
 				sharedTicker: true
 			});
 		}
-		
+
 		this.pixiApp.maxFPS = 60;
 
 		return this.pixiApp;
@@ -366,9 +367,82 @@ class Game {
 			}
 		};
 
+		const particle = PIXI.Texture.from("../img/particle.png");
+		let emitter = new particles.Emitter(viewport, [particle],
+			{
+				"alpha": {
+					"start": 1,
+					"end": 0
+				},
+				"scale": {
+					"start": 0.02,
+					"end": 0.01,
+					"minimumScaleMultiplier": 1
+				},
+				"color": {
+					"start": "#e4f9ff",
+					"end": "#3fcbff"
+				},
+				"speed": {
+					"start": 75,
+					"end": 25,
+					"minimumSpeedMultiplier": 1
+				},
+				"acceleration": {
+					"x": 0,
+					"y": 0
+				},
+				"maxSpeed": 0,
+				"startRotation": {
+					"min": 0,
+					"max": 360
+				},
+				"noRotation": false,
+				"rotationSpeed": {
+					"min": 0,
+					"max": 0
+				},
+				"lifetime": {
+					"min": 0.2,
+					"max": 0.8
+				},
+				"blendMode": "normal",
+				"frequency": 0.001,
+				"emitterLifetime": -1,
+				"maxParticles": 500,
+				"pos": {
+					"x": 0,
+					"y": 0
+				},
+				"addAtBack": false,
+				"spawnType": "circle",
+				"spawnCircle": {
+					"x": 1,
+					"y": 1.5,
+					"r": 0
+				}
+			}
+		);
+
+		// Calculate the current time
+		let elapsed = Date.now();
+
+		const updateEmitter = function() {
+
+			let now = Date.now();
+
+			// The emitter requires the elapsed
+			// number of seconds since the last update
+			emitter.updateSpawnPos(player.position.x, player.position.y);
+			emitter.update((now - elapsed) * 0.001);
+			elapsed = now;
+		};
+
+
 		this.pixiApp.ticker.add(handleActions);
 		this.pixiApp.ticker.add(handleTime);
 		this.pixiApp.ticker.add(followPlayer);
+		this.pixiApp.ticker.add(updateEmitter);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}
