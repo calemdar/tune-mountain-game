@@ -78,7 +78,7 @@ class Game {
 		//****** INITIALIZING PIXI *******//
 		this.pixiApp = null;
 
-		this.CAN_JUMP = false;
+		this.ON_SLOPE = false;
 
 		this.songAnalysis = null;
 		this.songFeatures = null;
@@ -124,6 +124,8 @@ class Game {
 				sharedTicker: true
 			});
 		}
+		
+		this.pixiApp.maxFPS = 60;
 
 		return this.pixiApp;
 	}
@@ -306,11 +308,11 @@ class Game {
 
 			if (playerA || playerB) {
 
-				if (this.CAN_JUMP === false) {
+				if (this.ON_SLOPE === false) {
 					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
 
-				this.CAN_JUMP = true;
+				this.ON_SLOPE = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
@@ -328,17 +330,17 @@ class Game {
 
 
 		const handleActions = () => {
-			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
+			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
 
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
-				this.CAN_JUMP = false;
+				this.ON_SLOPE = false;
 			}
 
-			if (this.actionState.trick1 === "press") {
+			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !this.sprites.trick1.playing) {
 				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
 			}
 
