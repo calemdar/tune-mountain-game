@@ -43,14 +43,14 @@ function Collisions(game, viewport, player, coins, songFeatures) {
 	}
 
 	function pulseUp(sprite){
-		sprite.scale.x += 0.004;
+		//sprite.scale.x += 0.004;
 		sprite.scale.y += 0.004;
 
 
 	}
 	function pulseDown(sprite){
 
-		sprite.scale.x -= 0.004;
+		//sprite.scale.x -= 0.004;
 		sprite.scale.y -= 0.004;
 
 	}
