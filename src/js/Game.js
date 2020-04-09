@@ -42,7 +42,7 @@ class Game {
 	 * @param {GameStateController} stateController game state controller object
 	 * @param {Node} canvas HTML canvas element
 	 */
-	constructor(stateController, canvas) {
+	constructor(stateController, canvas, inputManagerInstance = null) {
 
 		// must have both for game to work
 		if (!stateController || !canvas) {
@@ -56,7 +56,7 @@ class Game {
 		this.stateController = stateController;
 
 		//****** INITIALIZING INPUT MANAGER *******//
-		const inputManager = new InputManager();
+		const inputManager = inputManagerInstance ? inputManagerInstance : new InputManager();
 
 		// bind actions
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
