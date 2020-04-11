@@ -85,11 +85,15 @@ function Trees(sections, features, allPoints, viewport, game) {
 		for(let i = 0; i < allTrees.length; i++) {
 			currTree = allTrees[i];
 
-			if(tempoFlag){
-				pulseUp(currTree);
-			}
-			else {
-				pulseDown(currTree);
+			let screen = viewport.getVisibleBounds();
+			let withinScreen = screen.contains(currTree.position.x, currTree.position.y);
+
+			if (withinScreen) {
+				if (tempoFlag) {
+					pulseUp(currTree);
+				} else {
+					pulseDown(currTree);
+				}
 			}
 		}
 
