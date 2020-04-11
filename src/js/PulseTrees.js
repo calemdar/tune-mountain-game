@@ -8,14 +8,14 @@ function PulseTrees(game, viewport, player, trees, songFeatures) {
 	let tempoFlag = true;		// true = getting bigger, false = getting smaller
 
 	function pulseUp(sprite){
-		sprite.scale.x += 0.004;
+		//sprite.scale.x += 0.004;
 		sprite.scale.y += 0.004;
 
 
 	}
 	function pulseDown(sprite){
 
-		sprite.scale.x -= 0.004;
+		//sprite.scale.x -= 0.004;
 		sprite.scale.y -= 0.004;
 
 	}
