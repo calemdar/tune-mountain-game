@@ -1,5 +1,6 @@
 // npm imports
 const PIXI = require("pixi.js");
+const particles = require("pixi-particles");
 const Planck = require("planck-js");
 
 // local modules
@@ -15,8 +16,7 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-const Coins = require("./Coins");
-const Collisions = require("./Collisions");
+const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
@@ -44,7 +44,7 @@ class Game {
 	 * @param {GameStateController} stateController game state controller object
 	 * @param {Node} canvas HTML canvas element
 	 */
-	constructor(stateController, canvas) {
+	constructor(stateController, canvas, inputManagerInstance = null) {
 
 		// must have both for game to work
 		if (!stateController || !canvas) {
@@ -58,7 +58,7 @@ class Game {
 		this.stateController = stateController;
 
 		//****** INITIALIZING INPUT MANAGER *******//
-		const inputManager = new InputManager();
+		const inputManager = inputManagerInstance ? inputManagerInstance : new InputManager();
 
 		// bind actions
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
@@ -80,7 +80,7 @@ class Game {
 		//****** INITIALIZING PIXI *******//
 		this.pixiApp = null;
 
-		this.CAN_JUMP = false;
+		this.ON_SLOPE = false;
 
 		this.songAnalysis = null;
 		this.songFeatures = null;
@@ -126,6 +126,8 @@ class Game {
 				sharedTicker: true
 			});
 		}
+
+		this.pixiApp.maxFPS = 60;
 
 		return this.pixiApp;
 	}
@@ -174,7 +176,6 @@ class Game {
 			//throw new Error("Pixi not initialized properly. Check code.");
 			this.getPixiApp(canvas);
 		}
-
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
@@ -313,11 +314,11 @@ class Game {
 
 			if (playerA || playerB) {
 
-				if (this.CAN_JUMP === false) {
+				if (this.ON_SLOPE === false) {
 					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
 
-				this.CAN_JUMP = true;
+				this.ON_SLOPE = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
@@ -335,17 +336,17 @@ class Game {
 
 
 		const handleActions = () => {
-			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
+			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
 
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
-				this.CAN_JUMP = false;
+				this.ON_SLOPE = false;
 			}
 
-			if (this.actionState.trick1 === "press") {
+			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !this.sprites.trick1.playing) {
 				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
 			}
 
@@ -371,9 +372,82 @@ class Game {
 			}
 		};
 
+		const particle = PIXI.Texture.from("../img/particle.png");
+		let emitter = new particles.Emitter(viewport, [particle],
+			{
+				"alpha": {
+					"start": 1,
+					"end": 0
+				},
+				"scale": {
+					"start": 0.02,
+					"end": 0.01,
+					"minimumScaleMultiplier": 1
+				},
+				"color": {
+					"start": "#e4f9ff",
+					"end": "#3fcbff"
+				},
+				"speed": {
+					"start": 75,
+					"end": 25,
+					"minimumSpeedMultiplier": 1
+				},
+				"acceleration": {
+					"x": 0,
+					"y": 0
+				},
+				"maxSpeed": 0,
+				"startRotation": {
+					"min": 0,
+					"max": 360
+				},
+				"noRotation": false,
+				"rotationSpeed": {
+					"min": 0,
+					"max": 0
+				},
+				"lifetime": {
+					"min": 0.2,
+					"max": 0.8
+				},
+				"blendMode": "normal",
+				"frequency": 0.001,
+				"emitterLifetime": -1,
+				"maxParticles": 500,
+				"pos": {
+					"x": 0,
+					"y": 0
+				},
+				"addAtBack": false,
+				"spawnType": "circle",
+				"spawnCircle": {
+					"x": 1,
+					"y": 1.5,
+					"r": 0
+				}
+			}
+		);
+
+		// Calculate the current time
+		let elapsed = Date.now();
+
+		const updateEmitter = function() {
+
+			let now = Date.now();
+
+			// The emitter requires the elapsed
+			// number of seconds since the last update
+			emitter.updateSpawnPos(player.position.x, player.position.y);
+			emitter.update((now - elapsed) * 0.001);
+			elapsed = now;
+		};
+
+
 		this.pixiApp.ticker.add(handleActions);
 		this.pixiApp.ticker.add(handleTime);
 		this.pixiApp.ticker.add(followPlayer);
+		this.pixiApp.ticker.add(updateEmitter);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}

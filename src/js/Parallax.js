@@ -17,6 +17,13 @@ function Parallax(game, shaders) {
 	const tilingSprite2 = createTilingSprite(game, "../img/bg_layer2.png", -33, shaders);
 	const tilingSprite1 = createTilingSprite(game, "../img/bg_layer1.png", 0, shaders);
 
+	let cloud1 = createCloud(game);
+	let cloud2 = createCloud(game);
+
+	let speed1 = getRandomArbitrary(0.1, 0.5);
+	let speed2 = getRandomArbitrary(0.1, 0.5);
+	let zIndex;
+
 	let delta = 0;
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 1.28; // 0.128
@@ -26,6 +33,23 @@ function Parallax(game, shaders) {
 
 		delta += 0.1;
 		uniforms.delta = Math.sin(delta) * 0.5;
+
+		cloud1.position.x -= speed1;
+		cloud2.position.x -= speed2;
+
+		if (cloud1.position.x < -100) {
+			cloud1.texture = PIXI.Texture.from("../img/cloud" + getRandomIntInclusive(1, 4) + ".png");
+			cloud1.position.x = game.screen.width + 100;
+			cloud1.position.y = getRandomIntInclusive(50, 250);
+			speed1 = getRandomArbitrary(0.1, 0.5);
+		}
+
+		if (cloud2.position.x < -100) {
+			cloud2.texture = PIXI.Texture.from("../img/cloud" + getRandomIntInclusive(1, 4) + ".png");
+			cloud2.position.x = game.screen.width + 100;
+			cloud2.position.y = getRandomIntInclusive(50, 250);
+			speed2 = getRandomArbitrary(0.1, 0.5);
+		}
 	});
 
 }
@@ -54,6 +78,28 @@ function createTilingSprite(game, location, y, shaders) {
 	//tilingSprite.scale.y = 0.75;
 
 	return tilingSprite;
+}
+
+function createCloud(game) {
+	const texture = PIXI.Texture.from("../img/cloud" + getRandomIntInclusive(1, 4) + ".png");
+	const sprite = new PIXI.Sprite(texture);
+
+	game.stage.addChild(sprite);
+
+	sprite.position.x = game.screen.width + 100;
+	sprite.position.y = getRandomIntInclusive(50, 250);
+
+	return sprite;
+}
+
+function getRandomIntInclusive(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomArbitrary(min, max) {
+	return Math.random() * (max - min) + min;
 }
 
 module.exports = Parallax;
