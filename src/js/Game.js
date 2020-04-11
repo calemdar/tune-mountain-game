@@ -15,7 +15,6 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-const Trees = require("./Trees");
 const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
