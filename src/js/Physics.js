@@ -72,7 +72,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 	const bezierCurvePoints = function(p0, c0, c1, p1) {
 
 		let t;
-		// TODO Tie this value to tempo or beats
+		// Curve resolution
 		let numPoints = 60;
 		let point = Vec2();
 

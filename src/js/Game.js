@@ -16,9 +16,10 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-const Trees = require("./Trees");
 const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
+const Shaders = require("./Shaders");
+const Trees = require("./Trees");
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -43,7 +44,7 @@ class Game {
 	 * @param {GameStateController} stateController game state controller object
 	 * @param {Node} canvas HTML canvas element
 	 */
-	constructor(stateController, canvas) {
+	constructor(stateController, canvas, inputManagerInstance = null) {
 
 		// must have both for game to work
 		if (!stateController || !canvas) {
@@ -57,7 +58,7 @@ class Game {
 		this.stateController = stateController;
 
 		//****** INITIALIZING INPUT MANAGER *******//
-		const inputManager = new InputManager();
+		const inputManager = inputManagerInstance ? inputManagerInstance : new InputManager();
 
 		// bind actions
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
@@ -236,10 +237,13 @@ class Game {
 			trickArray.push(texture);
 		}
 
+		// Compile Shaders
+		let shaderObject = Shaders(this.songFeatures, this.getPixiApp());
+
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
 		const viewport = Viewport(this.pixiApp);
 
-		Parallax(this.pixiApp);
+		Parallax(this.pixiApp, shaderObject);
 
 		this.pixiApp.stage.addChild(viewport);
 
@@ -280,11 +284,12 @@ class Game {
 		// Generate physics points for curves
 		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
 
-		// add trees
-		let treeSprites = Trees(this.songAnalysis, allPoints, viewport, player);
+		// add coins
+		//let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
+		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, viewport, this.pixiApp);
 
 		Bezier(viewport, allPoints);
-		PulseTrees(this.pixiApp, viewport, player, treeSprites, this.songFeatures);
+		//Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 

@@ -1,6 +1,6 @@
 const PIXI = require("pixi.js");
 
-function Parallax(game) {
+function Parallax(game, shaders) {
 
 	// Shader stuff
 	//const vShader = document.getElementById("vertShader").innerText;
@@ -12,10 +12,10 @@ function Parallax(game) {
 		delta: 0
 	};
 
-	const tilingSprite4 = createMountainLayer(game, "../img/bg_layer4.png", -100, vShader, fShader, uniforms);
-	const tilingSprite3 = createMountainLayer(game, "../img/bg_layer3.png", -65, vShader, fShader, uniforms);
-	const tilingSprite2 = createMountainLayer(game, "../img/bg_layer2.png", -33, vShader, fShader, uniforms);
-	const tilingSprite1 = createMountainLayer(game, "../img/bg_layer1.png", 0, vShader, fShader, uniforms);
+	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, shaders);
+	const tilingSprite3 = createTilingSprite(game, "../img/bg_layer3.png", -65, shaders);
+	const tilingSprite2 = createTilingSprite(game, "../img/bg_layer2.png", -33, shaders);
+	const tilingSprite1 = createTilingSprite(game, "../img/bg_layer1.png", 0, shaders);
 
 	let cloud1 = createCloud(game);
 	let cloud2 = createCloud(game);
@@ -54,7 +54,7 @@ function Parallax(game) {
 
 }
 
-function createMountainLayer(game, location, y, vertShader, fragShader, uniforms) {
+function createTilingSprite(game, location, y, shaders) {
 
 	const texture = PIXI.Texture.from(location);
 	//const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
@@ -66,7 +66,7 @@ function createMountainLayer(game, location, y, vertShader, fragShader, uniforms
 	);
 
 	// adding the shader
-	//tilingSprite.filters = [shader];
+	tilingSprite.filters = [shaders.shader0];
 
 	game.stage.addChild(tilingSprite);
 

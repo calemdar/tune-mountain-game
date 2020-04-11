@@ -1,91 +1,126 @@
 const PIXI = require("pixi.js");
-const Viewport = require("./Viewport");
 const Planck = require("planck-js");
 const Vec2 = Planck.Vec2;
-const GameObject = require("./GameObject");
 
-function Trees(analysis, allPoints, viewport, player) {
-	const obj = new GameObject();
-	let currentSection;
-	let allPointCounter = 0;			// counts all points from the physics
-	let treeObjects = [];				// stores all tree sprite objects
-	let sectionBeats = [];					// all beats for a given section
-	let treePlacer = 0;					// counter for tree placement
-	let maxtreeSeries = 4;				// max count of trees to spread in series
-	let beatLength;						// num beats / curve resolution
+let tempoFlag = true;			// true = getting bigger, false = getting smaller
+let tempoCounter = 0;
+let allTrees = [];
+let treesPerCurve = 40;
 
-	const texture = PIXI.Texture.from("../img/tree2_snowy.png");
+function Trees(sections, features, allPoints, viewport, game) {
 
-	for(let i = 0; i < analysis.sections.length; i+=1){
-		treePlacer = 0;
-		beatLength = beatsToPoints(sectionBeats.length);
-		currentSection = analysis.sections[i];
-		sectionBeats = getBeatsInSection(currentSection);
-		//console.log(sectionBeats);
-		//console.log(beatLength);
+	let currSectionNum = 0;
+	let allPointsIndex = 0;
 
-		for(let k = 0; k < sectionBeats.length; k+=1) {
-			let treeSprite = new PIXI.Sprite(texture);
+	let tempo = features.tempo / 2.0;
+	let treeTextures = [];
+	let tree1Tex = PIXI.Texture.from("../img/tree1.png");
+	let tree2Tex = PIXI.Texture.from("../img/tree1_snowy.png");
+	let tree3Tex = PIXI.Texture.from("../img/tree2.png");
+	let tree4Tex = PIXI.Texture.from("../img/tree2_snowy.png");
+	treeTextures.push(tree1Tex, tree2Tex, tree3Tex, tree4Tex);
 
-			if(allPointCounter >= allPoints.length){
-				break;
+	treesPerCurve = treesPerCurve + Math.ceil(features.energy * 10);
+
+	//console.log(sections);
+
+	// increments as the resolution of the curve
+	// loops for each section
+	for(let i = 0; i < sections.length; i++){
+		let currPlacement = allPoints[allPointsIndex];
+		let currSection = sections[currSectionNum];
+
+
+		let incrementPos = Math.floor(60 / treesPerCurve);
+
+		for(let j = 0; j < treesPerCurve; j++){
+			let treeTexIndex = getRandomInt(0, treeTextures.length - 1);
+			//console.log(treeTexIndex);
+			let treeSprite = new PIXI.Sprite(treeTextures[treeTexIndex]);
+			let currPointIndex = allPointsIndex;
+
+			// avoid error
+			if(allPointsIndex < 20){
+				currPointIndex = allPointsIndex + (incrementPos * j);
+				currPlacement = allPoints[currPointIndex];
+			}
+			else{
+				currPointIndex = allPointsIndex + (incrementPos * j) - getRandomInt(0, 4);
+				currPlacement = allPoints[currPointIndex];
 			}
 
-			treeSprite.scale.x = 0.5;
-			treeSprite.scale.y = 0.5;
+
 			treeSprite.anchor.x = 0.5;
 			treeSprite.anchor.y = 1.0;
 
-			treeSprite.position.x = allPoints[allPointCounter].x;
-			treeSprite.position.y = allPoints[allPointCounter].y;
+			treeSprite.scale.x = 0.3;
+			treeSprite.scale.y = 0.3;
 
-			let treeObj = obj.create({name: "Tree", position: treeSprite.position, sprite: treeSprite, scale: treeSprite.size});
+			treeSprite.position.x = currPlacement.x;
+			treeSprite.position.y = currPlacement.y;
 
-			treeObjects.push(treeObj);
+			//console.log(treeSprite.position);
+
+			allTrees.push(treeSprite);
 			viewport.addChild(treeSprite);
+		}
 
-			treePlacer += 1;
-			allPointCounter += beatLength;
+		currSectionNum++;
+		allPointsIndex += 60;
+	}
 
 
-			// reset tree placer when doubled tree series
-			if(treePlacer > (currentSection.time_signature)) {
-				treePlacer = 0;
+	const pulseTrees = () => {
+		let currTree;
+		let tempo = features.tempo / 2.0;
+
+		if(tempoCounter === 0){
+			tempoFlag = true;
+		}
+		else if(tempoCounter >= tempo){
+			tempoFlag = false;
+		}
+
+
+		for(let i = 0; i < allTrees.length; i++) {
+			currTree = allTrees[i];
+
+			if(tempoFlag){
+				pulseUp(currTree);
+			}
+			else {
+				pulseDown(currTree);
 			}
 		}
 
-	}
-
-	function getBeatsInSection(section) {
-		let beats = [];
-		let currBeat;
-		let currBeatEnd;
-		let sectionEnd = section.start + section.duration;
-
-		for(let k = 0; k < analysis.beats.length; k += 1) {
-			currBeat = analysis.beats[k];
-			currBeatEnd = currBeat.start + currBeat.duration;
-
-			if(currBeat.start >= section.start && currBeatEnd <= sectionEnd) {
-				beats.push(currBeat);
-			}
+		// incrementation
+		if(tempoFlag){
+			tempoCounter++;
 		}
-		return beats;
-	}
-
-	function beatsToPoints(numBeats){
-		let numPoints = allPoints.length / analysis.sections.length;
-		//console.log("Num points per curve: " + numPoints);
-		let length;
-		if(numBeats > 0) {
-			length = Math.ceil(numPoints / numBeats);
+		else {
+			tempoCounter--;
 		}
-		else {length = 1;}
+	};
 
-		return length;
-	}
+	game.ticker.add(pulseTrees);
+	return allTrees;
+}
 
-	return treeObjects;
+function pulseUp(sprite){
+	//sprite.scale.x += 0.004;
+	sprite.scale.y += 0.002;
+
+
+}
+function pulseDown(sprite){
+
+	//sprite.scale.x -= 0.004;
+	sprite.scale.y -= 0.002;
+
+}
+
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min) + min);
 }
 
 module.exports = Trees;
