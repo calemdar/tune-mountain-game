@@ -367,7 +367,7 @@ class Game {
 
 
 				console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
-				console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
+				//console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
 				lastCurveTime = currentTime;
 			}
 		};

@@ -23370,7 +23370,7 @@ exports.LoaderResource = LoaderResource;
 exports.TextureLoader = TextureLoader;
 
 
-},{"@pixi/core":4,"@pixi/utils":34,"resource-loader":102}],16:[function(require,module,exports){
+},{"@pixi/core":4,"@pixi/utils":34,"resource-loader":103}],16:[function(require,module,exports){
 /*!
  * @pixi/math - v5.1.0
  * Compiled Fri, 19 Jul 2019 21:54:36 UTC
@@ -37180,7 +37180,7 @@ exports.trimCanvas = trimCanvas;
 exports.uid = uid;
 
 
-},{"@pixi/constants":3,"@pixi/settings":26,"earcut":35,"eventemitter3":37,"url":562}],35:[function(require,module,exports){
+},{"@pixi/constants":3,"@pixi/settings":26,"earcut":35,"eventemitter3":37,"url":563}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = earcut;
@@ -38182,7 +38182,7 @@ Promise.reject = function(reason){
 })(typeof window != 'undefined' ? window : typeof global != 'undefined' ? global : typeof self != 'undefined' ? self : this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"timers":554}],37:[function(require,module,exports){
+},{"timers":555}],37:[function(require,module,exports){
 'use strict';
 
 var has = Object.prototype.hasOwnProperty
@@ -38814,12 +38814,1963 @@ module.exports = function parseURI (str, opts) {
 }
 
 },{}],42:[function(require,module,exports){
+/*!
+ * pixi-particles - v4.2.0
+ * Compiled Sat, 26 Oct 2019 14:40:23 UTC
+ *
+ * pixi-particles is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var pixi = require('pixi.js');
+
+/**
+ * A single node in a PropertyList.
+ */
+var PropertyNode = /** @class */ (function () {
+    /**
+     * @param value The value for this node
+     * @param time The time for this node, between 0-1
+     * @param [ease] Custom ease for this list. Only relevant for the first node.
+     */
+    function PropertyNode(value, time, ease) {
+        this.value = value;
+        this.time = time;
+        this.next = null;
+        this.isStepped = false;
+        if (ease) {
+            this.ease = typeof ease == "function" ? ease : exports.ParticleUtils.generateEase(ease);
+        }
+        else {
+            this.ease = null;
+        }
+    }
+    /**
+     * Creates a list of property values from a data object {list, isStepped} with a list of objects in
+     * the form {value, time}. Alternatively, the data object can be in the deprecated form of
+     * {start, end}.
+     * @param data The data for the list.
+     * @param data.list The array of value and time objects.
+     * @param data.isStepped If the list is stepped rather than interpolated.
+     * @param data.ease Custom ease for this list.
+     * @return The first node in the list
+     */
+    PropertyNode.createList = function (data) {
+        if ("list" in data) {
+            var array = data.list;
+            var node = void 0, first = void 0;
+            var _a = array[0], value = _a.value, time = _a.time;
+            first = node = new PropertyNode(typeof value === 'string' ? exports.ParticleUtils.hexToRGB(value) : value, time, data.ease);
+            //only set up subsequent nodes if there are a bunch or the 2nd one is different from the first
+            if (array.length > 2 || (array.length === 2 && array[1].value !== value)) {
+                for (var i = 1; i < array.length; ++i) {
+                    var _b = array[i], value_1 = _b.value, time_1 = _b.time;
+                    node.next = new PropertyNode(typeof value_1 === 'string' ? exports.ParticleUtils.hexToRGB(value_1) : value_1, time_1);
+                    node = node.next;
+                }
+            }
+            first.isStepped = !!data.isStepped;
+            return first;
+        }
+        else {
+            //Handle deprecated version here
+            var start = new PropertyNode(typeof data.start === 'string' ? exports.ParticleUtils.hexToRGB(data.start) : data.start, 0);
+            //only set up a next value if it is different from the starting value
+            if (data.end !== data.start)
+                start.next = new PropertyNode(typeof data.end === 'string' ? exports.ParticleUtils.hexToRGB(data.end) : data.end, 1);
+            return start;
+        }
+    };
+    return PropertyNode;
+}());
+
+// get Texture.from()/Texture.fromImage(), in V4 and V5 friendly methods
+/**
+ * @hidden
+ */
+var TextureFromString;
+// to avoid Rollup transforming our import, save pixi namespace in a variable
+var pixiNS = pixi;
+if (parseInt(/^(\d+)\./.exec(pixi.VERSION)[1]) < 5) {
+    TextureFromString = pixiNS.Texture.fromImage;
+}
+else {
+    TextureFromString = pixiNS.Texture.from;
+}
+function GetTextureFromString(s) {
+    return TextureFromString(s);
+}
+(function (ParticleUtils) {
+    /**
+     * If errors and warnings should be logged within the library.
+     */
+    ParticleUtils.verbose = false;
+    ParticleUtils.DEG_TO_RADS = Math.PI / 180;
+    /**
+     * Rotates a point by a given angle.
+     * @param angle The angle to rotate by in degrees
+     * @param p The point to rotate around 0,0.
+     */
+    function rotatePoint(angle, p) {
+        if (!angle)
+            return;
+        angle *= ParticleUtils.DEG_TO_RADS;
+        var s = Math.sin(angle);
+        var c = Math.cos(angle);
+        var xnew = p.x * c - p.y * s;
+        var ynew = p.x * s + p.y * c;
+        p.x = xnew;
+        p.y = ynew;
+    }
+    ParticleUtils.rotatePoint = rotatePoint;
+    /**
+     * Combines separate color components (0-255) into a single uint color.
+     * @param r The red value of the color
+     * @param g The green value of the color
+     * @param b The blue value of the color
+     * @return The color in the form of 0xRRGGBB
+     */
+    function combineRGBComponents(r, g, b /*, a*/) {
+        return /*a << 24 |*/ r << 16 | g << 8 | b;
+    }
+    ParticleUtils.combineRGBComponents = combineRGBComponents;
+    /**
+     * Reduces the point to a length of 1.
+     * @param point The point to normalize
+     */
+    function normalize(point) {
+        var oneOverLen = 1 / ParticleUtils.length(point);
+        point.x *= oneOverLen;
+        point.y *= oneOverLen;
+    }
+    ParticleUtils.normalize = normalize;
+    /**
+     * Multiplies the x and y values of this point by a value.
+     * @param point The point to scaleBy
+     * @param value The value to scale by.
+     */
+    function scaleBy(point, value) {
+        point.x *= value;
+        point.y *= value;
+    }
+    ParticleUtils.scaleBy = scaleBy;
+    /**
+     * Returns the length (or magnitude) of this point.
+     * @param point The point to measure length
+     * @return The length of this point.
+     */
+    function length(point) {
+        return Math.sqrt(point.x * point.x + point.y * point.y);
+    }
+    ParticleUtils.length = length;
+    /**
+     * Converts a hex string from "#AARRGGBB", "#RRGGBB", "0xAARRGGBB", "0xRRGGBB",
+     * "AARRGGBB", or "RRGGBB" to an object of ints of 0-255, as
+     * {r, g, b, (a)}.
+     * @param color The input color string.
+     * @param output An object to put the output in. If omitted, a new object is created.
+     * @return The object with r, g, and b properties, possibly with an a property.
+     */
+    function hexToRGB(color, output) {
+        if (!output)
+            output = {};
+        if (color.charAt(0) == "#")
+            color = color.substr(1);
+        else if (color.indexOf("0x") === 0)
+            color = color.substr(2);
+        var alpha;
+        if (color.length == 8) {
+            alpha = color.substr(0, 2);
+            color = color.substr(2);
+        }
+        output.r = parseInt(color.substr(0, 2), 16); //Red
+        output.g = parseInt(color.substr(2, 2), 16); //Green
+        output.b = parseInt(color.substr(4, 2), 16); //Blue
+        if (alpha)
+            output.a = parseInt(alpha, 16);
+        return output;
+    }
+    ParticleUtils.hexToRGB = hexToRGB;
+    /**
+     * Generates a custom ease function, based on the GreenSock custom ease, as demonstrated
+     * by the related tool at http://www.greensock.com/customease/.
+     * @param segments An array of segments, as created by
+     * http://www.greensock.com/customease/.
+     * @return A function that calculates the percentage of change at
+     *                    a given point in time (0-1 inclusive).
+     */
+    function generateEase(segments) {
+        var qty = segments.length;
+        var oneOverQty = 1 / qty;
+        /*
+         * Calculates the percentage of change at a given point in time (0-1 inclusive).
+         * @param {Number} time The time of the ease, 0-1 inclusive.
+         * @return {Number} The percentage of the change, 0-1 inclusive (unless your
+         *                  ease goes outside those bounds).
+         */
+        return function (time) {
+            var t, s;
+            var i = (qty * time) | 0; //do a quick floor operation
+            t = (time - (i * oneOverQty)) * qty;
+            s = segments[i] || segments[qty - 1];
+            return (s.s + t * (2 * (1 - t) * (s.cp - s.s) + t * (s.e - s.s)));
+        };
+    }
+    ParticleUtils.generateEase = generateEase;
+    /**
+     * Gets a blend mode, ensuring that it is valid.
+     * @param name The name of the blend mode to get.
+     * @return The blend mode as specified in the PIXI.BLEND_MODES enumeration.
+     */
+    function getBlendMode(name) {
+        if (!name)
+            return pixi.BLEND_MODES.NORMAL;
+        name = name.toUpperCase();
+        while (name.indexOf(" ") >= 0)
+            name = name.replace(" ", "_");
+        return pixi.BLEND_MODES[name] || pixi.BLEND_MODES.NORMAL;
+    }
+    ParticleUtils.getBlendMode = getBlendMode;
+    /**
+     * Converts a list of {value, time} objects starting at time 0 and ending at time 1 into an evenly
+     * spaced stepped list of PropertyNodes for color values. This is primarily to handle conversion of
+     * linear gradients to fewer colors, allowing for some optimization for Canvas2d fallbacks.
+     * @param list The list of data to convert.
+     * @param [numSteps=10] The number of steps to use.
+     * @return The blend mode as specified in the PIXI.blendModes enumeration.
+     */
+    function createSteppedGradient(list, numSteps) {
+        if (numSteps === void 0) { numSteps = 10; }
+        if (typeof numSteps !== 'number' || numSteps <= 0)
+            numSteps = 10;
+        var first = new PropertyNode(ParticleUtils.hexToRGB(list[0].value), list[0].time);
+        first.isStepped = true;
+        var currentNode = first;
+        var current = list[0];
+        var nextIndex = 1;
+        var next = list[nextIndex];
+        for (var i = 1; i < numSteps; ++i) {
+            var lerp = i / numSteps;
+            //ensure we are on the right segment, if multiple
+            while (lerp > next.time) {
+                current = next;
+                next = list[++nextIndex];
+            }
+            //convert the lerp value to the segment range
+            lerp = (lerp - current.time) / (next.time - current.time);
+            var curVal = ParticleUtils.hexToRGB(current.value);
+            var nextVal = ParticleUtils.hexToRGB(next.value);
+            var output = {
+                r: (nextVal.r - curVal.r) * lerp + curVal.r,
+                g: (nextVal.g - curVal.g) * lerp + curVal.g,
+                b: (nextVal.b - curVal.b) * lerp + curVal.b,
+            };
+            currentNode.next = new PropertyNode(output, i / numSteps);
+            currentNode = currentNode.next;
+        }
+        //we don't need to have a PropertyNode for time of 1, because in a stepped version at that point
+        //the particle has died of old age
+        return first;
+    }
+    ParticleUtils.createSteppedGradient = createSteppedGradient;
+})(exports.ParticleUtils || (exports.ParticleUtils = {}));
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+/**
+ * Singly linked list container for keeping track of interpolated properties for particles.
+ * Each Particle will have one of these for each interpolated property.
+ */
+var PropertyList = /** @class */ (function () {
+    /**
+     * @param isColor If this list handles color values
+     */
+    function PropertyList(isColor) {
+        if (isColor === void 0) { isColor = false; }
+        this.current = null;
+        this.next = null;
+        this.isColor = !!isColor;
+        this.interpolate = null;
+        this.ease = null;
+    }
+    /**
+     * Resets the list for use.
+     * @param first The first node in the list.
+     * @param first.isStepped If the values should be stepped instead of interpolated linearly.
+     */
+    PropertyList.prototype.reset = function (first) {
+        this.current = first;
+        this.next = first.next;
+        var isSimple = this.next && this.next.time >= 1;
+        if (isSimple) {
+            this.interpolate = this.isColor ? intColorSimple : intValueSimple;
+        }
+        else if (first.isStepped) {
+            this.interpolate = this.isColor ? intColorStepped : intValueStepped;
+        }
+        else {
+            this.interpolate = this.isColor ? intColorComplex : intValueComplex;
+        }
+        this.ease = this.current.ease;
+    };
+    return PropertyList;
+}());
+function intValueSimple(lerp) {
+    if (this.ease)
+        lerp = this.ease(lerp);
+    return (this.next.value - this.current.value) * lerp + this.current.value;
+}
+function intColorSimple(lerp) {
+    if (this.ease)
+        lerp = this.ease(lerp);
+    var curVal = this.current.value, nextVal = this.next.value;
+    var r = (nextVal.r - curVal.r) * lerp + curVal.r;
+    var g = (nextVal.g - curVal.g) * lerp + curVal.g;
+    var b = (nextVal.b - curVal.b) * lerp + curVal.b;
+    return exports.ParticleUtils.combineRGBComponents(r, g, b);
+}
+function intValueComplex(lerp) {
+    if (this.ease)
+        lerp = this.ease(lerp);
+    //make sure we are on the right segment
+    while (lerp > this.next.time) {
+        this.current = this.next;
+        this.next = this.next.next;
+    }
+    //convert the lerp value to the segment range
+    lerp = (lerp - this.current.time) / (this.next.time - this.current.time);
+    return (this.next.value - this.current.value) * lerp + this.current.value;
+}
+function intColorComplex(lerp) {
+    if (this.ease)
+        lerp = this.ease(lerp);
+    //make sure we are on the right segment
+    while (lerp > this.next.time) {
+        this.current = this.next;
+        this.next = this.next.next;
+    }
+    //convert the lerp value to the segment range
+    lerp = (lerp - this.current.time) / (this.next.time - this.current.time);
+    var curVal = this.current.value, nextVal = this.next.value;
+    var r = (nextVal.r - curVal.r) * lerp + curVal.r;
+    var g = (nextVal.g - curVal.g) * lerp + curVal.g;
+    var b = (nextVal.b - curVal.b) * lerp + curVal.b;
+    return exports.ParticleUtils.combineRGBComponents(r, g, b);
+}
+function intValueStepped(lerp) {
+    if (this.ease)
+        lerp = this.ease(lerp);
+    //make sure we are on the right segment
+    while (this.next && lerp > this.next.time) {
+        this.current = this.next;
+        this.next = this.next.next;
+    }
+    return this.current.value;
+}
+function intColorStepped(lerp) {
+    if (this.ease)
+        lerp = this.ease(lerp);
+    //make sure we are on the right segment
+    while (this.next && lerp > this.next.time) {
+        this.current = this.next;
+        this.next = this.next.next;
+    }
+    var curVal = this.current.value;
+    return exports.ParticleUtils.combineRGBComponents(curVal.r, curVal.g, curVal.b);
+}
+
+/**
+ * An individual particle image. You shouldn't have to deal with these.
+ */
+var Particle = /** @class */ (function (_super) {
+    __extends(Particle, _super);
+    /**
+     * @param {PIXI.particles.Emitter} emitter The emitter that controls this particle.
+     */
+    function Particle(emitter) {
+        var _this = 
+        //start off the sprite with a blank texture, since we are going to replace it
+        //later when the particle is initialized.
+        _super.call(this) || this;
+        _this.emitter = emitter;
+        //particles should be centered
+        _this.anchor.x = _this.anchor.y = 0.5;
+        _this.velocity = new pixi.Point();
+        _this.rotationSpeed = 0;
+        _this.rotationAcceleration = 0;
+        _this.maxLife = 0;
+        _this.age = 0;
+        _this.ease = null;
+        _this.extraData = null;
+        _this.alphaList = new PropertyList();
+        _this.speedList = new PropertyList();
+        _this.speedMultiplier = 1;
+        _this.acceleration = new pixi.Point();
+        _this.maxSpeed = NaN;
+        _this.scaleList = new PropertyList();
+        _this.scaleMultiplier = 1;
+        _this.colorList = new PropertyList(true);
+        _this._doAlpha = false;
+        _this._doScale = false;
+        _this._doSpeed = false;
+        _this._doAcceleration = false;
+        _this._doColor = false;
+        _this._doNormalMovement = false;
+        _this._oneOverLife = 0;
+        _this.next = null;
+        _this.prev = null;
+        //save often used functions on the instance instead of the prototype for better speed
+        _this.init = _this.init;
+        _this.Particle_init = Particle.prototype.init;
+        _this.update = _this.update;
+        _this.Particle_update = Particle.prototype.update;
+        _this.Sprite_destroy = _super.prototype.destroy;
+        _this.Particle_destroy = Particle.prototype.destroy;
+        _this.applyArt = _this.applyArt;
+        _this.kill = _this.kill;
+        return _this;
+    }
+    /**
+     * Initializes the particle for use, based on the properties that have to
+     * have been set already on the particle.
+     */
+    Particle.prototype.init = function () {
+        //reset the age
+        this.age = 0;
+        //set up the velocity based on the start speed and rotation
+        this.velocity.x = this.speedList.current.value * this.speedMultiplier;
+        this.velocity.y = 0;
+        exports.ParticleUtils.rotatePoint(this.rotation, this.velocity);
+        if (this.noRotation) {
+            this.rotation = 0;
+        }
+        else {
+            //convert rotation to Radians from Degrees
+            this.rotation *= exports.ParticleUtils.DEG_TO_RADS;
+        }
+        //convert rotation speed to Radians from Degrees
+        this.rotationSpeed *= exports.ParticleUtils.DEG_TO_RADS;
+        this.rotationAcceleration *= exports.ParticleUtils.DEG_TO_RADS;
+        //set alpha to inital alpha
+        this.alpha = this.alphaList.current.value;
+        //set scale to initial scale
+        this.scale.x = this.scale.y = this.scaleList.current.value;
+        //figure out what we need to interpolate
+        this._doAlpha = !!this.alphaList.current.next;
+        this._doSpeed = !!this.speedList.current.next;
+        this._doScale = !!this.scaleList.current.next;
+        this._doColor = !!this.colorList.current.next;
+        this._doAcceleration = this.acceleration.x !== 0 || this.acceleration.y !== 0;
+        //_doNormalMovement can be cancelled by subclasses
+        this._doNormalMovement = this._doSpeed || this.speedList.current.value !== 0 || this._doAcceleration;
+        //save our lerp helper
+        this._oneOverLife = 1 / this.maxLife;
+        //set the inital color
+        var color = this.colorList.current.value;
+        this.tint = exports.ParticleUtils.combineRGBComponents(color.r, color.g, color.b);
+        //ensure visibility
+        this.visible = true;
+    };
+    /**
+     * Sets the texture for the particle. This can be overridden to allow
+     * for an animated particle.
+     * @param art The texture to set.
+     */
+    Particle.prototype.applyArt = function (art) {
+        this.texture = art || pixi.Texture.EMPTY;
+    };
+    /**
+     * Updates the particle.
+     * @param delta Time elapsed since the previous frame, in __seconds__.
+     * @return The standard interpolation multiplier (0-1) used for all
+     *         relevant particle properties. A value of -1 means the particle
+     *         died of old age instead.
+     */
+    Particle.prototype.update = function (delta) {
+        //increase age
+        this.age += delta;
+        //recycle particle if it is too old
+        if (this.age >= this.maxLife || this.age < 0) {
+            this.kill();
+            return -1;
+        }
+        //determine our interpolation value
+        var lerp = this.age * this._oneOverLife; //lifetime / maxLife;
+        if (this.ease) {
+            if (this.ease.length == 4) {
+                //the t, b, c, d parameters that some tween libraries use
+                //(time, initial value, end value, duration)
+                lerp = this.ease(lerp, 0, 1, 1);
+            }
+            else {
+                //the simplified version that we like that takes
+                //one parameter, time from 0-1. TweenJS eases provide this usage.
+                lerp = this.ease(lerp);
+            }
+        }
+        //interpolate alpha
+        if (this._doAlpha)
+            this.alpha = this.alphaList.interpolate(lerp);
+        //interpolate scale
+        if (this._doScale) {
+            var scale = this.scaleList.interpolate(lerp) * this.scaleMultiplier;
+            this.scale.x = this.scale.y = scale;
+        }
+        //handle movement
+        if (this._doNormalMovement) {
+            var deltaX = void 0;
+            var deltaY = void 0;
+            //interpolate speed
+            if (this._doSpeed) {
+                var speed = this.speedList.interpolate(lerp) * this.speedMultiplier;
+                exports.ParticleUtils.normalize(this.velocity);
+                exports.ParticleUtils.scaleBy(this.velocity, speed);
+                deltaX = this.velocity.x * delta;
+                deltaY = this.velocity.y * delta;
+            }
+            else if (this._doAcceleration) {
+                var oldVX = this.velocity.x;
+                var oldVY = this.velocity.y;
+                this.velocity.x += this.acceleration.x * delta;
+                this.velocity.y += this.acceleration.y * delta;
+                if (this.maxSpeed) {
+                    var currentSpeed = exports.ParticleUtils.length(this.velocity);
+                    //if we are going faster than we should, clamp at the max speed
+                    //DO NOT recalculate vector length
+                    if (currentSpeed > this.maxSpeed) {
+                        exports.ParticleUtils.scaleBy(this.velocity, this.maxSpeed / currentSpeed);
+                    }
+                }
+                // calculate position delta by the midpoint between our old velocity and our new velocity
+                deltaX = (oldVX + this.velocity.x) / 2 * delta;
+                deltaY = (oldVY + this.velocity.y) / 2 * delta;
+            }
+            else {
+                deltaX = this.velocity.x * delta;
+                deltaY = this.velocity.y * delta;
+            }
+            //adjust position based on velocity
+            this.position.x += deltaX;
+            this.position.y += deltaY;
+        }
+        //interpolate color
+        if (this._doColor) {
+            this.tint = this.colorList.interpolate(lerp);
+        }
+        //update rotation
+        if (this.rotationAcceleration !== 0) {
+            var newRotationSpeed = this.rotationSpeed + this.rotationAcceleration * delta;
+            this.rotation += (this.rotationSpeed + newRotationSpeed) / 2 * delta;
+            this.rotationSpeed = newRotationSpeed;
+        }
+        else if (this.rotationSpeed !== 0) {
+            this.rotation += this.rotationSpeed * delta;
+        }
+        else if (this.acceleration && !this.noRotation) {
+            this.rotation = Math.atan2(this.velocity.y, this.velocity.x); // + Math.PI / 2;
+        }
+        return lerp;
+    };
+    /**
+     * Kills the particle, removing it from the display list
+     * and telling the emitter to recycle it.
+     */
+    Particle.prototype.kill = function () {
+        this.emitter.recycle(this);
+    };
+    /**
+     * Destroys the particle, removing references and preventing future use.
+     */
+    Particle.prototype.destroy = function () {
+        if (this.parent)
+            this.parent.removeChild(this);
+        this.Sprite_destroy();
+        this.emitter = this.velocity = this.colorList = this.scaleList = this.alphaList =
+            this.speedList = this.ease = this.next = this.prev = null;
+    };
+    /**
+     * Checks over the art that was passed to the Emitter's init() function, to do any special
+     * modifications to prepare it ahead of time.
+     * @param art The array of art data. For Particle, it should be an array of
+     *            Textures. Any strings in the array will be converted to
+     *            Textures via Texture.from().
+     * @return The art, after any needed modifications.
+     */
+    Particle.parseArt = function (art) {
+        //convert any strings to Textures.
+        var i;
+        for (i = art.length; i >= 0; --i) {
+            if (typeof art[i] == "string")
+                art[i] = GetTextureFromString(art[i]);
+        }
+        //particles from different base textures will be slower in WebGL than if they
+        //were from one spritesheet
+        if (exports.ParticleUtils.verbose) {
+            for (i = art.length - 1; i > 0; --i) {
+                if (art[i].baseTexture != art[i - 1].baseTexture) {
+                    if (window.console)
+                        console.warn("PixiParticles: using particle textures from different images may hinder performance in WebGL");
+                    break;
+                }
+            }
+        }
+        return art;
+    };
+    /**
+     * Parses extra emitter data to ensure it is set up for this particle class.
+     * Particle does nothing to the extra data.
+     * @param extraData The extra data from the particle config.
+     * @return The parsed extra data.
+     */
+    Particle.parseData = function (extraData) {
+        return extraData;
+    };
+    return Particle;
+}(pixi.Sprite));
+
+/**
+ * Chain of line segments for generating spawn positions.
+ */
+var PolygonalChain = /** @class */ (function () {
+    /**
+     * @param data Point data for polygon chains. Either a list of points for a single chain, or a list of chains.
+     */
+    function PolygonalChain(data) {
+        this.segments = [];
+        this.countingLengths = [];
+        this.totalLength = 0;
+        this.init(data);
+    }
+    /**
+     * @param data Point data for polygon chains. Either a list of points for a single chain, or a list of chains.
+     */
+    PolygonalChain.prototype.init = function (data) {
+        // if data is not present, set up a segment of length 0
+        if (!data || !data.length) {
+            this.segments.push({ p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 }, l: 0 });
+        }
+        else {
+            if (Array.isArray(data[0])) {
+                // list of segment chains, each defined as a list of points
+                for (var i = 0; i < data.length; ++i) {
+                    // loop through the chain, connecting points
+                    var chain = data[i];
+                    var prevPoint = chain[0];
+                    for (var j = 1; j < chain.length; ++j) {
+                        var second = chain[j];
+                        this.segments.push({ p1: prevPoint, p2: second, l: 0 });
+                        prevPoint = second;
+                    }
+                }
+            }
+            else {
+                var prevPoint = data[0];
+                // list of points
+                for (var i = 1; i < data.length; ++i) {
+                    var second = data[i];
+                    this.segments.push({ p1: prevPoint, p2: second, l: 0 });
+                    prevPoint = second;
+                }
+            }
+        }
+        // now go through our segments to calculate the lengths so that we
+        // can set up a nice weighted random distribution
+        for (var i = 0; i < this.segments.length; ++i) {
+            var _a = this.segments[i], p1 = _a.p1, p2 = _a.p2;
+            var segLength = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+            // save length so we can turn a random number into a 0-1 interpolation value later
+            this.segments[i].l = segLength;
+            this.totalLength += segLength;
+            // keep track of the length so far, counting up
+            this.countingLengths.push(this.totalLength);
+        }
+    };
+    /**
+     * Gets a random point in the chain.
+     * @param out The point to store the selected position in.
+     */
+    PolygonalChain.prototype.getRandomPoint = function (out) {
+        // select a random spot in the length of the chain
+        var rand = Math.random() * this.totalLength;
+        var chosenSeg;
+        var lerp;
+        // if only one segment, it wins
+        if (this.segments.length === 1) {
+            chosenSeg = this.segments[0];
+            lerp = rand;
+        }
+        else {
+            // otherwise, go through countingLengths until we have determined
+            // which segment we chose
+            for (var i = 0; i < this.countingLengths.length; ++i) {
+                if (rand < this.countingLengths[i]) {
+                    chosenSeg = this.segments[i];
+                    // set lerp equal to the length into that segment (i.e. the remainder after subtracting all the segments before it)
+                    lerp = i === 0 ? rand : rand - this.countingLengths[i - 1];
+                    break;
+                }
+            }
+        }
+        // divide lerp by the segment length, to result in a 0-1 number.
+        lerp /= chosenSeg.l || 1;
+        var p1 = chosenSeg.p1, p2 = chosenSeg.p2;
+        // now calculate the position in the segment that the lerp value represents
+        out.x = p1.x + lerp * (p2.x - p1.x);
+        out.y = p1.y + lerp * (p2.y - p1.y);
+    };
+    return PolygonalChain;
+}());
+
+// get the shared ticker, in V4 and V5 friendly methods
+/**
+ * @hidden
+ */
+var ticker;
+// to avoid Rollup transforming our import, save pixi namespace in a variable
+var pixiNS$1 = pixi;
+if (parseInt(/^(\d+)\./.exec(pixi.VERSION)[1]) < 5) {
+    ticker = pixiNS$1.ticker.shared;
+}
+else {
+    ticker = pixiNS$1.Ticker.shared;
+}
+/**
+ * @hidden
+ */
+var helperPoint = new pixi.Point();
+/**
+ * A particle emitter.
+ */
+var Emitter = /** @class */ (function () {
+    /**
+     * @param particleParent The container to add the particles to.
+     * @param particleImages A texture or array of textures to use
+     *                       for the particles. Strings will be turned
+     *                       into textures via Texture.fromImage().
+     * @param config A configuration object containing settings for the emitter.
+     * @param config.emit If config.emit is explicitly passed as false, the
+     *                    Emitter will start disabled.
+     * @param config.autoUpdate If config.autoUpdate is explicitly passed as
+     *                          true, the Emitter will automatically call
+     *                          update via the PIXI shared ticker.
+     */
+    function Emitter(particleParent, particleImages, config) {
+        /**
+         * A number keeping index of currently applied image. Used to emit arts in order.
+         */
+        this._currentImageIndex = -1;
+        this._particleConstructor = Particle;
+        //properties for individual particles
+        this.particleImages = null;
+        this.startAlpha = null;
+        this.startSpeed = null;
+        this.minimumSpeedMultiplier = 1;
+        this.acceleration = null;
+        this.maxSpeed = NaN;
+        this.startScale = null;
+        this.minimumScaleMultiplier = 1;
+        this.startColor = null;
+        this.minLifetime = 0;
+        this.maxLifetime = 0;
+        this.minStartRotation = 0;
+        this.maxStartRotation = 0;
+        this.noRotation = false;
+        this.minRotationSpeed = 0;
+        this.maxRotationSpeed = 0;
+        this.particleBlendMode = 0;
+        this.customEase = null;
+        this.extraData = null;
+        //properties for spawning particles
+        this._frequency = 1;
+        this.spawnChance = 1;
+        this.maxParticles = 1000;
+        this.emitterLifetime = -1;
+        this.spawnPos = null;
+        this.spawnType = null;
+        this._spawnFunc = null;
+        this.spawnRect = null;
+        this.spawnCircle = null;
+        this.spawnPolygonalChain = null;
+        this.particlesPerWave = 1;
+        this.particleSpacing = 0;
+        this.angleStart = 0;
+        //emitter properties
+        this.rotation = 0;
+        this.ownerPos = null;
+        this._prevEmitterPos = null;
+        this._prevPosIsValid = false;
+        this._posChanged = false;
+        this._parent = null;
+        this.addAtBack = false;
+        this.particleCount = 0;
+        this._emit = false;
+        this._spawnTimer = 0;
+        this._emitterLife = -1;
+        this._activeParticlesFirst = null;
+        this._activeParticlesLast = null;
+        this._poolFirst = null;
+        this._origConfig = null;
+        this._origArt = null;
+        this._autoUpdate = false;
+        this._currentImageIndex = -1;
+        this._destroyWhenComplete = false;
+        this._completeCallback = null;
+        //set the initial parent
+        this.parent = particleParent;
+        if (particleImages && config)
+            this.init(particleImages, config);
+        //save often used functions on the instance instead of the prototype for better speed
+        this.recycle = this.recycle;
+        this.update = this.update;
+        this.rotate = this.rotate;
+        this.updateSpawnPos = this.updateSpawnPos;
+        this.updateOwnerPos = this.updateOwnerPos;
+    }
+    Object.defineProperty(Emitter.prototype, "orderedArt", {
+        /**
+         * If the emitter is using particle art in order as provided in `particleImages`.
+         * Effective only when `particleImages` has multiple art options.
+         * This is particularly useful ensuring that each art shows up once, in case you need to emit a body in an order.
+         * For example: dragon - [Head, body1, body2, ..., tail]
+         */
+        get: function () { return this._currentImageIndex !== -1; },
+        set: function (value) {
+            this._currentImageIndex = value ? 0 : -1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Emitter.prototype, "frequency", {
+        /**
+         * Time between particle spawns in seconds. If this value is not a number greater than 0,
+         * it will be set to 1 (particle per second) to prevent infinite loops.
+         */
+        get: function () { return this._frequency; },
+        set: function (value) {
+            //do some error checking to prevent infinite loops
+            if (typeof value == "number" && value > 0)
+                this._frequency = value;
+            else
+                this._frequency = 1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Emitter.prototype, "particleConstructor", {
+        /**
+         * The constructor used to create new particles. The default is
+         * the built in Particle class. Setting this will dump any active or
+         * pooled particles, if the emitter has already been used.
+         */
+        get: function () { return this._particleConstructor; },
+        set: function (value) {
+            if (value != this._particleConstructor) {
+                this._particleConstructor = value;
+                //clean up existing particles
+                this.cleanup();
+                //scrap all the particles
+                for (var particle = this._poolFirst; particle; particle = particle.next) {
+                    particle.destroy();
+                }
+                this._poolFirst = null;
+                //re-initialize the emitter so that the new constructor can do anything it needs to
+                if (this._origConfig && this._origArt)
+                    this.init(this._origArt, this._origConfig);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Emitter.prototype, "parent", {
+        /**
+        * The container to add particles to. Settings this will dump any active particles.
+        */
+        get: function () { return this._parent; },
+        set: function (value) {
+            this.cleanup();
+            this._parent = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Sets up the emitter based on the config settings.
+     * @param art A texture or array of textures to use for the particles.
+     * @param config A configuration object containing settings for the emitter.
+     */
+    Emitter.prototype.init = function (art, config) {
+        if (!art || !config)
+            return;
+        //clean up any existing particles
+        this.cleanup();
+        //store the original config and particle images, in case we need to re-initialize
+        //when the particle constructor is changed
+        this._origConfig = config;
+        this._origArt = art;
+        //set up the array of data, also ensuring that it is an array
+        art = Array.isArray(art) ? art.slice() : [art];
+        //run the art through the particle class's parsing function
+        var partClass = this._particleConstructor;
+        this.particleImages = partClass.parseArt ? partClass.parseArt(art) : art;
+        ///////////////////////////
+        // Particle Properties   //
+        ///////////////////////////
+        //set up the alpha
+        if (config.alpha) {
+            this.startAlpha = PropertyNode.createList(config.alpha);
+        }
+        else
+            this.startAlpha = new PropertyNode(1, 0);
+        //set up the speed
+        if (config.speed) {
+            this.startSpeed = PropertyNode.createList(config.speed);
+            this.minimumSpeedMultiplier = ('minimumSpeedMultiplier' in config ? config.minimumSpeedMultiplier : config.speed.minimumSpeedMultiplier) || 1;
+        }
+        else {
+            this.minimumSpeedMultiplier = 1;
+            this.startSpeed = new PropertyNode(0, 0);
+        }
+        //set up acceleration
+        var acceleration = config.acceleration;
+        if (acceleration && (acceleration.x || acceleration.y)) {
+            //make sure we disable speed interpolation
+            this.startSpeed.next = null;
+            this.acceleration = new pixi.Point(acceleration.x, acceleration.y);
+            this.maxSpeed = config.maxSpeed || NaN;
+        }
+        else
+            this.acceleration = new pixi.Point();
+        //set up the scale
+        if (config.scale) {
+            this.startScale = PropertyNode.createList(config.scale);
+            this.minimumScaleMultiplier = ('minimumScaleMultiplier' in config ? config.minimumScaleMultiplier : config.scale.minimumScaleMultiplier) || 1;
+        }
+        else {
+            this.startScale = new PropertyNode(1, 0);
+            this.minimumScaleMultiplier = 1;
+        }
+        //set up the color
+        if (config.color) {
+            this.startColor = PropertyNode.createList(config.color);
+        }
+        else {
+            this.startColor = new PropertyNode({ r: 0xFF, g: 0xFF, b: 0xFF }, 0);
+        }
+        //set up the start rotation
+        if (config.startRotation) {
+            this.minStartRotation = config.startRotation.min;
+            this.maxStartRotation = config.startRotation.max;
+        }
+        else
+            this.minStartRotation = this.maxStartRotation = 0;
+        if (config.noRotation &&
+            (this.minStartRotation || this.maxStartRotation)) {
+            this.noRotation = !!config.noRotation;
+        }
+        else
+            this.noRotation = false;
+        //set up the rotation speed
+        if (config.rotationSpeed) {
+            this.minRotationSpeed = config.rotationSpeed.min;
+            this.maxRotationSpeed = config.rotationSpeed.max;
+        }
+        else
+            this.minRotationSpeed = this.maxRotationSpeed = 0;
+        this.rotationAcceleration = config.rotationAcceleration || 0;
+        //set up the lifetime
+        this.minLifetime = config.lifetime.min;
+        this.maxLifetime = config.lifetime.max;
+        //get the blend mode
+        this.particleBlendMode = exports.ParticleUtils.getBlendMode(config.blendMode);
+        //use the custom ease if provided
+        if (config.ease) {
+            this.customEase = typeof config.ease == "function" ?
+                config.ease : exports.ParticleUtils.generateEase(config.ease);
+        }
+        else
+            this.customEase = null;
+        //set up the extra data, running it through the particle class's parseData function.
+        if (partClass.parseData)
+            this.extraData = partClass.parseData(config.extraData);
+        else
+            this.extraData = config.extraData || null;
+        //////////////////////////
+        // Emitter Properties   //
+        //////////////////////////
+        //reset spawn type specific settings
+        this.spawnRect = this.spawnCircle = null;
+        this.particlesPerWave = 1;
+        if (config.particlesPerWave && config.particlesPerWave > 1)
+            this.particlesPerWave = config.particlesPerWave;
+        this.particleSpacing = 0;
+        this.angleStart = 0;
+        //determine the spawn function to use
+        this.parseSpawnType(config);
+        //set the spawning frequency
+        this.frequency = config.frequency;
+        this.spawnChance = (typeof config.spawnChance === 'number' && config.spawnChance > 0) ? config.spawnChance : 1;
+        //set the emitter lifetime
+        this.emitterLifetime = config.emitterLifetime || -1;
+        //set the max particles
+        this.maxParticles = config.maxParticles > 0 ? config.maxParticles : 1000;
+        //determine if we should add the particle at the back of the list or not
+        this.addAtBack = !!config.addAtBack;
+        //reset the emitter position and rotation variables
+        this.rotation = 0;
+        this.ownerPos = new pixi.Point();
+        this.spawnPos = new pixi.Point(config.pos.x, config.pos.y);
+        this.initAdditional(art, config);
+        this._prevEmitterPos = this.spawnPos.clone();
+        //previous emitter position is invalid and should not be used for interpolation
+        this._prevPosIsValid = false;
+        //start emitting
+        this._spawnTimer = 0;
+        this.emit = config.emit === undefined ? true : !!config.emit;
+        this.autoUpdate = !!config.autoUpdate;
+        this.orderedArt = !!config.orderedArt;
+    };
+    /**
+     * Sets up additional parameters to the emitter from config settings.
+     * Using for parsing additional parameters on classes that extend from Emitter
+     * @param art A texture or array of textures to use for the particles.
+     * @param config A configuration object containing settings for the emitter.
+     */
+    Emitter.prototype.initAdditional = function (art, config) {
+    };
+    /**
+     * Parsing emitter spawn type from config settings.
+     * Place for override and add new kind of spawn type
+     * @param config A configuration object containing settings for the emitter.
+     */
+    Emitter.prototype.parseSpawnType = function (config) {
+        var spawnCircle;
+        switch (config.spawnType) {
+            case "rect":
+                this.spawnType = "rect";
+                this._spawnFunc = this._spawnRect;
+                var spawnRect = config.spawnRect;
+                this.spawnRect = new pixi.Rectangle(spawnRect.x, spawnRect.y, spawnRect.w, spawnRect.h);
+                break;
+            case "circle":
+                this.spawnType = "circle";
+                this._spawnFunc = this._spawnCircle;
+                spawnCircle = config.spawnCircle;
+                this.spawnCircle = new pixi.Circle(spawnCircle.x, spawnCircle.y, spawnCircle.r);
+                break;
+            case "ring":
+                this.spawnType = "ring";
+                this._spawnFunc = this._spawnRing;
+                spawnCircle = config.spawnCircle;
+                this.spawnCircle = new pixi.Circle(spawnCircle.x, spawnCircle.y, spawnCircle.r);
+                this.spawnCircle.minRadius = spawnCircle.minR;
+                break;
+            case "burst":
+                this.spawnType = "burst";
+                this._spawnFunc = this._spawnBurst;
+                this.particleSpacing = config.particleSpacing;
+                this.angleStart = config.angleStart ? config.angleStart : 0;
+                break;
+            case "point":
+                this.spawnType = "point";
+                this._spawnFunc = this._spawnPoint;
+                break;
+            case "polygonalChain":
+                this.spawnType = "polygonalChain";
+                this._spawnFunc = this._spawnPolygonalChain;
+                this.spawnPolygonalChain = new PolygonalChain(config.spawnPolygon);
+                break;
+            default:
+                this.spawnType = "point";
+                this._spawnFunc = this._spawnPoint;
+                break;
+        }
+    };
+    /**
+     * Recycles an individual particle. For internal use only.
+     * @param particle The particle to recycle.
+     * @internal
+     */
+    Emitter.prototype.recycle = function (particle) {
+        if (particle.next)
+            particle.next.prev = particle.prev;
+        if (particle.prev)
+            particle.prev.next = particle.next;
+        if (particle == this._activeParticlesLast)
+            this._activeParticlesLast = particle.prev;
+        if (particle == this._activeParticlesFirst)
+            this._activeParticlesFirst = particle.next;
+        //add to pool
+        particle.prev = null;
+        particle.next = this._poolFirst;
+        this._poolFirst = particle;
+        //remove child from display, or make it invisible if it is in a ParticleContainer
+        if (particle.parent)
+            particle.parent.removeChild(particle);
+        //decrease count
+        --this.particleCount;
+    };
+    /**
+     * Sets the rotation of the emitter to a new value.
+     * @param newRot The new rotation, in degrees.
+     */
+    Emitter.prototype.rotate = function (newRot) {
+        if (this.rotation == newRot)
+            return;
+        //caclulate the difference in rotation for rotating spawnPos
+        var diff = newRot - this.rotation;
+        this.rotation = newRot;
+        //rotate spawnPos
+        exports.ParticleUtils.rotatePoint(diff, this.spawnPos);
+        //mark the position as having changed
+        this._posChanged = true;
+    };
+    /**
+     * Changes the spawn position of the emitter.
+     * @param x The new x value of the spawn position for the emitter.
+     * @param y The new y value of the spawn position for the emitter.
+     */
+    Emitter.prototype.updateSpawnPos = function (x, y) {
+        this._posChanged = true;
+        this.spawnPos.x = x;
+        this.spawnPos.y = y;
+    };
+    /**
+     * Changes the position of the emitter's owner. You should call this if you are adding
+     * particles to the world container that your emitter's owner is moving around in.
+     * @param x The new x value of the emitter's owner.
+     * @param y The new y value of the emitter's owner.
+     */
+    Emitter.prototype.updateOwnerPos = function (x, y) {
+        this._posChanged = true;
+        this.ownerPos.x = x;
+        this.ownerPos.y = y;
+    };
+    /**
+     * Prevents emitter position interpolation in the next update.
+     * This should be used if you made a major position change of your emitter's owner
+     * that was not normal movement.
+     */
+    Emitter.prototype.resetPositionTracking = function () {
+        this._prevPosIsValid = false;
+    };
+    Object.defineProperty(Emitter.prototype, "emit", {
+        /**
+         * If particles should be emitted during update() calls. Setting this to false
+         * stops new particles from being created, but allows existing ones to die out.
+         */
+        get: function () { return this._emit; },
+        set: function (value) {
+            this._emit = !!value;
+            this._emitterLife = this.emitterLifetime;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Emitter.prototype, "autoUpdate", {
+        /**
+         * If the update function is called automatically from the shared ticker.
+         * Setting this to false requires calling the update function manually.
+         */
+        get: function () { return this._autoUpdate; },
+        set: function (value) {
+            if (this._autoUpdate && !value) {
+                ticker.remove(this.update, this);
+            }
+            else if (!this._autoUpdate && value) {
+                ticker.add(this.update, this);
+            }
+            this._autoUpdate = !!value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Starts emitting particles, sets autoUpdate to true, and sets up the Emitter to destroy itself
+     * when particle emission is complete.
+     * @param callback Callback for when emission is complete (all particles have died off)
+     */
+    Emitter.prototype.playOnceAndDestroy = function (callback) {
+        this.autoUpdate = true;
+        this.emit = true;
+        this._destroyWhenComplete = true;
+        this._completeCallback = callback;
+    };
+    /**
+     * Starts emitting particles and optionally calls a callback when particle emission is complete.
+     * @param callback Callback for when emission is complete (all particles have died off)
+     */
+    Emitter.prototype.playOnce = function (callback) {
+        this.emit = true;
+        this._completeCallback = callback;
+    };
+    /**
+     * Updates all particles spawned by this emitter and emits new ones.
+     * @param delta Time elapsed since the previous frame, in __seconds__.
+     */
+    Emitter.prototype.update = function (delta) {
+        if (this._autoUpdate) {
+            delta = delta / pixi.settings.TARGET_FPMS / 1000;
+        }
+        //if we don't have a parent to add particles to, then don't do anything.
+        //this also works as a isDestroyed check
+        if (!this._parent)
+            return;
+        //update existing particles
+        var i, particle, next;
+        for (particle = this._activeParticlesFirst; particle; particle = next) {
+            next = particle.next;
+            particle.update(delta);
+        }
+        var prevX, prevY;
+        //if the previous position is valid, store these for later interpolation
+        if (this._prevPosIsValid) {
+            prevX = this._prevEmitterPos.x;
+            prevY = this._prevEmitterPos.y;
+        }
+        //store current position of the emitter as local variables
+        var curX = this.ownerPos.x + this.spawnPos.x;
+        var curY = this.ownerPos.y + this.spawnPos.y;
+        //spawn new particles
+        if (this._emit) {
+            //decrease spawn timer
+            this._spawnTimer -= delta < 0 ? 0 : delta;
+            //while _spawnTimer < 0, we have particles to spawn
+            while (this._spawnTimer <= 0) {
+                //determine if the emitter should stop spawning
+                if (this._emitterLife > 0) {
+                    this._emitterLife -= this._frequency;
+                    if (this._emitterLife <= 0) {
+                        this._spawnTimer = 0;
+                        this._emitterLife = 0;
+                        this.emit = false;
+                        break;
+                    }
+                }
+                //determine if we have hit the particle limit
+                if (this.particleCount >= this.maxParticles) {
+                    this._spawnTimer += this._frequency;
+                    continue;
+                }
+                //determine the particle lifetime
+                var lifetime = void 0;
+                if (this.minLifetime == this.maxLifetime)
+                    lifetime = this.minLifetime;
+                else
+                    lifetime = Math.random() * (this.maxLifetime - this.minLifetime) + this.minLifetime;
+                //only make the particle if it wouldn't immediately destroy itself
+                if (-this._spawnTimer < lifetime) {
+                    //If the position has changed and this isn't the first spawn,
+                    //interpolate the spawn position
+                    var emitPosX = void 0, emitPosY = void 0;
+                    if (this._prevPosIsValid && this._posChanged) {
+                        //1 - _spawnTimer / delta, but _spawnTimer is negative
+                        var lerp = 1 + this._spawnTimer / delta;
+                        emitPosX = (curX - prevX) * lerp + prevX;
+                        emitPosY = (curY - prevY) * lerp + prevY;
+                    }
+                    else //otherwise just set to the spawn position
+                     {
+                        emitPosX = curX;
+                        emitPosY = curY;
+                    }
+                    //create enough particles to fill the wave (non-burst types have a wave of 1)
+                    i = 0;
+                    for (var len = Math.min(this.particlesPerWave, this.maxParticles - this.particleCount); i < len; ++i) {
+                        //see if we actually spawn one
+                        if (this.spawnChance < 1 && Math.random() >= this.spawnChance)
+                            continue;
+                        //create particle
+                        var p = void 0;
+                        if (this._poolFirst) {
+                            p = this._poolFirst;
+                            this._poolFirst = this._poolFirst.next;
+                            p.next = null;
+                        }
+                        else {
+                            p = new this.particleConstructor(this);
+                        }
+                        //set a random texture if we have more than one
+                        if (this.particleImages.length > 1) {
+                            // if using ordered art
+                            if (this._currentImageIndex !== -1) {
+                                // get current art index, then increment for the next particle
+                                p.applyArt(this.particleImages[this._currentImageIndex++]);
+                                // loop around if needed
+                                if (this._currentImageIndex < 0 || this._currentImageIndex >= this.particleImages.length) {
+                                    this._currentImageIndex = 0;
+                                }
+                            }
+                            // otherwise grab a random one
+                            else {
+                                p.applyArt(this.particleImages[Math.floor(Math.random() * this.particleImages.length)]);
+                            }
+                        }
+                        else {
+                            //if they are actually the same texture, a standard particle
+                            //will quit early from the texture setting in setTexture().
+                            p.applyArt(this.particleImages[0]);
+                        }
+                        //set up the start and end values
+                        p.alphaList.reset(this.startAlpha);
+                        if (this.minimumSpeedMultiplier != 1) {
+                            p.speedMultiplier = Math.random() * (1 - this.minimumSpeedMultiplier) + this.minimumSpeedMultiplier;
+                        }
+                        p.speedList.reset(this.startSpeed);
+                        p.acceleration.x = this.acceleration.x;
+                        p.acceleration.y = this.acceleration.y;
+                        p.maxSpeed = this.maxSpeed;
+                        if (this.minimumScaleMultiplier != 1) {
+                            p.scaleMultiplier = Math.random() * (1 - this.minimumScaleMultiplier) + this.minimumScaleMultiplier;
+                        }
+                        p.scaleList.reset(this.startScale);
+                        p.colorList.reset(this.startColor);
+                        //randomize the rotation speed
+                        if (this.minRotationSpeed == this.maxRotationSpeed)
+                            p.rotationSpeed = this.minRotationSpeed;
+                        else
+                            p.rotationSpeed = Math.random() * (this.maxRotationSpeed - this.minRotationSpeed) + this.minRotationSpeed;
+                        p.rotationAcceleration = this.rotationAcceleration;
+                        p.noRotation = this.noRotation;
+                        //set up the lifetime
+                        p.maxLife = lifetime;
+                        //set the blend mode
+                        p.blendMode = this.particleBlendMode;
+                        //set the custom ease, if any
+                        p.ease = this.customEase;
+                        //set the extra data, if any
+                        p.extraData = this.extraData;
+                        //set additional properties to particle
+                        this.applyAdditionalProperties(p);
+                        //call the proper function to handle rotation and position of particle
+                        this._spawnFunc(p, emitPosX, emitPosY, i);
+                        //initialize particle
+                        p.init();
+                        //update the particle by the time passed, so the particles are spread out properly
+                        p.update(-this._spawnTimer); //we want a positive delta, because a negative delta messes things up
+                        //add the particle to the display list
+                        if (!p.parent) {
+                            if (this.addAtBack)
+                                this._parent.addChildAt(p, 0);
+                            else
+                                this._parent.addChild(p);
+                        }
+                        else {
+                            //kind of hacky, but performance friendly
+                            //shuffle children to correct place
+                            var children = this._parent.children;
+                            //avoid using splice if possible
+                            if (children[0] == p)
+                                children.shift();
+                            else if (children[children.length - 1] == p)
+                                children.pop();
+                            else {
+                                var index = children.indexOf(p);
+                                children.splice(index, 1);
+                            }
+                            if (this.addAtBack)
+                                children.unshift(p);
+                            else
+                                children.push(p);
+                        }
+                        //add particle to list of active particles
+                        if (this._activeParticlesLast) {
+                            this._activeParticlesLast.next = p;
+                            p.prev = this._activeParticlesLast;
+                            this._activeParticlesLast = p;
+                        }
+                        else {
+                            this._activeParticlesLast = this._activeParticlesFirst = p;
+                        }
+                        ++this.particleCount;
+                    }
+                }
+                //increase timer and continue on to any other particles that need to be created
+                this._spawnTimer += this._frequency;
+            }
+        }
+        //if the position changed before this update, then keep track of that
+        if (this._posChanged) {
+            this._prevEmitterPos.x = curX;
+            this._prevEmitterPos.y = curY;
+            this._prevPosIsValid = true;
+            this._posChanged = false;
+        }
+        //if we are all done and should destroy ourselves, take care of that
+        if (!this._emit && !this._activeParticlesFirst) {
+            if (this._completeCallback) {
+                var cb = this._completeCallback;
+                this._completeCallback = null;
+                cb();
+            }
+            if (this._destroyWhenComplete) {
+                this.destroy();
+            }
+        }
+    };
+    /**
+     * Set additional properties to new particle.
+     * Using on classes that extend from Emitter
+     * @param p The particle
+     */
+    Emitter.prototype.applyAdditionalProperties = function (p) {
+    };
+    /**
+     * Positions a particle for a point type emitter.
+     * @param p The particle to position and rotate.
+     * @param emitPosX The emitter's x position
+     * @param emitPosY The emitter's y position
+     * @param i The particle number in the current wave. Not used for this function.
+     */
+    Emitter.prototype._spawnPoint = function (p, emitPosX, emitPosY) {
+        //set the initial rotation/direction of the particle based on
+        //starting particle angle and rotation of emitter
+        if (this.minStartRotation == this.maxStartRotation)
+            p.rotation = this.minStartRotation + this.rotation;
+        else
+            p.rotation = Math.random() * (this.maxStartRotation - this.minStartRotation) + this.minStartRotation + this.rotation;
+        //drop the particle at the emitter's position
+        p.position.x = emitPosX;
+        p.position.y = emitPosY;
+    };
+    /**
+     * Positions a particle for a rectangle type emitter.
+     * @param p The particle to position and rotate.
+     * @param emitPosX The emitter's x position
+     * @param emitPosY The emitter's y position
+     * @param i The particle number in the current wave. Not used for this function.
+     */
+    Emitter.prototype._spawnRect = function (p, emitPosX, emitPosY) {
+        //set the initial rotation/direction of the particle based on starting
+        //particle angle and rotation of emitter
+        if (this.minStartRotation == this.maxStartRotation)
+            p.rotation = this.minStartRotation + this.rotation;
+        else
+            p.rotation = Math.random() * (this.maxStartRotation - this.minStartRotation) + this.minStartRotation + this.rotation;
+        //place the particle at a random point in the rectangle
+        helperPoint.x = Math.random() * this.spawnRect.width + this.spawnRect.x;
+        helperPoint.y = Math.random() * this.spawnRect.height + this.spawnRect.y;
+        if (this.rotation !== 0)
+            exports.ParticleUtils.rotatePoint(this.rotation, helperPoint);
+        p.position.x = emitPosX + helperPoint.x;
+        p.position.y = emitPosY + helperPoint.y;
+    };
+    /**
+     * Positions a particle for a circle type emitter.
+     * @param p The particle to position and rotate.
+     * @param emitPosX The emitter's x position
+     * @param emitPosY The emitter's y position
+     * @param i The particle number in the current wave. Not used for this function.
+     */
+    Emitter.prototype._spawnCircle = function (p, emitPosX, emitPosY) {
+        //set the initial rotation/direction of the particle based on starting
+        //particle angle and rotation of emitter
+        if (this.minStartRotation == this.maxStartRotation)
+            p.rotation = this.minStartRotation + this.rotation;
+        else
+            p.rotation = Math.random() * (this.maxStartRotation - this.minStartRotation) +
+                this.minStartRotation + this.rotation;
+        //place the particle at a random radius in the circle
+        helperPoint.x = Math.random() * this.spawnCircle.radius;
+        helperPoint.y = 0;
+        //rotate the point to a random angle in the circle
+        exports.ParticleUtils.rotatePoint(Math.random() * 360, helperPoint);
+        //offset by the circle's center
+        helperPoint.x += this.spawnCircle.x;
+        helperPoint.y += this.spawnCircle.y;
+        //rotate the point by the emitter's rotation
+        if (this.rotation !== 0)
+            exports.ParticleUtils.rotatePoint(this.rotation, helperPoint);
+        //set the position, offset by the emitter's position
+        p.position.x = emitPosX + helperPoint.x;
+        p.position.y = emitPosY + helperPoint.y;
+    };
+    /**
+     * Positions a particle for a ring type emitter.
+     * @param p The particle to position and rotate.
+     * @param emitPosX The emitter's x position
+     * @param emitPosY The emitter's y position
+     * @param i The particle number in the current wave. Not used for this function.
+     */
+    Emitter.prototype._spawnRing = function (p, emitPosX, emitPosY) {
+        var spawnCircle = this.spawnCircle;
+        //set the initial rotation/direction of the particle based on starting
+        //particle angle and rotation of emitter
+        if (this.minStartRotation == this.maxStartRotation)
+            p.rotation = this.minStartRotation + this.rotation;
+        else
+            p.rotation = Math.random() * (this.maxStartRotation - this.minStartRotation) +
+                this.minStartRotation + this.rotation;
+        //place the particle at a random radius in the ring
+        if (spawnCircle.minRadius !== spawnCircle.radius) {
+            helperPoint.x = Math.random() * (spawnCircle.radius - spawnCircle.minRadius) +
+                spawnCircle.minRadius;
+        }
+        else
+            helperPoint.x = spawnCircle.radius;
+        helperPoint.y = 0;
+        //rotate the point to a random angle in the circle
+        var angle = Math.random() * 360;
+        p.rotation += angle;
+        exports.ParticleUtils.rotatePoint(angle, helperPoint);
+        //offset by the circle's center
+        helperPoint.x += this.spawnCircle.x;
+        helperPoint.y += this.spawnCircle.y;
+        //rotate the point by the emitter's rotation
+        if (this.rotation !== 0)
+            exports.ParticleUtils.rotatePoint(this.rotation, helperPoint);
+        //set the position, offset by the emitter's position
+        p.position.x = emitPosX + helperPoint.x;
+        p.position.y = emitPosY + helperPoint.y;
+    };
+    /**
+     * Positions a particle for polygonal chain.
+     * @param p The particle to position and rotate.
+     * @param emitPosX The emitter's x position
+     * @param emitPosY The emitter's y position
+     * @param i The particle number in the current wave. Not used for this function.
+     */
+    Emitter.prototype._spawnPolygonalChain = function (p, emitPosX, emitPosY) {
+        //set the initial rotation/direction of the particle based on starting
+        //particle angle and rotation of emitter
+        if (this.minStartRotation == this.maxStartRotation)
+            p.rotation = this.minStartRotation + this.rotation;
+        else
+            p.rotation = Math.random() * (this.maxStartRotation - this.minStartRotation) +
+                this.minStartRotation + this.rotation;
+        // get random point on the polygon chain
+        this.spawnPolygonalChain.getRandomPoint(helperPoint);
+        //rotate the point by the emitter's rotation
+        if (this.rotation !== 0)
+            exports.ParticleUtils.rotatePoint(this.rotation, helperPoint);
+        //set the position, offset by the emitter's position
+        p.position.x = emitPosX + helperPoint.x;
+        p.position.y = emitPosY + helperPoint.y;
+    };
+    /**
+     * Positions a particle for a burst type emitter.
+     * @param p The particle to position and rotate.
+     * @param emitPosX The emitter's x position
+     * @param emitPosY The emitter's y position
+     * @param i The particle number in the current wave.
+     */
+    Emitter.prototype._spawnBurst = function (p, emitPosX, emitPosY, i) {
+        //set the initial rotation/direction of the particle based on spawn
+        //angle and rotation of emitter
+        if (this.particleSpacing === 0)
+            p.rotation = Math.random() * 360;
+        else
+            p.rotation = this.angleStart + (this.particleSpacing * i) + this.rotation;
+        //drop the particle at the emitter's position
+        p.position.x = emitPosX;
+        p.position.y = emitPosY;
+    };
+    /**
+     * Kills all active particles immediately.
+     */
+    Emitter.prototype.cleanup = function () {
+        var particle, next;
+        for (particle = this._activeParticlesFirst; particle; particle = next) {
+            next = particle.next;
+            this.recycle(particle);
+            if (particle.parent)
+                particle.parent.removeChild(particle);
+        }
+        this._activeParticlesFirst = this._activeParticlesLast = null;
+        this.particleCount = 0;
+    };
+    /**
+     * Destroys the emitter and all of its particles.
+     */
+    Emitter.prototype.destroy = function () {
+        //make sure we aren't still listening to any tickers
+        this.autoUpdate = false;
+        //puts all active particles in the pool, and removes them from the particle parent
+        this.cleanup();
+        //wipe the pool clean
+        var next;
+        for (var particle = this._poolFirst; particle; particle = next) {
+            //store next value so we don't lose it in our destroy call
+            next = particle.next;
+            particle.destroy();
+        }
+        this._poolFirst = this._parent = this.particleImages = this.spawnPos = this.ownerPos =
+            this.startColor = this.startScale = this.startAlpha = this.startSpeed =
+                this.customEase = this._completeCallback = null;
+    };
+    return Emitter;
+}());
+
+/**
+ * A helper point for math things.
+ * @hidden
+ */
+var helperPoint$1 = new pixi.Point();
+/**
+ * A hand picked list of Math functions (and a couple properties) that are
+ * allowable. They should be used without the preceding "Math."
+ * @hidden
+ */
+var MATH_FUNCS = [
+    "pow",
+    "sqrt",
+    "abs",
+    "floor",
+    "round",
+    "ceil",
+    "E",
+    "PI",
+    "sin",
+    "cos",
+    "tan",
+    "asin",
+    "acos",
+    "atan",
+    "atan2",
+    "log"
+];
+/**
+ * create an actual regular expression object from the string
+ * @hidden
+ */
+var WHITELISTER = new RegExp([
+    //Allow the 4 basic operations, parentheses and all numbers/decimals, as well
+    //as 'x', for the variable usage.
+    "[01234567890\\.\\*\\-\\+\\/\\(\\)x ,]",
+].concat(MATH_FUNCS).join("|"), "g");
+/**
+ * Parses a string into a function for path following.
+ * This involves whitelisting the string for safety, inserting "Math." to math function
+ * names, and using `new Function()` to generate a function.
+ * @hidden
+ * @param pathString The string to parse.
+ * @return The path function - takes x, outputs y.
+ */
+var parsePath = function (pathString) {
+    var matches = pathString.match(WHITELISTER);
+    for (var i = matches.length - 1; i >= 0; --i) {
+        if (MATH_FUNCS.indexOf(matches[i]) >= 0)
+            matches[i] = "Math." + matches[i];
+    }
+    pathString = matches.join("");
+    return new Function("x", "return " + pathString + ";");
+};
+/**
+ * An particle that follows a path defined by an algebraic expression, e.g. "sin(x)" or
+ * "5x + 3".
+ * To use this class, the particle config must have a "path" string in the
+ * "extraData" parameter. This string should have "x" in it to represent movement (from the
+ * speed settings of the particle). It may have numbers, parentheses, the four basic
+ * operations, and the following Math functions or properties (without the preceding "Math."):
+ * "pow", "sqrt", "abs", "floor", "round", "ceil", "E", "PI", "sin", "cos", "tan", "asin",
+ * "acos", "atan", "atan2", "log".
+ * The overall movement of the particle and the expression value become x and y positions for
+ * the particle, respectively. The final position is rotated by the spawn rotation/angle of
+ * the particle.
+ *
+ * Some example paths:
+ *
+ * 	"sin(x/10) * 20" // A sine wave path.
+ * 	"cos(x/100) * 30" // Particles curve counterclockwise (for medium speed/low lifetime particles)
+ * 	"pow(x/10, 2) / 2" // Particles curve clockwise (remember, +y is down).
+ */
+var PathParticle = /** @class */ (function (_super) {
+    __extends(PathParticle, _super);
+    /**
+     * @param {PIXI.particles.Emitter} emitter The emitter that controls this PathParticle.
+     */
+    function PathParticle(emitter) {
+        var _this = _super.call(this, emitter) || this;
+        _this.path = null;
+        _this.initialRotation = 0;
+        _this.initialPosition = new pixi.Point();
+        _this.movement = 0;
+        return _this;
+    }
+    /**
+     * Initializes the particle for use, based on the properties that have to
+     * have been set already on the particle.
+     */
+    PathParticle.prototype.init = function () {
+        //get initial rotation before it is converted to radians
+        this.initialRotation = this.rotation;
+        //standard init
+        this.Particle_init();
+        //set the path for the particle
+        this.path = this.extraData.path;
+        //cancel the normal movement behavior
+        this._doNormalMovement = !this.path;
+        //reset movement
+        this.movement = 0;
+        //grab position
+        this.initialPosition.x = this.position.x;
+        this.initialPosition.y = this.position.y;
+    };
+    /**
+     * Updates the particle.
+     * @param delta Time elapsed since the previous frame, in __seconds__.
+     */
+    PathParticle.prototype.update = function (delta) {
+        var lerp = this.Particle_update(delta);
+        //if the particle died during the update, then don't bother
+        if (lerp >= 0 && this.path) {
+            //increase linear movement based on speed
+            var speed = this.speedList.interpolate(lerp) * this.speedMultiplier;
+            this.movement += speed * delta;
+            //set up the helper point for rotation
+            helperPoint$1.x = this.movement;
+            helperPoint$1.y = this.path(this.movement);
+            exports.ParticleUtils.rotatePoint(this.initialRotation, helperPoint$1);
+            this.position.x = this.initialPosition.x + helperPoint$1.x;
+            this.position.y = this.initialPosition.y + helperPoint$1.y;
+        }
+        return lerp;
+    };
+    /**
+     * Destroys the particle, removing references and preventing future use.
+     */
+    PathParticle.prototype.destroy = function () {
+        this.Particle_destroy();
+        this.path = this.initialPosition = null;
+    };
+    /**
+     * Checks over the art that was passed to the Emitter's init() function, to do any special
+     * modifications to prepare it ahead of time. This just runs Particle.parseArt().
+     * @param art The array of art data. For Particle, it should be an array of
+     *            Textures. Any strings in the array will be converted to
+     *            Textures via Texture.fromImage().
+     * @return The art, after any needed modifications.
+     */
+    PathParticle.parseArt = function (art) {
+        return Particle.parseArt(art);
+    };
+    /**
+     * Parses extra emitter data to ensure it is set up for this particle class.
+     * PathParticle checks for the existence of path data, and parses the path data for use
+     * by particle instances.
+     * @param extraData The extra data from the particle config.
+     * @return The parsed extra data.
+     */
+    PathParticle.parseData = function (extraData) {
+        var output = {};
+        if (extraData && extraData.path) {
+            try {
+                output.path = parsePath(extraData.path);
+            }
+            catch (e) {
+                if (exports.ParticleUtils.verbose)
+                    console.error("PathParticle: error in parsing path expression");
+                output.path = null;
+            }
+        }
+        else {
+            if (exports.ParticleUtils.verbose)
+                console.error("PathParticle requires a path string in extraData!");
+            output.path = null;
+        }
+        return output;
+    };
+    return PathParticle;
+}(Particle));
+
+/**
+ * An individual particle image with an animation. Art data passed to the emitter must be
+ * formatted in a particular way for AnimatedParticle to be able to handle it:
+ *
+ * ```typescript
+ * {
+ *     //framerate is required. It is the animation speed of the particle in frames per
+ *     //second.
+ *     //A value of "matchLife" causes the animation to match the lifetime of an individual
+ *     //particle, instead of at a constant framerate. This causes the animation to play
+ *     //through one time, completing when the particle expires.
+ *     framerate: 6,
+ *     //loop is optional, and defaults to false.
+ *     loop: true,
+ *     //textures is required, and can be an array of any (non-zero) length.
+ *     textures: [
+ *         //each entry represents a single texture that should be used for one or more
+ *         //frames. Any strings will be converted to Textures with Texture.from().
+ *         //Instances of PIXI.Texture will be used directly.
+ *         "animFrame1.png",
+ *         //entries can be an object with a 'count' property, telling AnimatedParticle to
+ *         //use that texture for 'count' frames sequentially.
+ *         {
+ *             texture: "animFrame2.png",
+ *             count: 3
+ *         },
+ *         "animFrame3.png"
+ *     ]
+ * }
+ * ```
+ */
+var AnimatedParticle = /** @class */ (function (_super) {
+    __extends(AnimatedParticle, _super);
+    /**
+     * @param emitter The emitter that controls this AnimatedParticle.
+     */
+    function AnimatedParticle(emitter) {
+        var _this = _super.call(this, emitter) || this;
+        _this.textures = null;
+        _this.duration = 0;
+        _this.framerate = 0;
+        _this.elapsed = 0;
+        _this.loop = false;
+        return _this;
+    }
+    /**
+     * Initializes the particle for use, based on the properties that have to
+     * have been set already on the particle.
+     */
+    AnimatedParticle.prototype.init = function () {
+        this.Particle_init();
+        this.elapsed = 0;
+        //if the animation needs to match the particle's life, then cacluate variables
+        if (this.framerate < 0) {
+            this.duration = this.maxLife;
+            this.framerate = this.textures.length / this.duration;
+        }
+    };
+    /**
+     * Sets the textures for the particle.
+     * @param art An array of PIXI.Texture objects for this animated particle.
+     */
+    AnimatedParticle.prototype.applyArt = function (art) {
+        this.textures = art.textures;
+        this.framerate = art.framerate;
+        this.duration = art.duration;
+        this.loop = art.loop;
+    };
+    /**
+     * Updates the particle.
+     * @param delta Time elapsed since the previous frame, in __seconds__.
+     */
+    AnimatedParticle.prototype.update = function (delta) {
+        var lerp = this.Particle_update(delta);
+        //only animate the particle if it is still alive
+        if (lerp >= 0) {
+            this.elapsed += delta;
+            if (this.elapsed > this.duration) {
+                //loop elapsed back around
+                if (this.loop)
+                    this.elapsed = this.elapsed % this.duration;
+                //subtract a small amount to prevent attempting to go past the end of the animation
+                else
+                    this.elapsed = this.duration - 0.000001;
+            }
+            // add a very small number to the frame and then floor it to avoid
+            // the frame being one short due to floating point errors.
+            var frame = (this.elapsed * this.framerate + 0.0000001) | 0;
+            this.texture = this.textures[frame] || pixi.Texture.EMPTY;
+        }
+        return lerp;
+    };
+    /**
+     * Destroys the particle, removing references and preventing future use.
+     */
+    AnimatedParticle.prototype.destroy = function () {
+        this.Particle_destroy();
+        this.textures = null;
+    };
+    /**
+     * Checks over the art that was passed to the Emitter's init() function, to do any special
+     * modifications to prepare it ahead of time.
+     * @param art The array of art data, properly formatted for AnimatedParticle.
+     * @return The art, after any needed modifications.
+     */
+    AnimatedParticle.parseArt = function (art) {
+        var data, output, textures, tex, outTextures;
+        var outArr = [];
+        for (var i = 0; i < art.length; ++i) {
+            data = art[i];
+            outArr[i] = output = {};
+            output.textures = outTextures = [];
+            textures = data.textures;
+            for (var j = 0; j < textures.length; ++j) {
+                tex = textures[j];
+                if (typeof tex == "string")
+                    outTextures.push(GetTextureFromString(tex));
+                else if (tex instanceof pixi.Texture)
+                    outTextures.push(tex);
+                //assume an object with extra data determining duplicate frame data
+                else {
+                    var dupe = tex.count || 1;
+                    if (typeof tex.texture == "string")
+                        tex = GetTextureFromString(tex.texture);
+                    else // if(tex.texture instanceof Texture)
+                        tex = tex.texture;
+                    for (; dupe > 0; --dupe) {
+                        outTextures.push(tex);
+                    }
+                }
+            }
+            //use these values to signify that the animation should match the particle life time.
+            if (data.framerate == "matchLife") {
+                //-1 means that it should be calculated
+                output.framerate = -1;
+                output.duration = 0;
+                output.loop = false;
+            }
+            else {
+                //determine if the animation should loop
+                output.loop = !!data.loop;
+                //get the framerate, default to 60
+                output.framerate = data.framerate > 0 ? data.framerate : 60;
+                //determine the duration
+                output.duration = outTextures.length / output.framerate;
+            }
+        }
+        return outArr;
+    };
+    return AnimatedParticle;
+}(Particle));
+
+exports.GetTextureFromString = GetTextureFromString;
+exports.Particle = Particle;
+exports.Emitter = Emitter;
+exports.PathParticle = PathParticle;
+exports.AnimatedParticle = AnimatedParticle;
+exports.PolygonalChain = PolygonalChain;
+exports.PropertyList = PropertyList;
+exports.PropertyNode = PropertyNode;
+
+
+},{"pixi.js":44}],43:[function(require,module,exports){
 (function (global){
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports,require("pixi.js")):"function"==typeof define&&define.amd?define(["exports","pixi.js"],e):e((t=t||self).Viewport={},t.PIXI)}(this,function(t,e){"use strict";class i{constructor(t){this.viewport=t,this.touches=[],this.addListeners()}addListeners(){this.viewport.interactive=!0,this.viewport.forceHitArea||(this.viewport.hitArea=new e.Rectangle(0,0,this.viewport.worldWidth,this.viewport.worldHeight)),this.viewport.on("pointerdown",this.down,this),this.viewport.on("pointermove",this.move,this),this.viewport.on("pointerup",this.up,this),this.viewport.on("pointerupoutside",this.up,this),this.viewport.on("pointercancel",this.up,this),this.viewport.on("pointerout",this.up,this),this.wheelFunction=t=>this.handleWheel(t),this.viewport.options.divWheel.addEventListener("wheel",this.wheelFunction,{passive:this.viewport.options.passiveWheel}),this.isMouseDown=!1}destroy(){this.viewport.options.divWheel.removeEventListener("wheel",this.wheelFunction)}down(t){if(this.viewport.pause||!this.viewport.worldVisible)return;if("mouse"===t.data.pointerType?this.isMouseDown=!0:this.get(t.data.pointerId)||this.touches.push({id:t.data.pointerId,last:null}),1===this.count()){this.last=t.data.global.clone();const e=this.viewport.plugins.get("decelerate"),i=this.viewport.plugins.get("bounce");e&&e.isActive()||i&&i.isActive()?this.clickedAvailable=!1:this.clickedAvailable=!0}else this.clickedAvailable=!1;this.viewport.plugins.down(t)&&this.viewport.options.stopPropagation&&t.stopPropagation()}checkThreshold(t){return Math.abs(t)>=this.viewport.threshold}move(t){if(this.viewport.pause||!this.viewport.worldVisible)return;const e=this.viewport.plugins.move(t);if(this.clickedAvailable){const e=t.data.global.x-this.last.x,i=t.data.global.y-this.last.y;(this.checkThreshold(e)||this.checkThreshold(i))&&(this.clickedAvailable=!1)}e&&this.viewport.options.stopPropagation&&t.stopPropagation()}up(t){if(this.viewport.pause||!this.viewport.worldVisible)return;"mouse"===t.data.pointerType&&(this.isMouseDown=!1),"mouse"!==t.data.pointerType&&this.remove(t.data.pointerId);const e=this.viewport.plugins.up(t);this.clickedAvailable&&0===this.count()&&(this.viewport.emit("clicked",{screen:this.last,world:this.viewport.toWorld(this.last),viewport:this}),this.clickedAvailable=!1),e&&this.viewport.options.stopPropagation&&t.stopPropagation()}getPointerPosition(t){let i=new e.Point;return this.viewport.options.interaction?this.viewport.options.interaction.mapPositionToPoint(i,t.clientX,t.clientY):(i.x=t.clientX,i.y=t.clientY),i}handleWheel(t){if(this.viewport.pause||!this.viewport.worldVisible)return;const e=this.viewport.toLocal(this.getPointerPosition(t));if(this.viewport.left<=e.x&&e.x<=this.viewport.right&&this.viewport.top<=e.y&&e.y<=this.viewport.bottom){this.viewport.plugins.wheel(t)&&t.preventDefault()}}pause(){this.touches=[],this.isMouseDown=!1}get(t){for(let e of this.touches)if(e.id===t)return e;return null}remove(t){for(let e=0;e<this.touches.length;e++)if(this.touches[e].id===t)return void this.touches.splice(e,1)}count(){return(this.isMouseDown?1:0)+this.touches.length}}const s=["drag","pinch","wheel","follow","mouse-edges","decelerate","bounce","snap-zoom","clamp-zoom","snap","clamp"];class n{constructor(t){this.viewport=t,this.list=[],this.plugins={}}add(t,e,i=s.length){this.plugins[t]=e;const n=s.indexOf(t);-1!==n&&s.splice(n,1),s.splice(i,0,t),this.sort()}get(t){return this.plugins[t]}update(t){for(let e of this.list)e.update(t)}resize(){for(let t of this.list)t.resize()}reset(){this.plugins.bounce&&(this.plugins.bounce.reset(),this.plugins.bounce.bounce()),this.plugins.decelerate&&this.plugins.decelerate.reset(),this.plugins.snap&&this.plugins.snap.reset(),this.plugins.clamp&&this.plugins.clamp.update(),this.plugins["clamp-zoom"]&&this.plugins["clamp-zoom"].clamp()}remove(t){this.plugins[t]&&(this.plugins[t]=null,this.viewport.emit(t+"-remove"),this.sort())}pause(t){this.plugins[t]&&this.plugins[t].pause()}resume(t){this.plugins[t]&&this.plugins[t].resume()}sort(){this.list=[];for(let t of s)this.plugins[t]&&this.list.push(this.plugins[t])}down(t){let e=!1;for(let i of this.list)i.down(t)&&(e=!0);return e}move(t){let e=!1;for(let i of this.viewport.plugins.list)i.move(t)&&(e=!0);return e}up(t){let e=!1;for(let i of this.list)i.up(t)&&(e=!0);return e}wheel(t){let e=!1;for(let i of this.list)i.wheel(t)&&(e=!0);return e}}class h{constructor(t){this.parent=t,this.paused=!1}destroy(){}down(){return!1}move(){return!1}up(){return!1}wheel(){return!1}update(){}resize(){}reset(){}pause(){this.paused=!0}resume(){this.paused=!1}}const o={direction:"all",wheel:!0,wheelScroll:1,reverse:!1,clampWheel:!1,underflow:"center",factor:1,mouseButtons:"all"};class r extends h{constructor(t,e={}){super(t),this.options=Object.assign({},o,e),this.moved=!1,this.reverse=this.options.reverse?1:-1,this.xDirection=!this.options.direction||"all"===this.options.direction||"x"===this.options.direction,this.yDirection=!this.options.direction||"all"===this.options.direction||"y"===this.options.direction,this.parseUnderflow(),this.mouseButtons(this.options.mouseButtons)}mouseButtons(t){this.mouse=t&&"all"!==t?[-1!==t.indexOf("left"),-1!==t.indexOf("middle"),-1!==t.indexOf("right")]:[!0,!0,!0]}parseUnderflow(){const t=this.options.underflow.toLowerCase();"center"===t?(this.underflowX=0,this.underflowY=0):(this.underflowX=-1!==t.indexOf("left")?-1:-1!==t.indexOf("right")?1:0,this.underflowY=-1!==t.indexOf("top")?-1:-1!==t.indexOf("bottom")?1:0)}checkButtons(t){const e="mouse"===t.data.pointerType,i=this.parent.input.count();return!(!(1===i||i>1&&!this.parent.plugins.get("pinch"))||e&&!this.mouse[t.data.button])}down(t){if(!this.paused)return this.checkButtons(t)?(this.last={x:t.data.global.x,y:t.data.global.y},this.current=t.data.pointerId,!0):void(this.last=null)}get active(){return this.moved}move(t){if(!this.paused&&this.last&&this.current===t.data.pointerId){const i=t.data.global.x,s=t.data.global.y,n=this.parent.input.count();if(1===n||n>1&&!this.parent.plugins.get("pinch")){const t=i-this.last.x,n=s-this.last.y;if(this.moved||this.xDirection&&this.parent.input.checkThreshold(t)||this.yDirection&&this.parent.input.checkThreshold(n)){const t={x:i,y:s};return this.xDirection&&(this.parent.x+=(t.x-this.last.x)*this.options.factor),this.yDirection&&(this.parent.y+=(t.y-this.last.y)*this.options.factor),this.last=t,this.moved||this.parent.emit("drag-start",{screen:new e.Point(this.last.x,this.last.y),world:this.parent.toWorld(new e.Point(this.last.x,this.last.y)),viewport:this.parent}),this.moved=!0,this.parent.emit("moved",{viewport:this.parent,type:"drag"}),!0}}else this.moved=!1}}up(){const t=this.parent.input.touches;if(1===t.length){const e=t[0];return e.last&&(this.last={x:e.last.x,y:e.last.y},this.current=e.id),this.moved=!1,!0}if(this.last&&this.moved){const t=new e.Point(this.last.x,this.last.y);return this.parent.emit("drag-end",{screen:t,world:this.parent.toWorld(t),viewport:this.parent}),this.last=null,this.moved=!1,!0}}wheel(t){if(!this.paused&&this.options.wheel){if(!this.parent.plugins.get("wheel"))return this.xDirection&&(this.parent.x+=t.deltaX*this.options.wheelScroll*this.reverse),this.yDirection&&(this.parent.y+=t.deltaY*this.options.wheelScroll*this.reverse),this.options.clampWheel&&this.clamp(),this.parent.emit("wheel-scroll",this.parent),this.parent.emit("moved",this.parent),this.parent.options.passiveWheel||t.preventDefault(),!0}}resume(){this.last=null,this.paused=!1}clamp(){const t=this.parent.plugins.get("decelerate")||{};if("y"!==this.options.clampWheel)if(this.parent.screenWorldWidth<this.parent.screenWidth)switch(this.underflowX){case-1:this.parent.x=0;break;case 1:this.parent.x=this.parent.screenWidth-this.parent.screenWorldWidth;break;default:this.parent.x=(this.parent.screenWidth-this.parent.screenWorldWidth)/2}else this.parent.left<0?(this.parent.x=0,t.x=0):this.parent.right>this.parent.worldWidth&&(this.parent.x=-this.parent.worldWidth*this.parent.scale.x+this.parent.screenWidth,t.x=0);if("x"!==this.options.clampWheel)if(this.parent.screenWorldHeight<this.parent.screenHeight)switch(this.underflowY){case-1:this.parent.y=0;break;case 1:this.parent.y=this.parent.screenHeight-this.parent.screenWorldHeight;break;default:this.parent.y=(this.parent.screenHeight-this.parent.screenWorldHeight)/2}else this.parent.top<0&&(this.parent.y=0,t.y=0),this.parent.bottom>this.parent.worldHeight&&(this.parent.y=-this.parent.worldHeight*this.parent.scale.y+this.parent.screenHeight,t.y=0)}}const a={noDrag:!1,percent:1,center:null};class p extends h{constructor(t,e={}){super(t),this.options=Object.assign({},a,e)}down(){if(this.parent.input.count()>=2)return this.active=!0,!0}move(t){if(this.paused||!this.active)return;const e=t.data.global.x,i=t.data.global.y,s=this.parent.input.touches;if(s.length>=2){const n=s[0],h=s[1],o=n.last&&h.last?Math.sqrt(Math.pow(h.last.x-n.last.x,2)+Math.pow(h.last.y-n.last.y,2)):null;if(n.id===t.data.pointerId?n.last={x:e,y:i,data:t.data}:h.id===t.data.pointerId&&(h.last={x:e,y:i,data:t.data}),o){let t;const e={x:n.last.x+(h.last.x-n.last.x)/2,y:n.last.y+(h.last.y-n.last.y)/2};this.options.center||(t=this.parent.toLocal(e));const i=(Math.sqrt(Math.pow(h.last.x-n.last.x,2)+Math.pow(h.last.y-n.last.y,2))-o)/this.parent.screenWidth*this.parent.scale.x*this.options.percent;this.parent.scale.x+=i,this.parent.scale.y+=i,this.parent.emit("zoomed",{viewport:this.parent,type:"pinch"});const s=this.parent.plugins.get("clamp-zoom");if(s&&s.clamp(),this.options.center)this.parent.moveCenter(this.options.center);else{const i=this.parent.toGlobal(t);this.parent.x+=e.x-i.x,this.parent.y+=e.y-i.y,this.parent.emit("moved",{viewport:this.parent,type:"pinch"})}!this.options.noDrag&&this.lastCenter&&(this.parent.x+=e.x-this.lastCenter.x,this.parent.y+=e.y-this.lastCenter.y,this.parent.emit("moved",{viewport:this.parent,type:"pinch"})),this.lastCenter=e,this.moved=!0}else this.pinching||(this.parent.emit("pinch-start",this.parent),this.pinching=!0);return!0}}up(){if(this.pinching&&this.parent.input.touches.length<=1)return this.active=!1,this.lastCenter=null,this.pinching=!1,this.moved=!1,this.parent.emit("pinch-end",this.parent),!0}}const l={left:!1,right:!1,top:!1,bottom:!1,direction:null,underflow:"center"};class c extends h{constructor(t,e={}){super(t),this.options=Object.assign({},l,e),this.options.direction&&(this.options.left="x"===this.options.direction||"all"===this.options.direction||null,this.options.right="x"===this.options.direction||"all"===this.options.direction||null,this.options.top="y"===this.options.direction||"all"===this.options.direction||null,this.options.bottom="y"===this.options.direction||"all"===this.options.direction||null),this.parseUnderflow(),this.update()}parseUnderflow(){const t=this.options.underflow.toLowerCase();"none"===t?this.noUnderflow=!0:"center"===t?(this.underflowX=this.underflowY=0,this.noUnderflow=!1):(this.underflowX=-1!==t.indexOf("left")?-1:-1!==t.indexOf("right")?1:0,this.underflowY=-1!==t.indexOf("top")?-1:-1!==t.indexOf("bottom")?1:0,this.noUnderflow=!1)}move(){return this.update(),!1}update(){if(this.paused)return;const t={x:this.parent.x,y:this.parent.y},e=this.parent.plugins.decelerate||{};if(null!==this.options.left||null!==this.options.right){let i=!1;if(this.parent.screenWorldWidth<this.parent.screenWidth){if(!this.noUnderflow)switch(this.underflowX){case-1:0!==this.parent.x&&(this.parent.x=0,i=!0);break;case 1:this.parent.x!==this.parent.screenWidth-this.parent.screenWorldWidth&&(this.parent.x=this.parent.screenWidth-this.parent.screenWorldWidth,i=!0);break;default:this.parent.x!==(this.parent.screenWidth-this.parent.screenWorldWidth)/2&&(this.parent.x=(this.parent.screenWidth-this.parent.screenWorldWidth)/2,i=!0)}}else null!==this.options.left&&this.parent.left<(!0===this.options.left?0:this.options.left)&&(this.parent.x=-(!0===this.options.left?0:this.options.left)*this.parent.scale.x,e.x=0,i=!0),null!==this.options.right&&this.parent.right>(!0===this.options.right?this.parent.worldWidth:this.options.right)&&(this.parent.x=-(!0===this.options.right?this.parent.worldWidth:this.options.right)*this.parent.scale.x+this.parent.screenWidth,e.x=0,i=!0);i&&this.parent.emit("moved",{viewport:this.parent,original:t,type:"clamp-x"})}if(null!==this.options.top||null!==this.options.bottom){let i=!1;if(this.parent.screenWorldHeight<this.parent.screenHeight){if(!this.noUnderflow)switch(this.underflowY){case-1:0!==this.parent.y&&(this.parent.y=0,i=!0);break;case 1:this.parent.y!==this.parent.screenHeight-this.parent.screenWorldHeight&&(this.parent.y=this.parent.screenHeight-this.parent.screenWorldHeight,i=!0);break;default:this.parent.y!==(this.parent.screenHeight-this.parent.screenWorldHeight)/2&&(this.parent.y=(this.parent.screenHeight-this.parent.screenWorldHeight)/2,i=!0)}}else null!==this.options.top&&this.parent.top<(!0===this.options.top?0:this.options.top)&&(this.parent.y=-(!0===this.options.top?0:this.options.top)*this.parent.scale.y,e.y=0,i=!0),null!==this.options.bottom&&this.parent.bottom>(!0===this.options.bottom?this.parent.worldHeight:this.options.bottom)&&(this.parent.y=-(!0===this.options.bottom?this.parent.worldHeight:this.options.bottom)*this.parent.scale.y+this.parent.screenHeight,e.y=0,i=!0);i&&this.parent.emit("moved",{viewport:this.parent,original:t,type:"clamp-y"})}}}const d={minWidth:null,minHeight:null,maxWidth:null,maxHeight:null};class u extends h{constructor(t,e={}){super(t),this.options=Object.assign({},d,e),this.clamp()}resize(){this.clamp()}clamp(){if(this.paused)return;let t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight;if(null!==this.options.minWidth&&t<this.options.minWidth){const i=this.parent.scale.x;this.parent.fitWidth(this.options.minWidth,!1,!1,!0),this.parent.scale.y*=this.parent.scale.x/i,t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}if(null!==this.options.maxWidth&&t>this.options.maxWidth){const i=this.parent.scale.x;this.parent.fitWidth(this.options.maxWidth,!1,!1,!0),this.parent.scale.y*=this.parent.scale.x/i,t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}if(null!==this.options.minHeight&&e<this.options.minHeight){const i=this.parent.scale.y;this.parent.fitHeight(this.options.minHeight,!1,!1,!0),this.parent.scale.x*=this.parent.scale.y/i,t=this.parent.worldScreenWidth,e=this.parent.worldScreenHeight,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}if(null!==this.options.maxHeight&&e>this.options.maxHeight){const t=this.parent.scale.y;this.parent.fitHeight(this.options.maxHeight,!1,!1,!0),this.parent.scale.x*=this.parent.scale.y/t,this.parent.emit("zoomed",{viewport:this.parent,type:"clamp-zoom"})}}}const g={friction:.95,bounce:.8,minSpeed:.01};class m extends h{constructor(t,e={}){super(t),this.options=Object.assign({},g,e),this.saved=[],this.reset(),this.parent.on("moved",t=>this.moved(t))}destroy(){this.parent}down(){this.saved=[],this.x=this.y=!1}isActive(){return this.x||this.y}move(){if(this.paused)return;const t=this.parent.input.count();(1===t||t>1&&!this.parent.plugins.get("pinch"))&&(this.saved.push({x:this.parent.x,y:this.parent.y,time:performance.now()}),this.saved.length>60&&this.saved.splice(0,30))}moved(t){if(this.saved.length){const e=this.saved[this.saved.length-1];"clamp-x"===t.type?e.x===t.original.x&&(e.x=this.parent.x):"clamp-y"===t.type&&e.y===t.original.y&&(e.y=this.parent.y)}}up(){if(0===this.parent.input.count()&&this.saved.length){const t=performance.now();for(let e of this.saved)if(e.time>=t-100){const i=t-e.time;this.x=(this.parent.x-e.x)/i,this.y=(this.parent.y-e.y)/i,this.percentChangeX=this.percentChangeY=this.options.friction;break}}}activate(t){void 0!==(t=t||{}).x&&(this.x=t.x,this.percentChangeX=this.options.friction),void 0!==t.y&&(this.y=t.y,this.percentChangeY=this.options.friction)}update(t){if(this.paused)return;let e;this.x&&(this.parent.x+=this.x*t,this.x*=this.percentChangeX,Math.abs(this.x)<this.options.minSpeed&&(this.x=0),e=!0),this.y&&(this.parent.y+=this.y*t,this.y*=this.percentChangeY,Math.abs(this.y)<this.options.minSpeed&&(this.y=0),e=!0),e&&this.parent.emit("moved",{viewport:this.parent,type:"decelerate"})}reset(){this.x=this.y=null}}var w="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:{};var f=function(t,e){return t(e={exports:{}},e.exports),e.exports}(function(t,e){(function(){var e;(function(e){t.exports=e})(e={linear:function(t,e,i,s){return i*t/s+e},easeInQuad:function(t,e,i,s){return i*(t/=s)*t+e},easeOutQuad:function(t,e,i,s){return-i*(t/=s)*(t-2)+e},easeInOutQuad:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t+e:-i/2*(--t*(t-2)-1)+e},easeInCubic:function(t,e,i,s){return i*(t/=s)*t*t+e},easeOutCubic:function(t,e,i,s){return i*((t=t/s-1)*t*t+1)+e},easeInOutCubic:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t*t+e:i/2*((t-=2)*t*t+2)+e},easeInQuart:function(t,e,i,s){return i*(t/=s)*t*t*t+e},easeOutQuart:function(t,e,i,s){return-i*((t=t/s-1)*t*t*t-1)+e},easeInOutQuart:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t*t*t+e:-i/2*((t-=2)*t*t*t-2)+e},easeInQuint:function(t,e,i,s){return i*(t/=s)*t*t*t*t+e},easeOutQuint:function(t,e,i,s){return i*((t=t/s-1)*t*t*t*t+1)+e},easeInOutQuint:function(t,e,i,s){return(t/=s/2)<1?i/2*t*t*t*t*t+e:i/2*((t-=2)*t*t*t*t+2)+e},easeInSine:function(t,e,i,s){return-i*Math.cos(t/s*(Math.PI/2))+i+e},easeOutSine:function(t,e,i,s){return i*Math.sin(t/s*(Math.PI/2))+e},easeInOutSine:function(t,e,i,s){return-i/2*(Math.cos(Math.PI*t/s)-1)+e},easeInExpo:function(t,e,i,s){return 0===t?e:i*Math.pow(2,10*(t/s-1))+e},easeOutExpo:function(t,e,i,s){return t===s?e+i:i*(1-Math.pow(2,-10*t/s))+e},easeInOutExpo:function(t,e,i,s){return(t/=s/2)<1?i/2*Math.pow(2,10*(t-1))+e:i/2*(2-Math.pow(2,-10*--t))+e},easeInCirc:function(t,e,i,s){return-i*(Math.sqrt(1-(t/=s)*t)-1)+e},easeOutCirc:function(t,e,i,s){return i*Math.sqrt(1-(t=t/s-1)*t)+e},easeInOutCirc:function(t,e,i,s){return(t/=s/2)<1?-i/2*(Math.sqrt(1-t*t)-1)+e:i/2*(Math.sqrt(1-(t-=2)*t)+1)+e},easeInElastic:function(t,e,i,s){var n,h,o;return o=1.70158,0===t||(t/=s),(h=0)||(h=.3*s),(n=i)<Math.abs(i)?(n=i,o=h/4):o=h/(2*Math.PI)*Math.asin(i/n),-n*Math.pow(2,10*(t-=1))*Math.sin((t*s-o)*(2*Math.PI)/h)+e},easeOutElastic:function(t,e,i,s){var n,h,o;return o=1.70158,0===t||(t/=s),(h=0)||(h=.3*s),(n=i)<Math.abs(i)?(n=i,o=h/4):o=h/(2*Math.PI)*Math.asin(i/n),n*Math.pow(2,-10*t)*Math.sin((t*s-o)*(2*Math.PI)/h)+i+e},easeInOutElastic:function(t,e,i,s){var n,h,o;return o=1.70158,0===t||(t/=s/2),(h=0)||(h=s*(.3*1.5)),(n=i)<Math.abs(i)?(n=i,o=h/4):o=h/(2*Math.PI)*Math.asin(i/n),t<1?n*Math.pow(2,10*(t-=1))*Math.sin((t*s-o)*(2*Math.PI)/h)*-.5+e:n*Math.pow(2,-10*(t-=1))*Math.sin((t*s-o)*(2*Math.PI)/h)*.5+i+e},easeInBack:function(t,e,i,s,n){return void 0===n&&(n=1.70158),i*(t/=s)*t*((n+1)*t-n)+e},easeOutBack:function(t,e,i,s,n){return void 0===n&&(n=1.70158),i*((t=t/s-1)*t*((n+1)*t+n)+1)+e},easeInOutBack:function(t,e,i,s,n){return void 0===n&&(n=1.70158),(t/=s/2)<1?i/2*(t*t*((1+(n*=1.525))*t-n))+e:i/2*((t-=2)*t*((1+(n*=1.525))*t+n)+2)+e},easeInBounce:function(t,i,s,n){return s-e.easeOutBounce(n-t,0,s,n)+i},easeOutBounce:function(t,e,i,s){return(t/=s)<1/2.75?i*(7.5625*t*t)+e:t<2/2.75?i*(7.5625*(t-=1.5/2.75)*t+.75)+e:t<2.5/2.75?i*(7.5625*(t-=2.25/2.75)*t+.9375)+e:i*(7.5625*(t-=2.625/2.75)*t+.984375)+e},easeInOutBounce:function(t,i,s,n){return t<n/2?.5*e.easeInBounce(2*t,0,s,n)+i:.5*e.easeOutBounce(2*t-n,0,s,n)+.5*s+i}})}).call(w)});function x(t,e){return t?"function"==typeof t?t:"string"==typeof t?f[t]:void 0:f[e]}const y={sides:"all",friction:.5,time:150,ease:"easeInOutSine",underflow:"center"};class v extends h{constructor(t,e={}){super(t),this.options=Object.assign({},y,e),this.ease=x(this.options.ease,"easeInOutSine"),this.options.sides&&("all"===this.options.sides?this.top=this.bottom=this.left=this.right=!0:"horizontal"===this.options.sides?this.right=this.left=!0:"vertical"===this.options.sides?this.top=this.bottom=!0:(this.top=-1!==this.options.sides.indexOf("top"),this.bottom=-1!==this.options.sides.indexOf("bottom"),this.left=-1!==this.options.sides.indexOf("left"),this.right=-1!==this.options.sides.indexOf("right"))),this.parseUnderflow(),this.last={},this.reset()}parseUnderflow(){const t=this.options.underflow.toLowerCase();"center"===t?(this.underflowX=0,this.underflowY=0):(this.underflowX=-1!==t.indexOf("left")?-1:-1!==t.indexOf("right")?1:0,this.underflowY=-1!==t.indexOf("top")?-1:-1!==t.indexOf("bottom")?1:0)}isActive(){return null!==this.toX||null!==this.toY}down(){this.toX=this.toY=null}up(){this.bounce()}update(t){if(!this.paused){if(this.bounce(),this.toX){const e=this.toX;e.time+=t,this.parent.emit("moved",{viewport:this.parent,type:"bounce-x"}),e.time>=this.options.time?(this.parent.x=e.end,this.toX=null,this.parent.emit("bounce-x-end",this.parent)):this.parent.x=this.ease(e.time,e.start,e.delta,this.options.time)}if(this.toY){const e=this.toY;e.time+=t,this.parent.emit("moved",{viewport:this.parent,type:"bounce-y"}),e.time>=this.options.time?(this.parent.y=e.end,this.toY=null,this.parent.emit("bounce-y-end",this.parent)):this.parent.y=this.ease(e.time,e.start,e.delta,this.options.time)}}}calcUnderflowX(){let t;switch(this.underflowX){case-1:t=0;break;case 1:t=this.parent.screenWidth-this.parent.screenWorldWidth;break;default:t=(this.parent.screenWidth-this.parent.screenWorldWidth)/2}return t}calcUnderflowY(){let t;switch(this.underflowY){case-1:t=0;break;case 1:t=this.parent.screenHeight-this.parent.screenWorldHeight;break;default:t=(this.parent.screenHeight-this.parent.screenWorldHeight)/2}return t}bounce(){if(this.paused)return;let t,e=this.parent.plugins.get("decelerate");e&&(e.x||e.y)&&(e.x&&e.percentChangeX===e.options.friction||e.y&&e.percentChangeY===e.options.friction)&&(((t=this.parent.OOB()).left&&this.left||t.right&&this.right)&&(e.percentChangeX=this.options.friction),(t.top&&this.top||t.bottom&&this.bottom)&&(e.percentChangeY=this.options.friction));const i=this.parent.plugins.get("drag")||{},s=this.parent.plugins.get("pinch")||{};if(e=e||{},!(i.active||s.active||this.toX&&this.toY||e.x&&e.y)){const i=(t=t||this.parent.OOB()).cornerPoint;if(!this.toX&&!e.x){let e=null;t.left&&this.left?e=this.parent.screenWorldWidth<this.parent.screenWidth?this.calcUnderflowX():0:t.right&&this.right&&(e=this.parent.screenWorldWidth<this.parent.screenWidth?this.calcUnderflowX():-i.x),null!==e&&this.parent.x!==e&&(this.toX={time:0,start:this.parent.x,delta:e-this.parent.x,end:e},this.parent.emit("bounce-x-start",this.parent))}if(!this.toY&&!e.y){let e=null;t.top&&this.top?e=this.parent.screenWorldHeight<this.parent.screenHeight?this.calcUnderflowY():0:t.bottom&&this.bottom&&(e=this.parent.screenWorldHeight<this.parent.screenHeight?this.calcUnderflowY():-i.y),null!==e&&this.parent.y!==e&&(this.toY={time:0,start:this.parent.y,delta:e-this.parent.y,end:e},this.parent.emit("bounce-y-start",this.parent))}}}reset(){this.toX=this.toY=null}}const b={topLeft:!1,friction:.8,time:1e3,ease:"easeInOutSine",interrupt:!0,removeOnComplete:!1,removeOnInterrupt:!1,forceStart:!1};class W extends h{constructor(t,e,i,s={}){super(t),this.options=Object.assign({},b,s),this.ease=x(s.ease,"easeInOutSine"),this.x=e,this.y=i,this.options.forceStart&&this.snapStart()}snapStart(){this.percent=0,this.snapping={time:0};const t=this.options.topLeft?this.parent.corner:this.parent.center;this.deltaX=this.x-t.x,this.deltaY=this.y-t.y,this.startX=t.x,this.startY=t.y,this.parent.emit("snap-start",this.parent)}wheel(){this.options.removeOnInterrupt&&this.parent.plugins.remove("snap")}down(){this.options.removeOnInterrupt?this.parent.plugins.remove("snap"):this.options.interrupt&&(this.snapping=null)}up(){if(0===this.parent.input.count()){const t=this.parent.plugins.get("decelerate");t&&(t.x||t.y)&&(t.percentChangeX=t.percentChangeY=this.options.friction)}}update(t){if(!(this.paused||this.options.interrupt&&0!==this.parent.input.count()))if(this.snapping){const e=this.snapping;let i,s,n;if(e.time+=t,e.time>this.options.time)i=!0,s=this.startX+this.deltaX,n=this.startY+this.deltaY;else{const t=this.ease(e.time,0,1,this.options.time);s=this.startX+this.deltaX*t,n=this.startY+this.deltaY*t}this.options.topLeft?this.parent.moveCorner(s,n):this.parent.moveCenter(s,n),this.parent.emit("moved",{viewport:this.parent,type:"snap"}),i&&(this.options.removeOnComplete&&this.parent.plugins.remove("snap"),this.parent.emit("snap-end",this.parent),this.snapping=null)}else{const t=this.options.topLeft?this.parent.corner:this.parent.center;t.x===this.x&&t.y===this.y||this.snapStart()}}}const H={width:0,height:0,time:1e3,ease:"easeInOutSine",center:null,interrupt:!0,removeOnComplete:!1,removeOnInterrupts:!1,forceStart:!1,noMove:!1};class M extends h{constructor(t,e={}){super(t),this.options=Object.assign({},H,e),this.ease=x(this.options.ease),this.options.width>0&&(this.x_scale=t.screenWidth/this.options.width),this.options.height>0&&(this.y_scale=t.screenHeight/this.options.height),this.xIndependent=!!this.x_scale,this.yIndependent=!!this.y_scale,this.x_scale=this.xIndependent?this.x_scale:this.y_scale,this.y_scale=this.yIndependent?this.y_scale:this.x_scale,0===this.options.time?(t.container.scale.x=this.x_scale,t.container.scale.y=this.y_scale,this.options.removeOnComplete&&this.parent.plugins.remove("snap-zoom")):e.forceStart&&this.createSnapping()}createSnapping(){const t=this.parent.scale;this.snapping={time:0,startX:t.x,startY:t.y,deltaX:this.x_scale-t.x,deltaY:this.y_scale-t.y},this.parent.emit("snap-zoom-start",this.parent)}resize(){this.snapping=null,this.options.width>0&&(this.x_scale=this.parent._screenWidth/this.options.width),this.options.height>0&&(this.y_scale=this.parent._screenHeight/this.options.height),this.x_scale=this.xIndependent?this.x_scale:this.y_scale,this.y_scale=this.yIndependent?this.y_scale:this.x_scale}reset(){this.snapping=null}wheel(){this.options.removeOnInterrupt&&this.parent.plugins.remove("snap-zoom")}down(){this.options.removeOnInterrupt?this.parent.plugins.remove("snap-zoom"):this.options.interrupt&&(this.snapping=null)}update(t){if(this.paused)return;if(this.options.interrupt&&0!==this.parent.input.count())return;let e;if(this.options.center||this.options.noMove||(e=this.parent.center),this.snapping){if(this.snapping){const i=this.snapping;if(i.time+=t,i.time>=this.options.time)this.parent.scale.set(this.x_scale,this.y_scale),this.options.removeOnComplete&&this.parent.plugins.remove("snap-zoom"),this.parent.emit("snap-zoom-end",this.parent),this.snapping=null;else{const t=this.snapping;this.parent.scale.x=this.ease(t.time,t.startX,t.deltaX,this.options.time),this.parent.scale.y=this.ease(t.time,t.startY,t.deltaY,this.options.time)}const s=this.parent.plugins.get("clamp-zoom");s&&s.clamp(),this.options.noMove||(this.options.center?this.parent.moveCenter(this.options.center):this.parent.moveCenter(e))}}else this.parent.scale.x===this.x_scale&&this.parent.scale.y===this.y_scale||this.createSnapping()}resume(){this.snapping=null,super.resume()}}const O={speed:0,acceleration:null,radius:null};class z extends h{constructor(t,e,i={}){super(t),this.target=e,this.options=Object.assign({},O,i),this.velocity={x:0,y:0}}update(t){if(this.paused)return;const e=this.parent.center;let i=this.target.x,s=this.target.y;if(this.options.radius){if(!(Math.sqrt(Math.pow(this.target.y-e.y,2)+Math.pow(this.target.x-e.x,2))>this.options.radius))return;{const t=Math.atan2(this.target.y-e.y,this.target.x-e.x);i=this.target.x-Math.cos(t)*this.options.radius,s=this.target.y-Math.sin(t)*this.options.radius}}const n=i-e.x,h=s-e.y;if(n||h)if(this.options.speed)if(this.options.acceleration){const o=Math.atan2(s-e.y,i-e.x),r=Math.sqrt(Math.pow(n,2)+Math.pow(h,2));if(r){const a=(Math.pow(this.velocity.x,2)+Math.pow(this.velocity.y,2))/(2*this.options.acceleration);this.velocity=r>a?{x:Math.min(this.velocity.x+this.options.acceleration*t,this.options.speed),y:Math.min(this.velocity.y+this.options.acceleration*t,this.options.speed)}:{x:Math.max(this.velocity.x-this.options.acceleration*this.options.speed,0),y:Math.max(this.velocity.y-this.options.acceleration*this.options.speed,0)};const p=Math.cos(o)*this.velocity.x,l=Math.sin(o)*this.velocity.y,c=Math.abs(p)>Math.abs(n)?i:e.x+p,d=Math.abs(l)>Math.abs(h)?s:e.y+l;this.parent.moveCenter(c,d),this.parent.emit("moved",{viewport:this.parent,type:"follow"})}}else{const t=Math.atan2(s-e.y,i-e.x),o=Math.cos(t)*this.options.speed,r=Math.sin(t)*this.options.speed,a=Math.abs(o)>Math.abs(n)?i:e.x+o,p=Math.abs(r)>Math.abs(h)?s:e.y+r;this.parent.moveCenter(a,p),this.parent.emit("moved",{viewport:this.parent,type:"follow"})}else this.parent.moveCenter(i,s),this.parent.emit("moved",{viewport:this.parent,type:"follow"})}}const C={percent:.1,smooth:!1,interrupt:!0,reverse:!1,center:null};class I extends h{constructor(t,e={}){super(t),this.options=Object.assign({},C,e)}down(){this.options.interrupt&&(this.smoothing=null)}update(){if(this.smoothing){const t=this.smoothingCenter,e=this.smoothing;let i;this.options.center||(i=this.parent.toLocal(t)),this.parent.scale.x+=e.x,this.parent.scale.y+=e.y,this.parent.emit("zoomed",{viewport:this.parent,type:"wheel"});const s=this.parent.plugins.get("clamp-zoom");if(s&&s.clamp(),this.options.center)this.parent.moveCenter(this.options.center);else{const e=this.parent.toGlobal(i);this.parent.x+=t.x-e.x,this.parent.y+=t.y-e.y}this.smoothingCount++,this.smoothingCount>=this.options.smooth&&(this.smoothing=null)}}wheel(t){if(this.paused)return;let e=this.parent.input.getPointerPosition(t);const i=(this.options.reverse?-1:1)*-t.deltaY*(t.deltaMode?120:1)/500,s=Math.pow(2,(1+this.options.percent)*i);if(this.options.smooth){const t={x:this.smoothing?this.smoothing.x*(this.options.smooth-this.smoothingCount):0,y:this.smoothing?this.smoothing.y*(this.options.smooth-this.smoothingCount):0};this.smoothing={x:((this.parent.scale.x+t.x)*s-this.parent.scale.x)/this.options.smooth,y:((this.parent.scale.y+t.y)*s-this.parent.scale.y)/this.options.smooth},this.smoothingCount=0,this.smoothingCenter=e}else{let t;this.options.center||(t=this.parent.toLocal(e)),this.parent.scale.x*=s,this.parent.scale.y*=s,this.parent.emit("zoomed",{viewport:this.parent,type:"wheel"});const i=this.parent.plugins.get("clamp-zoom");if(i&&i.clamp(),this.options.center)this.parent.moveCenter(this.options.center);else{const i=this.parent.toGlobal(t);this.parent.x+=e.x-i.x,this.parent.y+=e.y-i.y}}return this.parent.emit("moved",{viewport:this.parent,type:"wheel"}),this.parent.emit("wheel",{wheel:{dx:t.deltaX,dy:t.deltaY,dz:t.deltaZ},event:t,viewport:this.parent}),!this.parent.options.passiveWheel||void 0}}const S={radius:null,distance:null,top:null,bottom:null,left:null,right:null,speed:8,reverse:!1,noDecelerate:!1,linear:!1,allowButtons:!1};class _ extends h{constructor(t,e={}){super(t),this.options=Object.assign({},S,e),this.reverse=this.options.reverse?1:-1,this.radiusSquared=Math.pow(this.options.radius,2),this.resize()}resize(){const t=this.options.distance;null!==t?(this.left=t,this.top=t,this.right=this.parent.worldScreenWidth-t,this.bottom=this.parent.worldScreenHeight-t):this.radius||(this.left=this.options.left,this.top=this.options.top,this.right=null===this.options.right?null:this.parent.worldScreenWidth-this.options.right,this.bottom=null===this.options.bottom?null:this.parent.worldScreenHeight-this.options.bottom)}down(){this.options.allowButtons||(this.horizontal=this.vertical=null)}move(t){if("mouse"!==t.data.pointerType&&1!==t.data.identifier||!this.options.allowButtons&&0!==t.data.buttons)return;const e=t.data.global.x,i=t.data.global.y;if(this.radiusSquared){const t=this.parent.toScreen(this.parent.center);if(Math.pow(t.x-e,2)+Math.pow(t.y-i,2)>=this.radiusSquared){const s=Math.atan2(t.y-i,t.x-e);this.options.linear?(this.horizontal=Math.round(Math.cos(s))*this.options.speed*this.reverse*.06,this.vertical=Math.round(Math.sin(s))*this.options.speed*this.reverse*.06):(this.horizontal=Math.cos(s)*this.options.speed*this.reverse*.06,this.vertical=Math.sin(s)*this.options.speed*this.reverse*.06)}else this.horizontal&&this.decelerateHorizontal(),this.vertical&&this.decelerateVertical(),this.horizontal=this.vertical=0}else null!==this.left&&e<this.left?this.horizontal=1*this.reverse*this.options.speed*.06:null!==this.right&&e>this.right?this.horizontal=-1*this.reverse*this.options.speed*.06:(this.decelerateHorizontal(),this.horizontal=0),null!==this.top&&i<this.top?this.vertical=1*this.reverse*this.options.speed*.06:null!==this.bottom&&i>this.bottom?this.vertical=-1*this.reverse*this.options.speed*.06:(this.decelerateVertical(),this.vertical=0)}decelerateHorizontal(){const t=this.parent.plugins.get("decelerate");this.horizontal&&t&&!this.options.noDecelerate&&t.activate({x:this.horizontal*this.options.speed*this.reverse/(1e3/60)})}decelerateVertical(){const t=this.parent.plugins.get("decelerate");this.vertical&&t&&!this.options.noDecelerate&&t.activate({y:this.vertical*this.options.speed*this.reverse/(1e3/60)})}up(){this.horizontal&&this.decelerateHorizontal(),this.vertical&&this.decelerateVertical(),this.horizontal=this.vertical=null}update(){if(!this.paused&&(this.horizontal||this.vertical)){const t=this.parent.center;this.horizontal&&(t.x+=this.horizontal*this.options.speed),this.vertical&&(t.y+=this.vertical*this.options.speed),this.parent.moveCenter(t),this.parent.emit("moved",{viewport:this.parent,type:"mouse-edges"})}}}const k={screenWidth:window.innerWidth,screenHeight:window.innerHeight,worldWidth:null,worldHeight:null,threshold:5,passiveWheel:!0,stopPropagation:!1,forceHitArea:null,noTicker:!1,interaction:null,disableOnContextMenu:!1};t.Plugin=h,t.Viewport=class extends e.Container{constructor(t={}){if(super(),this.options=Object.assign({},k,t),t.ticker)this.options.ticker=t.ticker;else{let i;const s=e;i=parseInt(/^(\d+)\./.exec(e.VERSION)[1])<5?s.ticker.shared:s.Ticker.shared,this.options.ticker=t.ticker||i}this.screenWidth=this.options.screenWidth,this.screenHeight=this.options.screenHeight,this._worldWidth=this.options.worldWidth,this._worldHeight=this.options.worldHeight,this.forceHitArea=this.options.forceHitArea,this.threshold=this.options.threshold,this.options.divWheel=this.options.divWheel||document.body,this.options.disableOnContextMenu&&(this.options.divWheel.oncontextmenu=t=>t.preventDefault()),this.options.noTicker||(this.tickerFunction=()=>this.update(this.options.ticker.elapsedMS),this.options.ticker.add(this.tickerFunction)),this.input=new i(this),this.plugins=new n(this)}destroy(t){this.options.noTicker||this.options.ticker.remove(this.tickerFunction),this.input.destroy(),super.destroy(t)}update(t){this.pause||(this.plugins.update(t),this.lastViewport&&(this.lastViewport.x!==this.x||this.lastViewport.y!==this.y?this.moving=!0:this.moving&&(this.emit("moved-end",this),this.moving=!1),this.lastViewport.scaleX!==this.scale.x||this.lastViewport.scaleY!==this.scale.y?this.zooming=!0:this.zooming&&(this.emit("zoomed-end",this),this.zooming=!1)),this.forceHitArea||(this._hitAreaDefault=new e.Rectangle(this.left,this.top,this.worldScreenWidth,this.worldScreenHeight),this.hitArea=this._hitAreaDefault),this._dirty=this._dirty||!this.lastViewport||this.lastViewport.x!==this.x||this.lastViewport.y!==this.y||this.lastViewport.scaleX!==this.scale.x||this.lastViewport.scaleY!==this.scale.y,this.lastViewport={x:this.x,y:this.y,scaleX:this.scale.x,scaleY:this.scale.y},this.emit("frame-end",this))}resize(t=window.innerWidth,e=window.innerHeight,i,s){this.screenWidth=t,this.screenHeight=e,void 0!==i&&(this._worldWidth=i),void 0!==s&&(this._worldHeight=s),this.plugins.resize()}get worldWidth(){return this._worldWidth?this._worldWidth:this.width/this.scale.x}set worldWidth(t){this._worldWidth=t,this.plugins.resize()}get worldHeight(){return this._worldHeight?this._worldHeight:this.height/this.scale.y}set worldHeight(t){this._worldHeight=t,this.plugins.resize()}getVisibleBounds(){return new e.Rectangle(this.left,this.top,this.worldScreenWidth,this.worldScreenHeight)}toWorld(t,i){return 2===arguments.length?this.toLocal(new e.Point(t,i)):this.toLocal(t)}toScreen(t,i){return 2===arguments.length?this.toGlobal(new e.Point(t,i)):this.toGlobal(t)}get worldScreenWidth(){return this.screenWidth/this.scale.x}get worldScreenHeight(){return this.screenHeight/this.scale.y}get screenWorldWidth(){return this.worldWidth*this.scale.x}get screenWorldHeight(){return this.worldHeight*this.scale.y}get center(){return new e.Point(this.worldScreenWidth/2-this.x/this.scale.x,this.worldScreenHeight/2-this.y/this.scale.y)}set center(t){this.moveCenter(t)}moveCenter(){let t,e;return isNaN(arguments[0])?(t=arguments[0].x,e=arguments[0].y):(t=arguments[0],e=arguments[1]),this.position.set((this.worldScreenWidth/2-t)*this.scale.x,(this.worldScreenHeight/2-e)*this.scale.y),this.plugins.reset(),this.dirty=!0,this}get corner(){return new e.Point(-this.x/this.scale.x,-this.y/this.scale.y)}set corner(t){this.moveCorner(t)}moveCorner(t,e){return 1===arguments.length?this.position.set(-t.x*this.scale.x,-t.y*this.scale.y):this.position.set(-t*this.scale.x,-e*this.scale.y),this.plugins.reset(),this}fitWidth(t,e,i=!0,s){let n;e&&(n=this.center),this.scale.x=this.screenWidth/t,i&&(this.scale.y=this.scale.x);const h=this.plugins.get("clamp-zoom");return!s&&h&&h.clamp(),e&&this.moveCenter(n),this}fitHeight(t,e,i=!0,s){let n;e&&(n=this.center),this.scale.y=this.screenHeight/t,i&&(this.scale.x=this.scale.y);const h=this.plugins.get("clamp-zoom");return!s&&h&&h.clamp(),e&&this.moveCenter(n),this}fitWorld(t){let e;t&&(e=this.center),this.scale.x=this.screenWidth/this.worldWidth,this.scale.y=this.screenHeight/this.worldHeight,this.scale.x<this.scale.y?this.scale.y=this.scale.x:this.scale.x=this.scale.y;const i=this.plugins.get("clamp-zoom");return i&&i.clamp(),t&&this.moveCenter(e),this}fit(t,e=this.worldWidth,i=this.worldHeight){let s;t&&(s=this.center),this.scale.x=this.screenWidth/e,this.scale.y=this.screenHeight/i,this.scale.x<this.scale.y?this.scale.y=this.scale.x:this.scale.x=this.scale.y;const n=this.plugins.get("clamp-zoom");return n&&n.clamp(),t&&this.moveCenter(s),this}setZoom(t,e){let i;e&&(i=this.center),this.scale.set(t);const s=this.plugins.get("clamp-zoom");return s&&s.clamp(),e&&this.moveCenter(i),this}zoomPercent(t,e){return this.setZoom(this.scale.x+this.scale.x*t,e)}zoom(t,e){return this.fitWidth(t+this.worldScreenWidth,e),this}set scaled(t){this.setZoom(t,!0)}get scaled(){return this.scale.x}snapZoom(t){return this.plugins.add("snap-zoom",new M(this,t)),this}OOB(){return{left:this.left<0,right:this.right>this._worldWidth,top:this.top<0,bottom:this.bottom>this._worldHeight,cornerPoint:new e.Point(this._worldWidth*this.scale.x-this.screenWidth,this._worldHeight*this.scale.y-this.screenHeight)}}get right(){return-this.x/this.scale.x+this.worldScreenWidth}set right(t){this.x=-t*this.scale.x+this.screenWidth,this.plugins.reset()}get left(){return-this.x/this.scale.x}set left(t){this.x=-t*this.scale.x,this.plugins.reset()}get top(){return-this.y/this.scale.y}set top(t){this.y=-t*this.scale.y,this.plugins.reset()}get bottom(){return-this.y/this.scale.y+this.worldScreenHeight}set bottom(t){this.y=-t*this.scale.y+this.screenHeight,this.plugins.reset()}get dirty(){return this._dirty}set dirty(t){this._dirty=t}get forceHitArea(){return this._forceHitArea}set forceHitArea(t){t?(this._forceHitArea=t,this.hitArea=t):(this._forceHitArea=null,this.hitArea=new e.Rectangle(0,0,this.worldWidth,this.worldHeight))}drag(t){return this.plugins.add("drag",new r(this,t)),this}clamp(t){return this.plugins.add("clamp",new c(this,t)),this}decelerate(t){return this.plugins.add("decelerate",new m(this,t)),this}bounce(t){return this.plugins.add("bounce",new v(this,t)),this}pinch(t){return this.plugins.add("pinch",new p(this,t)),this}snap(t,e,i){return this.plugins.add("snap",new W(this,t,e,i)),this}follow(t,e){return this.plugins.add("follow",new z(this,t,e)),this}wheel(t){return this.plugins.add("wheel",new I(this,t)),this}clampZoom(t){return this.plugins.add("clamp-zoom",new u(this,t)),this}mouseEdges(t){return this.plugins.add("mouse-edges",new _(this,t)),this}get pause(){return this._pause}set pause(t){this._pause=t,this.lastViewport=null,this.moving=!1,this.zooming=!1,t&&this.input.pause()}ensureVisible(t,e,i,s){t<this.left?this.left=t:t+i>this.right&&(this.right=t+i),e<this.top?this.top=e:e+s>this.bottom&&(this.bottom=e+s)}},Object.defineProperty(t,"__esModule",{value:!0})});
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"pixi.js":43}],43:[function(require,module,exports){
+},{"pixi.js":44}],44:[function(require,module,exports){
 /*!
  * pixi.js - v5.1.2
  * Compiled Sat, 24 Aug 2019 01:06:18 UTC
@@ -40253,7 +42204,7 @@ exports.filters = filters;
 exports.useDeprecated = useDeprecated;
 
 
-},{"@pixi/accessibility":1,"@pixi/app":2,"@pixi/constants":3,"@pixi/core":4,"@pixi/display":5,"@pixi/extract":6,"@pixi/filter-alpha":7,"@pixi/filter-blur":8,"@pixi/filter-color-matrix":9,"@pixi/filter-displacement":10,"@pixi/filter-fxaa":11,"@pixi/filter-noise":12,"@pixi/graphics":13,"@pixi/interaction":14,"@pixi/loaders":15,"@pixi/math":16,"@pixi/mesh":18,"@pixi/mesh-extras":17,"@pixi/mixin-cache-as-bitmap":19,"@pixi/mixin-get-child-by-name":20,"@pixi/mixin-get-global-position":21,"@pixi/particles":22,"@pixi/polyfill":23,"@pixi/prepare":24,"@pixi/runner":25,"@pixi/settings":26,"@pixi/sprite":29,"@pixi/sprite-animated":27,"@pixi/sprite-tiling":28,"@pixi/spritesheet":30,"@pixi/text":32,"@pixi/text-bitmap":31,"@pixi/ticker":33,"@pixi/utils":34}],44:[function(require,module,exports){
+},{"@pixi/accessibility":1,"@pixi/app":2,"@pixi/constants":3,"@pixi/core":4,"@pixi/display":5,"@pixi/extract":6,"@pixi/filter-alpha":7,"@pixi/filter-blur":8,"@pixi/filter-color-matrix":9,"@pixi/filter-displacement":10,"@pixi/filter-fxaa":11,"@pixi/filter-noise":12,"@pixi/graphics":13,"@pixi/interaction":14,"@pixi/loaders":15,"@pixi/math":16,"@pixi/mesh":18,"@pixi/mesh-extras":17,"@pixi/mixin-cache-as-bitmap":19,"@pixi/mixin-get-child-by-name":20,"@pixi/mixin-get-global-position":21,"@pixi/particles":22,"@pixi/polyfill":23,"@pixi/prepare":24,"@pixi/runner":25,"@pixi/settings":26,"@pixi/sprite":29,"@pixi/sprite-animated":27,"@pixi/sprite-tiling":28,"@pixi/spritesheet":30,"@pixi/text":32,"@pixi/text-bitmap":31,"@pixi/ticker":33,"@pixi/utils":34}],45:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -41329,7 +43280,7 @@ Body.prototype.getLocalVector = function(worldVector) {
   return Rot.mulTVec2(this.m_xf.q, worldVector);
 };
 
-},{"./Fixture":46,"./Shape":51,"./common/Math":61,"./common/Position":62,"./common/Rot":63,"./common/Sweep":64,"./common/Transform":65,"./common/Vec2":66,"./common/Velocity":68,"./util/common":94,"./util/options":96}],45:[function(require,module,exports){
+},{"./Fixture":47,"./Shape":52,"./common/Math":62,"./common/Position":63,"./common/Rot":64,"./common/Sweep":65,"./common/Transform":66,"./common/Vec2":67,"./common/Velocity":69,"./util/common":95,"./util/options":97}],46:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -42555,7 +44506,7 @@ Contact.destroy = function(contact, listener) {
   }
 };
 
-},{"./Manifold":48,"./Settings":50,"./collision/Distance":56,"./common/Mat22":59,"./common/Math":61,"./common/Rot":63,"./common/Transform":65,"./common/Vec2":66,"./util/common":94}],46:[function(require,module,exports){
+},{"./Manifold":49,"./Settings":51,"./collision/Distance":57,"./common/Mat22":60,"./common/Math":62,"./common/Rot":64,"./common/Transform":66,"./common/Vec2":67,"./util/common":95}],47:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -43003,7 +44954,7 @@ Fixture.prototype.shouldCollide = function(that) {
   return collide;
 }
 
-},{"./Shape":51,"./collision/AABB":54,"./common/Math":61,"./common/Vec2":66,"./util/common":94,"./util/options":96}],47:[function(require,module,exports){
+},{"./Shape":52,"./collision/AABB":55,"./common/Math":62,"./common/Vec2":67,"./util/common":95,"./util/options":97}],48:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -43220,7 +45171,7 @@ Joint.prototype.solveVelocityConstraints = function(step) {
  */
 Joint.prototype.solvePositionConstraints = function(step) {
 };
-},{"./util/common":94}],48:[function(require,module,exports){
+},{"./util/common":95}],49:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -43569,7 +45520,7 @@ function clipSegmentToLine(vOut, vIn, normal, offset, vertexIndexA) {
   return numOut;
 }
 
-},{"./common/Math":61,"./common/Rot":63,"./common/Transform":65,"./common/Vec2":66,"./util/common":94}],49:[function(require,module,exports){
+},{"./common/Math":62,"./common/Rot":64,"./common/Transform":66,"./common/Vec2":67,"./util/common":95}],50:[function(require,module,exports){
 var World = require('./World');
 
 exports.toJson = function(world, stringify) {
@@ -43593,7 +45544,7 @@ exports.fromJson = function(string, parse) {
   return world;
 };
 
-},{"./World":53}],50:[function(require,module,exports){
+},{"./World":54}],51:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -43755,7 +45706,7 @@ Settings.angularSleepTolerance = (2.0 / 180.0 * Math.PI);
 Settings.angularSleepToleranceSqr = Math.pow(Settings.angularSleepTolerance, 2);
 
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -43886,7 +45837,7 @@ Shape.prototype.computeMass = function(massData, density) {
 Shape.prototype.computeDistanceProxy = function(proxy) {
 };
 
-},{"./common/Math":61}],52:[function(require,module,exports){
+},{"./common/Math":62}],53:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -44791,7 +46742,7 @@ Solver.prototype.postSolveIsland = function() {
   }
 };
 
-},{"./Body":44,"./Contact":45,"./Joint":47,"./Settings":50,"./collision/Distance":56,"./collision/TimeOfImpact":58,"./common/Math":61,"./common/Vec2":66,"./util/common":94}],53:[function(require,module,exports){
+},{"./Body":45,"./Contact":46,"./Joint":48,"./Settings":51,"./collision/Distance":57,"./collision/TimeOfImpact":59,"./common/Math":62,"./common/Vec2":67,"./util/common":95}],54:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -45908,7 +47859,7 @@ World.prototype.postSolve = function(contact, impulse) {
  * Moved to Fixture.
  */
 
-},{"./Body":44,"./Contact":45,"./Solver":52,"./collision/BroadPhase":55,"./common/Vec2":66,"./util/common":94,"./util/options":96}],54:[function(require,module,exports){
+},{"./Body":45,"./Contact":46,"./Solver":53,"./collision/BroadPhase":56,"./common/Vec2":67,"./util/common":95,"./util/options":97}],55:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -46166,7 +48117,7 @@ AABB.prototype.rayCast = function(output, input) {
 AABB.prototype.toString = function() {
   return JSON.stringify(this);
 }
-},{"../Settings":50,"../common/Math":61,"../common/Vec2":66}],55:[function(require,module,exports){
+},{"../Settings":51,"../common/Math":62,"../common/Vec2":67}],56:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -46400,7 +48351,7 @@ BroadPhase.prototype.queryCallback = function(proxyId) {
   return true;
 }
 
-},{"../Settings":50,"../common/Math":61,"../util/common":94,"./AABB":54,"./DynamicTree":57}],56:[function(require,module,exports){
+},{"../Settings":51,"../common/Math":62,"../util/common":95,"./AABB":55,"./DynamicTree":58}],57:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -47093,7 +49044,7 @@ Distance.testOverlap = function(shapeA, indexA, shapeB, indexB, xfA, xfB) {
 
   return output.distance < 10.0 * Math.EPSILON;
 }
-},{"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../common/stats":69,"../util/common":94}],57:[function(require,module,exports){
+},{"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../common/stats":70,"../util/common":95}],58:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -48010,7 +49961,7 @@ function Iterator() {
   };
 }
 
-},{"../Settings":50,"../common/Math":61,"../common/Vec2":66,"../util/Pool":92,"../util/common":94,"./AABB":54}],58:[function(require,module,exports){
+},{"../Settings":51,"../common/Math":62,"../common/Vec2":67,"../util/Pool":93,"../util/common":95,"./AABB":55}],59:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -48507,7 +50458,7 @@ SeparationFunction.prototype.evaluate = function(t) {
   return this.compute(false, t);
 };
 
-},{"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../common/stats":69,"../util/Timer":93,"../util/common":94,"./Distance":56}],59:[function(require,module,exports){
+},{"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../common/stats":70,"../util/Timer":94,"../util/common":95,"./Distance":57}],60:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -48716,7 +50667,7 @@ Mat22.add = function(mx1, mx2) {
   return new Mat22(Vec2.add(mx1.ex + mx2.ex), Vec2.add(mx1.ey + mx2.ey));
 }
 
-},{"../util/common":94,"./Math":61,"./Vec2":66}],60:[function(require,module,exports){
+},{"../util/common":95,"./Math":62,"./Vec2":67}],61:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -48941,7 +50892,7 @@ Mat33.add = function(a, b) {
   );
 }
 
-},{"../util/common":94,"./Math":61,"./Vec2":66,"./Vec3":67}],61:[function(require,module,exports){
+},{"../util/common":95,"./Math":62,"./Vec2":67,"./Vec3":68}],62:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -49052,7 +51003,7 @@ math.random = function(min, max) {
   return min == max ? min : native.random() * (max - min) + min;
 };
 
-},{"../util/common":94,"../util/create":95}],62:[function(require,module,exports){
+},{"../util/common":95,"../util/create":96}],63:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -49094,7 +51045,7 @@ Position.prototype.getTransform = function(xf, p) {
   xf.p.set(Vec2.sub(this.c, Rot.mulVec2(xf.q, p)));
   return xf;
 }
-},{"./Rot":63,"./Vec2":66}],63:[function(require,module,exports){
+},{"./Rot":64,"./Vec2":67}],64:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -49324,7 +51275,7 @@ Rot.mulTVec2 = function(rot, m) {
   return Vec2.neo(rot.c * m.x + rot.s * m.y, -rot.s * m.x + rot.c * m.y);
 }
 
-},{"../util/common":94,"./Math":61,"./Vec2":66}],64:[function(require,module,exports){
+},{"../util/common":95,"./Math":62,"./Vec2":67}],65:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -49457,7 +51408,7 @@ Sweep.prototype.set = function(that) {
   this.c.set(that.c);
 };
 
-},{"../util/common":94,"./Math":61,"./Rot":63,"./Transform":65,"./Vec2":66}],65:[function(require,module,exports){
+},{"../util/common":95,"./Math":62,"./Rot":64,"./Transform":66,"./Vec2":67}],66:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -49691,7 +51642,7 @@ Transform.mulTXf = function(a, b) {
   return xf;
 }
 
-},{"../util/common":94,"./Rot":63,"./Vec2":66}],66:[function(require,module,exports){
+},{"../util/common":95,"./Rot":64,"./Vec2":67}],67:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -50212,7 +52163,7 @@ Vec2.translateFn = function(x, y) {
   };
 }
 
-},{"../util/common":94,"./Math":61}],67:[function(require,module,exports){
+},{"../util/common":95,"./Math":62}],68:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -50387,7 +52338,7 @@ Vec3.neg = function(v) {
   return new Vec3(-v.x, -v.y, -v.z);
 }
 
-},{"../util/common":94,"./Math":61}],68:[function(require,module,exports){
+},{"../util/common":95,"./Math":62}],69:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -50422,7 +52373,7 @@ function Velocity() {
   this.v = Vec2.zero();
   this.w = 0;
 }
-},{"./Vec2":66}],69:[function(require,module,exports){
+},{"./Vec2":67}],70:[function(require,module,exports){
 var _DEBUG = typeof DEBUG === 'undefined' ? false : DEBUG;
 var _ASSERT = typeof ASSERT === 'undefined' ? false : ASSERT;
 
@@ -50436,7 +52387,7 @@ exports.toString = function(newline) {
   }
   return string;
 };
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 exports.internal = {};
 
 exports.Serializer = require('./Serializer');
@@ -50490,7 +52441,7 @@ exports.internal.TimeOfImpact = require('./collision/TimeOfImpact');
 exports.internal.DynamicTree = require('./collision/DynamicTree');
 exports.internal.Settings = require('./Settings');
 
-},{"./Body":44,"./Contact":45,"./Fixture":46,"./Joint":47,"./Manifold":48,"./Serializer":49,"./Settings":50,"./Shape":51,"./World":53,"./collision/AABB":54,"./collision/Distance":56,"./collision/DynamicTree":57,"./collision/TimeOfImpact":58,"./common/Mat22":59,"./common/Mat33":60,"./common/Math":61,"./common/Rot":63,"./common/Sweep":64,"./common/Transform":65,"./common/Vec2":66,"./common/Vec3":67,"./common/stats":69,"./joint/DistanceJoint":71,"./joint/FrictionJoint":72,"./joint/GearJoint":73,"./joint/MotorJoint":74,"./joint/MouseJoint":75,"./joint/PrismaticJoint":76,"./joint/PulleyJoint":77,"./joint/RevoluteJoint":78,"./joint/RopeJoint":79,"./joint/WeldJoint":80,"./joint/WheelJoint":81,"./shape/BoxShape":82,"./shape/ChainShape":83,"./shape/CircleShape":84,"./shape/CollideCircle":85,"./shape/CollideCirclePolygone":86,"./shape/CollideEdgeCircle":87,"./shape/CollideEdgePolygon":88,"./shape/CollidePolygon":89,"./shape/EdgeShape":90,"./shape/PolygonShape":91}],71:[function(require,module,exports){
+},{"./Body":45,"./Contact":46,"./Fixture":47,"./Joint":48,"./Manifold":49,"./Serializer":50,"./Settings":51,"./Shape":52,"./World":54,"./collision/AABB":55,"./collision/Distance":57,"./collision/DynamicTree":58,"./collision/TimeOfImpact":59,"./common/Mat22":60,"./common/Mat33":61,"./common/Math":62,"./common/Rot":64,"./common/Sweep":65,"./common/Transform":66,"./common/Vec2":67,"./common/Vec3":68,"./common/stats":70,"./joint/DistanceJoint":72,"./joint/FrictionJoint":73,"./joint/GearJoint":74,"./joint/MotorJoint":75,"./joint/MouseJoint":76,"./joint/PrismaticJoint":77,"./joint/PulleyJoint":78,"./joint/RevoluteJoint":79,"./joint/RopeJoint":80,"./joint/WeldJoint":81,"./joint/WheelJoint":82,"./shape/BoxShape":83,"./shape/ChainShape":84,"./shape/CircleShape":85,"./shape/CollideCircle":86,"./shape/CollideCirclePolygone":87,"./shape/CollideEdgeCircle":88,"./shape/CollideEdgePolygon":89,"./shape/CollidePolygon":90,"./shape/EdgeShape":91,"./shape/PolygonShape":92}],72:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -50841,7 +52792,7 @@ DistanceJoint.prototype.solvePositionConstraints = function(step) {
   return Math.abs(C) < Settings.linearSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/create":95,"../util/options":96}],72:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/create":96,"../util/options":97}],73:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -51155,7 +53106,7 @@ FrictionJoint.prototype.solvePositionConstraints = function(step) {
   return true;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96}],73:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97}],74:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -51634,7 +53585,7 @@ GearJoint.prototype.solvePositionConstraints = function(step) {
   return linearError < Settings.linearSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96,"./PrismaticJoint":76,"./RevoluteJoint":78}],74:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97,"./PrismaticJoint":77,"./RevoluteJoint":79}],75:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -51999,7 +53950,7 @@ MotorJoint.prototype.solvePositionConstraints = function(step) {
   return true;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96}],75:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97}],76:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -52301,7 +54252,7 @@ MouseJoint.prototype.solvePositionConstraints = function(step) {
   return true;
 }
 
-},{"../Joint":47,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96}],76:[function(require,module,exports){
+},{"../Joint":48,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97}],77:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -53049,7 +55000,7 @@ PrismaticJoint.prototype.solvePositionConstraints = function(step) {
       && angularError <= Settings.angularSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96}],77:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97}],78:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -53430,7 +55381,7 @@ PulleyJoint.prototype.solvePositionConstraints = function(step) {
   return linearError < Settings.linearSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96}],78:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97}],79:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -54056,7 +56007,7 @@ RevoluteJoint.prototype.solvePositionConstraints = function(step) {
       && angularError <= Settings.angularSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/common":94,"../util/create":95,"../util/options":96}],79:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/common":95,"../util/create":96,"../util/options":97}],80:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -54374,7 +56325,7 @@ RopeJoint.prototype.solvePositionConstraints = function(step) {
   return length - this.m_maxLength < Settings.linearSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/create":95,"../util/options":96}],80:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/create":96,"../util/options":97}],81:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -54806,7 +56757,7 @@ WeldJoint.prototype.solvePositionConstraints = function(step) {
       && angularError <= Settings.angularSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/create":95,"../util/options":96}],81:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/create":96,"../util/options":97}],82:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -55348,7 +57299,7 @@ WheelJoint.prototype.solvePositionConstraints = function(step) {
   return Math.abs(C) <= Settings.linearSlop;
 }
 
-},{"../Joint":47,"../Settings":50,"../common/Mat22":59,"../common/Mat33":60,"../common/Math":61,"../common/Position":62,"../common/Rot":63,"../common/Sweep":64,"../common/Transform":65,"../common/Vec2":66,"../common/Vec3":67,"../common/Velocity":68,"../util/create":95,"../util/options":96}],82:[function(require,module,exports){
+},{"../Joint":48,"../Settings":51,"../common/Mat22":60,"../common/Mat33":61,"../common/Math":62,"../common/Position":63,"../common/Rot":64,"../common/Sweep":65,"../common/Transform":66,"../common/Vec2":67,"../common/Vec3":68,"../common/Velocity":69,"../util/create":96,"../util/options":97}],83:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -55396,7 +57347,7 @@ function BoxShape(hx, hy, center, angle) {
 }
 
 
-},{"../util/common":94,"../util/create":95,"./PolygonShape":91}],83:[function(require,module,exports){
+},{"../util/common":95,"../util/create":96,"./PolygonShape":92}],84:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -55668,7 +57619,7 @@ ChainShape.prototype.computeDistanceProxy = function(proxy, childIndex) {
   proxy.m_count = 2;
   proxy.m_radius = this.m_radius;
 };
-},{"../Settings":50,"../Shape":51,"../collision/AABB":54,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"../util/create":95,"../util/options":96,"./EdgeShape":90}],84:[function(require,module,exports){
+},{"../Settings":51,"../Shape":52,"../collision/AABB":55,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"../util/create":96,"../util/options":97,"./EdgeShape":91}],85:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -55840,7 +57791,7 @@ CircleShape.prototype.computeDistanceProxy = function(proxy) {
   proxy.m_radius = this.m_radius;
 };
 
-},{"../Settings":50,"../Shape":51,"../collision/AABB":54,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"../util/create":95,"../util/options":96}],85:[function(require,module,exports){
+},{"../Settings":51,"../Shape":52,"../collision/AABB":55,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"../util/create":96,"../util/options":97}],86:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -55910,7 +57861,7 @@ function CollideCircles(manifold, circleA, xfA, circleB, xfB) {
 }
 
 exports.CollideCircles = CollideCircles;
-},{"../Contact":45,"../Manifold":48,"../Settings":50,"../Shape":51,"../common/Math":61,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"../util/create":95,"./CircleShape":84}],86:[function(require,module,exports){
+},{"../Contact":46,"../Manifold":49,"../Settings":51,"../Shape":52,"../common/Math":62,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"../util/create":96,"./CircleShape":85}],87:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -56065,7 +58016,7 @@ function CollidePolygonCircle(manifold, polygonA, xfA, circleB, xfB) {
   }
 }
 
-},{"../Contact":45,"../Manifold":48,"../Settings":50,"../Shape":51,"../collision/AABB":54,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"./CircleShape":84,"./PolygonShape":91}],87:[function(require,module,exports){
+},{"../Contact":46,"../Manifold":49,"../Settings":51,"../Shape":52,"../collision/AABB":55,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"./CircleShape":85,"./PolygonShape":92}],88:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -56250,7 +58201,7 @@ function CollideEdgeCircle(manifold, edgeA, xfA, circleB, xfB) {
   manifold.points[0].id.cf.typeB = Manifold.e_vertex;
 }
 
-},{"../Contact":45,"../Manifold":48,"../Settings":50,"../Shape":51,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"../util/create":95,"./ChainShape":83,"./CircleShape":84,"./EdgeShape":90}],88:[function(require,module,exports){
+},{"../Contact":46,"../Manifold":49,"../Settings":51,"../Shape":52,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"../util/create":96,"./ChainShape":84,"./CircleShape":85,"./EdgeShape":91}],89:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -56735,7 +58686,7 @@ function CollideEdgePolygon(manifold, edgeA, xfA, polygonB, xfB) {
   manifold.pointCount = pointCount;
 }
 
-},{"../Contact":45,"../Manifold":48,"../Settings":50,"../Shape":51,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"../util/create":95,"./ChainShape":83,"./EdgeShape":90,"./PolygonShape":91}],89:[function(require,module,exports){
+},{"../Contact":46,"../Manifold":49,"../Settings":51,"../Shape":52,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"../util/create":96,"./ChainShape":84,"./EdgeShape":91,"./PolygonShape":92}],90:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -56998,7 +58949,7 @@ function CollidePolygons(manifold, polyA, xfA, polyB, xfB) {
   manifold.pointCount = pointCount;
 }
 
-},{"../Contact":45,"../Manifold":48,"../Settings":50,"../Shape":51,"../collision/AABB":54,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"./PolygonShape":91}],90:[function(require,module,exports){
+},{"../Contact":46,"../Manifold":49,"../Settings":51,"../Shape":52,"../collision/AABB":55,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"./PolygonShape":92}],91:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -57226,7 +59177,7 @@ EdgeShape.prototype.computeDistanceProxy = function(proxy) {
   proxy.m_radius = this.m_radius;
 };
 
-},{"../Settings":50,"../Shape":51,"../collision/AABB":54,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/create":95,"../util/options":96}],91:[function(require,module,exports){
+},{"../Settings":51,"../Shape":52,"../collision/AABB":55,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/create":96,"../util/options":97}],92:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  * Copyright (c) 2006-2011 Erin Catto  http://www.box2d.org
@@ -57745,7 +59696,7 @@ PolygonShape.prototype.computeDistanceProxy = function(proxy) {
   proxy.m_count = this.m_count;
   proxy.m_radius = this.m_radius;
 };
-},{"../Settings":50,"../Shape":51,"../collision/AABB":54,"../common/Math":61,"../common/Rot":63,"../common/Transform":65,"../common/Vec2":66,"../util/common":94,"../util/create":95,"../util/options":96}],92:[function(require,module,exports){
+},{"../Settings":51,"../Shape":52,"../collision/AABB":55,"../common/Math":62,"../common/Rot":64,"../common/Transform":66,"../common/Vec2":67,"../util/common":95,"../util/create":96,"../util/options":97}],93:[function(require,module,exports){
 /*
  * Copyright (c) 2016-2018 Ali Shakiba http://shakiba.me/planck.js
  *
@@ -57834,7 +59785,7 @@ function Pool(opts) {
         + _discardCount + " =" + _list.length + "/" + _max;
   };
 }
-},{}],93:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 var _DEBUG = typeof DEBUG === 'undefined' ? false : DEBUG;
 var _ASSERT = typeof ASSERT === 'undefined' ? false : ASSERT;
 
@@ -57846,7 +59797,7 @@ module.exports.diff = function(time) {
   return Date.now() - time;
 }
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 var _DEBUG = typeof DEBUG === 'undefined' ? false : DEBUG;
 var _ASSERT = typeof ASSERT === 'undefined' ? false : ASSERT;
 
@@ -57861,7 +59812,7 @@ exports.assert = function(statement, err, log) {
   log && console.log(log);
   throw new Error(err);
 };
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 if (typeof Object.create == 'function') {
   module.exports = function(proto, props) {
     return Object.create.call(Object, proto, props);
@@ -57879,7 +59830,7 @@ if (typeof Object.create == 'function') {
   }
 }
 
-},{}],96:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 var _DEBUG = typeof DEBUG === 'undefined' ? false : DEBUG;
 var _ASSERT = typeof ASSERT === 'undefined' ? false : ASSERT;
 
@@ -57908,7 +59859,7 @@ module.exports = function(to, from) {
   return to;
 };
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -58094,7 +60045,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 ;(function(root) {
@@ -58628,7 +60579,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -58714,7 +60665,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -58801,13 +60752,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":99,"./encode":100}],102:[function(require,module,exports){
+},{"./decode":100,"./encode":101}],103:[function(require,module,exports){
 /*!
  * resource-loader - v3.0.1
  * https://github.com/pixijs/pixi-sound
@@ -61158,7 +63109,7 @@ exports.encodeBinary = encodeBinary;
 exports.middleware = index;
 
 
-},{"mini-signals":39,"parse-uri":41}],103:[function(require,module,exports){
+},{"mini-signals":39,"parse-uri":41}],104:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61212,7 +63163,7 @@ var AsyncSubject = (function (_super) {
 }(Subject_1.Subject));
 exports.AsyncSubject = AsyncSubject;
 
-},{"./Subject":113,"./Subscription":116}],104:[function(require,module,exports){
+},{"./Subject":114,"./Subscription":117}],105:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61262,7 +63213,7 @@ var BehaviorSubject = (function (_super) {
 }(Subject_1.Subject));
 exports.BehaviorSubject = BehaviorSubject;
 
-},{"./Subject":113,"./util/ObjectUnsubscribedError":531}],105:[function(require,module,exports){
+},{"./Subject":114,"./util/ObjectUnsubscribedError":532}],106:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61299,7 +63250,7 @@ var InnerSubscriber = (function (_super) {
 }(Subscriber_1.Subscriber));
 exports.InnerSubscriber = InnerSubscriber;
 
-},{"./Subscriber":115}],106:[function(require,module,exports){
+},{"./Subscriber":116}],107:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('./Observable');
 /**
@@ -61427,7 +63378,7 @@ var Notification = (function () {
 }());
 exports.Notification = Notification;
 
-},{"./Observable":107}],107:[function(require,module,exports){
+},{"./Observable":108}],108:[function(require,module,exports){
 "use strict";
 var root_1 = require('./util/root');
 var toSubscriber_1 = require('./util/toSubscriber');
@@ -61733,7 +63684,7 @@ var Observable = (function () {
 }());
 exports.Observable = Observable;
 
-},{"./symbol/observable":517,"./util/pipe":549,"./util/root":550,"./util/toSubscriber":552}],108:[function(require,module,exports){
+},{"./symbol/observable":518,"./util/pipe":550,"./util/root":551,"./util/toSubscriber":553}],109:[function(require,module,exports){
 "use strict";
 exports.empty = {
     closed: true,
@@ -61742,7 +63693,7 @@ exports.empty = {
     complete: function () { }
 };
 
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61773,7 +63724,7 @@ var OuterSubscriber = (function (_super) {
 }(Subscriber_1.Subscriber));
 exports.OuterSubscriber = OuterSubscriber;
 
-},{"./Subscriber":115}],110:[function(require,module,exports){
+},{"./Subscriber":116}],111:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -61876,7 +63827,7 @@ var ReplayEvent = (function () {
     return ReplayEvent;
 }());
 
-},{"./Subject":113,"./SubjectSubscription":114,"./Subscription":116,"./operators/observeOn":450,"./scheduler/queue":515,"./util/ObjectUnsubscribedError":531}],111:[function(require,module,exports){
+},{"./Subject":114,"./SubjectSubscription":115,"./Subscription":117,"./operators/observeOn":451,"./scheduler/queue":516,"./util/ObjectUnsubscribedError":532}],112:[function(require,module,exports){
 "use strict";
 /* tslint:disable:no-unused-variable */
 // Subject imported before Observable to bypass circular dependency issue since
@@ -62110,7 +64061,7 @@ var Symbol = {
 };
 exports.Symbol = Symbol;
 
-},{"./AsyncSubject":103,"./BehaviorSubject":104,"./Notification":106,"./Observable":107,"./ReplaySubject":110,"./Subject":113,"./Subscriber":115,"./Subscription":116,"./add/observable/bindCallback":117,"./add/observable/bindNodeCallback":118,"./add/observable/combineLatest":119,"./add/observable/concat":120,"./add/observable/defer":121,"./add/observable/dom/ajax":122,"./add/observable/dom/webSocket":123,"./add/observable/empty":124,"./add/observable/forkJoin":125,"./add/observable/from":126,"./add/observable/fromEvent":127,"./add/observable/fromEventPattern":128,"./add/observable/fromPromise":129,"./add/observable/generate":130,"./add/observable/if":131,"./add/observable/interval":132,"./add/observable/merge":133,"./add/observable/never":134,"./add/observable/of":135,"./add/observable/onErrorResumeNext":136,"./add/observable/pairs":137,"./add/observable/race":138,"./add/observable/range":139,"./add/observable/throw":140,"./add/observable/timer":141,"./add/observable/using":142,"./add/observable/zip":143,"./add/operator/audit":144,"./add/operator/auditTime":145,"./add/operator/buffer":146,"./add/operator/bufferCount":147,"./add/operator/bufferTime":148,"./add/operator/bufferToggle":149,"./add/operator/bufferWhen":150,"./add/operator/catch":151,"./add/operator/combineAll":152,"./add/operator/combineLatest":153,"./add/operator/concat":154,"./add/operator/concatAll":155,"./add/operator/concatMap":156,"./add/operator/concatMapTo":157,"./add/operator/count":158,"./add/operator/debounce":159,"./add/operator/debounceTime":160,"./add/operator/defaultIfEmpty":161,"./add/operator/delay":162,"./add/operator/delayWhen":163,"./add/operator/dematerialize":164,"./add/operator/distinct":165,"./add/operator/distinctUntilChanged":166,"./add/operator/distinctUntilKeyChanged":167,"./add/operator/do":168,"./add/operator/elementAt":169,"./add/operator/every":170,"./add/operator/exhaust":171,"./add/operator/exhaustMap":172,"./add/operator/expand":173,"./add/operator/filter":174,"./add/operator/finally":175,"./add/operator/find":176,"./add/operator/findIndex":177,"./add/operator/first":178,"./add/operator/groupBy":179,"./add/operator/ignoreElements":180,"./add/operator/isEmpty":181,"./add/operator/last":182,"./add/operator/let":183,"./add/operator/map":184,"./add/operator/mapTo":185,"./add/operator/materialize":186,"./add/operator/max":187,"./add/operator/merge":188,"./add/operator/mergeAll":189,"./add/operator/mergeMap":190,"./add/operator/mergeMapTo":191,"./add/operator/mergeScan":192,"./add/operator/min":193,"./add/operator/multicast":194,"./add/operator/observeOn":195,"./add/operator/onErrorResumeNext":196,"./add/operator/pairwise":197,"./add/operator/partition":198,"./add/operator/pluck":199,"./add/operator/publish":200,"./add/operator/publishBehavior":201,"./add/operator/publishLast":202,"./add/operator/publishReplay":203,"./add/operator/race":204,"./add/operator/reduce":205,"./add/operator/repeat":206,"./add/operator/repeatWhen":207,"./add/operator/retry":208,"./add/operator/retryWhen":209,"./add/operator/sample":210,"./add/operator/sampleTime":211,"./add/operator/scan":212,"./add/operator/sequenceEqual":213,"./add/operator/share":214,"./add/operator/shareReplay":215,"./add/operator/single":216,"./add/operator/skip":217,"./add/operator/skipLast":218,"./add/operator/skipUntil":219,"./add/operator/skipWhile":220,"./add/operator/startWith":221,"./add/operator/subscribeOn":222,"./add/operator/switch":223,"./add/operator/switchMap":224,"./add/operator/switchMapTo":225,"./add/operator/take":226,"./add/operator/takeLast":227,"./add/operator/takeUntil":228,"./add/operator/takeWhile":229,"./add/operator/throttle":230,"./add/operator/throttleTime":231,"./add/operator/timeInterval":232,"./add/operator/timeout":233,"./add/operator/timeoutWith":234,"./add/operator/timestamp":235,"./add/operator/toArray":236,"./add/operator/toPromise":237,"./add/operator/window":238,"./add/operator/windowCount":239,"./add/operator/windowTime":240,"./add/operator/windowToggle":241,"./add/operator/windowWhen":242,"./add/operator/withLatestFrom":243,"./add/operator/zip":244,"./add/operator/zipAll":245,"./observable/ConnectableObservable":250,"./observable/dom/AjaxObservable":275,"./operator/timeInterval":387,"./operators":400,"./operators/timestamp":492,"./scheduler/VirtualTimeScheduler":511,"./scheduler/animationFrame":512,"./scheduler/asap":513,"./scheduler/async":514,"./scheduler/queue":515,"./symbol/iterator":516,"./symbol/observable":517,"./symbol/rxSubscriber":518,"./testing/TestScheduler":523,"./util/ArgumentOutOfRangeError":525,"./util/EmptyError":526,"./util/ObjectUnsubscribedError":531,"./util/TimeoutError":533,"./util/UnsubscriptionError":534,"./util/pipe":549}],112:[function(require,module,exports){
+},{"./AsyncSubject":104,"./BehaviorSubject":105,"./Notification":107,"./Observable":108,"./ReplaySubject":111,"./Subject":114,"./Subscriber":116,"./Subscription":117,"./add/observable/bindCallback":118,"./add/observable/bindNodeCallback":119,"./add/observable/combineLatest":120,"./add/observable/concat":121,"./add/observable/defer":122,"./add/observable/dom/ajax":123,"./add/observable/dom/webSocket":124,"./add/observable/empty":125,"./add/observable/forkJoin":126,"./add/observable/from":127,"./add/observable/fromEvent":128,"./add/observable/fromEventPattern":129,"./add/observable/fromPromise":130,"./add/observable/generate":131,"./add/observable/if":132,"./add/observable/interval":133,"./add/observable/merge":134,"./add/observable/never":135,"./add/observable/of":136,"./add/observable/onErrorResumeNext":137,"./add/observable/pairs":138,"./add/observable/race":139,"./add/observable/range":140,"./add/observable/throw":141,"./add/observable/timer":142,"./add/observable/using":143,"./add/observable/zip":144,"./add/operator/audit":145,"./add/operator/auditTime":146,"./add/operator/buffer":147,"./add/operator/bufferCount":148,"./add/operator/bufferTime":149,"./add/operator/bufferToggle":150,"./add/operator/bufferWhen":151,"./add/operator/catch":152,"./add/operator/combineAll":153,"./add/operator/combineLatest":154,"./add/operator/concat":155,"./add/operator/concatAll":156,"./add/operator/concatMap":157,"./add/operator/concatMapTo":158,"./add/operator/count":159,"./add/operator/debounce":160,"./add/operator/debounceTime":161,"./add/operator/defaultIfEmpty":162,"./add/operator/delay":163,"./add/operator/delayWhen":164,"./add/operator/dematerialize":165,"./add/operator/distinct":166,"./add/operator/distinctUntilChanged":167,"./add/operator/distinctUntilKeyChanged":168,"./add/operator/do":169,"./add/operator/elementAt":170,"./add/operator/every":171,"./add/operator/exhaust":172,"./add/operator/exhaustMap":173,"./add/operator/expand":174,"./add/operator/filter":175,"./add/operator/finally":176,"./add/operator/find":177,"./add/operator/findIndex":178,"./add/operator/first":179,"./add/operator/groupBy":180,"./add/operator/ignoreElements":181,"./add/operator/isEmpty":182,"./add/operator/last":183,"./add/operator/let":184,"./add/operator/map":185,"./add/operator/mapTo":186,"./add/operator/materialize":187,"./add/operator/max":188,"./add/operator/merge":189,"./add/operator/mergeAll":190,"./add/operator/mergeMap":191,"./add/operator/mergeMapTo":192,"./add/operator/mergeScan":193,"./add/operator/min":194,"./add/operator/multicast":195,"./add/operator/observeOn":196,"./add/operator/onErrorResumeNext":197,"./add/operator/pairwise":198,"./add/operator/partition":199,"./add/operator/pluck":200,"./add/operator/publish":201,"./add/operator/publishBehavior":202,"./add/operator/publishLast":203,"./add/operator/publishReplay":204,"./add/operator/race":205,"./add/operator/reduce":206,"./add/operator/repeat":207,"./add/operator/repeatWhen":208,"./add/operator/retry":209,"./add/operator/retryWhen":210,"./add/operator/sample":211,"./add/operator/sampleTime":212,"./add/operator/scan":213,"./add/operator/sequenceEqual":214,"./add/operator/share":215,"./add/operator/shareReplay":216,"./add/operator/single":217,"./add/operator/skip":218,"./add/operator/skipLast":219,"./add/operator/skipUntil":220,"./add/operator/skipWhile":221,"./add/operator/startWith":222,"./add/operator/subscribeOn":223,"./add/operator/switch":224,"./add/operator/switchMap":225,"./add/operator/switchMapTo":226,"./add/operator/take":227,"./add/operator/takeLast":228,"./add/operator/takeUntil":229,"./add/operator/takeWhile":230,"./add/operator/throttle":231,"./add/operator/throttleTime":232,"./add/operator/timeInterval":233,"./add/operator/timeout":234,"./add/operator/timeoutWith":235,"./add/operator/timestamp":236,"./add/operator/toArray":237,"./add/operator/toPromise":238,"./add/operator/window":239,"./add/operator/windowCount":240,"./add/operator/windowTime":241,"./add/operator/windowToggle":242,"./add/operator/windowWhen":243,"./add/operator/withLatestFrom":244,"./add/operator/zip":245,"./add/operator/zipAll":246,"./observable/ConnectableObservable":251,"./observable/dom/AjaxObservable":276,"./operator/timeInterval":388,"./operators":401,"./operators/timestamp":493,"./scheduler/VirtualTimeScheduler":512,"./scheduler/animationFrame":513,"./scheduler/asap":514,"./scheduler/async":515,"./scheduler/queue":516,"./symbol/iterator":517,"./symbol/observable":518,"./symbol/rxSubscriber":519,"./testing/TestScheduler":524,"./util/ArgumentOutOfRangeError":526,"./util/EmptyError":527,"./util/ObjectUnsubscribedError":532,"./util/TimeoutError":534,"./util/UnsubscriptionError":535,"./util/pipe":550}],113:[function(require,module,exports){
 "use strict";
 /**
  * An execution context and a data structure to order tasks and schedule their
@@ -62160,7 +64111,7 @@ var Scheduler = (function () {
 }());
 exports.Scheduler = Scheduler;
 
-},{}],113:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -62329,7 +64280,7 @@ var AnonymousSubject = (function (_super) {
 }(Subject));
 exports.AnonymousSubject = AnonymousSubject;
 
-},{"./Observable":107,"./SubjectSubscription":114,"./Subscriber":115,"./Subscription":116,"./symbol/rxSubscriber":518,"./util/ObjectUnsubscribedError":531}],114:[function(require,module,exports){
+},{"./Observable":108,"./SubjectSubscription":115,"./Subscriber":116,"./Subscription":117,"./symbol/rxSubscriber":519,"./util/ObjectUnsubscribedError":532}],115:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -62370,7 +64321,7 @@ var SubjectSubscription = (function (_super) {
 }(Subscription_1.Subscription));
 exports.SubjectSubscription = SubjectSubscription;
 
-},{"./Subscription":116}],115:[function(require,module,exports){
+},{"./Subscription":117}],116:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -62642,7 +64593,7 @@ function isTrustedSubscriber(obj) {
     return obj instanceof Subscriber || ('syncErrorThrowable' in obj && obj[rxSubscriber_1.rxSubscriber]);
 }
 
-},{"./Observer":108,"./Subscription":116,"./symbol/rxSubscriber":518,"./util/isFunction":542}],116:[function(require,module,exports){
+},{"./Observer":109,"./Subscription":117,"./symbol/rxSubscriber":519,"./util/isFunction":543}],117:[function(require,module,exports){
 "use strict";
 var isArray_1 = require('./util/isArray');
 var isObject_1 = require('./util/isObject');
@@ -62836,786 +64787,786 @@ function flattenUnsubscriptionErrors(errors) {
     return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError_1.UnsubscriptionError) ? err.errors : err); }, []);
 }
 
-},{"./util/UnsubscriptionError":534,"./util/errorObject":537,"./util/isArray":539,"./util/isFunction":542,"./util/isObject":544,"./util/tryCatch":553}],117:[function(require,module,exports){
+},{"./util/UnsubscriptionError":535,"./util/errorObject":538,"./util/isArray":540,"./util/isFunction":543,"./util/isObject":545,"./util/tryCatch":554}],118:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var bindCallback_1 = require('../../observable/bindCallback');
 Observable_1.Observable.bindCallback = bindCallback_1.bindCallback;
 
-},{"../../Observable":107,"../../observable/bindCallback":270}],118:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/bindCallback":271}],119:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var bindNodeCallback_1 = require('../../observable/bindNodeCallback');
 Observable_1.Observable.bindNodeCallback = bindNodeCallback_1.bindNodeCallback;
 
-},{"../../Observable":107,"../../observable/bindNodeCallback":271}],119:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/bindNodeCallback":272}],120:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var combineLatest_1 = require('../../observable/combineLatest');
 Observable_1.Observable.combineLatest = combineLatest_1.combineLatest;
 
-},{"../../Observable":107,"../../observable/combineLatest":272}],120:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/combineLatest":273}],121:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var concat_1 = require('../../observable/concat');
 Observable_1.Observable.concat = concat_1.concat;
 
-},{"../../Observable":107,"../../observable/concat":273}],121:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/concat":274}],122:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var defer_1 = require('../../observable/defer');
 Observable_1.Observable.defer = defer_1.defer;
 
-},{"../../Observable":107,"../../observable/defer":274}],122:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/defer":275}],123:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../../Observable');
 var ajax_1 = require('../../../observable/dom/ajax');
 Observable_1.Observable.ajax = ajax_1.ajax;
 
-},{"../../../Observable":107,"../../../observable/dom/ajax":277}],123:[function(require,module,exports){
+},{"../../../Observable":108,"../../../observable/dom/ajax":278}],124:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../../Observable');
 var webSocket_1 = require('../../../observable/dom/webSocket');
 Observable_1.Observable.webSocket = webSocket_1.webSocket;
 
-},{"../../../Observable":107,"../../../observable/dom/webSocket":278}],124:[function(require,module,exports){
+},{"../../../Observable":108,"../../../observable/dom/webSocket":279}],125:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var empty_1 = require('../../observable/empty');
 Observable_1.Observable.empty = empty_1.empty;
 
-},{"../../Observable":107,"../../observable/empty":279}],125:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/empty":280}],126:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var forkJoin_1 = require('../../observable/forkJoin');
 Observable_1.Observable.forkJoin = forkJoin_1.forkJoin;
 
-},{"../../Observable":107,"../../observable/forkJoin":280}],126:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/forkJoin":281}],127:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var from_1 = require('../../observable/from');
 Observable_1.Observable.from = from_1.from;
 
-},{"../../Observable":107,"../../observable/from":281}],127:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/from":282}],128:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var fromEvent_1 = require('../../observable/fromEvent');
 Observable_1.Observable.fromEvent = fromEvent_1.fromEvent;
 
-},{"../../Observable":107,"../../observable/fromEvent":282}],128:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/fromEvent":283}],129:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var fromEventPattern_1 = require('../../observable/fromEventPattern');
 Observable_1.Observable.fromEventPattern = fromEventPattern_1.fromEventPattern;
 
-},{"../../Observable":107,"../../observable/fromEventPattern":283}],129:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/fromEventPattern":284}],130:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var fromPromise_1 = require('../../observable/fromPromise');
 Observable_1.Observable.fromPromise = fromPromise_1.fromPromise;
 
-},{"../../Observable":107,"../../observable/fromPromise":284}],130:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/fromPromise":285}],131:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var generate_1 = require('../../observable/generate');
 Observable_1.Observable.generate = generate_1.generate;
 
-},{"../../Observable":107,"../../observable/generate":285}],131:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/generate":286}],132:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var if_1 = require('../../observable/if');
 Observable_1.Observable.if = if_1._if;
 
-},{"../../Observable":107,"../../observable/if":286}],132:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/if":287}],133:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var interval_1 = require('../../observable/interval');
 Observable_1.Observable.interval = interval_1.interval;
 
-},{"../../Observable":107,"../../observable/interval":287}],133:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/interval":288}],134:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var merge_1 = require('../../observable/merge');
 Observable_1.Observable.merge = merge_1.merge;
 
-},{"../../Observable":107,"../../observable/merge":288}],134:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/merge":289}],135:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var never_1 = require('../../observable/never');
 Observable_1.Observable.never = never_1.never;
 
-},{"../../Observable":107,"../../observable/never":289}],135:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/never":290}],136:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var of_1 = require('../../observable/of');
 Observable_1.Observable.of = of_1.of;
 
-},{"../../Observable":107,"../../observable/of":290}],136:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/of":291}],137:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var onErrorResumeNext_1 = require('../../observable/onErrorResumeNext');
 Observable_1.Observable.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNext;
 
-},{"../../Observable":107,"../../observable/onErrorResumeNext":291}],137:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/onErrorResumeNext":292}],138:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var pairs_1 = require('../../observable/pairs');
 Observable_1.Observable.pairs = pairs_1.pairs;
 
-},{"../../Observable":107,"../../observable/pairs":292}],138:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/pairs":293}],139:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var race_1 = require('../../observable/race');
 Observable_1.Observable.race = race_1.race;
 
-},{"../../Observable":107,"../../observable/race":293}],139:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/race":294}],140:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var range_1 = require('../../observable/range');
 Observable_1.Observable.range = range_1.range;
 
-},{"../../Observable":107,"../../observable/range":294}],140:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/range":295}],141:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var throw_1 = require('../../observable/throw');
 Observable_1.Observable.throw = throw_1._throw;
 
-},{"../../Observable":107,"../../observable/throw":295}],141:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/throw":296}],142:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var timer_1 = require('../../observable/timer');
 Observable_1.Observable.timer = timer_1.timer;
 
-},{"../../Observable":107,"../../observable/timer":296}],142:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/timer":297}],143:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var using_1 = require('../../observable/using');
 Observable_1.Observable.using = using_1.using;
 
-},{"../../Observable":107,"../../observable/using":297}],143:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/using":298}],144:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var zip_1 = require('../../observable/zip');
 Observable_1.Observable.zip = zip_1.zip;
 
-},{"../../Observable":107,"../../observable/zip":298}],144:[function(require,module,exports){
+},{"../../Observable":108,"../../observable/zip":299}],145:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var audit_1 = require('../../operator/audit');
 Observable_1.Observable.prototype.audit = audit_1.audit;
 
-},{"../../Observable":107,"../../operator/audit":299}],145:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/audit":300}],146:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var auditTime_1 = require('../../operator/auditTime');
 Observable_1.Observable.prototype.auditTime = auditTime_1.auditTime;
 
-},{"../../Observable":107,"../../operator/auditTime":300}],146:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/auditTime":301}],147:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var buffer_1 = require('../../operator/buffer');
 Observable_1.Observable.prototype.buffer = buffer_1.buffer;
 
-},{"../../Observable":107,"../../operator/buffer":301}],147:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/buffer":302}],148:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferCount_1 = require('../../operator/bufferCount');
 Observable_1.Observable.prototype.bufferCount = bufferCount_1.bufferCount;
 
-},{"../../Observable":107,"../../operator/bufferCount":302}],148:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/bufferCount":303}],149:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferTime_1 = require('../../operator/bufferTime');
 Observable_1.Observable.prototype.bufferTime = bufferTime_1.bufferTime;
 
-},{"../../Observable":107,"../../operator/bufferTime":303}],149:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/bufferTime":304}],150:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferToggle_1 = require('../../operator/bufferToggle');
 Observable_1.Observable.prototype.bufferToggle = bufferToggle_1.bufferToggle;
 
-},{"../../Observable":107,"../../operator/bufferToggle":304}],150:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/bufferToggle":305}],151:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var bufferWhen_1 = require('../../operator/bufferWhen');
 Observable_1.Observable.prototype.bufferWhen = bufferWhen_1.bufferWhen;
 
-},{"../../Observable":107,"../../operator/bufferWhen":305}],151:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/bufferWhen":306}],152:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var catch_1 = require('../../operator/catch');
 Observable_1.Observable.prototype.catch = catch_1._catch;
 Observable_1.Observable.prototype._catch = catch_1._catch;
 
-},{"../../Observable":107,"../../operator/catch":306}],152:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/catch":307}],153:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var combineAll_1 = require('../../operator/combineAll');
 Observable_1.Observable.prototype.combineAll = combineAll_1.combineAll;
 
-},{"../../Observable":107,"../../operator/combineAll":307}],153:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/combineAll":308}],154:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var combineLatest_1 = require('../../operator/combineLatest');
 Observable_1.Observable.prototype.combineLatest = combineLatest_1.combineLatest;
 
-},{"../../Observable":107,"../../operator/combineLatest":308}],154:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/combineLatest":309}],155:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var concat_1 = require('../../operator/concat');
 Observable_1.Observable.prototype.concat = concat_1.concat;
 
-},{"../../Observable":107,"../../operator/concat":309}],155:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/concat":310}],156:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var concatAll_1 = require('../../operator/concatAll');
 Observable_1.Observable.prototype.concatAll = concatAll_1.concatAll;
 
-},{"../../Observable":107,"../../operator/concatAll":310}],156:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/concatAll":311}],157:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var concatMap_1 = require('../../operator/concatMap');
 Observable_1.Observable.prototype.concatMap = concatMap_1.concatMap;
 
-},{"../../Observable":107,"../../operator/concatMap":311}],157:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/concatMap":312}],158:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var concatMapTo_1 = require('../../operator/concatMapTo');
 Observable_1.Observable.prototype.concatMapTo = concatMapTo_1.concatMapTo;
 
-},{"../../Observable":107,"../../operator/concatMapTo":312}],158:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/concatMapTo":313}],159:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var count_1 = require('../../operator/count');
 Observable_1.Observable.prototype.count = count_1.count;
 
-},{"../../Observable":107,"../../operator/count":313}],159:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/count":314}],160:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var debounce_1 = require('../../operator/debounce');
 Observable_1.Observable.prototype.debounce = debounce_1.debounce;
 
-},{"../../Observable":107,"../../operator/debounce":314}],160:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/debounce":315}],161:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var debounceTime_1 = require('../../operator/debounceTime');
 Observable_1.Observable.prototype.debounceTime = debounceTime_1.debounceTime;
 
-},{"../../Observable":107,"../../operator/debounceTime":315}],161:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/debounceTime":316}],162:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var defaultIfEmpty_1 = require('../../operator/defaultIfEmpty');
 Observable_1.Observable.prototype.defaultIfEmpty = defaultIfEmpty_1.defaultIfEmpty;
 
-},{"../../Observable":107,"../../operator/defaultIfEmpty":316}],162:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/defaultIfEmpty":317}],163:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var delay_1 = require('../../operator/delay');
 Observable_1.Observable.prototype.delay = delay_1.delay;
 
-},{"../../Observable":107,"../../operator/delay":317}],163:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/delay":318}],164:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var delayWhen_1 = require('../../operator/delayWhen');
 Observable_1.Observable.prototype.delayWhen = delayWhen_1.delayWhen;
 
-},{"../../Observable":107,"../../operator/delayWhen":318}],164:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/delayWhen":319}],165:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var dematerialize_1 = require('../../operator/dematerialize');
 Observable_1.Observable.prototype.dematerialize = dematerialize_1.dematerialize;
 
-},{"../../Observable":107,"../../operator/dematerialize":319}],165:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/dematerialize":320}],166:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var distinct_1 = require('../../operator/distinct');
 Observable_1.Observable.prototype.distinct = distinct_1.distinct;
 
-},{"../../Observable":107,"../../operator/distinct":320}],166:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/distinct":321}],167:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var distinctUntilChanged_1 = require('../../operator/distinctUntilChanged');
 Observable_1.Observable.prototype.distinctUntilChanged = distinctUntilChanged_1.distinctUntilChanged;
 
-},{"../../Observable":107,"../../operator/distinctUntilChanged":321}],167:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/distinctUntilChanged":322}],168:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var distinctUntilKeyChanged_1 = require('../../operator/distinctUntilKeyChanged');
 Observable_1.Observable.prototype.distinctUntilKeyChanged = distinctUntilKeyChanged_1.distinctUntilKeyChanged;
 
-},{"../../Observable":107,"../../operator/distinctUntilKeyChanged":322}],168:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/distinctUntilKeyChanged":323}],169:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var do_1 = require('../../operator/do');
 Observable_1.Observable.prototype.do = do_1._do;
 Observable_1.Observable.prototype._do = do_1._do;
 
-},{"../../Observable":107,"../../operator/do":323}],169:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/do":324}],170:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var elementAt_1 = require('../../operator/elementAt');
 Observable_1.Observable.prototype.elementAt = elementAt_1.elementAt;
 
-},{"../../Observable":107,"../../operator/elementAt":324}],170:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/elementAt":325}],171:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var every_1 = require('../../operator/every');
 Observable_1.Observable.prototype.every = every_1.every;
 
-},{"../../Observable":107,"../../operator/every":325}],171:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/every":326}],172:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var exhaust_1 = require('../../operator/exhaust');
 Observable_1.Observable.prototype.exhaust = exhaust_1.exhaust;
 
-},{"../../Observable":107,"../../operator/exhaust":326}],172:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/exhaust":327}],173:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var exhaustMap_1 = require('../../operator/exhaustMap');
 Observable_1.Observable.prototype.exhaustMap = exhaustMap_1.exhaustMap;
 
-},{"../../Observable":107,"../../operator/exhaustMap":327}],173:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/exhaustMap":328}],174:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var expand_1 = require('../../operator/expand');
 Observable_1.Observable.prototype.expand = expand_1.expand;
 
-},{"../../Observable":107,"../../operator/expand":328}],174:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/expand":329}],175:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var filter_1 = require('../../operator/filter');
 Observable_1.Observable.prototype.filter = filter_1.filter;
 
-},{"../../Observable":107,"../../operator/filter":329}],175:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/filter":330}],176:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var finally_1 = require('../../operator/finally');
 Observable_1.Observable.prototype.finally = finally_1._finally;
 Observable_1.Observable.prototype._finally = finally_1._finally;
 
-},{"../../Observable":107,"../../operator/finally":330}],176:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/finally":331}],177:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var find_1 = require('../../operator/find');
 Observable_1.Observable.prototype.find = find_1.find;
 
-},{"../../Observable":107,"../../operator/find":331}],177:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/find":332}],178:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var findIndex_1 = require('../../operator/findIndex');
 Observable_1.Observable.prototype.findIndex = findIndex_1.findIndex;
 
-},{"../../Observable":107,"../../operator/findIndex":332}],178:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/findIndex":333}],179:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var first_1 = require('../../operator/first');
 Observable_1.Observable.prototype.first = first_1.first;
 
-},{"../../Observable":107,"../../operator/first":333}],179:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/first":334}],180:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var groupBy_1 = require('../../operator/groupBy');
 Observable_1.Observable.prototype.groupBy = groupBy_1.groupBy;
 
-},{"../../Observable":107,"../../operator/groupBy":334}],180:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/groupBy":335}],181:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var ignoreElements_1 = require('../../operator/ignoreElements');
 Observable_1.Observable.prototype.ignoreElements = ignoreElements_1.ignoreElements;
 
-},{"../../Observable":107,"../../operator/ignoreElements":335}],181:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/ignoreElements":336}],182:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var isEmpty_1 = require('../../operator/isEmpty');
 Observable_1.Observable.prototype.isEmpty = isEmpty_1.isEmpty;
 
-},{"../../Observable":107,"../../operator/isEmpty":336}],182:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/isEmpty":337}],183:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var last_1 = require('../../operator/last');
 Observable_1.Observable.prototype.last = last_1.last;
 
-},{"../../Observable":107,"../../operator/last":337}],183:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/last":338}],184:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var let_1 = require('../../operator/let');
 Observable_1.Observable.prototype.let = let_1.letProto;
 Observable_1.Observable.prototype.letBind = let_1.letProto;
 
-},{"../../Observable":107,"../../operator/let":338}],184:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/let":339}],185:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var map_1 = require('../../operator/map');
 Observable_1.Observable.prototype.map = map_1.map;
 
-},{"../../Observable":107,"../../operator/map":339}],185:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/map":340}],186:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var mapTo_1 = require('../../operator/mapTo');
 Observable_1.Observable.prototype.mapTo = mapTo_1.mapTo;
 
-},{"../../Observable":107,"../../operator/mapTo":340}],186:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/mapTo":341}],187:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var materialize_1 = require('../../operator/materialize');
 Observable_1.Observable.prototype.materialize = materialize_1.materialize;
 
-},{"../../Observable":107,"../../operator/materialize":341}],187:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/materialize":342}],188:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var max_1 = require('../../operator/max');
 Observable_1.Observable.prototype.max = max_1.max;
 
-},{"../../Observable":107,"../../operator/max":342}],188:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/max":343}],189:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var merge_1 = require('../../operator/merge');
 Observable_1.Observable.prototype.merge = merge_1.merge;
 
-},{"../../Observable":107,"../../operator/merge":343}],189:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/merge":344}],190:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeAll_1 = require('../../operator/mergeAll');
 Observable_1.Observable.prototype.mergeAll = mergeAll_1.mergeAll;
 
-},{"../../Observable":107,"../../operator/mergeAll":344}],190:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/mergeAll":345}],191:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeMap_1 = require('../../operator/mergeMap');
 Observable_1.Observable.prototype.mergeMap = mergeMap_1.mergeMap;
 Observable_1.Observable.prototype.flatMap = mergeMap_1.mergeMap;
 
-},{"../../Observable":107,"../../operator/mergeMap":345}],191:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/mergeMap":346}],192:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeMapTo_1 = require('../../operator/mergeMapTo');
 Observable_1.Observable.prototype.flatMapTo = mergeMapTo_1.mergeMapTo;
 Observable_1.Observable.prototype.mergeMapTo = mergeMapTo_1.mergeMapTo;
 
-},{"../../Observable":107,"../../operator/mergeMapTo":346}],192:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/mergeMapTo":347}],193:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var mergeScan_1 = require('../../operator/mergeScan');
 Observable_1.Observable.prototype.mergeScan = mergeScan_1.mergeScan;
 
-},{"../../Observable":107,"../../operator/mergeScan":347}],193:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/mergeScan":348}],194:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var min_1 = require('../../operator/min');
 Observable_1.Observable.prototype.min = min_1.min;
 
-},{"../../Observable":107,"../../operator/min":348}],194:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/min":349}],195:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var multicast_1 = require('../../operator/multicast');
 Observable_1.Observable.prototype.multicast = multicast_1.multicast;
 
-},{"../../Observable":107,"../../operator/multicast":349}],195:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/multicast":350}],196:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var observeOn_1 = require('../../operator/observeOn');
 Observable_1.Observable.prototype.observeOn = observeOn_1.observeOn;
 
-},{"../../Observable":107,"../../operator/observeOn":350}],196:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/observeOn":351}],197:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var onErrorResumeNext_1 = require('../../operator/onErrorResumeNext');
 Observable_1.Observable.prototype.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNext;
 
-},{"../../Observable":107,"../../operator/onErrorResumeNext":351}],197:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/onErrorResumeNext":352}],198:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var pairwise_1 = require('../../operator/pairwise');
 Observable_1.Observable.prototype.pairwise = pairwise_1.pairwise;
 
-},{"../../Observable":107,"../../operator/pairwise":352}],198:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/pairwise":353}],199:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var partition_1 = require('../../operator/partition');
 Observable_1.Observable.prototype.partition = partition_1.partition;
 
-},{"../../Observable":107,"../../operator/partition":353}],199:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/partition":354}],200:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var pluck_1 = require('../../operator/pluck');
 Observable_1.Observable.prototype.pluck = pluck_1.pluck;
 
-},{"../../Observable":107,"../../operator/pluck":354}],200:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/pluck":355}],201:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var publish_1 = require('../../operator/publish');
 Observable_1.Observable.prototype.publish = publish_1.publish;
 
-},{"../../Observable":107,"../../operator/publish":355}],201:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/publish":356}],202:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var publishBehavior_1 = require('../../operator/publishBehavior');
 Observable_1.Observable.prototype.publishBehavior = publishBehavior_1.publishBehavior;
 
-},{"../../Observable":107,"../../operator/publishBehavior":356}],202:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/publishBehavior":357}],203:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var publishLast_1 = require('../../operator/publishLast');
 Observable_1.Observable.prototype.publishLast = publishLast_1.publishLast;
 
-},{"../../Observable":107,"../../operator/publishLast":357}],203:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/publishLast":358}],204:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var publishReplay_1 = require('../../operator/publishReplay');
 Observable_1.Observable.prototype.publishReplay = publishReplay_1.publishReplay;
 
-},{"../../Observable":107,"../../operator/publishReplay":358}],204:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/publishReplay":359}],205:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var race_1 = require('../../operator/race');
 Observable_1.Observable.prototype.race = race_1.race;
 
-},{"../../Observable":107,"../../operator/race":359}],205:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/race":360}],206:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var reduce_1 = require('../../operator/reduce');
 Observable_1.Observable.prototype.reduce = reduce_1.reduce;
 
-},{"../../Observable":107,"../../operator/reduce":360}],206:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/reduce":361}],207:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var repeat_1 = require('../../operator/repeat');
 Observable_1.Observable.prototype.repeat = repeat_1.repeat;
 
-},{"../../Observable":107,"../../operator/repeat":361}],207:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/repeat":362}],208:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var repeatWhen_1 = require('../../operator/repeatWhen');
 Observable_1.Observable.prototype.repeatWhen = repeatWhen_1.repeatWhen;
 
-},{"../../Observable":107,"../../operator/repeatWhen":362}],208:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/repeatWhen":363}],209:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var retry_1 = require('../../operator/retry');
 Observable_1.Observable.prototype.retry = retry_1.retry;
 
-},{"../../Observable":107,"../../operator/retry":363}],209:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/retry":364}],210:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var retryWhen_1 = require('../../operator/retryWhen');
 Observable_1.Observable.prototype.retryWhen = retryWhen_1.retryWhen;
 
-},{"../../Observable":107,"../../operator/retryWhen":364}],210:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/retryWhen":365}],211:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var sample_1 = require('../../operator/sample');
 Observable_1.Observable.prototype.sample = sample_1.sample;
 
-},{"../../Observable":107,"../../operator/sample":365}],211:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/sample":366}],212:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var sampleTime_1 = require('../../operator/sampleTime');
 Observable_1.Observable.prototype.sampleTime = sampleTime_1.sampleTime;
 
-},{"../../Observable":107,"../../operator/sampleTime":366}],212:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/sampleTime":367}],213:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var scan_1 = require('../../operator/scan');
 Observable_1.Observable.prototype.scan = scan_1.scan;
 
-},{"../../Observable":107,"../../operator/scan":367}],213:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/scan":368}],214:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var sequenceEqual_1 = require('../../operator/sequenceEqual');
 Observable_1.Observable.prototype.sequenceEqual = sequenceEqual_1.sequenceEqual;
 
-},{"../../Observable":107,"../../operator/sequenceEqual":368}],214:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/sequenceEqual":369}],215:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var share_1 = require('../../operator/share');
 Observable_1.Observable.prototype.share = share_1.share;
 
-},{"../../Observable":107,"../../operator/share":369}],215:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/share":370}],216:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var shareReplay_1 = require('../../operator/shareReplay');
 Observable_1.Observable.prototype.shareReplay = shareReplay_1.shareReplay;
 
-},{"../../Observable":107,"../../operator/shareReplay":370}],216:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/shareReplay":371}],217:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var single_1 = require('../../operator/single');
 Observable_1.Observable.prototype.single = single_1.single;
 
-},{"../../Observable":107,"../../operator/single":371}],217:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/single":372}],218:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var skip_1 = require('../../operator/skip');
 Observable_1.Observable.prototype.skip = skip_1.skip;
 
-},{"../../Observable":107,"../../operator/skip":372}],218:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/skip":373}],219:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var skipLast_1 = require('../../operator/skipLast');
 Observable_1.Observable.prototype.skipLast = skipLast_1.skipLast;
 
-},{"../../Observable":107,"../../operator/skipLast":373}],219:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/skipLast":374}],220:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var skipUntil_1 = require('../../operator/skipUntil');
 Observable_1.Observable.prototype.skipUntil = skipUntil_1.skipUntil;
 
-},{"../../Observable":107,"../../operator/skipUntil":374}],220:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/skipUntil":375}],221:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var skipWhile_1 = require('../../operator/skipWhile');
 Observable_1.Observable.prototype.skipWhile = skipWhile_1.skipWhile;
 
-},{"../../Observable":107,"../../operator/skipWhile":375}],221:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/skipWhile":376}],222:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var startWith_1 = require('../../operator/startWith');
 Observable_1.Observable.prototype.startWith = startWith_1.startWith;
 
-},{"../../Observable":107,"../../operator/startWith":376}],222:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/startWith":377}],223:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var subscribeOn_1 = require('../../operator/subscribeOn');
 Observable_1.Observable.prototype.subscribeOn = subscribeOn_1.subscribeOn;
 
-},{"../../Observable":107,"../../operator/subscribeOn":377}],223:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/subscribeOn":378}],224:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var switch_1 = require('../../operator/switch');
 Observable_1.Observable.prototype.switch = switch_1._switch;
 Observable_1.Observable.prototype._switch = switch_1._switch;
 
-},{"../../Observable":107,"../../operator/switch":378}],224:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/switch":379}],225:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var switchMap_1 = require('../../operator/switchMap');
 Observable_1.Observable.prototype.switchMap = switchMap_1.switchMap;
 
-},{"../../Observable":107,"../../operator/switchMap":379}],225:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/switchMap":380}],226:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var switchMapTo_1 = require('../../operator/switchMapTo');
 Observable_1.Observable.prototype.switchMapTo = switchMapTo_1.switchMapTo;
 
-},{"../../Observable":107,"../../operator/switchMapTo":380}],226:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/switchMapTo":381}],227:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var take_1 = require('../../operator/take');
 Observable_1.Observable.prototype.take = take_1.take;
 
-},{"../../Observable":107,"../../operator/take":381}],227:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/take":382}],228:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var takeLast_1 = require('../../operator/takeLast');
 Observable_1.Observable.prototype.takeLast = takeLast_1.takeLast;
 
-},{"../../Observable":107,"../../operator/takeLast":382}],228:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/takeLast":383}],229:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var takeUntil_1 = require('../../operator/takeUntil');
 Observable_1.Observable.prototype.takeUntil = takeUntil_1.takeUntil;
 
-},{"../../Observable":107,"../../operator/takeUntil":383}],229:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/takeUntil":384}],230:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var takeWhile_1 = require('../../operator/takeWhile');
 Observable_1.Observable.prototype.takeWhile = takeWhile_1.takeWhile;
 
-},{"../../Observable":107,"../../operator/takeWhile":384}],230:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/takeWhile":385}],231:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var throttle_1 = require('../../operator/throttle');
 Observable_1.Observable.prototype.throttle = throttle_1.throttle;
 
-},{"../../Observable":107,"../../operator/throttle":385}],231:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/throttle":386}],232:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var throttleTime_1 = require('../../operator/throttleTime');
 Observable_1.Observable.prototype.throttleTime = throttleTime_1.throttleTime;
 
-},{"../../Observable":107,"../../operator/throttleTime":386}],232:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/throttleTime":387}],233:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var timeInterval_1 = require('../../operator/timeInterval');
 Observable_1.Observable.prototype.timeInterval = timeInterval_1.timeInterval;
 
-},{"../../Observable":107,"../../operator/timeInterval":387}],233:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/timeInterval":388}],234:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var timeout_1 = require('../../operator/timeout');
 Observable_1.Observable.prototype.timeout = timeout_1.timeout;
 
-},{"../../Observable":107,"../../operator/timeout":388}],234:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/timeout":389}],235:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var timeoutWith_1 = require('../../operator/timeoutWith');
 Observable_1.Observable.prototype.timeoutWith = timeoutWith_1.timeoutWith;
 
-},{"../../Observable":107,"../../operator/timeoutWith":389}],235:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/timeoutWith":390}],236:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var timestamp_1 = require('../../operator/timestamp');
 Observable_1.Observable.prototype.timestamp = timestamp_1.timestamp;
 
-},{"../../Observable":107,"../../operator/timestamp":390}],236:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/timestamp":391}],237:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var toArray_1 = require('../../operator/toArray');
 Observable_1.Observable.prototype.toArray = toArray_1.toArray;
 
-},{"../../Observable":107,"../../operator/toArray":391}],237:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/toArray":392}],238:[function(require,module,exports){
 // HACK: does nothing, because `toPromise` now lives on the `Observable` itself.
 // leaving this module here to prevent breakage.
 
-},{}],238:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var window_1 = require('../../operator/window');
 Observable_1.Observable.prototype.window = window_1.window;
 
-},{"../../Observable":107,"../../operator/window":392}],239:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/window":393}],240:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowCount_1 = require('../../operator/windowCount');
 Observable_1.Observable.prototype.windowCount = windowCount_1.windowCount;
 
-},{"../../Observable":107,"../../operator/windowCount":393}],240:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/windowCount":394}],241:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowTime_1 = require('../../operator/windowTime');
 Observable_1.Observable.prototype.windowTime = windowTime_1.windowTime;
 
-},{"../../Observable":107,"../../operator/windowTime":394}],241:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/windowTime":395}],242:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowToggle_1 = require('../../operator/windowToggle');
 Observable_1.Observable.prototype.windowToggle = windowToggle_1.windowToggle;
 
-},{"../../Observable":107,"../../operator/windowToggle":395}],242:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/windowToggle":396}],243:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var windowWhen_1 = require('../../operator/windowWhen');
 Observable_1.Observable.prototype.windowWhen = windowWhen_1.windowWhen;
 
-},{"../../Observable":107,"../../operator/windowWhen":396}],243:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/windowWhen":397}],244:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var withLatestFrom_1 = require('../../operator/withLatestFrom');
 Observable_1.Observable.prototype.withLatestFrom = withLatestFrom_1.withLatestFrom;
 
-},{"../../Observable":107,"../../operator/withLatestFrom":397}],244:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/withLatestFrom":398}],245:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var zip_1 = require('../../operator/zip');
 Observable_1.Observable.prototype.zip = zip_1.zipProto;
 
-},{"../../Observable":107,"../../operator/zip":398}],245:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/zip":399}],246:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../../Observable');
 var zipAll_1 = require('../../operator/zipAll');
 Observable_1.Observable.prototype.zipAll = zipAll_1.zipAll;
 
-},{"../../Observable":107,"../../operator/zipAll":399}],246:[function(require,module,exports){
+},{"../../Observable":108,"../../operator/zipAll":400}],247:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -63686,7 +65637,7 @@ var ArrayLikeObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ArrayLikeObservable = ArrayLikeObservable;
 
-},{"../Observable":107,"./EmptyObservable":252,"./ScalarObservable":266}],247:[function(require,module,exports){
+},{"../Observable":108,"./EmptyObservable":253,"./ScalarObservable":267}],248:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -63809,7 +65760,7 @@ var ArrayObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ArrayObservable = ArrayObservable;
 
-},{"../Observable":107,"../util/isScheduler":546,"./EmptyObservable":252,"./ScalarObservable":266}],248:[function(require,module,exports){
+},{"../Observable":108,"../util/isScheduler":547,"./EmptyObservable":253,"./ScalarObservable":267}],249:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64074,7 +66025,7 @@ function dispatchError(arg) {
     subject.error(err);
 }
 
-},{"../AsyncSubject":103,"../Observable":107,"../util/errorObject":537,"../util/tryCatch":553}],249:[function(require,module,exports){
+},{"../AsyncSubject":104,"../Observable":108,"../util/errorObject":538,"../util/tryCatch":554}],250:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64338,7 +66289,7 @@ function dispatchError(arg) {
     subject.error(err);
 }
 
-},{"../AsyncSubject":103,"../Observable":107,"../util/errorObject":537,"../util/tryCatch":553}],250:[function(require,module,exports){
+},{"../AsyncSubject":104,"../Observable":108,"../util/errorObject":538,"../util/tryCatch":554}],251:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64510,7 +66461,7 @@ var RefCountSubscriber = (function (_super) {
     return RefCountSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Observable":107,"../Subject":113,"../Subscriber":115,"../Subscription":116,"../operators/refCount":461}],251:[function(require,module,exports){
+},{"../Observable":108,"../Subject":114,"../Subscriber":116,"../Subscription":117,"../operators/refCount":462}],252:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64610,7 +66561,7 @@ var DeferSubscriber = (function (_super) {
     return DeferSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../Observable":107,"../OuterSubscriber":109,"../util/subscribeToResult":551}],252:[function(require,module,exports){
+},{"../Observable":108,"../OuterSubscriber":110,"../util/subscribeToResult":552}],253:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64692,7 +66643,7 @@ var EmptyObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.EmptyObservable = EmptyObservable;
 
-},{"../Observable":107}],253:[function(require,module,exports){
+},{"../Observable":108}],254:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64776,7 +66727,7 @@ var ErrorObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ErrorObservable = ErrorObservable;
 
-},{"../Observable":107}],254:[function(require,module,exports){
+},{"../Observable":108}],255:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -64979,7 +66930,7 @@ var ForkJoinSubscriber = (function (_super) {
     return ForkJoinSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../Observable":107,"../OuterSubscriber":109,"../util/isArray":539,"../util/subscribeToResult":551,"./EmptyObservable":252}],255:[function(require,module,exports){
+},{"../Observable":108,"../OuterSubscriber":110,"../util/isArray":540,"../util/subscribeToResult":552,"./EmptyObservable":253}],256:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65196,7 +67147,7 @@ var FromEventObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.FromEventObservable = FromEventObservable;
 
-},{"../Observable":107,"../Subscription":116,"../util/errorObject":537,"../util/isFunction":542,"../util/tryCatch":553}],256:[function(require,module,exports){
+},{"../Observable":108,"../Subscription":117,"../util/errorObject":538,"../util/isFunction":543,"../util/tryCatch":554}],257:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65310,7 +67261,7 @@ var FromEventPatternObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.FromEventPatternObservable = FromEventPatternObservable;
 
-},{"../Observable":107,"../Subscription":116,"../util/isFunction":542}],257:[function(require,module,exports){
+},{"../Observable":108,"../Subscription":117,"../util/isFunction":543}],258:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65433,7 +67384,7 @@ var FromObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.FromObservable = FromObservable;
 
-},{"../Observable":107,"../operators/observeOn":450,"../symbol/iterator":516,"../symbol/observable":517,"../util/isArray":539,"../util/isArrayLike":540,"../util/isPromise":545,"./ArrayLikeObservable":246,"./ArrayObservable":247,"./IteratorObservable":261,"./PromiseObservable":264}],258:[function(require,module,exports){
+},{"../Observable":108,"../operators/observeOn":451,"../symbol/iterator":517,"../symbol/observable":518,"../util/isArray":540,"../util/isArrayLike":541,"../util/isPromise":546,"./ArrayLikeObservable":247,"./ArrayObservable":248,"./IteratorObservable":262,"./PromiseObservable":265}],259:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65569,7 +67520,7 @@ var GenerateObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.GenerateObservable = GenerateObservable;
 
-},{"../Observable":107,"../util/isScheduler":546}],259:[function(require,module,exports){
+},{"../Observable":108,"../util/isScheduler":547}],260:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65631,7 +67582,7 @@ var IfSubscriber = (function (_super) {
     return IfSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../Observable":107,"../OuterSubscriber":109,"../util/subscribeToResult":551}],260:[function(require,module,exports){
+},{"../Observable":108,"../OuterSubscriber":110,"../util/subscribeToResult":552}],261:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65720,7 +67671,7 @@ var IntervalObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.IntervalObservable = IntervalObservable;
 
-},{"../Observable":107,"../scheduler/async":514,"../util/isNumeric":543}],261:[function(require,module,exports){
+},{"../Observable":108,"../scheduler/async":515,"../util/isNumeric":544}],262:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65884,7 +67835,7 @@ function sign(value) {
     return valueAsNumber < 0 ? -1 : 1;
 }
 
-},{"../Observable":107,"../symbol/iterator":516,"../util/root":550}],262:[function(require,module,exports){
+},{"../Observable":108,"../symbol/iterator":517,"../util/root":551}],263:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -65944,7 +67895,7 @@ var NeverObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.NeverObservable = NeverObservable;
 
-},{"../Observable":107,"../util/noop":547}],263:[function(require,module,exports){
+},{"../Observable":108,"../util/noop":548}],264:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66030,7 +67981,7 @@ var PairsObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.PairsObservable = PairsObservable;
 
-},{"../Observable":107}],264:[function(require,module,exports){
+},{"../Observable":108}],265:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66152,7 +68103,7 @@ function dispatchError(arg) {
     }
 }
 
-},{"../Observable":107,"../util/root":550}],265:[function(require,module,exports){
+},{"../Observable":108,"../util/root":551}],266:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66249,7 +68200,7 @@ var RangeObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.RangeObservable = RangeObservable;
 
-},{"../Observable":107}],266:[function(require,module,exports){
+},{"../Observable":108}],267:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66308,7 +68259,7 @@ var ScalarObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.ScalarObservable = ScalarObservable;
 
-},{"../Observable":107}],267:[function(require,module,exports){
+},{"../Observable":108}],268:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66360,7 +68311,7 @@ var SubscribeOnObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.SubscribeOnObservable = SubscribeOnObservable;
 
-},{"../Observable":107,"../scheduler/asap":513,"../util/isNumeric":543}],268:[function(require,module,exports){
+},{"../Observable":108,"../scheduler/asap":514,"../util/isNumeric":544}],269:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66468,7 +68419,7 @@ var TimerObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.TimerObservable = TimerObservable;
 
-},{"../Observable":107,"../scheduler/async":514,"../util/isDate":541,"../util/isNumeric":543,"../util/isScheduler":546}],269:[function(require,module,exports){
+},{"../Observable":108,"../scheduler/async":515,"../util/isDate":542,"../util/isNumeric":544,"../util/isScheduler":547}],270:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -66530,17 +68481,17 @@ var UsingSubscriber = (function (_super) {
     return UsingSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../Observable":107,"../OuterSubscriber":109,"../util/subscribeToResult":551}],270:[function(require,module,exports){
+},{"../Observable":108,"../OuterSubscriber":110,"../util/subscribeToResult":552}],271:[function(require,module,exports){
 "use strict";
 var BoundCallbackObservable_1 = require('./BoundCallbackObservable');
 exports.bindCallback = BoundCallbackObservable_1.BoundCallbackObservable.create;
 
-},{"./BoundCallbackObservable":248}],271:[function(require,module,exports){
+},{"./BoundCallbackObservable":249}],272:[function(require,module,exports){
 "use strict";
 var BoundNodeCallbackObservable_1 = require('./BoundNodeCallbackObservable');
 exports.bindNodeCallback = BoundNodeCallbackObservable_1.BoundNodeCallbackObservable.create;
 
-},{"./BoundNodeCallbackObservable":249}],272:[function(require,module,exports){
+},{"./BoundNodeCallbackObservable":250}],273:[function(require,module,exports){
 "use strict";
 var isScheduler_1 = require('../util/isScheduler');
 var isArray_1 = require('../util/isArray');
@@ -66677,7 +68628,7 @@ function combineLatest() {
 }
 exports.combineLatest = combineLatest;
 
-},{"../operators/combineLatest":410,"../util/isArray":539,"../util/isScheduler":546,"./ArrayObservable":247}],273:[function(require,module,exports){
+},{"../operators/combineLatest":411,"../util/isArray":540,"../util/isScheduler":547,"./ArrayObservable":248}],274:[function(require,module,exports){
 "use strict";
 var isScheduler_1 = require('../util/isScheduler');
 var of_1 = require('./of');
@@ -66789,12 +68740,12 @@ function concat() {
 }
 exports.concat = concat;
 
-},{"../operators/concatAll":412,"../util/isScheduler":546,"./from":281,"./of":290}],274:[function(require,module,exports){
+},{"../operators/concatAll":413,"../util/isScheduler":547,"./from":282,"./of":291}],275:[function(require,module,exports){
 "use strict";
 var DeferObservable_1 = require('./DeferObservable');
 exports.defer = DeferObservable_1.DeferObservable.create;
 
-},{"./DeferObservable":251}],275:[function(require,module,exports){
+},{"./DeferObservable":252}],276:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -67221,7 +69172,7 @@ var AjaxTimeoutError = (function (_super) {
 }(AjaxError));
 exports.AjaxTimeoutError = AjaxTimeoutError;
 
-},{"../../Observable":107,"../../Subscriber":115,"../../operators/map":439,"../../util/errorObject":537,"../../util/root":550,"../../util/tryCatch":553}],276:[function(require,module,exports){
+},{"../../Observable":108,"../../Subscriber":116,"../../operators/map":440,"../../util/errorObject":538,"../../util/root":551,"../../util/tryCatch":554}],277:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -67472,62 +69423,62 @@ var WebSocketSubject = (function (_super) {
 }(Subject_1.AnonymousSubject));
 exports.WebSocketSubject = WebSocketSubject;
 
-},{"../../Observable":107,"../../ReplaySubject":110,"../../Subject":113,"../../Subscriber":115,"../../Subscription":116,"../../util/assign":536,"../../util/errorObject":537,"../../util/root":550,"../../util/tryCatch":553}],277:[function(require,module,exports){
+},{"../../Observable":108,"../../ReplaySubject":111,"../../Subject":114,"../../Subscriber":116,"../../Subscription":117,"../../util/assign":537,"../../util/errorObject":538,"../../util/root":551,"../../util/tryCatch":554}],278:[function(require,module,exports){
 "use strict";
 var AjaxObservable_1 = require('./AjaxObservable');
 exports.ajax = AjaxObservable_1.AjaxObservable.create;
 
-},{"./AjaxObservable":275}],278:[function(require,module,exports){
+},{"./AjaxObservable":276}],279:[function(require,module,exports){
 "use strict";
 var WebSocketSubject_1 = require('./WebSocketSubject');
 exports.webSocket = WebSocketSubject_1.WebSocketSubject.create;
 
-},{"./WebSocketSubject":276}],279:[function(require,module,exports){
+},{"./WebSocketSubject":277}],280:[function(require,module,exports){
 "use strict";
 var EmptyObservable_1 = require('./EmptyObservable');
 exports.empty = EmptyObservable_1.EmptyObservable.create;
 
-},{"./EmptyObservable":252}],280:[function(require,module,exports){
+},{"./EmptyObservable":253}],281:[function(require,module,exports){
 "use strict";
 var ForkJoinObservable_1 = require('./ForkJoinObservable');
 exports.forkJoin = ForkJoinObservable_1.ForkJoinObservable.create;
 
-},{"./ForkJoinObservable":254}],281:[function(require,module,exports){
+},{"./ForkJoinObservable":255}],282:[function(require,module,exports){
 "use strict";
 var FromObservable_1 = require('./FromObservable');
 exports.from = FromObservable_1.FromObservable.create;
 
-},{"./FromObservable":257}],282:[function(require,module,exports){
+},{"./FromObservable":258}],283:[function(require,module,exports){
 "use strict";
 var FromEventObservable_1 = require('./FromEventObservable');
 exports.fromEvent = FromEventObservable_1.FromEventObservable.create;
 
-},{"./FromEventObservable":255}],283:[function(require,module,exports){
+},{"./FromEventObservable":256}],284:[function(require,module,exports){
 "use strict";
 var FromEventPatternObservable_1 = require('./FromEventPatternObservable');
 exports.fromEventPattern = FromEventPatternObservable_1.FromEventPatternObservable.create;
 
-},{"./FromEventPatternObservable":256}],284:[function(require,module,exports){
+},{"./FromEventPatternObservable":257}],285:[function(require,module,exports){
 "use strict";
 var PromiseObservable_1 = require('./PromiseObservable');
 exports.fromPromise = PromiseObservable_1.PromiseObservable.create;
 
-},{"./PromiseObservable":264}],285:[function(require,module,exports){
+},{"./PromiseObservable":265}],286:[function(require,module,exports){
 "use strict";
 var GenerateObservable_1 = require('./GenerateObservable');
 exports.generate = GenerateObservable_1.GenerateObservable.create;
 
-},{"./GenerateObservable":258}],286:[function(require,module,exports){
+},{"./GenerateObservable":259}],287:[function(require,module,exports){
 "use strict";
 var IfObservable_1 = require('./IfObservable');
 exports._if = IfObservable_1.IfObservable.create;
 
-},{"./IfObservable":259}],287:[function(require,module,exports){
+},{"./IfObservable":260}],288:[function(require,module,exports){
 "use strict";
 var IntervalObservable_1 = require('./IntervalObservable');
 exports.interval = IntervalObservable_1.IntervalObservable.create;
 
-},{"./IntervalObservable":260}],288:[function(require,module,exports){
+},{"./IntervalObservable":261}],289:[function(require,module,exports){
 "use strict";
 var Observable_1 = require('../Observable');
 var ArrayObservable_1 = require('./ArrayObservable');
@@ -67618,27 +69569,27 @@ function merge() {
 }
 exports.merge = merge;
 
-},{"../Observable":107,"../operators/mergeAll":444,"../util/isScheduler":546,"./ArrayObservable":247}],289:[function(require,module,exports){
+},{"../Observable":108,"../operators/mergeAll":445,"../util/isScheduler":547,"./ArrayObservable":248}],290:[function(require,module,exports){
 "use strict";
 var NeverObservable_1 = require('./NeverObservable');
 exports.never = NeverObservable_1.NeverObservable.create;
 
-},{"./NeverObservable":262}],290:[function(require,module,exports){
+},{"./NeverObservable":263}],291:[function(require,module,exports){
 "use strict";
 var ArrayObservable_1 = require('./ArrayObservable');
 exports.of = ArrayObservable_1.ArrayObservable.of;
 
-},{"./ArrayObservable":247}],291:[function(require,module,exports){
+},{"./ArrayObservable":248}],292:[function(require,module,exports){
 "use strict";
 var onErrorResumeNext_1 = require('../operators/onErrorResumeNext');
 exports.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNextStatic;
 
-},{"../operators/onErrorResumeNext":451}],292:[function(require,module,exports){
+},{"../operators/onErrorResumeNext":452}],293:[function(require,module,exports){
 "use strict";
 var PairsObservable_1 = require('./PairsObservable');
 exports.pairs = PairsObservable_1.PairsObservable.create;
 
-},{"./PairsObservable":263}],293:[function(require,module,exports){
+},{"./PairsObservable":264}],294:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -67728,32 +69679,32 @@ var RaceSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.RaceSubscriber = RaceSubscriber;
 
-},{"../OuterSubscriber":109,"../observable/ArrayObservable":247,"../util/isArray":539,"../util/subscribeToResult":551}],294:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../observable/ArrayObservable":248,"../util/isArray":540,"../util/subscribeToResult":552}],295:[function(require,module,exports){
 "use strict";
 var RangeObservable_1 = require('./RangeObservable');
 exports.range = RangeObservable_1.RangeObservable.create;
 
-},{"./RangeObservable":265}],295:[function(require,module,exports){
+},{"./RangeObservable":266}],296:[function(require,module,exports){
 "use strict";
 var ErrorObservable_1 = require('./ErrorObservable');
 exports._throw = ErrorObservable_1.ErrorObservable.create;
 
-},{"./ErrorObservable":253}],296:[function(require,module,exports){
+},{"./ErrorObservable":254}],297:[function(require,module,exports){
 "use strict";
 var TimerObservable_1 = require('./TimerObservable');
 exports.timer = TimerObservable_1.TimerObservable.create;
 
-},{"./TimerObservable":268}],297:[function(require,module,exports){
+},{"./TimerObservable":269}],298:[function(require,module,exports){
 "use strict";
 var UsingObservable_1 = require('./UsingObservable');
 exports.using = UsingObservable_1.UsingObservable.create;
 
-},{"./UsingObservable":269}],298:[function(require,module,exports){
+},{"./UsingObservable":270}],299:[function(require,module,exports){
 "use strict";
 var zip_1 = require('../operators/zip');
 exports.zip = zip_1.zipStatic;
 
-},{"../operators/zip":500}],299:[function(require,module,exports){
+},{"../operators/zip":501}],300:[function(require,module,exports){
 "use strict";
 var audit_1 = require('../operators/audit');
 /**
@@ -67801,7 +69752,7 @@ function audit(durationSelector) {
 }
 exports.audit = audit;
 
-},{"../operators/audit":401}],300:[function(require,module,exports){
+},{"../operators/audit":402}],301:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var auditTime_1 = require('../operators/auditTime');
@@ -67853,7 +69804,7 @@ function auditTime(duration, scheduler) {
 }
 exports.auditTime = auditTime;
 
-},{"../operators/auditTime":402,"../scheduler/async":514}],301:[function(require,module,exports){
+},{"../operators/auditTime":403,"../scheduler/async":515}],302:[function(require,module,exports){
 "use strict";
 var buffer_1 = require('../operators/buffer');
 /**
@@ -67893,7 +69844,7 @@ function buffer(closingNotifier) {
 }
 exports.buffer = buffer;
 
-},{"../operators/buffer":403}],302:[function(require,module,exports){
+},{"../operators/buffer":404}],303:[function(require,module,exports){
 "use strict";
 var bufferCount_1 = require('../operators/bufferCount');
 /**
@@ -67943,7 +69894,7 @@ function bufferCount(bufferSize, startBufferEvery) {
 }
 exports.bufferCount = bufferCount;
 
-},{"../operators/bufferCount":404}],303:[function(require,module,exports){
+},{"../operators/bufferCount":405}],304:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var isScheduler_1 = require('../util/isScheduler');
@@ -68011,7 +69962,7 @@ function bufferTime(bufferTimeSpan) {
 }
 exports.bufferTime = bufferTime;
 
-},{"../operators/bufferTime":405,"../scheduler/async":514,"../util/isScheduler":546}],304:[function(require,module,exports){
+},{"../operators/bufferTime":406,"../scheduler/async":515,"../util/isScheduler":547}],305:[function(require,module,exports){
 "use strict";
 var bufferToggle_1 = require('../operators/bufferToggle');
 /**
@@ -68057,7 +70008,7 @@ function bufferToggle(openings, closingSelector) {
 }
 exports.bufferToggle = bufferToggle;
 
-},{"../operators/bufferToggle":406}],305:[function(require,module,exports){
+},{"../operators/bufferToggle":407}],306:[function(require,module,exports){
 "use strict";
 var bufferWhen_1 = require('../operators/bufferWhen');
 /**
@@ -68098,7 +70049,7 @@ function bufferWhen(closingSelector) {
 }
 exports.bufferWhen = bufferWhen;
 
-},{"../operators/bufferWhen":407}],306:[function(require,module,exports){
+},{"../operators/bufferWhen":408}],307:[function(require,module,exports){
 "use strict";
 var catchError_1 = require('../operators/catchError');
 /**
@@ -68165,7 +70116,7 @@ function _catch(selector) {
 }
 exports._catch = _catch;
 
-},{"../operators/catchError":408}],307:[function(require,module,exports){
+},{"../operators/catchError":409}],308:[function(require,module,exports){
 "use strict";
 var combineAll_1 = require('../operators/combineAll');
 /**
@@ -68213,7 +70164,7 @@ function combineAll(project) {
 }
 exports.combineAll = combineAll;
 
-},{"../operators/combineAll":409}],308:[function(require,module,exports){
+},{"../operators/combineAll":410}],309:[function(require,module,exports){
 "use strict";
 var combineLatest_1 = require('../operators/combineLatest');
 /* tslint:enable:max-line-length */
@@ -68269,7 +70220,7 @@ function combineLatest() {
 }
 exports.combineLatest = combineLatest;
 
-},{"../operators/combineLatest":410}],309:[function(require,module,exports){
+},{"../operators/combineLatest":411}],310:[function(require,module,exports){
 "use strict";
 var concat_1 = require('../operators/concat');
 var concat_2 = require('../observable/concat');
@@ -68333,7 +70284,7 @@ function concat() {
 }
 exports.concat = concat;
 
-},{"../observable/concat":273,"../operators/concat":411}],310:[function(require,module,exports){
+},{"../observable/concat":274,"../operators/concat":412}],311:[function(require,module,exports){
 "use strict";
 var concatAll_1 = require('../operators/concatAll');
 /* tslint:enable:max-line-length */
@@ -68390,7 +70341,7 @@ function concatAll() {
 }
 exports.concatAll = concatAll;
 
-},{"../operators/concatAll":412}],311:[function(require,module,exports){
+},{"../operators/concatAll":413}],312:[function(require,module,exports){
 "use strict";
 var concatMap_1 = require('../operators/concatMap');
 /* tslint:enable:max-line-length */
@@ -68458,7 +70409,7 @@ function concatMap(project, resultSelector) {
 }
 exports.concatMap = concatMap;
 
-},{"../operators/concatMap":413}],312:[function(require,module,exports){
+},{"../operators/concatMap":414}],313:[function(require,module,exports){
 "use strict";
 var concatMapTo_1 = require('../operators/concatMapTo');
 /* tslint:enable:max-line-length */
@@ -68523,7 +70474,7 @@ function concatMapTo(innerObservable, resultSelector) {
 }
 exports.concatMapTo = concatMapTo;
 
-},{"../operators/concatMapTo":414}],313:[function(require,module,exports){
+},{"../operators/concatMapTo":415}],314:[function(require,module,exports){
 "use strict";
 var count_1 = require('../operators/count');
 /**
@@ -68579,7 +70530,7 @@ function count(predicate) {
 }
 exports.count = count;
 
-},{"../operators/count":415}],314:[function(require,module,exports){
+},{"../operators/count":416}],315:[function(require,module,exports){
 "use strict";
 var debounce_1 = require('../operators/debounce');
 /**
@@ -68629,7 +70580,7 @@ function debounce(durationSelector) {
 }
 exports.debounce = debounce;
 
-},{"../operators/debounce":416}],315:[function(require,module,exports){
+},{"../operators/debounce":417}],316:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var debounceTime_1 = require('../operators/debounceTime');
@@ -68685,7 +70636,7 @@ function debounceTime(dueTime, scheduler) {
 }
 exports.debounceTime = debounceTime;
 
-},{"../operators/debounceTime":417,"../scheduler/async":514}],316:[function(require,module,exports){
+},{"../operators/debounceTime":418,"../scheduler/async":515}],317:[function(require,module,exports){
 "use strict";
 var defaultIfEmpty_1 = require('../operators/defaultIfEmpty');
 /* tslint:enable:max-line-length */
@@ -68725,7 +70676,7 @@ function defaultIfEmpty(defaultValue) {
 }
 exports.defaultIfEmpty = defaultIfEmpty;
 
-},{"../operators/defaultIfEmpty":418}],317:[function(require,module,exports){
+},{"../operators/defaultIfEmpty":419}],318:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var delay_1 = require('../operators/delay');
@@ -68774,7 +70725,7 @@ function delay(delay, scheduler) {
 }
 exports.delay = delay;
 
-},{"../operators/delay":419,"../scheduler/async":514}],318:[function(require,module,exports){
+},{"../operators/delay":420,"../scheduler/async":515}],319:[function(require,module,exports){
 "use strict";
 var delayWhen_1 = require('../operators/delayWhen');
 /**
@@ -68827,7 +70778,7 @@ function delayWhen(delayDurationSelector, subscriptionDelay) {
 }
 exports.delayWhen = delayWhen;
 
-},{"../operators/delayWhen":420}],319:[function(require,module,exports){
+},{"../operators/delayWhen":421}],320:[function(require,module,exports){
 "use strict";
 var dematerialize_1 = require('../operators/dematerialize');
 /**
@@ -68875,7 +70826,7 @@ function dematerialize() {
 }
 exports.dematerialize = dematerialize;
 
-},{"../operators/dematerialize":421}],320:[function(require,module,exports){
+},{"../operators/dematerialize":422}],321:[function(require,module,exports){
 "use strict";
 var distinct_1 = require('../operators/distinct');
 /**
@@ -68928,7 +70879,7 @@ function distinct(keySelector, flushes) {
 }
 exports.distinct = distinct;
 
-},{"../operators/distinct":422}],321:[function(require,module,exports){
+},{"../operators/distinct":423}],322:[function(require,module,exports){
 "use strict";
 var distinctUntilChanged_1 = require('../operators/distinctUntilChanged');
 /* tslint:enable:max-line-length */
@@ -68976,7 +70927,7 @@ function distinctUntilChanged(compare, keySelector) {
 }
 exports.distinctUntilChanged = distinctUntilChanged;
 
-},{"../operators/distinctUntilChanged":423}],322:[function(require,module,exports){
+},{"../operators/distinctUntilChanged":424}],323:[function(require,module,exports){
 "use strict";
 var distinctUntilKeyChanged_1 = require('../operators/distinctUntilKeyChanged');
 /* tslint:enable:max-line-length */
@@ -69042,7 +70993,7 @@ function distinctUntilKeyChanged(key, compare) {
 }
 exports.distinctUntilKeyChanged = distinctUntilKeyChanged;
 
-},{"../operators/distinctUntilKeyChanged":424}],323:[function(require,module,exports){
+},{"../operators/distinctUntilKeyChanged":425}],324:[function(require,module,exports){
 "use strict";
 var tap_1 = require('../operators/tap');
 /* tslint:enable:max-line-length */
@@ -69094,7 +71045,7 @@ function _do(nextOrObserver, error, complete) {
 }
 exports._do = _do;
 
-},{"../operators/tap":486}],324:[function(require,module,exports){
+},{"../operators/tap":487}],325:[function(require,module,exports){
 "use strict";
 var elementAt_1 = require('../operators/elementAt');
 /**
@@ -69144,7 +71095,7 @@ function elementAt(index, defaultValue) {
 }
 exports.elementAt = elementAt;
 
-},{"../operators/elementAt":425}],325:[function(require,module,exports){
+},{"../operators/elementAt":426}],326:[function(require,module,exports){
 "use strict";
 var every_1 = require('../operators/every');
 /**
@@ -69166,7 +71117,7 @@ function every(predicate, thisArg) {
 }
 exports.every = every;
 
-},{"../operators/every":426}],326:[function(require,module,exports){
+},{"../operators/every":427}],327:[function(require,module,exports){
 "use strict";
 var exhaust_1 = require('../operators/exhaust');
 /**
@@ -69209,7 +71160,7 @@ function exhaust() {
 }
 exports.exhaust = exhaust;
 
-},{"../operators/exhaust":427}],327:[function(require,module,exports){
+},{"../operators/exhaust":428}],328:[function(require,module,exports){
 "use strict";
 var exhaustMap_1 = require('../operators/exhaustMap');
 /* tslint:enable:max-line-length */
@@ -69263,7 +71214,7 @@ function exhaustMap(project, resultSelector) {
 }
 exports.exhaustMap = exhaustMap;
 
-},{"../operators/exhaustMap":428}],328:[function(require,module,exports){
+},{"../operators/exhaustMap":429}],329:[function(require,module,exports){
 "use strict";
 var expand_1 = require('../operators/expand');
 /* tslint:enable:max-line-length */
@@ -69320,7 +71271,7 @@ function expand(project, concurrent, scheduler) {
 }
 exports.expand = expand;
 
-},{"../operators/expand":429}],329:[function(require,module,exports){
+},{"../operators/expand":430}],330:[function(require,module,exports){
 "use strict";
 var filter_1 = require('../operators/filter');
 /* tslint:enable:max-line-length */
@@ -69368,7 +71319,7 @@ function filter(predicate, thisArg) {
 }
 exports.filter = filter;
 
-},{"../operators/filter":430}],330:[function(require,module,exports){
+},{"../operators/filter":431}],331:[function(require,module,exports){
 "use strict";
 var finalize_1 = require('../operators/finalize');
 /**
@@ -69384,7 +71335,7 @@ function _finally(callback) {
 }
 exports._finally = _finally;
 
-},{"../operators/finalize":431}],331:[function(require,module,exports){
+},{"../operators/finalize":432}],332:[function(require,module,exports){
 "use strict";
 var find_1 = require('../operators/find');
 /* tslint:enable:max-line-length */
@@ -69426,7 +71377,7 @@ function find(predicate, thisArg) {
 }
 exports.find = find;
 
-},{"../operators/find":432}],332:[function(require,module,exports){
+},{"../operators/find":433}],333:[function(require,module,exports){
 "use strict";
 var findIndex_1 = require('../operators/findIndex');
 /**
@@ -69468,7 +71419,7 @@ function findIndex(predicate, thisArg) {
 }
 exports.findIndex = findIndex;
 
-},{"../operators/findIndex":433}],333:[function(require,module,exports){
+},{"../operators/findIndex":434}],334:[function(require,module,exports){
 "use strict";
 var first_1 = require('../operators/first');
 /**
@@ -69525,7 +71476,7 @@ function first(predicate, resultSelector, defaultValue) {
 }
 exports.first = first;
 
-},{"../operators/first":434}],334:[function(require,module,exports){
+},{"../operators/first":435}],335:[function(require,module,exports){
 "use strict";
 var groupBy_1 = require('../operators/groupBy');
 exports.GroupedObservable = groupBy_1.GroupedObservable;
@@ -69602,7 +71553,7 @@ function groupBy(keySelector, elementSelector, durationSelector, subjectSelector
 }
 exports.groupBy = groupBy;
 
-},{"../operators/groupBy":435}],335:[function(require,module,exports){
+},{"../operators/groupBy":436}],336:[function(require,module,exports){
 "use strict";
 var ignoreElements_1 = require('../operators/ignoreElements');
 /**
@@ -69621,7 +71572,7 @@ function ignoreElements() {
 exports.ignoreElements = ignoreElements;
 ;
 
-},{"../operators/ignoreElements":436}],336:[function(require,module,exports){
+},{"../operators/ignoreElements":437}],337:[function(require,module,exports){
 "use strict";
 var isEmpty_1 = require('../operators/isEmpty');
 /**
@@ -69638,7 +71589,7 @@ function isEmpty() {
 }
 exports.isEmpty = isEmpty;
 
-},{"../operators/isEmpty":437}],337:[function(require,module,exports){
+},{"../operators/isEmpty":438}],338:[function(require,module,exports){
 "use strict";
 var last_1 = require('../operators/last');
 /* tslint:enable:max-line-length */
@@ -69664,7 +71615,7 @@ function last(predicate, resultSelector, defaultValue) {
 }
 exports.last = last;
 
-},{"../operators/last":438}],338:[function(require,module,exports){
+},{"../operators/last":439}],339:[function(require,module,exports){
 "use strict";
 /**
  * @param func
@@ -69677,7 +71628,7 @@ function letProto(func) {
 }
 exports.letProto = letProto;
 
-},{}],339:[function(require,module,exports){
+},{}],340:[function(require,module,exports){
 "use strict";
 var map_1 = require('../operators/map');
 /**
@@ -69718,7 +71669,7 @@ function map(project, thisArg) {
 }
 exports.map = map;
 
-},{"../operators/map":439}],340:[function(require,module,exports){
+},{"../operators/map":440}],341:[function(require,module,exports){
 "use strict";
 var mapTo_1 = require('../operators/mapTo');
 /**
@@ -69752,7 +71703,7 @@ function mapTo(value) {
 }
 exports.mapTo = mapTo;
 
-},{"../operators/mapTo":440}],341:[function(require,module,exports){
+},{"../operators/mapTo":441}],342:[function(require,module,exports){
 "use strict";
 var materialize_1 = require('../operators/materialize');
 /**
@@ -69804,7 +71755,7 @@ function materialize() {
 }
 exports.materialize = materialize;
 
-},{"../operators/materialize":441}],342:[function(require,module,exports){
+},{"../operators/materialize":442}],343:[function(require,module,exports){
 "use strict";
 var max_1 = require('../operators/max');
 /**
@@ -69843,7 +71794,7 @@ function max(comparer) {
 }
 exports.max = max;
 
-},{"../operators/max":442}],343:[function(require,module,exports){
+},{"../operators/max":443}],344:[function(require,module,exports){
 "use strict";
 var merge_1 = require('../operators/merge');
 var merge_2 = require('../observable/merge');
@@ -69904,7 +71855,7 @@ function merge() {
 }
 exports.merge = merge;
 
-},{"../observable/merge":288,"../operators/merge":443}],344:[function(require,module,exports){
+},{"../observable/merge":289,"../operators/merge":444}],345:[function(require,module,exports){
 "use strict";
 var mergeAll_1 = require('../operators/mergeAll');
 /**
@@ -69957,7 +71908,7 @@ function mergeAll(concurrent) {
 }
 exports.mergeAll = mergeAll;
 
-},{"../operators/mergeAll":444}],345:[function(require,module,exports){
+},{"../operators/mergeAll":445}],346:[function(require,module,exports){
 "use strict";
 var mergeMap_1 = require('../operators/mergeMap');
 /* tslint:enable:max-line-length */
@@ -70025,7 +71976,7 @@ function mergeMap(project, resultSelector, concurrent) {
 }
 exports.mergeMap = mergeMap;
 
-},{"../operators/mergeMap":445}],346:[function(require,module,exports){
+},{"../operators/mergeMap":446}],347:[function(require,module,exports){
 "use strict";
 var mergeMapTo_1 = require('../operators/mergeMapTo');
 /* tslint:enable:max-line-length */
@@ -70078,7 +72029,7 @@ function mergeMapTo(innerObservable, resultSelector, concurrent) {
 }
 exports.mergeMapTo = mergeMapTo;
 
-},{"../operators/mergeMapTo":446}],347:[function(require,module,exports){
+},{"../operators/mergeMapTo":447}],348:[function(require,module,exports){
 "use strict";
 var mergeScan_1 = require('../operators/mergeScan');
 /**
@@ -70118,7 +72069,7 @@ function mergeScan(accumulator, seed, concurrent) {
 }
 exports.mergeScan = mergeScan;
 
-},{"../operators/mergeScan":447}],348:[function(require,module,exports){
+},{"../operators/mergeScan":448}],349:[function(require,module,exports){
 "use strict";
 var min_1 = require('../operators/min');
 /**
@@ -70157,7 +72108,7 @@ function min(comparer) {
 }
 exports.min = min;
 
-},{"../operators/min":448}],349:[function(require,module,exports){
+},{"../operators/min":449}],350:[function(require,module,exports){
 "use strict";
 var multicast_1 = require('../operators/multicast');
 /* tslint:enable:max-line-length */
@@ -70260,7 +72211,7 @@ function multicast(subjectOrSubjectFactory, selector) {
 }
 exports.multicast = multicast;
 
-},{"../operators/multicast":449}],350:[function(require,module,exports){
+},{"../operators/multicast":450}],351:[function(require,module,exports){
 "use strict";
 var observeOn_1 = require('../operators/observeOn');
 /**
@@ -70315,7 +72266,7 @@ function observeOn(scheduler, delay) {
 }
 exports.observeOn = observeOn;
 
-},{"../operators/observeOn":450}],351:[function(require,module,exports){
+},{"../operators/observeOn":451}],352:[function(require,module,exports){
 "use strict";
 var onErrorResumeNext_1 = require('../operators/onErrorResumeNext');
 /* tslint:enable:max-line-length */
@@ -70389,7 +72340,7 @@ function onErrorResumeNext() {
 }
 exports.onErrorResumeNext = onErrorResumeNext;
 
-},{"../operators/onErrorResumeNext":451}],352:[function(require,module,exports){
+},{"../operators/onErrorResumeNext":452}],353:[function(require,module,exports){
 "use strict";
 var pairwise_1 = require('../operators/pairwise');
 /**
@@ -70432,7 +72383,7 @@ function pairwise() {
 }
 exports.pairwise = pairwise;
 
-},{"../operators/pairwise":452}],353:[function(require,module,exports){
+},{"../operators/pairwise":453}],354:[function(require,module,exports){
 "use strict";
 var partition_1 = require('../operators/partition');
 /**
@@ -70481,7 +72432,7 @@ function partition(predicate, thisArg) {
 }
 exports.partition = partition;
 
-},{"../operators/partition":453}],354:[function(require,module,exports){
+},{"../operators/partition":454}],355:[function(require,module,exports){
 "use strict";
 var pluck_1 = require('../operators/pluck');
 /**
@@ -70519,7 +72470,7 @@ function pluck() {
 }
 exports.pluck = pluck;
 
-},{"../operators/pluck":454}],355:[function(require,module,exports){
+},{"../operators/pluck":455}],356:[function(require,module,exports){
 "use strict";
 var publish_1 = require('../operators/publish');
 /* tslint:enable:max-line-length */
@@ -70541,7 +72492,7 @@ function publish(selector) {
 }
 exports.publish = publish;
 
-},{"../operators/publish":455}],356:[function(require,module,exports){
+},{"../operators/publish":456}],357:[function(require,module,exports){
 "use strict";
 var publishBehavior_1 = require('../operators/publishBehavior');
 /**
@@ -70555,7 +72506,7 @@ function publishBehavior(value) {
 }
 exports.publishBehavior = publishBehavior;
 
-},{"../operators/publishBehavior":456}],357:[function(require,module,exports){
+},{"../operators/publishBehavior":457}],358:[function(require,module,exports){
 "use strict";
 var publishLast_1 = require('../operators/publishLast');
 /**
@@ -70569,7 +72520,7 @@ function publishLast() {
 }
 exports.publishLast = publishLast;
 
-},{"../operators/publishLast":457}],358:[function(require,module,exports){
+},{"../operators/publishLast":458}],359:[function(require,module,exports){
 "use strict";
 var publishReplay_1 = require('../operators/publishReplay');
 /* tslint:enable:max-line-length */
@@ -70587,7 +72538,7 @@ function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
 }
 exports.publishReplay = publishReplay;
 
-},{"../operators/publishReplay":458}],359:[function(require,module,exports){
+},{"../operators/publishReplay":459}],360:[function(require,module,exports){
 "use strict";
 var race_1 = require('../operators/race');
 // NOTE: to support backwards compatability with 5.4.* and lower
@@ -70611,7 +72562,7 @@ function race() {
 }
 exports.race = race;
 
-},{"../observable/race":293,"../operators/race":459}],360:[function(require,module,exports){
+},{"../observable/race":294,"../operators/race":460}],361:[function(require,module,exports){
 "use strict";
 var reduce_1 = require('../operators/reduce');
 /* tslint:enable:max-line-length */
@@ -70672,7 +72623,7 @@ function reduce(accumulator, seed) {
 }
 exports.reduce = reduce;
 
-},{"../operators/reduce":460}],361:[function(require,module,exports){
+},{"../operators/reduce":461}],362:[function(require,module,exports){
 "use strict";
 var repeat_1 = require('../operators/repeat');
 /**
@@ -70693,7 +72644,7 @@ function repeat(count) {
 }
 exports.repeat = repeat;
 
-},{"../operators/repeat":462}],362:[function(require,module,exports){
+},{"../operators/repeat":463}],363:[function(require,module,exports){
 "use strict";
 var repeatWhen_1 = require('../operators/repeatWhen');
 /**
@@ -70715,7 +72666,7 @@ function repeatWhen(notifier) {
 }
 exports.repeatWhen = repeatWhen;
 
-},{"../operators/repeatWhen":463}],363:[function(require,module,exports){
+},{"../operators/repeatWhen":464}],364:[function(require,module,exports){
 "use strict";
 var retry_1 = require('../operators/retry');
 /**
@@ -70740,7 +72691,7 @@ function retry(count) {
 }
 exports.retry = retry;
 
-},{"../operators/retry":464}],364:[function(require,module,exports){
+},{"../operators/retry":465}],365:[function(require,module,exports){
 "use strict";
 var retryWhen_1 = require('../operators/retryWhen');
 /**
@@ -70762,7 +72713,7 @@ function retryWhen(notifier) {
 }
 exports.retryWhen = retryWhen;
 
-},{"../operators/retryWhen":465}],365:[function(require,module,exports){
+},{"../operators/retryWhen":466}],366:[function(require,module,exports){
 "use strict";
 var sample_1 = require('../operators/sample');
 /**
@@ -70804,7 +72755,7 @@ function sample(notifier) {
 }
 exports.sample = sample;
 
-},{"../operators/sample":466}],366:[function(require,module,exports){
+},{"../operators/sample":467}],367:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var sampleTime_1 = require('../operators/sampleTime');
@@ -70850,7 +72801,7 @@ function sampleTime(period, scheduler) {
 }
 exports.sampleTime = sampleTime;
 
-},{"../operators/sampleTime":467,"../scheduler/async":514}],367:[function(require,module,exports){
+},{"../operators/sampleTime":468,"../scheduler/async":515}],368:[function(require,module,exports){
 "use strict";
 var scan_1 = require('../operators/scan');
 /* tslint:enable:max-line-length */
@@ -70899,7 +72850,7 @@ function scan(accumulator, seed) {
 }
 exports.scan = scan;
 
-},{"../operators/scan":468}],368:[function(require,module,exports){
+},{"../operators/scan":469}],369:[function(require,module,exports){
 "use strict";
 var sequenceEqual_1 = require('../operators/sequenceEqual');
 /**
@@ -70959,7 +72910,7 @@ function sequenceEqual(compareTo, comparor) {
 }
 exports.sequenceEqual = sequenceEqual;
 
-},{"../operators/sequenceEqual":469}],369:[function(require,module,exports){
+},{"../operators/sequenceEqual":470}],370:[function(require,module,exports){
 "use strict";
 var share_1 = require('../operators/share');
 /**
@@ -70984,7 +72935,7 @@ function share() {
 exports.share = share;
 ;
 
-},{"../operators/share":470}],370:[function(require,module,exports){
+},{"../operators/share":471}],371:[function(require,module,exports){
 "use strict";
 var shareReplay_1 = require('../operators/shareReplay');
 /**
@@ -70997,7 +72948,7 @@ function shareReplay(bufferSize, windowTime, scheduler) {
 exports.shareReplay = shareReplay;
 ;
 
-},{"../operators/shareReplay":471}],371:[function(require,module,exports){
+},{"../operators/shareReplay":472}],372:[function(require,module,exports){
 "use strict";
 var single_1 = require('../operators/single');
 /**
@@ -71021,7 +72972,7 @@ function single(predicate) {
 }
 exports.single = single;
 
-},{"../operators/single":472}],372:[function(require,module,exports){
+},{"../operators/single":473}],373:[function(require,module,exports){
 "use strict";
 var skip_1 = require('../operators/skip');
 /**
@@ -71040,7 +72991,7 @@ function skip(count) {
 }
 exports.skip = skip;
 
-},{"../operators/skip":473}],373:[function(require,module,exports){
+},{"../operators/skip":474}],374:[function(require,module,exports){
 "use strict";
 var skipLast_1 = require('../operators/skipLast');
 /**
@@ -71080,7 +73031,7 @@ function skipLast(count) {
 }
 exports.skipLast = skipLast;
 
-},{"../operators/skipLast":474}],374:[function(require,module,exports){
+},{"../operators/skipLast":475}],375:[function(require,module,exports){
 "use strict";
 var skipUntil_1 = require('../operators/skipUntil');
 /**
@@ -71100,7 +73051,7 @@ function skipUntil(notifier) {
 }
 exports.skipUntil = skipUntil;
 
-},{"../operators/skipUntil":475}],375:[function(require,module,exports){
+},{"../operators/skipUntil":476}],376:[function(require,module,exports){
 "use strict";
 var skipWhile_1 = require('../operators/skipWhile');
 /**
@@ -71120,7 +73071,7 @@ function skipWhile(predicate) {
 }
 exports.skipWhile = skipWhile;
 
-},{"../operators/skipWhile":476}],376:[function(require,module,exports){
+},{"../operators/skipWhile":477}],377:[function(require,module,exports){
 "use strict";
 var startWith_1 = require('../operators/startWith');
 /* tslint:enable:max-line-length */
@@ -71147,7 +73098,7 @@ function startWith() {
 }
 exports.startWith = startWith;
 
-},{"../operators/startWith":477}],377:[function(require,module,exports){
+},{"../operators/startWith":478}],378:[function(require,module,exports){
 "use strict";
 var subscribeOn_1 = require('../operators/subscribeOn');
 /**
@@ -71167,7 +73118,7 @@ function subscribeOn(scheduler, delay) {
 }
 exports.subscribeOn = subscribeOn;
 
-},{"../operators/subscribeOn":478}],378:[function(require,module,exports){
+},{"../operators/subscribeOn":479}],379:[function(require,module,exports){
 "use strict";
 var switchAll_1 = require('../operators/switchAll');
 /**
@@ -71217,7 +73168,7 @@ function _switch() {
 }
 exports._switch = _switch;
 
-},{"../operators/switchAll":479}],379:[function(require,module,exports){
+},{"../operators/switchAll":480}],380:[function(require,module,exports){
 "use strict";
 var switchMap_1 = require('../operators/switchMap');
 /* tslint:enable:max-line-length */
@@ -71273,7 +73224,7 @@ function switchMap(project, resultSelector) {
 }
 exports.switchMap = switchMap;
 
-},{"../operators/switchMap":480}],380:[function(require,module,exports){
+},{"../operators/switchMap":481}],381:[function(require,module,exports){
 "use strict";
 var switchMapTo_1 = require('../operators/switchMapTo');
 /* tslint:enable:max-line-length */
@@ -71324,7 +73275,7 @@ function switchMapTo(innerObservable, resultSelector) {
 }
 exports.switchMapTo = switchMapTo;
 
-},{"../operators/switchMapTo":481}],381:[function(require,module,exports){
+},{"../operators/switchMapTo":482}],382:[function(require,module,exports){
 "use strict";
 var take_1 = require('../operators/take');
 /**
@@ -71365,7 +73316,7 @@ function take(count) {
 }
 exports.take = take;
 
-},{"../operators/take":482}],382:[function(require,module,exports){
+},{"../operators/take":483}],383:[function(require,module,exports){
 "use strict";
 var takeLast_1 = require('../operators/takeLast');
 /**
@@ -71409,7 +73360,7 @@ function takeLast(count) {
 }
 exports.takeLast = takeLast;
 
-},{"../operators/takeLast":483}],383:[function(require,module,exports){
+},{"../operators/takeLast":484}],384:[function(require,module,exports){
 "use strict";
 var takeUntil_1 = require('../operators/takeUntil');
 /**
@@ -71450,7 +73401,7 @@ function takeUntil(notifier) {
 }
 exports.takeUntil = takeUntil;
 
-},{"../operators/takeUntil":484}],384:[function(require,module,exports){
+},{"../operators/takeUntil":485}],385:[function(require,module,exports){
 "use strict";
 var takeWhile_1 = require('../operators/takeWhile');
 /**
@@ -71494,7 +73445,7 @@ function takeWhile(predicate) {
 }
 exports.takeWhile = takeWhile;
 
-},{"../operators/takeWhile":485}],385:[function(require,module,exports){
+},{"../operators/takeWhile":486}],386:[function(require,module,exports){
 "use strict";
 var throttle_1 = require('../operators/throttle');
 /**
@@ -71543,7 +73494,7 @@ function throttle(durationSelector, config) {
 }
 exports.throttle = throttle;
 
-},{"../operators/throttle":487}],386:[function(require,module,exports){
+},{"../operators/throttle":488}],387:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var throttle_1 = require('../operators/throttle');
@@ -71594,7 +73545,7 @@ function throttleTime(duration, scheduler, config) {
 }
 exports.throttleTime = throttleTime;
 
-},{"../operators/throttle":487,"../operators/throttleTime":488,"../scheduler/async":514}],387:[function(require,module,exports){
+},{"../operators/throttle":488,"../operators/throttleTime":489,"../scheduler/async":515}],388:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var timeInterval_1 = require('../operators/timeInterval');
@@ -71611,7 +73562,7 @@ function timeInterval(scheduler) {
 }
 exports.timeInterval = timeInterval;
 
-},{"../operators/timeInterval":489,"../scheduler/async":514}],388:[function(require,module,exports){
+},{"../operators/timeInterval":490,"../scheduler/async":515}],389:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var timeout_1 = require('../operators/timeout');
@@ -71686,7 +73637,7 @@ function timeout(due, scheduler) {
 }
 exports.timeout = timeout;
 
-},{"../operators/timeout":490,"../scheduler/async":514}],389:[function(require,module,exports){
+},{"../operators/timeout":491,"../scheduler/async":515}],390:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var timeoutWith_1 = require('../operators/timeoutWith');
@@ -71744,7 +73695,7 @@ function timeoutWith(due, withObservable, scheduler) {
 }
 exports.timeoutWith = timeoutWith;
 
-},{"../operators/timeoutWith":491,"../scheduler/async":514}],390:[function(require,module,exports){
+},{"../operators/timeoutWith":492,"../scheduler/async":515}],391:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var timestamp_1 = require('../operators/timestamp');
@@ -71760,7 +73711,7 @@ function timestamp(scheduler) {
 }
 exports.timestamp = timestamp;
 
-},{"../operators/timestamp":492,"../scheduler/async":514}],391:[function(require,module,exports){
+},{"../operators/timestamp":493,"../scheduler/async":515}],392:[function(require,module,exports){
 "use strict";
 var toArray_1 = require('../operators/toArray');
 /**
@@ -71791,7 +73742,7 @@ function toArray() {
 }
 exports.toArray = toArray;
 
-},{"../operators/toArray":493}],392:[function(require,module,exports){
+},{"../operators/toArray":494}],393:[function(require,module,exports){
 "use strict";
 var window_1 = require('../operators/window');
 /**
@@ -71835,7 +73786,7 @@ function window(windowBoundaries) {
 }
 exports.window = window;
 
-},{"../operators/window":494}],393:[function(require,module,exports){
+},{"../operators/window":495}],394:[function(require,module,exports){
 "use strict";
 var windowCount_1 = require('../operators/windowCount');
 /**
@@ -71892,7 +73843,7 @@ function windowCount(windowSize, startWindowEvery) {
 }
 exports.windowCount = windowCount;
 
-},{"../operators/windowCount":495}],394:[function(require,module,exports){
+},{"../operators/windowCount":496}],395:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var isNumeric_1 = require('../util/isNumeric');
@@ -71921,7 +73872,7 @@ function windowTime(windowTimeSpan) {
 }
 exports.windowTime = windowTime;
 
-},{"../operators/windowTime":496,"../scheduler/async":514,"../util/isNumeric":543,"../util/isScheduler":546}],395:[function(require,module,exports){
+},{"../operators/windowTime":497,"../scheduler/async":515,"../util/isNumeric":544,"../util/isScheduler":547}],396:[function(require,module,exports){
 "use strict";
 var windowToggle_1 = require('../operators/windowToggle');
 /**
@@ -71970,7 +73921,7 @@ function windowToggle(openings, closingSelector) {
 }
 exports.windowToggle = windowToggle;
 
-},{"../operators/windowToggle":497}],396:[function(require,module,exports){
+},{"../operators/windowToggle":498}],397:[function(require,module,exports){
 "use strict";
 var windowWhen_1 = require('../operators/windowWhen');
 /**
@@ -72016,7 +73967,7 @@ function windowWhen(closingSelector) {
 }
 exports.windowWhen = windowWhen;
 
-},{"../operators/windowWhen":498}],397:[function(require,module,exports){
+},{"../operators/windowWhen":499}],398:[function(require,module,exports){
 "use strict";
 var withLatestFrom_1 = require('../operators/withLatestFrom');
 /* tslint:enable:max-line-length */
@@ -72067,7 +74018,7 @@ function withLatestFrom() {
 }
 exports.withLatestFrom = withLatestFrom;
 
-},{"../operators/withLatestFrom":499}],398:[function(require,module,exports){
+},{"../operators/withLatestFrom":500}],399:[function(require,module,exports){
 "use strict";
 var zip_1 = require('../operators/zip');
 /* tslint:enable:max-line-length */
@@ -72086,7 +74037,7 @@ function zipProto() {
 }
 exports.zipProto = zipProto;
 
-},{"../operators/zip":500}],399:[function(require,module,exports){
+},{"../operators/zip":501}],400:[function(require,module,exports){
 "use strict";
 var zipAll_1 = require('../operators/zipAll');
 /**
@@ -72100,7 +74051,7 @@ function zipAll(project) {
 }
 exports.zipAll = zipAll;
 
-},{"../operators/zipAll":501}],400:[function(require,module,exports){
+},{"../operators/zipAll":502}],401:[function(require,module,exports){
 "use strict";
 var audit_1 = require('./operators/audit');
 exports.audit = audit_1.audit;
@@ -72312,7 +74263,7 @@ exports.zip = zip_1.zip;
 var zipAll_1 = require('./operators/zipAll');
 exports.zipAll = zipAll_1.zipAll;
 
-},{"./operators/audit":401,"./operators/auditTime":402,"./operators/buffer":403,"./operators/bufferCount":404,"./operators/bufferTime":405,"./operators/bufferToggle":406,"./operators/bufferWhen":407,"./operators/catchError":408,"./operators/combineAll":409,"./operators/combineLatest":410,"./operators/concat":411,"./operators/concatAll":412,"./operators/concatMap":413,"./operators/concatMapTo":414,"./operators/count":415,"./operators/debounce":416,"./operators/debounceTime":417,"./operators/defaultIfEmpty":418,"./operators/delay":419,"./operators/delayWhen":420,"./operators/dematerialize":421,"./operators/distinct":422,"./operators/distinctUntilChanged":423,"./operators/distinctUntilKeyChanged":424,"./operators/elementAt":425,"./operators/every":426,"./operators/exhaust":427,"./operators/exhaustMap":428,"./operators/expand":429,"./operators/filter":430,"./operators/finalize":431,"./operators/find":432,"./operators/findIndex":433,"./operators/first":434,"./operators/groupBy":435,"./operators/ignoreElements":436,"./operators/isEmpty":437,"./operators/last":438,"./operators/map":439,"./operators/mapTo":440,"./operators/materialize":441,"./operators/max":442,"./operators/merge":443,"./operators/mergeAll":444,"./operators/mergeMap":445,"./operators/mergeMapTo":446,"./operators/mergeScan":447,"./operators/min":448,"./operators/multicast":449,"./operators/observeOn":450,"./operators/onErrorResumeNext":451,"./operators/pairwise":452,"./operators/partition":453,"./operators/pluck":454,"./operators/publish":455,"./operators/publishBehavior":456,"./operators/publishLast":457,"./operators/publishReplay":458,"./operators/race":459,"./operators/reduce":460,"./operators/refCount":461,"./operators/repeat":462,"./operators/repeatWhen":463,"./operators/retry":464,"./operators/retryWhen":465,"./operators/sample":466,"./operators/sampleTime":467,"./operators/scan":468,"./operators/sequenceEqual":469,"./operators/share":470,"./operators/shareReplay":471,"./operators/single":472,"./operators/skip":473,"./operators/skipLast":474,"./operators/skipUntil":475,"./operators/skipWhile":476,"./operators/startWith":477,"./operators/switchAll":479,"./operators/switchMap":480,"./operators/switchMapTo":481,"./operators/take":482,"./operators/takeLast":483,"./operators/takeUntil":484,"./operators/takeWhile":485,"./operators/tap":486,"./operators/throttle":487,"./operators/throttleTime":488,"./operators/timeInterval":489,"./operators/timeout":490,"./operators/timeoutWith":491,"./operators/timestamp":492,"./operators/toArray":493,"./operators/window":494,"./operators/windowCount":495,"./operators/windowTime":496,"./operators/windowToggle":497,"./operators/windowWhen":498,"./operators/withLatestFrom":499,"./operators/zip":500,"./operators/zipAll":501}],401:[function(require,module,exports){
+},{"./operators/audit":402,"./operators/auditTime":403,"./operators/buffer":404,"./operators/bufferCount":405,"./operators/bufferTime":406,"./operators/bufferToggle":407,"./operators/bufferWhen":408,"./operators/catchError":409,"./operators/combineAll":410,"./operators/combineLatest":411,"./operators/concat":412,"./operators/concatAll":413,"./operators/concatMap":414,"./operators/concatMapTo":415,"./operators/count":416,"./operators/debounce":417,"./operators/debounceTime":418,"./operators/defaultIfEmpty":419,"./operators/delay":420,"./operators/delayWhen":421,"./operators/dematerialize":422,"./operators/distinct":423,"./operators/distinctUntilChanged":424,"./operators/distinctUntilKeyChanged":425,"./operators/elementAt":426,"./operators/every":427,"./operators/exhaust":428,"./operators/exhaustMap":429,"./operators/expand":430,"./operators/filter":431,"./operators/finalize":432,"./operators/find":433,"./operators/findIndex":434,"./operators/first":435,"./operators/groupBy":436,"./operators/ignoreElements":437,"./operators/isEmpty":438,"./operators/last":439,"./operators/map":440,"./operators/mapTo":441,"./operators/materialize":442,"./operators/max":443,"./operators/merge":444,"./operators/mergeAll":445,"./operators/mergeMap":446,"./operators/mergeMapTo":447,"./operators/mergeScan":448,"./operators/min":449,"./operators/multicast":450,"./operators/observeOn":451,"./operators/onErrorResumeNext":452,"./operators/pairwise":453,"./operators/partition":454,"./operators/pluck":455,"./operators/publish":456,"./operators/publishBehavior":457,"./operators/publishLast":458,"./operators/publishReplay":459,"./operators/race":460,"./operators/reduce":461,"./operators/refCount":462,"./operators/repeat":463,"./operators/repeatWhen":464,"./operators/retry":465,"./operators/retryWhen":466,"./operators/sample":467,"./operators/sampleTime":468,"./operators/scan":469,"./operators/sequenceEqual":470,"./operators/share":471,"./operators/shareReplay":472,"./operators/single":473,"./operators/skip":474,"./operators/skipLast":475,"./operators/skipUntil":476,"./operators/skipWhile":477,"./operators/startWith":478,"./operators/switchAll":480,"./operators/switchMap":481,"./operators/switchMapTo":482,"./operators/take":483,"./operators/takeLast":484,"./operators/takeUntil":485,"./operators/takeWhile":486,"./operators/tap":487,"./operators/throttle":488,"./operators/throttleTime":489,"./operators/timeInterval":490,"./operators/timeout":491,"./operators/timeoutWith":492,"./operators/timestamp":493,"./operators/toArray":494,"./operators/window":495,"./operators/windowCount":496,"./operators/windowTime":497,"./operators/windowToggle":498,"./operators/windowWhen":499,"./operators/withLatestFrom":500,"./operators/zip":501,"./operators/zipAll":502}],402:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72431,7 +74382,7 @@ var AuditSubscriber = (function (_super) {
     return AuditSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],402:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],403:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var audit_1 = require('./audit');
@@ -72484,7 +74435,7 @@ function auditTime(duration, scheduler) {
 }
 exports.auditTime = auditTime;
 
-},{"../observable/timer":296,"../scheduler/async":514,"./audit":401}],403:[function(require,module,exports){
+},{"../observable/timer":297,"../scheduler/async":515,"./audit":402}],404:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72563,7 +74514,7 @@ var BufferSubscriber = (function (_super) {
     return BufferSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],404:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],405:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72706,7 +74657,7 @@ var BufferSkipCountSubscriber = (function (_super) {
     return BufferSkipCountSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],405:[function(require,module,exports){
+},{"../Subscriber":116}],406:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -72908,7 +74859,7 @@ function dispatchBufferClose(arg) {
     subscriber.closeContext(context);
 }
 
-},{"../Subscriber":115,"../scheduler/async":514,"../util/isScheduler":546}],406:[function(require,module,exports){
+},{"../Subscriber":116,"../scheduler/async":515,"../util/isScheduler":547}],407:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73063,7 +75014,7 @@ var BufferToggleSubscriber = (function (_super) {
     return BufferToggleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subscription":116,"../util/subscribeToResult":551}],407:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subscription":117,"../util/subscribeToResult":552}],408:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73188,7 +75139,7 @@ var BufferWhenSubscriber = (function (_super) {
     return BufferWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subscription":116,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],408:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subscription":117,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],409:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73305,7 +75256,7 @@ var CatchSubscriber = (function (_super) {
     return CatchSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],409:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],410:[function(require,module,exports){
 "use strict";
 var combineLatest_1 = require('../operators/combineLatest');
 function combineAll(project) {
@@ -73313,7 +75264,7 @@ function combineAll(project) {
 }
 exports.combineAll = combineAll;
 
-},{"../operators/combineLatest":410}],410:[function(require,module,exports){
+},{"../operators/combineLatest":411}],411:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73465,7 +75416,7 @@ var CombineLatestSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.CombineLatestSubscriber = CombineLatestSubscriber;
 
-},{"../OuterSubscriber":109,"../observable/ArrayObservable":247,"../util/isArray":539,"../util/subscribeToResult":551}],411:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../observable/ArrayObservable":248,"../util/isArray":540,"../util/subscribeToResult":552}],412:[function(require,module,exports){
 "use strict";
 var concat_1 = require('../observable/concat');
 var concat_2 = require('../observable/concat');
@@ -73529,7 +75480,7 @@ function concat() {
 }
 exports.concat = concat;
 
-},{"../observable/concat":273}],412:[function(require,module,exports){
+},{"../observable/concat":274}],413:[function(require,module,exports){
 "use strict";
 var mergeAll_1 = require('./mergeAll');
 /**
@@ -73585,7 +75536,7 @@ function concatAll() {
 }
 exports.concatAll = concatAll;
 
-},{"./mergeAll":444}],413:[function(require,module,exports){
+},{"./mergeAll":445}],414:[function(require,module,exports){
 "use strict";
 var mergeMap_1 = require('./mergeMap');
 /* tslint:enable:max-line-length */
@@ -73653,7 +75604,7 @@ function concatMap(project, resultSelector) {
 }
 exports.concatMap = concatMap;
 
-},{"./mergeMap":445}],414:[function(require,module,exports){
+},{"./mergeMap":446}],415:[function(require,module,exports){
 "use strict";
 var concatMap_1 = require('./concatMap');
 /* tslint:enable:max-line-length */
@@ -73718,7 +75669,7 @@ function concatMapTo(innerObservable, resultSelector) {
 }
 exports.concatMapTo = concatMapTo;
 
-},{"./concatMap":413}],415:[function(require,module,exports){
+},{"./concatMap":414}],416:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73830,7 +75781,7 @@ var CountSubscriber = (function (_super) {
     return CountSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],416:[function(require,module,exports){
+},{"../Subscriber":116}],417:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73958,7 +75909,7 @@ var DebounceSubscriber = (function (_super) {
     return DebounceSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],417:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],418:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74075,7 +76026,7 @@ function dispatchNext(subscriber) {
     subscriber.debouncedNext();
 }
 
-},{"../Subscriber":115,"../scheduler/async":514}],418:[function(require,module,exports){
+},{"../Subscriber":116,"../scheduler/async":515}],419:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74153,7 +76104,7 @@ var DefaultIfEmptySubscriber = (function (_super) {
     return DefaultIfEmptySubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],419:[function(require,module,exports){
+},{"../Subscriber":116}],420:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74290,7 +76241,7 @@ var DelayMessage = (function () {
     return DelayMessage;
 }());
 
-},{"../Notification":106,"../Subscriber":115,"../scheduler/async":514,"../util/isDate":541}],420:[function(require,module,exports){
+},{"../Notification":107,"../Subscriber":116,"../scheduler/async":515,"../util/isDate":542}],421:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74485,7 +76436,7 @@ var SubscriptionDelaySubscriber = (function (_super) {
     return SubscriptionDelaySubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Observable":107,"../OuterSubscriber":109,"../Subscriber":115,"../util/subscribeToResult":551}],421:[function(require,module,exports){
+},{"../Observable":108,"../OuterSubscriber":110,"../Subscriber":116,"../util/subscribeToResult":552}],422:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74563,7 +76514,7 @@ var DeMaterializeSubscriber = (function (_super) {
     return DeMaterializeSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],422:[function(require,module,exports){
+},{"../Subscriber":116}],423:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74684,7 +76635,7 @@ var DistinctSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.DistinctSubscriber = DistinctSubscriber;
 
-},{"../OuterSubscriber":109,"../util/Set":532,"../util/subscribeToResult":551}],423:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/Set":533,"../util/subscribeToResult":552}],424:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74793,7 +76744,7 @@ var DistinctUntilChangedSubscriber = (function (_super) {
     return DistinctUntilChangedSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/errorObject":537,"../util/tryCatch":553}],424:[function(require,module,exports){
+},{"../Subscriber":116,"../util/errorObject":538,"../util/tryCatch":554}],425:[function(require,module,exports){
 "use strict";
 var distinctUntilChanged_1 = require('./distinctUntilChanged');
 /* tslint:enable:max-line-length */
@@ -74859,7 +76810,7 @@ function distinctUntilKeyChanged(key, compare) {
 }
 exports.distinctUntilKeyChanged = distinctUntilKeyChanged;
 
-},{"./distinctUntilChanged":423}],425:[function(require,module,exports){
+},{"./distinctUntilChanged":424}],426:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -74960,7 +76911,7 @@ var ElementAtSubscriber = (function (_super) {
     return ElementAtSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/ArgumentOutOfRangeError":525}],426:[function(require,module,exports){
+},{"../Subscriber":116,"../util/ArgumentOutOfRangeError":526}],427:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75035,7 +76986,7 @@ var EverySubscriber = (function (_super) {
     return EverySubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],427:[function(require,module,exports){
+},{"../Subscriber":116}],428:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75125,7 +77076,7 @@ var SwitchFirstSubscriber = (function (_super) {
     return SwitchFirstSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],428:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],429:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75264,7 +77215,7 @@ var SwitchFirstMapSubscriber = (function (_super) {
     return SwitchFirstMapSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],429:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],430:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75416,7 +77367,7 @@ var ExpandSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.ExpandSubscriber = ExpandSubscriber;
 
-},{"../OuterSubscriber":109,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],430:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],431:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75511,7 +77462,7 @@ var FilterSubscriber = (function (_super) {
     return FilterSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],431:[function(require,module,exports){
+},{"../Subscriber":116}],432:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75555,7 +77506,7 @@ var FinallySubscriber = (function (_super) {
     return FinallySubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../Subscription":116}],432:[function(require,module,exports){
+},{"../Subscriber":116,"../Subscription":117}],433:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75656,7 +77607,7 @@ var FindValueSubscriber = (function (_super) {
 }(Subscriber_1.Subscriber));
 exports.FindValueSubscriber = FindValueSubscriber;
 
-},{"../Subscriber":115}],433:[function(require,module,exports){
+},{"../Subscriber":116}],434:[function(require,module,exports){
 "use strict";
 var find_1 = require('../operators/find');
 /**
@@ -75698,7 +77649,7 @@ function findIndex(predicate, thisArg) {
 }
 exports.findIndex = findIndex;
 
-},{"../operators/find":432}],434:[function(require,module,exports){
+},{"../operators/find":433}],435:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -75851,7 +77802,7 @@ var FirstSubscriber = (function (_super) {
     return FirstSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/EmptyError":526}],435:[function(require,module,exports){
+},{"../Subscriber":116,"../util/EmptyError":527}],436:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76128,7 +78079,7 @@ var InnerRefCountSubscription = (function (_super) {
     return InnerRefCountSubscription;
 }(Subscription_1.Subscription));
 
-},{"../Observable":107,"../Subject":113,"../Subscriber":115,"../Subscription":116,"../util/FastMap":527,"../util/Map":529}],436:[function(require,module,exports){
+},{"../Observable":108,"../Subject":114,"../Subscriber":116,"../Subscription":117,"../util/FastMap":528,"../util/Map":530}],437:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76177,7 +78128,7 @@ var IgnoreElementsSubscriber = (function (_super) {
     return IgnoreElementsSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/noop":547}],437:[function(require,module,exports){
+},{"../Subscriber":116,"../util/noop":548}],438:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76221,7 +78172,7 @@ var IsEmptySubscriber = (function (_super) {
     return IsEmptySubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],438:[function(require,module,exports){
+},{"../Subscriber":116}],439:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76341,7 +78292,7 @@ var LastSubscriber = (function (_super) {
     return LastSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/EmptyError":526}],439:[function(require,module,exports){
+},{"../Subscriber":116,"../util/EmptyError":527}],440:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76431,7 +78382,7 @@ var MapSubscriber = (function (_super) {
     return MapSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],440:[function(require,module,exports){
+},{"../Subscriber":116}],441:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76495,7 +78446,7 @@ var MapToSubscriber = (function (_super) {
     return MapToSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],441:[function(require,module,exports){
+},{"../Subscriber":116}],442:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76588,7 +78539,7 @@ var MaterializeSubscriber = (function (_super) {
     return MaterializeSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Notification":106,"../Subscriber":115}],442:[function(require,module,exports){
+},{"../Notification":107,"../Subscriber":116}],443:[function(require,module,exports){
 "use strict";
 var reduce_1 = require('./reduce');
 /**
@@ -76630,7 +78581,7 @@ function max(comparer) {
 }
 exports.max = max;
 
-},{"./reduce":460}],443:[function(require,module,exports){
+},{"./reduce":461}],444:[function(require,module,exports){
 "use strict";
 var merge_1 = require('../observable/merge');
 var merge_2 = require('../observable/merge');
@@ -76691,7 +78642,7 @@ function merge() {
 }
 exports.merge = merge;
 
-},{"../observable/merge":288}],444:[function(require,module,exports){
+},{"../observable/merge":289}],445:[function(require,module,exports){
 "use strict";
 var mergeMap_1 = require('./mergeMap');
 var identity_1 = require('../util/identity');
@@ -76745,7 +78696,7 @@ function mergeAll(concurrent) {
 }
 exports.mergeAll = mergeAll;
 
-},{"../util/identity":538,"./mergeMap":445}],445:[function(require,module,exports){
+},{"../util/identity":539,"./mergeMap":446}],446:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -76919,7 +78870,7 @@ var MergeMapSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.MergeMapSubscriber = MergeMapSubscriber;
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],446:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],447:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77075,7 +79026,7 @@ var MergeMapToSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.MergeMapToSubscriber = MergeMapToSubscriber;
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],447:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],448:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77205,7 +79156,7 @@ var MergeScanSubscriber = (function (_super) {
 }(OuterSubscriber_1.OuterSubscriber));
 exports.MergeScanSubscriber = MergeScanSubscriber;
 
-},{"../OuterSubscriber":109,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],448:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],449:[function(require,module,exports){
 "use strict";
 var reduce_1 = require('./reduce');
 /**
@@ -77247,7 +79198,7 @@ function min(comparer) {
 }
 exports.min = min;
 
-},{"./reduce":460}],449:[function(require,module,exports){
+},{"./reduce":461}],450:[function(require,module,exports){
 "use strict";
 var ConnectableObservable_1 = require('../observable/ConnectableObservable');
 /* tslint:enable:max-line-length */
@@ -77307,7 +79258,7 @@ var MulticastOperator = (function () {
 }());
 exports.MulticastOperator = MulticastOperator;
 
-},{"../observable/ConnectableObservable":250}],450:[function(require,module,exports){
+},{"../observable/ConnectableObservable":251}],451:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77423,7 +79374,7 @@ var ObserveOnMessage = (function () {
 }());
 exports.ObserveOnMessage = ObserveOnMessage;
 
-},{"../Notification":106,"../Subscriber":115}],451:[function(require,module,exports){
+},{"../Notification":107,"../Subscriber":116}],452:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77561,7 +79512,7 @@ var OnErrorResumeNextSubscriber = (function (_super) {
     return OnErrorResumeNextSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../observable/FromObservable":257,"../util/isArray":539,"../util/subscribeToResult":551}],452:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../observable/FromObservable":258,"../util/isArray":540,"../util/subscribeToResult":552}],453:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77639,7 +79590,7 @@ var PairwiseSubscriber = (function (_super) {
     return PairwiseSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],453:[function(require,module,exports){
+},{"../Subscriber":116}],454:[function(require,module,exports){
 "use strict";
 var not_1 = require('../util/not');
 var filter_1 = require('./filter');
@@ -77692,7 +79643,7 @@ function partition(predicate, thisArg) {
 }
 exports.partition = partition;
 
-},{"../util/not":548,"./filter":430}],454:[function(require,module,exports){
+},{"../util/not":549,"./filter":431}],455:[function(require,module,exports){
 "use strict";
 var map_1 = require('./map');
 /**
@@ -77750,7 +79701,7 @@ function plucker(props, length) {
     return mapper;
 }
 
-},{"./map":439}],455:[function(require,module,exports){
+},{"./map":440}],456:[function(require,module,exports){
 "use strict";
 var Subject_1 = require('../Subject');
 var multicast_1 = require('./multicast');
@@ -77775,7 +79726,7 @@ function publish(selector) {
 }
 exports.publish = publish;
 
-},{"../Subject":113,"./multicast":449}],456:[function(require,module,exports){
+},{"../Subject":114,"./multicast":450}],457:[function(require,module,exports){
 "use strict";
 var BehaviorSubject_1 = require('../BehaviorSubject');
 var multicast_1 = require('./multicast');
@@ -77790,7 +79741,7 @@ function publishBehavior(value) {
 }
 exports.publishBehavior = publishBehavior;
 
-},{"../BehaviorSubject":104,"./multicast":449}],457:[function(require,module,exports){
+},{"../BehaviorSubject":105,"./multicast":450}],458:[function(require,module,exports){
 "use strict";
 var AsyncSubject_1 = require('../AsyncSubject');
 var multicast_1 = require('./multicast');
@@ -77799,7 +79750,7 @@ function publishLast() {
 }
 exports.publishLast = publishLast;
 
-},{"../AsyncSubject":103,"./multicast":449}],458:[function(require,module,exports){
+},{"../AsyncSubject":104,"./multicast":450}],459:[function(require,module,exports){
 "use strict";
 var ReplaySubject_1 = require('../ReplaySubject');
 var multicast_1 = require('./multicast');
@@ -77814,7 +79765,7 @@ function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
 }
 exports.publishReplay = publishReplay;
 
-},{"../ReplaySubject":110,"./multicast":449}],459:[function(require,module,exports){
+},{"../ReplaySubject":111,"./multicast":450}],460:[function(require,module,exports){
 "use strict";
 var isArray_1 = require('../util/isArray');
 var race_1 = require('../observable/race');
@@ -77843,7 +79794,7 @@ function race() {
 }
 exports.race = race;
 
-},{"../observable/race":293,"../util/isArray":539}],460:[function(require,module,exports){
+},{"../observable/race":294,"../util/isArray":540}],461:[function(require,module,exports){
 "use strict";
 var scan_1 = require('./scan');
 var takeLast_1 = require('./takeLast');
@@ -77913,7 +79864,7 @@ function reduce(accumulator, seed) {
 }
 exports.reduce = reduce;
 
-},{"../util/pipe":549,"./defaultIfEmpty":418,"./scan":468,"./takeLast":483}],461:[function(require,module,exports){
+},{"../util/pipe":550,"./defaultIfEmpty":419,"./scan":469,"./takeLast":484}],462:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -77999,7 +79950,7 @@ var RefCountSubscriber = (function (_super) {
     return RefCountSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],462:[function(require,module,exports){
+},{"../Subscriber":116}],463:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78072,7 +80023,7 @@ var RepeatSubscriber = (function (_super) {
     return RepeatSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../observable/EmptyObservable":252}],463:[function(require,module,exports){
+},{"../Subscriber":116,"../observable/EmptyObservable":253}],464:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78181,7 +80132,7 @@ var RepeatWhenSubscriber = (function (_super) {
     return RepeatWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subject":113,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],464:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subject":114,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],465:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78247,7 +80198,7 @@ var RetrySubscriber = (function (_super) {
     return RetrySubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],465:[function(require,module,exports){
+},{"../Subscriber":116}],466:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78349,7 +80300,7 @@ var RetryWhenSubscriber = (function (_super) {
     return RetryWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subject":113,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],466:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subject":114,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],467:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78438,7 +80389,7 @@ var SampleSubscriber = (function (_super) {
     return SampleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],467:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],468:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78530,7 +80481,7 @@ function dispatchNotification(state) {
     this.schedule(state, period);
 }
 
-},{"../Subscriber":115,"../scheduler/async":514}],468:[function(require,module,exports){
+},{"../Subscriber":116,"../scheduler/async":515}],469:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78652,7 +80603,7 @@ var ScanSubscriber = (function (_super) {
     return ScanSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],469:[function(require,module,exports){
+},{"../Subscriber":116}],470:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78817,7 +80768,7 @@ var SequenceEqualCompareToSubscriber = (function (_super) {
     return SequenceEqualCompareToSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/errorObject":537,"../util/tryCatch":553}],470:[function(require,module,exports){
+},{"../Subscriber":116,"../util/errorObject":538,"../util/tryCatch":554}],471:[function(require,module,exports){
 "use strict";
 var multicast_1 = require('./multicast');
 var refCount_1 = require('./refCount');
@@ -78843,7 +80794,7 @@ function share() {
 exports.share = share;
 ;
 
-},{"../Subject":113,"./multicast":449,"./refCount":461}],471:[function(require,module,exports){
+},{"../Subject":114,"./multicast":450,"./refCount":462}],472:[function(require,module,exports){
 "use strict";
 var ReplaySubject_1 = require('../ReplaySubject');
 /**
@@ -78889,7 +80840,7 @@ function shareReplayOperator(bufferSize, windowTime, scheduler) {
 }
 ;
 
-},{"../ReplaySubject":110}],472:[function(require,module,exports){
+},{"../ReplaySubject":111}],473:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -78983,7 +80934,7 @@ var SingleSubscriber = (function (_super) {
     return SingleSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/EmptyError":526}],473:[function(require,module,exports){
+},{"../Subscriber":116,"../util/EmptyError":527}],474:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79035,7 +80986,7 @@ var SkipSubscriber = (function (_super) {
     return SkipSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],474:[function(require,module,exports){
+},{"../Subscriber":116}],475:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79129,7 +81080,7 @@ var SkipLastSubscriber = (function (_super) {
     return SkipLastSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../util/ArgumentOutOfRangeError":525}],475:[function(require,module,exports){
+},{"../Subscriber":116,"../util/ArgumentOutOfRangeError":526}],476:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79201,7 +81152,7 @@ var SkipUntilSubscriber = (function (_super) {
     return SkipUntilSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],476:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],477:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79268,7 +81219,7 @@ var SkipWhileSubscriber = (function (_super) {
     return SkipWhileSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],477:[function(require,module,exports){
+},{"../Subscriber":116}],478:[function(require,module,exports){
 "use strict";
 var ArrayObservable_1 = require('../observable/ArrayObservable');
 var ScalarObservable_1 = require('../observable/ScalarObservable');
@@ -79317,7 +81268,7 @@ function startWith() {
 }
 exports.startWith = startWith;
 
-},{"../observable/ArrayObservable":247,"../observable/EmptyObservable":252,"../observable/ScalarObservable":266,"../observable/concat":273,"../util/isScheduler":546}],478:[function(require,module,exports){
+},{"../observable/ArrayObservable":248,"../observable/EmptyObservable":253,"../observable/ScalarObservable":267,"../observable/concat":274,"../util/isScheduler":547}],479:[function(require,module,exports){
 "use strict";
 var SubscribeOnObservable_1 = require('../observable/SubscribeOnObservable');
 /**
@@ -79349,7 +81300,7 @@ var SubscribeOnOperator = (function () {
     return SubscribeOnOperator;
 }());
 
-},{"../observable/SubscribeOnObservable":267}],479:[function(require,module,exports){
+},{"../observable/SubscribeOnObservable":268}],480:[function(require,module,exports){
 "use strict";
 var switchMap_1 = require('./switchMap');
 var identity_1 = require('../util/identity');
@@ -79358,7 +81309,7 @@ function switchAll() {
 }
 exports.switchAll = switchAll;
 
-},{"../util/identity":538,"./switchMap":480}],480:[function(require,module,exports){
+},{"../util/identity":539,"./switchMap":481}],481:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79501,7 +81452,7 @@ var SwitchMapSubscriber = (function (_super) {
     return SwitchMapSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],481:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],482:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79627,7 +81578,7 @@ var SwitchMapToSubscriber = (function (_super) {
     return SwitchMapToSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],482:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],483:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79719,7 +81670,7 @@ var TakeSubscriber = (function (_super) {
     return TakeSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../observable/EmptyObservable":252,"../util/ArgumentOutOfRangeError":525}],483:[function(require,module,exports){
+},{"../Subscriber":116,"../observable/EmptyObservable":253,"../util/ArgumentOutOfRangeError":526}],484:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79829,7 +81780,7 @@ var TakeLastSubscriber = (function (_super) {
     return TakeLastSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../observable/EmptyObservable":252,"../util/ArgumentOutOfRangeError":525}],484:[function(require,module,exports){
+},{"../Subscriber":116,"../observable/EmptyObservable":253,"../util/ArgumentOutOfRangeError":526}],485:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79905,7 +81856,7 @@ var TakeUntilSubscriber = (function (_super) {
     return TakeUntilSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],485:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],486:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -79998,7 +81949,7 @@ var TakeWhileSubscriber = (function (_super) {
     return TakeWhileSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],486:[function(require,module,exports){
+},{"../Subscriber":116}],487:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80112,7 +82063,7 @@ var DoSubscriber = (function (_super) {
     return DoSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115}],487:[function(require,module,exports){
+},{"../Subscriber":116}],488:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80255,7 +82206,7 @@ var ThrottleSubscriber = (function (_super) {
     return ThrottleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],488:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],489:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80372,7 +82323,7 @@ function dispatchNext(arg) {
     subscriber.clearThrottle();
 }
 
-},{"../Subscriber":115,"../scheduler/async":514,"./throttle":487}],489:[function(require,module,exports){
+},{"../Subscriber":116,"../scheduler/async":515,"./throttle":488}],490:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80426,7 +82377,7 @@ var TimeIntervalSubscriber = (function (_super) {
     return TimeIntervalSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../scheduler/async":514}],490:[function(require,module,exports){
+},{"../Subscriber":116,"../scheduler/async":515}],491:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80568,7 +82519,7 @@ var TimeoutSubscriber = (function (_super) {
     return TimeoutSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subscriber":115,"../scheduler/async":514,"../util/TimeoutError":533,"../util/isDate":541}],491:[function(require,module,exports){
+},{"../Subscriber":116,"../scheduler/async":515,"../util/TimeoutError":534,"../util/isDate":542}],492:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80697,7 +82648,7 @@ var TimeoutWithSubscriber = (function (_super) {
     return TimeoutWithSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../scheduler/async":514,"../util/isDate":541,"../util/subscribeToResult":551}],492:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../scheduler/async":515,"../util/isDate":542,"../util/subscribeToResult":552}],493:[function(require,module,exports){
 "use strict";
 var async_1 = require('../scheduler/async');
 var map_1 = require('./map');
@@ -80723,7 +82674,7 @@ var Timestamp = (function () {
 exports.Timestamp = Timestamp;
 ;
 
-},{"../scheduler/async":514,"./map":439}],493:[function(require,module,exports){
+},{"../scheduler/async":515,"./map":440}],494:[function(require,module,exports){
 "use strict";
 var reduce_1 = require('./reduce');
 function toArrayReducer(arr, item, index) {
@@ -80738,7 +82689,7 @@ function toArray() {
 }
 exports.toArray = toArray;
 
-},{"./reduce":460}],494:[function(require,module,exports){
+},{"./reduce":461}],495:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80851,7 +82802,7 @@ var WindowSubscriber = (function (_super) {
     return WindowSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subject":113,"../util/subscribeToResult":551}],495:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subject":114,"../util/subscribeToResult":552}],496:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80985,7 +82936,7 @@ var WindowCountSubscriber = (function (_super) {
     return WindowCountSubscriber;
 }(Subscriber_1.Subscriber));
 
-},{"../Subject":113,"../Subscriber":115}],496:[function(require,module,exports){
+},{"../Subject":114,"../Subscriber":116}],497:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81149,7 +83100,7 @@ function dispatchWindowClose(state) {
     subscriber.closeWindow(window);
 }
 
-},{"../Subject":113,"../Subscriber":115,"../scheduler/async":514,"../util/isNumeric":543,"../util/isScheduler":546}],497:[function(require,module,exports){
+},{"../Subject":114,"../Subscriber":116,"../scheduler/async":515,"../util/isNumeric":544,"../util/isScheduler":547}],498:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81330,7 +83281,7 @@ var WindowToggleSubscriber = (function (_super) {
     return WindowToggleSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subject":113,"../Subscription":116,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],498:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subject":114,"../Subscription":117,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],499:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81460,7 +83411,7 @@ var WindowSubscriber = (function (_super) {
     return WindowSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subject":113,"../util/errorObject":537,"../util/subscribeToResult":551,"../util/tryCatch":553}],499:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subject":114,"../util/errorObject":538,"../util/subscribeToResult":552,"../util/tryCatch":554}],500:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81593,7 +83544,7 @@ var WithLatestFromSubscriber = (function (_super) {
     return WithLatestFromSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../util/subscribeToResult":551}],500:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../util/subscribeToResult":552}],501:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81875,7 +83826,7 @@ var ZipBufferIterator = (function (_super) {
     return ZipBufferIterator;
 }(OuterSubscriber_1.OuterSubscriber));
 
-},{"../OuterSubscriber":109,"../Subscriber":115,"../observable/ArrayObservable":247,"../symbol/iterator":516,"../util/isArray":539,"../util/subscribeToResult":551}],501:[function(require,module,exports){
+},{"../OuterSubscriber":110,"../Subscriber":116,"../observable/ArrayObservable":248,"../symbol/iterator":517,"../util/isArray":540,"../util/subscribeToResult":552}],502:[function(require,module,exports){
 "use strict";
 var zip_1 = require('./zip');
 function zipAll(project) {
@@ -81883,7 +83834,7 @@ function zipAll(project) {
 }
 exports.zipAll = zipAll;
 
-},{"./zip":500}],502:[function(require,module,exports){
+},{"./zip":501}],503:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81928,7 +83879,7 @@ var Action = (function (_super) {
 }(Subscription_1.Subscription));
 exports.Action = Action;
 
-},{"../Subscription":116}],503:[function(require,module,exports){
+},{"../Subscription":117}],504:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -81984,7 +83935,7 @@ var AnimationFrameAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.AnimationFrameAction = AnimationFrameAction;
 
-},{"../util/AnimationFrame":524,"./AsyncAction":507}],504:[function(require,module,exports){
+},{"../util/AnimationFrame":525,"./AsyncAction":508}],505:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82022,7 +83973,7 @@ var AnimationFrameScheduler = (function (_super) {
 }(AsyncScheduler_1.AsyncScheduler));
 exports.AnimationFrameScheduler = AnimationFrameScheduler;
 
-},{"./AsyncScheduler":508}],505:[function(require,module,exports){
+},{"./AsyncScheduler":509}],506:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82078,7 +84029,7 @@ var AsapAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.AsapAction = AsapAction;
 
-},{"../util/Immediate":528,"./AsyncAction":507}],506:[function(require,module,exports){
+},{"../util/Immediate":529,"./AsyncAction":508}],507:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82116,7 +84067,7 @@ var AsapScheduler = (function (_super) {
 }(AsyncScheduler_1.AsyncScheduler));
 exports.AsapScheduler = AsapScheduler;
 
-},{"./AsyncScheduler":508}],507:[function(require,module,exports){
+},{"./AsyncScheduler":509}],508:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82259,7 +84210,7 @@ var AsyncAction = (function (_super) {
 }(Action_1.Action));
 exports.AsyncAction = AsyncAction;
 
-},{"../util/root":550,"./Action":502}],508:[function(require,module,exports){
+},{"../util/root":551,"./Action":503}],509:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82311,7 +84262,7 @@ var AsyncScheduler = (function (_super) {
 }(Scheduler_1.Scheduler));
 exports.AsyncScheduler = AsyncScheduler;
 
-},{"../Scheduler":112}],509:[function(require,module,exports){
+},{"../Scheduler":113}],510:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82361,7 +84312,7 @@ var QueueAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.QueueAction = QueueAction;
 
-},{"./AsyncAction":507}],510:[function(require,module,exports){
+},{"./AsyncAction":508}],511:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82378,7 +84329,7 @@ var QueueScheduler = (function (_super) {
 }(AsyncScheduler_1.AsyncScheduler));
 exports.QueueScheduler = QueueScheduler;
 
-},{"./AsyncScheduler":508}],511:[function(require,module,exports){
+},{"./AsyncScheduler":509}],512:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82492,7 +84443,7 @@ var VirtualAction = (function (_super) {
 }(AsyncAction_1.AsyncAction));
 exports.VirtualAction = VirtualAction;
 
-},{"./AsyncAction":507,"./AsyncScheduler":508}],512:[function(require,module,exports){
+},{"./AsyncAction":508,"./AsyncScheduler":509}],513:[function(require,module,exports){
 "use strict";
 var AnimationFrameAction_1 = require('./AnimationFrameAction');
 var AnimationFrameScheduler_1 = require('./AnimationFrameScheduler');
@@ -82528,7 +84479,7 @@ var AnimationFrameScheduler_1 = require('./AnimationFrameScheduler');
  */
 exports.animationFrame = new AnimationFrameScheduler_1.AnimationFrameScheduler(AnimationFrameAction_1.AnimationFrameAction);
 
-},{"./AnimationFrameAction":503,"./AnimationFrameScheduler":504}],513:[function(require,module,exports){
+},{"./AnimationFrameAction":504,"./AnimationFrameScheduler":505}],514:[function(require,module,exports){
 "use strict";
 var AsapAction_1 = require('./AsapAction');
 var AsapScheduler_1 = require('./AsapScheduler');
@@ -82568,7 +84519,7 @@ var AsapScheduler_1 = require('./AsapScheduler');
  */
 exports.asap = new AsapScheduler_1.AsapScheduler(AsapAction_1.AsapAction);
 
-},{"./AsapAction":505,"./AsapScheduler":506}],514:[function(require,module,exports){
+},{"./AsapAction":506,"./AsapScheduler":507}],515:[function(require,module,exports){
 "use strict";
 var AsyncAction_1 = require('./AsyncAction');
 var AsyncScheduler_1 = require('./AsyncScheduler');
@@ -82616,7 +84567,7 @@ var AsyncScheduler_1 = require('./AsyncScheduler');
  */
 exports.async = new AsyncScheduler_1.AsyncScheduler(AsyncAction_1.AsyncAction);
 
-},{"./AsyncAction":507,"./AsyncScheduler":508}],515:[function(require,module,exports){
+},{"./AsyncAction":508,"./AsyncScheduler":509}],516:[function(require,module,exports){
 "use strict";
 var QueueAction_1 = require('./QueueAction');
 var QueueScheduler_1 = require('./QueueScheduler');
@@ -82683,7 +84634,7 @@ var QueueScheduler_1 = require('./QueueScheduler');
  */
 exports.queue = new QueueScheduler_1.QueueScheduler(QueueAction_1.QueueAction);
 
-},{"./QueueAction":509,"./QueueScheduler":510}],516:[function(require,module,exports){
+},{"./QueueAction":510,"./QueueScheduler":511}],517:[function(require,module,exports){
 "use strict";
 var root_1 = require('../util/root');
 function symbolIteratorPonyfill(root) {
@@ -82722,7 +84673,7 @@ exports.iterator = symbolIteratorPonyfill(root_1.root);
  */
 exports.$$iterator = exports.iterator;
 
-},{"../util/root":550}],517:[function(require,module,exports){
+},{"../util/root":551}],518:[function(require,module,exports){
 "use strict";
 var root_1 = require('../util/root');
 function getSymbolObservable(context) {
@@ -82749,7 +84700,7 @@ exports.observable = getSymbolObservable(root_1.root);
  */
 exports.$$observable = exports.observable;
 
-},{"../util/root":550}],518:[function(require,module,exports){
+},{"../util/root":551}],519:[function(require,module,exports){
 "use strict";
 var root_1 = require('../util/root');
 var Symbol = root_1.root.Symbol;
@@ -82760,7 +84711,7 @@ exports.rxSubscriber = (typeof Symbol === 'function' && typeof Symbol.for === 'f
  */
 exports.$$rxSubscriber = exports.rxSubscriber;
 
-},{"../util/root":550}],519:[function(require,module,exports){
+},{"../util/root":551}],520:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82807,7 +84758,7 @@ var ColdObservable = (function (_super) {
 exports.ColdObservable = ColdObservable;
 applyMixins_1.applyMixins(ColdObservable, [SubscriptionLoggable_1.SubscriptionLoggable]);
 
-},{"../Observable":107,"../Subscription":116,"../util/applyMixins":535,"./SubscriptionLoggable":522}],520:[function(require,module,exports){
+},{"../Observable":108,"../Subscription":117,"../util/applyMixins":536,"./SubscriptionLoggable":523}],521:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -82856,7 +84807,7 @@ var HotObservable = (function (_super) {
 exports.HotObservable = HotObservable;
 applyMixins_1.applyMixins(HotObservable, [SubscriptionLoggable_1.SubscriptionLoggable]);
 
-},{"../Subject":113,"../Subscription":116,"../util/applyMixins":535,"./SubscriptionLoggable":522}],521:[function(require,module,exports){
+},{"../Subject":114,"../Subscription":117,"../util/applyMixins":536,"./SubscriptionLoggable":523}],522:[function(require,module,exports){
 "use strict";
 var SubscriptionLog = (function () {
     function SubscriptionLog(subscribedFrame, unsubscribedFrame) {
@@ -82868,7 +84819,7 @@ var SubscriptionLog = (function () {
 }());
 exports.SubscriptionLog = SubscriptionLog;
 
-},{}],522:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 "use strict";
 var SubscriptionLog_1 = require('./SubscriptionLog');
 var SubscriptionLoggable = (function () {
@@ -82888,7 +84839,7 @@ var SubscriptionLoggable = (function () {
 }());
 exports.SubscriptionLoggable = SubscriptionLoggable;
 
-},{"./SubscriptionLog":521}],523:[function(require,module,exports){
+},{"./SubscriptionLog":522}],524:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83112,7 +85063,7 @@ var TestScheduler = (function (_super) {
 }(VirtualTimeScheduler_1.VirtualTimeScheduler));
 exports.TestScheduler = TestScheduler;
 
-},{"../Notification":106,"../Observable":107,"../scheduler/VirtualTimeScheduler":511,"./ColdObservable":519,"./HotObservable":520,"./SubscriptionLog":521}],524:[function(require,module,exports){
+},{"../Notification":107,"../Observable":108,"../scheduler/VirtualTimeScheduler":512,"./ColdObservable":520,"./HotObservable":521,"./SubscriptionLog":522}],525:[function(require,module,exports){
 "use strict";
 var root_1 = require('./root');
 var RequestAnimationFrameDefinition = (function () {
@@ -83147,7 +85098,7 @@ var RequestAnimationFrameDefinition = (function () {
 exports.RequestAnimationFrameDefinition = RequestAnimationFrameDefinition;
 exports.AnimationFrame = new RequestAnimationFrameDefinition(root_1.root);
 
-},{"./root":550}],525:[function(require,module,exports){
+},{"./root":551}],526:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83176,7 +85127,7 @@ var ArgumentOutOfRangeError = (function (_super) {
 }(Error));
 exports.ArgumentOutOfRangeError = ArgumentOutOfRangeError;
 
-},{}],526:[function(require,module,exports){
+},{}],527:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83205,7 +85156,7 @@ var EmptyError = (function (_super) {
 }(Error));
 exports.EmptyError = EmptyError;
 
-},{}],527:[function(require,module,exports){
+},{}],528:[function(require,module,exports){
 "use strict";
 var FastMap = (function () {
     function FastMap() {
@@ -83237,7 +85188,7 @@ var FastMap = (function () {
 }());
 exports.FastMap = FastMap;
 
-},{}],528:[function(require,module,exports){
+},{}],529:[function(require,module,exports){
 /**
 Some credit for this helper goes to http://github.com/YuzuJS/setImmediate
 */
@@ -83447,13 +85398,13 @@ var ImmediateDefinition = (function () {
 exports.ImmediateDefinition = ImmediateDefinition;
 exports.Immediate = new ImmediateDefinition(root_1.root);
 
-},{"./root":550}],529:[function(require,module,exports){
+},{"./root":551}],530:[function(require,module,exports){
 "use strict";
 var root_1 = require('./root');
 var MapPolyfill_1 = require('./MapPolyfill');
 exports.Map = root_1.root.Map || (function () { return MapPolyfill_1.MapPolyfill; })();
 
-},{"./MapPolyfill":530,"./root":550}],530:[function(require,module,exports){
+},{"./MapPolyfill":531,"./root":551}],531:[function(require,module,exports){
 "use strict";
 var MapPolyfill = (function () {
     function MapPolyfill() {
@@ -83501,7 +85452,7 @@ var MapPolyfill = (function () {
 }());
 exports.MapPolyfill = MapPolyfill;
 
-},{}],531:[function(require,module,exports){
+},{}],532:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83529,7 +85480,7 @@ var ObjectUnsubscribedError = (function (_super) {
 }(Error));
 exports.ObjectUnsubscribedError = ObjectUnsubscribedError;
 
-},{}],532:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 "use strict";
 var root_1 = require('./root');
 function minimalSetImpl() {
@@ -83563,7 +85514,7 @@ function minimalSetImpl() {
 exports.minimalSetImpl = minimalSetImpl;
 exports.Set = root_1.root.Set || minimalSetImpl();
 
-},{"./root":550}],533:[function(require,module,exports){
+},{"./root":551}],534:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83589,7 +85540,7 @@ var TimeoutError = (function (_super) {
 }(Error));
 exports.TimeoutError = TimeoutError;
 
-},{}],534:[function(require,module,exports){
+},{}],535:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -83615,7 +85566,7 @@ var UnsubscriptionError = (function (_super) {
 }(Error));
 exports.UnsubscriptionError = UnsubscriptionError;
 
-},{}],535:[function(require,module,exports){
+},{}],536:[function(require,module,exports){
 "use strict";
 function applyMixins(derivedCtor, baseCtors) {
     for (var i = 0, len = baseCtors.length; i < len; i++) {
@@ -83629,7 +85580,7 @@ function applyMixins(derivedCtor, baseCtors) {
 }
 exports.applyMixins = applyMixins;
 
-},{}],536:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 "use strict";
 var root_1 = require('./root');
 function assignImpl(target) {
@@ -83656,41 +85607,41 @@ function getAssign(root) {
 exports.getAssign = getAssign;
 exports.assign = getAssign(root_1.root);
 
-},{"./root":550}],537:[function(require,module,exports){
+},{"./root":551}],538:[function(require,module,exports){
 "use strict";
 // typeof any so that it we don't have to cast when comparing a result to the error object
 exports.errorObject = { e: {} };
 
-},{}],538:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 "use strict";
 function identity(x) {
     return x;
 }
 exports.identity = identity;
 
-},{}],539:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 "use strict";
 exports.isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
 
-},{}],540:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 "use strict";
 exports.isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 
-},{}],541:[function(require,module,exports){
+},{}],542:[function(require,module,exports){
 "use strict";
 function isDate(value) {
     return value instanceof Date && !isNaN(+value);
 }
 exports.isDate = isDate;
 
-},{}],542:[function(require,module,exports){
+},{}],543:[function(require,module,exports){
 "use strict";
 function isFunction(x) {
     return typeof x === 'function';
 }
 exports.isFunction = isFunction;
 
-},{}],543:[function(require,module,exports){
+},{}],544:[function(require,module,exports){
 "use strict";
 var isArray_1 = require('../util/isArray');
 function isNumeric(val) {
@@ -83703,34 +85654,34 @@ function isNumeric(val) {
 exports.isNumeric = isNumeric;
 ;
 
-},{"../util/isArray":539}],544:[function(require,module,exports){
+},{"../util/isArray":540}],545:[function(require,module,exports){
 "use strict";
 function isObject(x) {
     return x != null && typeof x === 'object';
 }
 exports.isObject = isObject;
 
-},{}],545:[function(require,module,exports){
+},{}],546:[function(require,module,exports){
 "use strict";
 function isPromise(value) {
     return value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
 }
 exports.isPromise = isPromise;
 
-},{}],546:[function(require,module,exports){
+},{}],547:[function(require,module,exports){
 "use strict";
 function isScheduler(value) {
     return value && typeof value.schedule === 'function';
 }
 exports.isScheduler = isScheduler;
 
-},{}],547:[function(require,module,exports){
+},{}],548:[function(require,module,exports){
 "use strict";
 /* tslint:disable:no-empty */
 function noop() { }
 exports.noop = noop;
 
-},{}],548:[function(require,module,exports){
+},{}],549:[function(require,module,exports){
 "use strict";
 function not(pred, thisArg) {
     function notPred() {
@@ -83742,7 +85693,7 @@ function not(pred, thisArg) {
 }
 exports.not = not;
 
-},{}],549:[function(require,module,exports){
+},{}],550:[function(require,module,exports){
 "use strict";
 var noop_1 = require('./noop');
 /* tslint:enable:max-line-length */
@@ -83768,7 +85719,7 @@ function pipeFromArray(fns) {
 }
 exports.pipeFromArray = pipeFromArray;
 
-},{"./noop":547}],550:[function(require,module,exports){
+},{"./noop":548}],551:[function(require,module,exports){
 (function (global){
 "use strict";
 // CommonJS / Node have global context exposed as "global" variable.
@@ -83790,7 +85741,7 @@ exports.root = _root;
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],551:[function(require,module,exports){
+},{}],552:[function(require,module,exports){
 "use strict";
 var root_1 = require('./root');
 var isArrayLike_1 = require('./isArrayLike');
@@ -83870,7 +85821,7 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
 }
 exports.subscribeToResult = subscribeToResult;
 
-},{"../InnerSubscriber":105,"../Observable":107,"../symbol/iterator":516,"../symbol/observable":517,"./isArrayLike":540,"./isObject":544,"./isPromise":545,"./root":550}],552:[function(require,module,exports){
+},{"../InnerSubscriber":106,"../Observable":108,"../symbol/iterator":517,"../symbol/observable":518,"./isArrayLike":541,"./isObject":545,"./isPromise":546,"./root":551}],553:[function(require,module,exports){
 "use strict";
 var Subscriber_1 = require('../Subscriber');
 var rxSubscriber_1 = require('../symbol/rxSubscriber');
@@ -83891,7 +85842,7 @@ function toSubscriber(nextOrObserver, error, complete) {
 }
 exports.toSubscriber = toSubscriber;
 
-},{"../Observer":108,"../Subscriber":115,"../symbol/rxSubscriber":518}],553:[function(require,module,exports){
+},{"../Observer":109,"../Subscriber":116,"../symbol/rxSubscriber":519}],554:[function(require,module,exports){
 "use strict";
 var errorObject_1 = require('./errorObject');
 var tryCatchTarget;
@@ -83911,7 +85862,7 @@ function tryCatch(fn) {
 exports.tryCatch = tryCatch;
 ;
 
-},{"./errorObject":537}],554:[function(require,module,exports){
+},{"./errorObject":538}],555:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -83990,7 +85941,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":97,"timers":554}],555:[function(require,module,exports){
+},{"process/browser.js":98,"timers":555}],556:[function(require,module,exports){
 // simply exports input manager as the main package content.
 const InputManager = require('./src/Manager');
 const GameStateEnums = require('./src/utils/GameStateEnums');
@@ -84002,7 +85953,7 @@ module.exports = {
     GameStateController
 };
 
-},{"./src/GameStateController":557,"./src/Manager":558,"./src/utils/GameStateEnums":561}],556:[function(require,module,exports){
+},{"./src/GameStateController":558,"./src/Manager":559,"./src/utils/GameStateEnums":562}],557:[function(require,module,exports){
 /**
  * This class is responsible for keeping track of all buttons and what actions are tied to them.
  *
@@ -84107,7 +86058,7 @@ class ActionRegistry {
 
 module.exports = ActionRegistry;
 
-},{}],557:[function(require,module,exports){
+},{}],558:[function(require,module,exports){
 // contains methods for emitting and handling specific states
 const {BehaviorSubject} = require('rxjs');
 const GAME_STATES = require('./utils/GameStateEnums');
@@ -84248,7 +86199,7 @@ class GameStateController {
 
 module.exports = GameStateController;
 
-},{"./utils/GameStateEnums":561,"rxjs":111}],558:[function(require,module,exports){
+},{"./utils/GameStateEnums":562,"rxjs":112}],559:[function(require,module,exports){
 const ActionRegistry = require('./ActionRegistry');
 const ActionHistoryUtil = require('./utils/ActionHistory');
 const ActionEvent = require('./utils/ActionEvent');
@@ -84417,7 +86368,7 @@ class Manager {
 
 module.exports = Manager;
 
-},{"./ActionRegistry":556,"./utils/ActionEvent":559,"./utils/ActionHistory":560,"rxjs/Rx":111}],559:[function(require,module,exports){
+},{"./ActionRegistry":557,"./utils/ActionEvent":560,"./utils/ActionHistory":561,"rxjs/Rx":112}],560:[function(require,module,exports){
 /**
  * This class defines the packet that contains the ActionEvent
  * that is emitted when a button is pressed.
@@ -84524,7 +86475,7 @@ class ActionEvent {
 
 module.exports = ActionEvent;
 
-},{}],560:[function(require,module,exports){
+},{}],561:[function(require,module,exports){
 const DEFAULT_DELAY_MS = 350;
 
 /**
@@ -84652,7 +86603,7 @@ class ActionHistoryUtil {
 
 module.exports = ActionHistoryUtil;
 
-},{}],561:[function(require,module,exports){
+},{}],562:[function(require,module,exports){
 /**
  * Definition of Game States used by GameStateController.
  *
@@ -84670,7 +86621,7 @@ const GameStateEnums = Object.freeze({
 
 module.exports = GameStateEnums;
 
-},{}],562:[function(require,module,exports){
+},{}],563:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -85404,7 +87355,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":563,"punycode":98,"querystring":101}],563:[function(require,module,exports){
+},{"./util":564,"punycode":99,"querystring":102}],564:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -85422,7 +87373,7 @@ module.exports = {
   }
 };
 
-},{}],564:[function(require,module,exports){
+},{}],565:[function(require,module,exports){
 const exampleAnalysis = require("../../static/json/SmokeandGunsAnalysis"),
 	exampleFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Game = require("../js/Game");
@@ -85446,7 +87397,7 @@ const canvas = document.getElementById("mycanvas");
 // init game
 
 new Game(mockStateController, canvas);
-},{"../../static/json/SmokeandGunsAnalysis":577,"../../static/json/SmokeandGunsFeatures":578,"../js/Game":568,"tune-mountain-input-manager":555}],565:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":577,"../../static/json/SmokeandGunsFeatures":578,"../js/Game":567,"tune-mountain-input-manager":556}],566:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Bezier(viewport, curvePoints) {
@@ -85522,205 +87473,10 @@ function drawCurves(bezier, points, curvePoints) {
 	bezier.endFill();
 }
 
-},{"pixi.js":43}],566:[function(require,module,exports){
-const PIXI = require("pixi.js");
-const Viewport = require("./Viewport");
-const Planck = require("planck-js");
-const Vec2 = Planck.Vec2;
-const GameObject = require("./GameObject");
-
-function Coins(analysis, allPoints, viewport, player) {
-	const obj = new GameObject();
-	let currentSection;
-	let allPointCounter = 0;			// counts all points from the physics
-	let coinObjects = [];				// stores all coin sprite objects
-	let sectionBeats = [];					// all beats for a given section
-	let coinPlacer = 0;					// counter for coin placement
-	let maxCoinSeries = 4;				// max count of coins to spread in series
-	let beatLength;						// num beats / curve resolution
-
-	const texture = PIXI.Texture.from("../img/tree2_snowy.png");
-	// lay coins
-
-	for(let i = 0; i < analysis.sections.length; i+=1){
-		coinPlacer = 0;
-		beatLength = beatsToPoints(sectionBeats.length);
-		currentSection = analysis.sections[i];
-		sectionBeats = getBeatsInSection(currentSection);
-		//console.log(sectionBeats);
-		//console.log(beatLength);
-
-		for(let k = 0; k < sectionBeats.length; k+=1) {
-			let coinSprite = new PIXI.Sprite(texture);
-
-			if(allPointCounter >= allPoints.length){
-				break;
-			}
-
-			coinSprite.scale.x = 0.3;
-			coinSprite.scale.y = 0.3;
-			coinSprite.anchor.x = 0.5;
-			coinSprite.anchor.y = 1.0;
-
-			coinSprite.position.x = allPoints[allPointCounter].x;
-			coinSprite.position.y = allPoints[allPointCounter].y;
-
-			let coinObj = obj.create({name: "Coin", position: coinSprite.position, sprite: coinSprite, scale: coinSprite.size});
-
-			coinObjects.push(coinObj);
-			viewport.addChild(coinSprite);
-
-			coinPlacer += 1;
-			allPointCounter += beatLength;
-
-
-			// reset coin placer when doubled coin series
-			if(coinPlacer > (currentSection.time_signature)) {
-				coinPlacer = 0;
-			}
-		}
-
-	}
-
-	function getBeatsInSection(section) {
-		let beats = [];
-		let currBeat;
-		let currBeatEnd;
-		let sectionEnd = section.start + section.duration;
-
-		for(let k = 0; k < analysis.beats.length; k += 1) {
-			currBeat = analysis.beats[k];
-			currBeatEnd = currBeat.start + currBeat.duration;
-
-			if(currBeat.start >= section.start && currBeatEnd <= sectionEnd) {
-				beats.push(currBeat);
-			}
-		}
-		return beats;
-	}
-
-	function beatsToPoints(numBeats){
-		let numPoints = allPoints.length / analysis.sections.length;
-		//console.log("Num points per curve: " + numPoints);
-		let length;
-		if(numBeats > 0) {
-			length = Math.ceil(numPoints / numBeats);
-		}
-		else {length = 1;}
-
-		return length;
-	}
-
-	return coinObjects;
-}
-
-module.exports = Coins;
-
-},{"./GameObject":569,"./Viewport":576,"pixi.js":43,"planck-js":70}],567:[function(require,module,exports){
-const PIXI = require("pixi.js");
-const Viewport = require("./Viewport");
-const GameObject = require("./GameObject");
-
-function Collisions(game, viewport, player, coins, songFeatures) {
-
-	let tempoCounter = 0;
-	let tempoFlag = true;		// true = getting bigger, false = getting smaller
-
-	// Collect coin if the sprites collided
-	function collectCoin() {
-		let currCoin;
-
-		for(let i = 0; i < coins.length; i++){
-			currCoin = coins[i].sprite;
-			/*
-			if(playerHitTest(player.sprite, currCoin)){
-				//console.log("Player collision");
-				//deleteCoin(currCoin);
-				//currCoin.destroy();
-				break;
-			}
-			 */
-			//if(tempo)
-		}
-
-	}
-
-	// Check collision between sprites
-	// TODO add rotation into account
-	function playerHitTest(player, s2){
-		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
-			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
-				if ((player.y - player.height) + (player.height) > (s2.y - s2.height / 2)) {
-					if ((player.y - player.height) < (s2.y - s2.height / 2) + (s2.height / 2)) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-
-	function pulseUp(sprite){
-		//sprite.scale.x += 0.004;
-		sprite.scale.y += 0.004;
-
-
-	}
-	function pulseDown(sprite){
-
-		//sprite.scale.x -= 0.004;
-		sprite.scale.y -= 0.004;
-
-	}
-	
-	const pulseTrees = () => {
-		let currCoin;
-		let tempo = songFeatures.tempo / 2.0;
-
-
-		if(tempoCounter === 0){
-			tempoFlag = true;
-		}
-		else if(tempoCounter >= tempo){
-			tempoFlag = false;
-		}
-
-		for(let i = 0; i < coins.length; i++) {
-			currCoin = coins[i].sprite;
-
-			if(tempoFlag){
-				pulseUp(currCoin);
-			}
-			else {
-				pulseDown(currCoin);
-			}
-		}
-
-		// incrementation
-		if(tempoFlag){
-			tempoCounter++;
-		}
-		else {
-			tempoCounter--;
-		}
-	};
-
-	// psuedo delete the sprite by moving it out of screen
-	function deleteCoin(coin){
-
-		coin.position.x = -1000;
-		coin.position.y = -1000;
-	}
-
-	game.ticker.add(pulseTrees);
-}
-
-module.exports = Collisions;
-
-},{"./GameObject":569,"./Viewport":576,"pixi.js":43}],568:[function(require,module,exports){
+},{"pixi.js":44}],567:[function(require,module,exports){
 // npm imports
 const PIXI = require("pixi.js");
+const particles = require("pixi-particles");
 const Planck = require("planck-js");
 
 // local modules
@@ -85736,8 +87492,7 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
-const Coins = require("./Coins");
-const Collisions = require("./Collisions");
+const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
@@ -85765,7 +87520,7 @@ class Game {
 	 * @param {GameStateController} stateController game state controller object
 	 * @param {Node} canvas HTML canvas element
 	 */
-	constructor(stateController, canvas) {
+	constructor(stateController, canvas, inputManagerInstance = null) {
 
 		// must have both for game to work
 		if (!stateController || !canvas) {
@@ -85779,7 +87534,7 @@ class Game {
 		this.stateController = stateController;
 
 		//****** INITIALIZING INPUT MANAGER *******//
-		const inputManager = new InputManager();
+		const inputManager = inputManagerInstance ? inputManagerInstance : new InputManager();
 
 		// bind actions
 		inputManager.bindAction("Spacebar", "jump"); // TODO: (for leo) update input manager to be able to chain bind actions
@@ -85801,7 +87556,7 @@ class Game {
 		//****** INITIALIZING PIXI *******//
 		this.pixiApp = null;
 
-		this.CAN_JUMP = false;
+		this.ON_SLOPE = false;
 
 		this.songAnalysis = null;
 		this.songFeatures = null;
@@ -85847,6 +87602,8 @@ class Game {
 				sharedTicker: true
 			});
 		}
+
+		this.pixiApp.maxFPS = 60;
 
 		return this.pixiApp;
 	}
@@ -85895,7 +87652,6 @@ class Game {
 			//throw new Error("Pixi not initialized properly. Check code.");
 			this.getPixiApp(canvas);
 		}
-
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
@@ -86034,11 +87790,11 @@ class Game {
 
 			if (playerA || playerB) {
 
-				if (this.CAN_JUMP === false) {
+				if (this.ON_SLOPE === false) {
 					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
 
-				this.CAN_JUMP = true;
+				this.ON_SLOPE = true;
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
@@ -86056,17 +87812,17 @@ class Game {
 
 
 		const handleActions = () => {
-			if (this.actionState.jump === "press" && this.CAN_JUMP === true) {
+			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
 
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
-				this.CAN_JUMP = false;
+				this.ON_SLOPE = false;
 			}
 
-			if (this.actionState.trick1 === "press") {
+			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !this.sprites.trick1.playing) {
 				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
 			}
 
@@ -86087,14 +87843,87 @@ class Game {
 
 
 				console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
-				console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
+				//console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
 				lastCurveTime = currentTime;
 			}
 		};
 
+		const particle = PIXI.Texture.from("../img/particle.png");
+		let emitter = new particles.Emitter(viewport, [particle],
+			{
+				"alpha": {
+					"start": 1,
+					"end": 0
+				},
+				"scale": {
+					"start": 0.02,
+					"end": 0.01,
+					"minimumScaleMultiplier": 1
+				},
+				"color": {
+					"start": "#e4f9ff",
+					"end": "#3fcbff"
+				},
+				"speed": {
+					"start": 75,
+					"end": 25,
+					"minimumSpeedMultiplier": 1
+				},
+				"acceleration": {
+					"x": 0,
+					"y": 0
+				},
+				"maxSpeed": 0,
+				"startRotation": {
+					"min": 0,
+					"max": 360
+				},
+				"noRotation": false,
+				"rotationSpeed": {
+					"min": 0,
+					"max": 0
+				},
+				"lifetime": {
+					"min": 0.2,
+					"max": 0.8
+				},
+				"blendMode": "normal",
+				"frequency": 0.001,
+				"emitterLifetime": -1,
+				"maxParticles": 500,
+				"pos": {
+					"x": 0,
+					"y": 0
+				},
+				"addAtBack": false,
+				"spawnType": "circle",
+				"spawnCircle": {
+					"x": 1,
+					"y": 1.5,
+					"r": 0
+				}
+			}
+		);
+
+		// Calculate the current time
+		let elapsed = Date.now();
+
+		const updateEmitter = function() {
+
+			let now = Date.now();
+
+			// The emitter requires the elapsed
+			// number of seconds since the last update
+			emitter.updateSpawnPos(player.position.x, player.position.y);
+			emitter.update((now - elapsed) * 0.001);
+			elapsed = now;
+		};
+
+
 		this.pixiApp.ticker.add(handleActions);
 		this.pixiApp.ticker.add(handleTime);
 		this.pixiApp.ticker.add(followPlayer);
+		this.pixiApp.ticker.add(updateEmitter);
 
 		this.stateController.notify(GameStateEnums.PLAY, null);
 	}
@@ -86144,7 +87973,7 @@ class Game {
 
 module.exports = Game;
 
-},{"./Bezier":565,"./Coins":566,"./Collisions":567,"./GameObject":569,"./GenerationAlgorithm":570,"./Parallax":571,"./Physics":572,"./Score":573,"./Shaders":574,"./Trees":575,"./Viewport":576,"pixi.js":43,"planck-js":70,"tune-mountain-input-manager":555}],569:[function(require,module,exports){
+},{"./Bezier":566,"./GameObject":568,"./GenerationAlgorithm":569,"./Parallax":570,"./Physics":571,"./PulseTrees":572,"./Score":573,"./Shaders":574,"./Trees":575,"./Viewport":576,"pixi-particles":42,"pixi.js":44,"planck-js":71,"tune-mountain-input-manager":556}],568:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -86196,7 +88025,7 @@ function GameObject () {
 
 module.exports = GameObject;
 
-},{"./Bezier":565,"./Physics":572,"pixi.js":43,"planck-js":70}],570:[function(require,module,exports){
+},{"./Bezier":566,"./Physics":571,"pixi.js":44,"planck-js":71}],569:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 //let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
@@ -86342,6 +88171,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let yLength = (endPoint.y - startPoint.y);
 		//console.log("Initial curve X len: " + xLength + " Y len: " + yLength + " Angle: " + sectionAngle);
 
+
 		if (sectionAngle > 0 && sectionAngle <= 10){
 			endPoint.x += xLength * (tempo / 1.50) ;
 			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
@@ -86397,7 +88227,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 }
 
 module.exports = GenerationAlgorithm;
-},{"pixi.js":43,"planck-js":70}],571:[function(require,module,exports){
+},{"pixi.js":44,"planck-js":71}],570:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Parallax(game, shaders) {
@@ -86414,8 +88244,16 @@ function Parallax(game, shaders) {
 
 	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, shaders);
 	const tilingSprite3 = createTilingSprite(game, "../img/bg_layer3.png", -65, shaders);
+	tilingSprite3.filters = [shaders.shader0];
 	const tilingSprite2 = createTilingSprite(game, "../img/bg_layer2.png", -33, shaders);
 	const tilingSprite1 = createTilingSprite(game, "../img/bg_layer1.png", 0, shaders);
+
+	let cloud1 = createCloud(game);
+	let cloud2 = createCloud(game);
+
+	let speed1 = getRandomArbitrary(0.1, 0.5);
+	let speed2 = getRandomArbitrary(0.1, 0.5);
+	let zIndex;
 
 	let delta = 0;
 	game.ticker.add(() => {
@@ -86426,6 +88264,23 @@ function Parallax(game, shaders) {
 
 		delta += 0.1;
 		uniforms.delta = Math.sin(delta) * 0.5;
+
+		cloud1.position.x -= speed1;
+		cloud2.position.x -= speed2;
+
+		if (cloud1.position.x < -100) {
+			cloud1.texture = PIXI.Texture.from("../img/cloud" + getRandomIntInclusive(1, 4) + ".png");
+			cloud1.position.x = game.screen.width + 100;
+			cloud1.position.y = getRandomIntInclusive(50, 250);
+			speed1 = getRandomArbitrary(0.1, 0.5);
+		}
+
+		if (cloud2.position.x < -100) {
+			cloud2.texture = PIXI.Texture.from("../img/cloud" + getRandomIntInclusive(1, 4) + ".png");
+			cloud2.position.x = game.screen.width + 100;
+			cloud2.position.y = getRandomIntInclusive(50, 250);
+			speed2 = getRandomArbitrary(0.1, 0.5);
+		}
 	});
 
 }
@@ -86442,7 +88297,7 @@ function createTilingSprite(game, location, y, shaders) {
 	);
 
 	// adding the shader
-	tilingSprite.filters = [shaders.shader0];
+	//tilingSprite.filters = [shaders.shader0];
 
 	game.stage.addChild(tilingSprite);
 
@@ -86456,11 +88311,33 @@ function createTilingSprite(game, location, y, shaders) {
 	return tilingSprite;
 }
 
+function createCloud(game) {
+	const texture = PIXI.Texture.from("../img/cloud" + getRandomIntInclusive(1, 4) + ".png");
+	const sprite = new PIXI.Sprite(texture);
+
+	game.stage.addChild(sprite);
+
+	sprite.position.x = game.screen.width + 100;
+	sprite.position.y = getRandomIntInclusive(50, 250);
+
+	return sprite;
+}
+
+function getRandomIntInclusive(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomArbitrary(min, max) {
+	return Math.random() * (max - min) + min;
+}
+
 module.exports = Parallax;
 
 
 
-},{"pixi.js":43}],572:[function(require,module,exports){
+},{"pixi.js":44}],571:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
@@ -86668,7 +88545,114 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 module.exports = Physics;
 
-},{"./GameObject":569,"pixi.js":43,"planck-js":70}],573:[function(require,module,exports){
+},{"./GameObject":568,"pixi.js":44,"planck-js":71}],572:[function(require,module,exports){
+const PIXI = require("pixi.js");
+const Viewport = require("./Viewport");
+const GameObject = require("./GameObject");
+
+function PulseTrees(game, viewport, player, trees, songFeatures) {
+
+	let tempoCounter = 0;
+	let tempoFlag = true;		// true = getting bigger, false = getting smaller
+
+	function pulseUp(sprite){
+		//sprite.scale.x += 0.004;
+		sprite.scale.y += 0.004;
+
+
+	}
+	function pulseDown(sprite){
+
+		//sprite.scale.x -= 0.004;
+		sprite.scale.y -= 0.004;
+
+	}
+
+	const pulseTrees = () => {
+		let currTree;
+		let tempo = songFeatures.tempo / 2.0;
+
+		if(tempoCounter === 0){
+			tempoFlag = true;
+		}
+		else if(tempoCounter >= tempo){
+			tempoFlag = false;
+		}
+
+		for(let i = 0; i < trees.length; i++) {
+			currTree = trees[i].sprite;
+
+			let screen = viewport.getVisibleBounds();
+			let withinScreen = screen.contains(currTree.position.x, currTree.position.y);
+
+			if (withinScreen) {
+				if (tempoFlag) {
+					pulseUp(currTree);
+				} else {
+					pulseDown(currTree);
+				}
+			}
+		}
+
+		// incrementation
+		if(tempoFlag){
+			tempoCounter++;
+		}
+		else {
+			tempoCounter--;
+		}
+	};
+
+	game.ticker.add(pulseTrees);
+
+	/*
+	Don't want to delete code but refactoring tree pulsing properly
+	// Collect coin if the sprites collided
+	function collectCoin() {
+		let currCoin;
+
+		for(let i = 0; i < coins.length; i++){
+			currCoin = coins[i].sprite;
+			if(playerHitTest(player.sprite, currCoin)){
+				//console.log("Player collision");
+				//deleteCoin(currCoin);
+				//currCoin.destroy();
+				break;
+			}
+			//if(tempo)
+		}
+
+	}
+
+	// Check collision between sprites
+	// TODO add rotation into account
+	function playerHitTest(player, s2){
+		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
+			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
+				if ((player.y - player.height) + (player.height) > (s2.y - s2.height / 2)) {
+					if ((player.y - player.height) < (s2.y - s2.height / 2) + (s2.height / 2)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	// psuedo delete the sprite by moving it out of screen
+	function deleteCoin(coin){
+
+		coin.position.x = -1000;
+		coin.position.y = -1000;
+	}
+
+	 */
+}
+
+module.exports = PulseTrees;
+
+},{"./GameObject":568,"./Viewport":576,"pixi.js":44}],573:[function(require,module,exports){
 const {
 	InputManager,
 	GameStateController,
@@ -86693,7 +88677,7 @@ function Score(stateController) {
 }
 
 module.exports = Score;
-},{"tune-mountain-input-manager":555}],574:[function(require,module,exports){
+},{"tune-mountain-input-manager":556}],574:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Shaders(audioFeatures, game){
@@ -86732,6 +88716,7 @@ function Shaders(audioFeatures, game){
 	uniform float time;
 	uniform float tempo;
 	uniform float energy;
+	uniform float valence;
 	uniform float resolutionX;
 	uniform float resolutionY;
 	
@@ -86740,8 +88725,8 @@ function Shaders(audioFeatures, game){
 		vec2 p = gl_FragCoord.xy / vec2(resolutionX, resolutionY);
 		
 		float frequency = 0.1;
-	
-		color.rgb = vec3(sin(time * p.y * tempo * energy * frequency) , 0.8 - cos(time * energy * 0.1), smoothstep(abs(time + (energy * tempo)), 0.2, 0.7) - 0.2);
+		
+		color.rgb = vec3(valence * p.y , 1. - cos(time * energy * 4.), smoothstep(abs(time * energy + tempo * 10.), 0.2, 0.7));
 		
 		gl_FragColor = color;
 	}`;
@@ -86787,7 +88772,7 @@ function Shaders(audioFeatures, game){
 
 	let time = 0;
 	game.ticker.add(() => {
-		time += 0.1;
+		time += 0.01;
 		uniforms.time = time;
 	});
 
@@ -86805,7 +88790,7 @@ function Shaders(audioFeatures, game){
 }
 
 module.exports = Shaders;
-},{"pixi.js":43}],575:[function(require,module,exports){
+},{"pixi.js":44}],575:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const Vec2 = Planck.Vec2;
@@ -86893,11 +88878,15 @@ function Trees(sections, features, allPoints, viewport, game) {
 		for(let i = 0; i < allTrees.length; i++) {
 			currTree = allTrees[i];
 
-			if(tempoFlag){
-				pulseUp(currTree);
-			}
-			else {
-				pulseDown(currTree);
+			let screen = viewport.getVisibleBounds();
+			let withinScreen = screen.contains(currTree.position.x, currTree.position.y);
+
+			if (withinScreen) {
+				if (tempoFlag) {
+					pulseUp(currTree);
+				} else {
+					pulseDown(currTree);
+				}
 			}
 		}
 
@@ -86932,7 +88921,8 @@ function getRandomInt(min, max) {
 }
 
 module.exports = Trees;
-},{"pixi.js":43,"planck-js":70}],576:[function(require,module,exports){
+
+},{"pixi.js":44,"planck-js":71}],576:[function(require,module,exports){
 
 const Viewport = require("pixi-viewport").Viewport;
 
@@ -86961,7 +88951,7 @@ function CreateViewport(game) {
 }
 
 module.exports = CreateViewport;
-},{"pixi-viewport":42}],577:[function(require,module,exports){
+},{"pixi-viewport":43}],577:[function(require,module,exports){
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",
@@ -120604,4 +122594,4 @@ module.exports={
   "duration_ms": 196190,
   "time_signature": 4
 }
-},{}]},{},[564]);
+},{}]},{},[565]);

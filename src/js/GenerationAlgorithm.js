@@ -143,6 +143,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let yLength = (endPoint.y - startPoint.y);
 		//console.log("Initial curve X len: " + xLength + " Y len: " + yLength + " Angle: " + sectionAngle);
 
+
 		if (sectionAngle > 0 && sectionAngle <= 10){
 			endPoint.x += xLength * (tempo / 1.50) ;
 			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
