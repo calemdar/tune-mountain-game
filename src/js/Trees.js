@@ -112,14 +112,14 @@ function Trees(sections, features, allPoints, viewport, game) {
 
 function pulseUp(sprite){
 	//sprite.scale.x += 0.004;
-	sprite.scale.y += 0.002;
+	sprite.scale.y += 0.001;
 
 
 }
 function pulseDown(sprite){
 
 	//sprite.scale.x -= 0.004;
-	sprite.scale.y -= 0.002;
+	sprite.scale.y -= 0.001;
 
 }
 

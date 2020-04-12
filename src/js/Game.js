@@ -65,6 +65,7 @@ class Game {
 		inputManager.bindAction("j", "jump");
 		inputManager.bindAction(" ", "jump");
 		inputManager.bindAction("w", "trick1");
+		inputManager.bindAction("a", "trick2");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
@@ -90,10 +91,13 @@ class Game {
 			title: null,
 			idle: null,
 			jump: null,
-			trick1: null
+			trick1: null,
+			trick2: null
 		};
 
 		this.score = null;
+		this.consecutiveTricks = 0;
+		this.multiplier = 1;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
@@ -179,63 +183,7 @@ class Game {
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
-		let idle = [
-			"idle_frame_1.png",
-			"idle_frame_2.png",
-			"idle_frame_3.png",
-			"idle_frame_4.png",
-			"idle_frame_5.png",
-			"idle_frame_6.png"
-		];
-
-		let jump = [
-			"jump_frame_1.png",
-			"jump_frame_2.png",
-			"jump_frame_3.png",
-			"jump_frame_4.png",
-			"jump_frame_5.png",
-			"jump_frame_6.png",
-			"jump_frame_7.png",
-			"jump_frame_8.png",
-			"jump_frame_9.png",
-			"jump_frame_10.png",
-			"jump_frame_11.png",
-			"jump_frame_12.png",
-			"jump_frame_13.png",
-			"jump_frame_14.png"
-		];
-
-		let trick = [
-			"trick1.png",
-			"trick2.png",
-			"trick3.png",
-			"trick4.png",
-			"trick5.png",
-			"trick6.png",
-			"trick7.png",
-			"trick8.png",
-			"trick9.png",
-			"trick10.png"
-		];
-
-		let idleArray = [];
-		let jumpArray = [];
-		let trickArray = [];
-
-		for (let i = 0; i < 6; i++) {
-			let texture = PIXI.Texture.from("/img/" + idle[i]);
-			idleArray.push(texture);
-		}
-
-		for (let i = 0; i < 14; i++) {
-			let texture = PIXI.Texture.from("/img/" + jump[i]);
-			jumpArray.push(texture);
-		}
-
-		for (let i = 0; i < 10; i++) {
-			let texture = PIXI.Texture.from("/img/" + trick[i]);
-			trickArray.push(texture);
-		}
+		let textures = this.createTextures();
 
 		// Compile Shaders
 		let shaderObject = Shaders(this.songFeatures, this.getPixiApp());
@@ -254,31 +202,41 @@ class Game {
 		const followSprite = new PIXI.Sprite(texture);
 		followSprite.visible = false;
 
-		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
+		const idleSnowboarder = new PIXI.AnimatedSprite(textures.idle);
 		idleSnowboarder.animationSpeed = .15;
 		idleSnowboarder.scale.x = 0.2;
 		idleSnowboarder.scale.y = 0.2;
 		idleSnowboarder.play();
 		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
-		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
+		const jumpSnowboarder = new PIXI.AnimatedSprite(textures.jump);
 		jumpSnowboarder.animationSpeed = .15;
 		jumpSnowboarder.scale.x = 0.2;
 		jumpSnowboarder.scale.y = 0.2;
 
-		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
-		trickSnowboarder.animationSpeed = .15;
-		trickSnowboarder.scale.x = 0.2;
-		trickSnowboarder.scale.y = 0.2;
-		trickSnowboarder.loop = false;
-		trickSnowboarder.onComplete = () => {
+		const ollieSnowboarder = new PIXI.AnimatedSprite(textures.ollie);
+		ollieSnowboarder.animationSpeed = .15;
+		ollieSnowboarder.scale.x = 0.2;
+		ollieSnowboarder.scale.y = 0.2;
+		ollieSnowboarder.loop = false;
+		ollieSnowboarder.onComplete = () => {
 			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
+		};
+
+		const _360Snowboarder = new PIXI.AnimatedSprite(textures._360);
+		_360Snowboarder.animationSpeed = .15;
+		_360Snowboarder.scale.x = 0.2;
+		_360Snowboarder.scale.y = 0.2;
+		_360Snowboarder.loop = false;
+		_360Snowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "trick2 complete");
 		};
 
 		// Assign sprites and score to the Game
 		this.sprites.idle = idleSnowboarder;
 		this.sprites.jump = jumpSnowboarder;
-		this.sprites.trick1 = trickSnowboarder;
+		this.sprites.trick1 = ollieSnowboarder;
+		this.sprites.trick2 = _360Snowboarder;
 		this.score = new Score(this.stateController);
 
 		// Generate physics points for curves
@@ -315,6 +273,12 @@ class Game {
 			if (playerA || playerB) {
 
 				if (this.ON_SLOPE === false) {
+
+					if (playingTrickAnimation()) {
+						this.consecutiveTricks = 0;
+						this.multiplier = 1;
+					}
+
 					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
 
@@ -334,6 +298,15 @@ class Game {
 			}
 		});
 
+		const playingTrickAnimation = () => {
+			if (this.sprites.trick1.playing
+				|| this.sprites.trick2.playing) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		};
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
@@ -346,8 +319,12 @@ class Game {
 				this.ON_SLOPE = false;
 			}
 
-			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !this.sprites.trick1.playing) {
+			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
 				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
+			}
+
+			if (this.actionState.trick2 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, viewport, this.sprites.trick2, "trick2");
 			}
 
 		};
@@ -455,7 +432,12 @@ class Game {
 	swapSprites(player, viewport, sprite, trick) {
 
 		if (trick === "trick1 complete") {
-			this.score.updateScore(100);
+			this.calculateScore(1);
+			console.log("NewScore: " + this.score.getScore());
+		}
+
+		if (trick === "trick2 complete") {
+			this.calculateScore(2);
 			console.log("NewScore: " + this.score.getScore());
 		}
 
@@ -470,6 +452,107 @@ class Game {
 		player.sprite.position.y = yposition;
 		player.sprite.gotoAndPlay(0);
 		viewport.addChild(player.sprite);
+	}
+
+	calculateScore(trickNum) {
+		this.consecutiveTricks++;
+		if (this.consecutiveTricks !== 1 && (this.consecutiveTricks - 1) % 5 === 0) {
+			this.multiplier += 0.2;
+		}
+
+		switch (trickNum) {
+		case 1:
+			this.score.updateScore(100 * this.multiplier);
+			return;
+		case 2:
+			this.score.updateScore(250 * this.multiplier);
+			return;
+		default:
+			this.score.updateScore(100);
+			return;
+		}
+	}
+
+	createTextures() {
+		let idle = [
+			"idle_frame_1.png",
+			"idle_frame_2.png",
+			"idle_frame_3.png",
+			"idle_frame_4.png",
+			"idle_frame_5.png",
+			"idle_frame_6.png"
+		];
+
+		let jump = [
+			"jump_frame_1.png",
+			"jump_frame_2.png",
+			"jump_frame_3.png",
+			"jump_frame_4.png",
+			"jump_frame_5.png",
+			"jump_frame_6.png",
+			"jump_frame_7.png",
+			"jump_frame_8.png",
+			"jump_frame_9.png",
+			"jump_frame_10.png",
+			"jump_frame_11.png",
+			"jump_frame_12.png",
+			"jump_frame_13.png",
+			"jump_frame_14.png"
+		];
+
+		let ollie = [
+			"ollie1.png",
+			"ollie2.png",
+			"ollie3.png",
+			"ollie4.png",
+			"ollie5.png",
+			"ollie6.png",
+			"ollie7.png",
+			"ollie8.png",
+		];
+
+		let _360 = [
+			"360_frame_1.png",
+			"360_frame_2.png",
+			"360_frame_3.png",
+			"360_frame_4.png",
+			"360_frame_5.png",
+			"360_frame_6.png",
+			"360_frame_7.png",
+			"360_frame_8.png"
+		];
+
+		let idleArray = [];
+		let jumpArray = [];
+		let ollieArray = [];
+		let _360Array = [];
+
+		for (let i = 0; i < 6; i++) {
+			let texture = PIXI.Texture.from("/img/" + idle[i]);
+			idleArray.push(texture);
+		}
+
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + jump[i]);
+			jumpArray.push(texture);
+		}
+
+		for (let i = 0; i < 8; i++) {
+			let texture = PIXI.Texture.from("/img/" + ollie[i]);
+			ollieArray.push(texture);
+		}
+
+		for (let i = 0; i < 8; i++) {
+			let texture = PIXI.Texture.from("/img/" + _360[i]);
+			_360Array.push(texture);
+		}
+
+		return {
+			idle: idleArray,
+			jump: jumpArray,
+			ollie: ollieArray,
+			_360: _360Array
+		};
 	}
 
 	/**
