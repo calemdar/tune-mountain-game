@@ -279,6 +279,7 @@ class Game {
 						this.multiplier = 1;
 					}
 
+					emitter.emit = true;
 					this.swapSprites(player, viewport, this.sprites.idle, "idle");
 				}
 
@@ -311,6 +312,7 @@ class Game {
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
 
+				emitter.emit = false;
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
 				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
