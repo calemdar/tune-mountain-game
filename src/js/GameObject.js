@@ -32,17 +32,9 @@ function GameObject () {
 		object.followSprite.position.x = physicsPos.x;
 		object.followSprite.position.y = physicsPos.y + 15;
 	};
+
 	GameObject.prototype.error = function error (object) {
 		console.log(object.errorMessage);
-	};
-
-	// Change sprite of current game object
-	GameObject.prototype.swapSprites = function swapSprites(object, newSprite) {
-		let tempSprite = object.sprite;
-		tempSprite.alpha = 0;
-
-		object.sprite = newSprite;
-
 	};
 
 }

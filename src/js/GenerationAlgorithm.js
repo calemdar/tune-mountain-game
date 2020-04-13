@@ -145,48 +145,48 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 
 		if (sectionAngle > 0 && sectionAngle <= 10){
-			endPoint.x += xLength * (tempo / 1.50) ;
-			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.44) ;
+			endPoint.y += (yLength * (tempo / 1.44)) / 3.0;
 
 		}
 		else if (sectionAngle > 10 && sectionAngle <= 20){
-			endPoint.x += xLength * (tempo / 1.52);
-			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.46);
+			endPoint.y += (yLength * (tempo / 1.46)) / 3.0;
 
 		}
 		else if (sectionAngle > 20 && sectionAngle <= 30){
+			endPoint.x += xLength * (tempo / 1.48);
+			endPoint.y += (yLength * (tempo / 1.48)) / 3.0;
+
+		}
+		else if (sectionAngle > 30 && sectionAngle <= 40){
+			endPoint.x += xLength * (tempo / 1.50);
+			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
+
+		}
+		else if (sectionAngle > 40 && sectionAngle <= 50){
 			endPoint.x += xLength * (tempo / 1.54);
 			endPoint.y += (yLength * (tempo / 1.54)) / 3.0;
 
 		}
-		else if (sectionAngle > 30 && sectionAngle <= 40){
+		else if (sectionAngle > 50 && sectionAngle <= 60){
 			endPoint.x += xLength * (tempo / 1.56);
 			endPoint.y += (yLength * (tempo / 1.56)) / 3.0;
 
 		}
-		else if (sectionAngle > 40 && sectionAngle <= 50){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
-
-		}
-		else if (sectionAngle > 50 && sectionAngle <= 60){
-			endPoint.x += xLength * (tempo / 1.62);
-			endPoint.y += (yLength * (tempo / 1.62)) / 3.0;
-
-		}
 		else if (sectionAngle > 60 && sectionAngle <= 70){
-			endPoint.x += xLength * (tempo / 1.65);
-			endPoint.y += (yLength * (tempo / 1.65)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.59);
+			endPoint.y += (yLength * (tempo / 1.59)) / 3.0;
 
 		}
 		else if (sectionAngle > 70 && sectionAngle <= 80){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.52);
+			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
 
 		}
 		else if (sectionAngle > 80 && sectionAngle <= 90){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.52);
+			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
 
 		}
 		//console.log("Final curve X len: " + (endPoint.x - startPoint.x) + " Y len: " + (endPoint.y - startPoint.y) + " Angle: " + radianToDegree(findAngle(startPoint, endPoint)));
