@@ -213,13 +213,17 @@ class Game {
 		jumpSnowboarder.animationSpeed = .15;
 		jumpSnowboarder.scale.x = 0.2;
 		jumpSnowboarder.scale.y = 0.2;
+		jumpSnowboarder.loop = false;
+		jumpSnowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "finish jump");
+		};
 
-		const ollieSnowboarder = new PIXI.AnimatedSprite(textures.ollie);
-		ollieSnowboarder.animationSpeed = .15;
-		ollieSnowboarder.scale.x = 0.2;
-		ollieSnowboarder.scale.y = 0.2;
-		ollieSnowboarder.loop = false;
-		ollieSnowboarder.onComplete = () => {
+		const tailGrabSnowboarder = new PIXI.AnimatedSprite(textures.tailGrab);
+		tailGrabSnowboarder.animationSpeed = .15;
+		tailGrabSnowboarder.scale.x = 0.2;
+		tailGrabSnowboarder.scale.y = 0.2;
+		tailGrabSnowboarder.loop = false;
+		tailGrabSnowboarder.onComplete = () => {
 			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
 		};
 
@@ -235,7 +239,7 @@ class Game {
 		// Assign sprites and score to the Game
 		this.sprites.idle = idleSnowboarder;
 		this.sprites.jump = jumpSnowboarder;
-		this.sprites.trick1 = ollieSnowboarder;
+		this.sprites.trick1 = tailGrabSnowboarder;
 		this.sprites.trick2 = _360Snowboarder;
 		this.score = new Score(this.stateController);
 
@@ -464,7 +468,7 @@ class Game {
 
 		switch (trickNum) {
 		case 1:
-			this.score.updateScore(100 * this.multiplier);
+			this.score.updateScore(200 * this.multiplier);
 			return;
 		case 2:
 			this.score.updateScore(250 * this.multiplier);
@@ -486,23 +490,6 @@ class Game {
 		];
 
 		let jump = [
-			"jump_frame_1.png",
-			"jump_frame_2.png",
-			"jump_frame_3.png",
-			"jump_frame_4.png",
-			"jump_frame_5.png",
-			"jump_frame_6.png",
-			"jump_frame_7.png",
-			"jump_frame_8.png",
-			"jump_frame_9.png",
-			"jump_frame_10.png",
-			"jump_frame_11.png",
-			"jump_frame_12.png",
-			"jump_frame_13.png",
-			"jump_frame_14.png"
-		];
-
-		let ollie = [
 			"ollie1.png",
 			"ollie2.png",
 			"ollie3.png",
@@ -511,6 +498,29 @@ class Game {
 			"ollie6.png",
 			"ollie7.png",
 			"ollie8.png",
+			"ollie9.png",
+			"ollie10.png",
+			"ollie11.png",
+			"ollie12.png",
+			"ollie13.png",
+			"ollie14.png",
+			"ollie15.png"
+		];
+
+		let tailGrab = [
+			"tail_grab1.png",
+			"tail_grab2.png",
+			"tail_grab3.png",
+			"tail_grab4.png",
+			"tail_grab5.png",
+			"tail_grab6.png",
+			"tail_grab7.png",
+			"tail_grab8.png",
+			"tail_grab9.png",
+			"tail_grab10.png",
+			"tail_grab11.png",
+			"tail_grab12.png",
+			"tail_grab13.png"
 		];
 
 		let _360 = [
@@ -521,12 +531,18 @@ class Game {
 			"360_frame_5.png",
 			"360_frame_6.png",
 			"360_frame_7.png",
-			"360_frame_8.png"
+			"360_frame_8.png",
+			"360_frame_9.png",
+			"360_frame_10.png",
+			"360_frame_11.png",
+			"360_frame_12.png",
+			"360_frame_13.png",
+			"360_frame_14.png"
 		];
 
 		let idleArray = [];
 		let jumpArray = [];
-		let ollieArray = [];
+		let tailGrabArray = [];
 		let _360Array = [];
 
 		for (let i = 0; i < 6; i++) {
@@ -534,17 +550,17 @@ class Game {
 			idleArray.push(texture);
 		}
 
-		for (let i = 0; i < 14; i++) {
+		for (let i = 0; i < 15; i++) {
 			let texture = PIXI.Texture.from("/img/" + jump[i]);
 			jumpArray.push(texture);
 		}
 
-		for (let i = 0; i < 8; i++) {
-			let texture = PIXI.Texture.from("/img/" + ollie[i]);
-			ollieArray.push(texture);
+		for (let i = 0; i < 13; i++) {
+			let texture = PIXI.Texture.from("/img/" + tailGrab[i]);
+			tailGrabArray.push(texture);
 		}
 
-		for (let i = 0; i < 8; i++) {
+		for (let i = 0; i < 14; i++) {
 			let texture = PIXI.Texture.from("/img/" + _360[i]);
 			_360Array.push(texture);
 		}
@@ -552,7 +568,7 @@ class Game {
 		return {
 			idle: idleArray,
 			jump: jumpArray,
-			ollie: ollieArray,
+			tailGrab: tailGrabArray,
 			_360: _360Array
 		};
 	}
