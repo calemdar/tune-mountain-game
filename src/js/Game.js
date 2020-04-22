@@ -16,10 +16,12 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
+const Coins = require("./Coins");
 const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
+
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -281,15 +283,17 @@ class Game {
 		this.sprites.trick1 = trickSnowboarder;
 		this.score = new Score(this.stateController);
 
+		// global variable so Physics.js can see it
+		let deletedBodies = [];
+
 		// Generate physics points for curves
-		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
+		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world, deletedBodies);
 
 		// add coins
-		//let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, viewport, this.pixiApp);
+		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player, this.pixiApp, world, deletedBodies, this.score);
 
 		Bezier(viewport, allPoints);
-		//Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 
@@ -322,6 +326,11 @@ class Game {
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
+
+				//console.log(fixtureA.getShape());
+				//console.log(fixtureB.getShape());
+
+
 			}
 
 			if (playerA) {
@@ -340,7 +349,6 @@ class Game {
 
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
-				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
 				this.ON_SLOPE = false;
