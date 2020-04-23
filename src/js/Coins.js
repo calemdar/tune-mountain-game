@@ -11,93 +11,110 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 	let allPointCounter = 0;			// counts all points from the physics
 	let coinSprites = [];				// stores all coin sprite objects
 	let coinObjects = [];				// stores all coin game objects
-	let coinPlacer = 0;					// counter for coin placement
 	let maxCoinSeries = 10;				// max count of coins to spread in series
 	let beatLength;						// num beats / curve resolution
+	let curvedCoins = [];				// array to store bezier curve points
 	let mountainOffset = 5;
+	let rampOffset = 0;
 
 	// setup texture
 	const texture = PIXI.Texture.from("../img/snowball1.png");
+	let coinAudio = new Audio("../audio/snowball-trimmed.mp3");
 
 
 	// Start laying coins
 	for(let i = 0; i < analysis.sections.length; i+=1){
-		let rampOffset = 0;
 
-		coinPlacer = 0;
 		currentSection = analysis.sections[i];
 		//sectionBeats = getBeatsInSection(currentSection);
 
 		allPointCounter += (60 - maxCoinSeries);
 
 		for(let k = 0; k < maxCoinSeries; k+=1) {
-			let coin = new PIXI.Sprite(texture);
-
 
 			if(allPointCounter >= allPoints.length){
 				break;
 			}
 
-			coin.scale.x = 0.4;
-			coin.scale.y = 0.4;
-			//coin.anchor.x = 0.5;
-			//coin.anchor.y = 1.0;
+			let coinPos = {x: allPoints[allPointCounter].x, y: allPoints[allPointCounter].y - mountainOffset - rampOffset};
+			createPlaceCoin(coinPos.x, coinPos.y);
 
-			coin.position.x = allPoints[allPointCounter].x;
-			coin.position.y = allPoints[allPointCounter].y - mountainOffset - rampOffset;
-
-			let coinPhysics = world.createBody().setStatic();
-			let coinFixture = coinPhysics.createFixture(Planck.Circle(2.0));
-			coinPhysics.setPosition(Planck.Vec2(coin.position.x, coin.position.y));
-			coinFixture.setSensor(true);
-			console.log("is coin sensor? " + coinFixture.isSensor());
-
-			// increase ramp offset
-			//rampOffset += 3;
-
-			let coinObj = obj.create({name: "coin"+i, position: coin.position, physics: coinPhysics});
-			coinObjects.push(coinObj);
-			coinSprites.push(coin);
-			viewport.addChild(coin);
-
-
-			coinPlacer++;
 			allPointCounter++;
 		}
 
-		world.on("begin-contact", contact => {
-			let fixtureA = contact.getFixtureA();
-			let fixtureB = contact.getFixtureB();
+		// create curve with coins
+		let curveStart = coinSprites[coinSprites.length - 1].position;
+		console.log(curveStart);
 
-			let bodyA = fixtureA.getBody();
-			let bodyB = fixtureB.getBody();
+		let curveC0 = Planck.Vec2(curveStart.x + 10, curveStart.y - 5);
+		let curveC1 = Planck.Vec2(curveStart.x + 30, curveStart.y - 10);
+		let curveEnd = Planck.Vec2(curveStart.x + 60, curveStart.y - 2);
+		curvedCoins = bezierCurvePoints(curveStart, curveC0, curveC1, curveEnd);
 
-			let playerA = bodyA === player.physics;
-			let playerB = bodyB === player.physics;
+		console.log(curvedCoins);
+		for(let j = 0; j < curvedCoins.length; j++){
+			createPlaceCoin(curvedCoins[j].x, curvedCoins[j].y);
+		}
+		curvedCoins = [];
+	}
 
-			if (playerA || playerB) {
-				if(fixtureA.getShape().m_type === fixtureB.getShape().m_type){
-					//console.log("two circles collided");
+	// collision with coin
+	world.on("begin-contact", contact => {
+		let fixtureA = contact.getFixtureA();
+		let fixtureB = contact.getFixtureB();
 
-					// delete coin if player is body A
-					if(bodyA === player.physics){
+		let bodyA = fixtureA.getBody();
+		let bodyB = fixtureB.getBody();
 
-						//bodyB.getWorld().destroyBody(bodyB);
-						deletedBodies.push(bodyB);
-						collectCoin(bodyB);
-					}
+		let playerA = bodyA === player.physics;
+		let playerB = bodyB === player.physics;
 
-					// else delete the other body
-					else{
+		if (playerA || playerB) {
+			if(fixtureA.getShape().m_type === fixtureB.getShape().m_type){
+				//console.log("two circles collided");
 
-						//bodyA.getWorld().destroyBody(bodyA);
-						deletedBodies.push(bodyA);
-						collectCoin(bodyA);
-					}
+				// delete coin if player is body A
+				if(bodyA === player.physics){
+
+					//bodyB.getWorld().destroyBody(bodyB);
+					deletedBodies.push(bodyB);
+					collectCoin(bodyB);
+				}
+
+				// else delete the other body
+				else{
+
+					//bodyA.getWorld().destroyBody(bodyA);
+					deletedBodies.push(bodyA);
+					collectCoin(bodyA);
 				}
 			}
-		});
+		}
+	});
 
+	function createPlaceCoin(posX, posY){
+		let coin = new PIXI.Sprite(texture);
+
+		coin.scale.x = 0.2;
+		coin.scale.y = 0.2;
+		//coin.anchor.x = 0.5;
+		//coin.anchor.y = 1.0;
+
+		coin.position.x = posX;
+		coin.position.y = posY;
+
+		let coinPhysics = world.createBody().setStatic();
+		let coinFixture = coinPhysics.createFixture(Planck.Circle(3.0));
+		coinPhysics.setPosition(Planck.Vec2(coin.position.x, coin.position.y));
+		coinFixture.setSensor(true);
+
+		// increase ramp offset
+		//rampOffset += 3;
+
+		let coinObj = obj.create({name: "coin"+ coinSprites.length, position: coin.position, physics: coinPhysics});
+		coinObjects.push(coinObj);
+		coinSprites.push(coin);
+		viewport.addChild(coin);
 	}
 
 	// Check collision between sprites
@@ -109,6 +126,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 			let currCoin = coinObjects[i];
 			if(coinBody === currCoin.physics && currCoin.sprite != null){
 				viewport.removeChild(coinSprites[i]);
+				coinAudio.play();
 				currCoin.sprite = null;
 				console.log("Collected coin in index: " + i);
 				score.updateScore(10);
@@ -116,20 +134,6 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 			}
 		}
 
-	}
-	// TODO add rotation into account
-	function playerHitTest(player, s2){
-		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
-			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
-				if ((player.y - player.height) + (player.height) > (s2.y - s2.height / 2)) {
-					if ((player.y - player.height) < (s2.y - s2.height / 2) + (s2.height / 2)) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 
 	// psuedo delete the sprite by moving it out of screen
@@ -139,39 +143,71 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 		coin.sprite.position.y = -1000;
 	}
 
-	/*
-	function getBeatsInSection(section) {
-		let beats = [];
-		let currBeat;
-		let currBeatEnd;
-		let sectionEnd = section.start + section.duration;
+	function cubicBezierPoint(t, p0, p1, c0, c1) {
 
-		for(let k = 0; k < analysis.beats.length; k += 1) {
-			currBeat = analysis.beats[k];
-			currBeatEnd = currBeat.start + currBeat.duration;
+		//return (1-t)^3 * p0 + 3*(1-t)^2 * t * c0 + 3*(1-t) * t^2 * c1 + t^3 * p1
+		//       {   first   }  {      second     }  {      third      }  { fourth }
+		let point;
+		let addVectors;
+		let first = scaleVec(p0, ((1-t)*(1-t)*(1-t)));
+		let second = scaleVec(c0, (3 * ((1-t)*(1-t)) * t));
+		let third = scaleVec(c1, (3 * (1-t) * (t*t)));
+		let fourth = scaleVec(p1, (t*t*t));
 
-			if(currBeat.start >= section.start && currBeatEnd <= sectionEnd) {
-				beats.push(currBeat);
-			}
-		}
-		return beats;
+
+		addVectors = addVec(first, second);
+		addVectors = addVec(addVectors, third);
+		addVectors = addVec(addVectors, fourth);
+
+		point = addVectors;
+
+		return point;
+
 	}
 
-	function beatsToPoints(numBeats){
-		let numPoints = allPoints.length / analysis.sections.length;
-		//console.log("Num points per curve: " + numPoints);
-		let length;
-		if(numBeats > 0) {
-			length = Math.ceil(numPoints / numBeats);
-		}
-		else {length = 1;}
+	// Creates the Bezier curve with the resolution of "numPoints"
+	// p0 = start point of curve
+	// p1 = end point of curve
+	// c0 = first control point
+	// c1 = second control point
+	function bezierCurvePoints(p0, c0, c1, p1) {
 
-		return length;
+		let t;
+		let points = [];
+		// Curve resolution
+		let numPoints = 5;
+		let point = Vec2();
+
+		for(let i = 0; i < numPoints; i++){
+			t = i / numPoints;
+			point = cubicBezierPoint(t, p0, p1, c0, c1);
+
+			points.push(point);
+		}
+
+		return points;
+	}
+	// Utility to scale Vec2 with a number
+	function scaleVec(vector, number){
+		let result = Vec2();
+
+		result.x = vector.x * number;
+		result.y = vector.y * number;
+
+		return result;
 	}
 
-	 */
+	// Utility to add two Vec2 together
+	function addVec(vector1, vector2){
+		let result = Vec2();
 
-	//game.ticker.add(collectCoin);
+		result.x = vector1.x + vector2.x;
+		result.y = vector1.y + vector2.y;
+
+		return result;
+	}
+
+
 	return coinSprites;
 }
 

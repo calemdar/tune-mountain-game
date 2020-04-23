@@ -496,6 +496,7 @@ class Game {
 	 */
 	pauseState() {
 		this.pixiApp.ticker.stop();
+		console.log(window.AudioContext);
 	}
 
 	// add more states as needed... etc. Not all of these should be implemented for A-Fest

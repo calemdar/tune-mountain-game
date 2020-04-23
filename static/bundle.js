@@ -87494,6 +87494,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 
 	// setup texture
 	const texture = PIXI.Texture.from("../img/snowball1.png");
+	let coinAudio = new Audio("../audio/snowball-trimmed.mp3");
 
 
 	// Start laying coins
@@ -87523,7 +87524,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 			coin.position.y = allPoints[allPointCounter].y - mountainOffset - rampOffset;
 
 			let coinPhysics = world.createBody().setStatic();
-			let coinFixture = coinPhysics.createFixture(Planck.Circle(2.0));
+			let coinFixture = coinPhysics.createFixture(Planck.Circle(4.0));
 			coinPhysics.setPosition(Planck.Vec2(coin.position.x, coin.position.y));
 			coinFixture.setSensor(true);
 			console.log("is coin sensor? " + coinFixture.isSensor());
@@ -87561,7 +87562,6 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 						//bodyB.getWorld().destroyBody(bodyB);
 						deletedBodies.push(bodyB);
 						collectCoin(bodyB);
-						console.log("World Body Count: " + bodyA.getWorld().getBodyCount());
 					}
 
 					// else delete the other body
@@ -87570,7 +87570,6 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 						//bodyA.getWorld().destroyBody(bodyA);
 						deletedBodies.push(bodyA);
 						collectCoin(bodyA);
-						console.log("World Body Count: " + bodyA.getWorld().getBodyCount());
 					}
 				}
 			}
@@ -87587,6 +87586,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 			let currCoin = coinObjects[i];
 			if(coinBody === currCoin.physics && currCoin.sprite != null){
 				viewport.removeChild(coinSprites[i]);
+				coinAudio.play();
 				currCoin.sprite = null;
 				console.log("Collected coin in index: " + i);
 				score.updateScore(10);
