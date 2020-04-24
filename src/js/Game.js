@@ -155,7 +155,13 @@ class Game {
 		this.songAnalysis = analysis;
 		this.songFeatures = features;
 
-		this.generateMountainState();
+		if(!this.songAnalysis.error && !this.songFeatures.error) {
+			this.generateMountainState();
+		}
+		else{
+			alert("Spotify couldn't find correct data");
+
+		}
 		/*
 		PIXI.Loader.shared
 			.add("/img/Idle.json")
@@ -172,12 +178,14 @@ class Game {
 	 */
 	generateMountainState() {
 
+
 		let canvas = document.getElementById("mycanvas");
 		// check for no pixi
 		if (!this.pixiApp) {
 			//throw new Error("Pixi not initialized properly. Check code.");
 			this.getPixiApp(canvas);
 		}
+
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;

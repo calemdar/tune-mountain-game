@@ -5,6 +5,7 @@ function Bezier(viewport, curvePoints) {
 	const points = new PIXI.Graphics();
 	const texture = PIXI.Texture.from("..//img/slope tile.png", {wrapMode: PIXI.WRAP_MODES.REPEAT});
 
+
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
@@ -19,6 +20,8 @@ function Bezier(viewport, curvePoints) {
 
 	viewport.addChild(bezier);
 	viewport.addChild(points);
+
+
 }
 
 module.exports = Bezier;
