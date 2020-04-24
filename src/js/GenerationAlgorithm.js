@@ -10,7 +10,7 @@ const Vec2 = Planck.Vec2;
 function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	let currentPoint = Vec2(-10,0);
-	let songLength = audioFeatures.duration_ms;
+	let songLength = audioAnalysis.track.duration;
 	let timeSignature = audioFeatures.time_signature;
 	let curves = [];
 	let currentCurve = new PIXI.Graphics();
