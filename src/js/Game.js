@@ -66,6 +66,8 @@ class Game {
 		inputManager.bindAction(" ", "jump");
 		inputManager.bindAction("w", "trick1");
 		inputManager.bindAction("a", "trick2");
+		inputManager.bindAction("s", "trick3");
+		inputManager.bindAction("d", "trick4");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
@@ -92,7 +94,9 @@ class Game {
 			idle: null,
 			jump: null,
 			trick1: null,
-			trick2: null
+			trick2: null,
+			trick3: null,
+			trick4: null
 		};
 
 		this.score = null;
@@ -101,7 +105,7 @@ class Game {
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
+		stateController.onRequestTo(GameStateEnums.IDLE, request => this.idleState(canvas, request.body.reason));
 
 		// handles when controller emits song information
 		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
@@ -129,9 +133,9 @@ class Game {
 				antialias: true,
 				sharedTicker: true
 			});
-		}
 
-		this.pixiApp.maxFPS = 60;
+			this.pixiApp.maxFPS = 60;
+		}
 
 		return this.pixiApp;
 	}
@@ -139,7 +143,37 @@ class Game {
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState(canvas) {
+	idleState(canvas, reason) {
+
+		// If receiving reason, need to reset game and global variables (either song has ended or paused from another device)
+		/*
+		if (reason) {
+
+			this.actionState = {};
+			this.songAnalysis = null;
+			this.songFeatures = null;
+
+			// initialize the sprite tracker
+			this.sprites = {
+				title: null,
+				idle: null,
+				jump: null,
+				trick1: null,
+				trick2: null,
+				trick3: null,
+				trick4: null
+			};
+
+			this.ON_SLOPE = false;
+			this.score = null;
+			this.consecutiveTricks = 0;
+			this.multiplier = 1;
+
+			this.pixiApp.destroy();
+		}
+
+		 */
+
 		this.getPixiApp(canvas);
 
 		const texture = PIXI.Texture.from("../img/title page.png");
@@ -158,12 +192,6 @@ class Game {
 		this.songFeatures = features;
 
 		this.generateMountainState();
-		/*
-		PIXI.Loader.shared
-			.add("/img/Idle.json")
-			.add("/img/Jump.json")
-			.load(this.generateMountainState());
-		 */
 	}
 
 	/**
@@ -182,9 +210,6 @@ class Game {
 		}
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
-		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
-		let textures = this.createTextures();
-
 		// Compile Shaders
 		let shaderObject = Shaders(this.songFeatures, this.getPixiApp());
 
@@ -198,6 +223,7 @@ class Game {
 		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
 
+		let textures = this.createTextures();
 		const texture = PIXI.Texture.from("../img/snowboarder.png");
 		const followSprite = new PIXI.Sprite(texture);
 		followSprite.visible = false;
@@ -218,12 +244,12 @@ class Game {
 			this.swapSprites(player, viewport, this.sprites.idle, "finish jump");
 		};
 
-		const tailGrabSnowboarder = new PIXI.AnimatedSprite(textures.tailGrab);
-		tailGrabSnowboarder.animationSpeed = .15;
-		tailGrabSnowboarder.scale.x = 0.2;
-		tailGrabSnowboarder.scale.y = 0.2;
-		tailGrabSnowboarder.loop = false;
-		tailGrabSnowboarder.onComplete = () => {
+		const tailgrabSnowboarder = new PIXI.AnimatedSprite(textures.tailgrab);
+		tailgrabSnowboarder.animationSpeed = .15;
+		tailgrabSnowboarder.scale.x = 0.2;
+		tailgrabSnowboarder.scale.y = 0.2;
+		tailgrabSnowboarder.loop = false;
+		tailgrabSnowboarder.onComplete = () => {
 			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
 		};
 
@@ -236,11 +262,31 @@ class Game {
 			this.swapSprites(player, viewport, this.sprites.idle, "trick2 complete");
 		};
 
+		const frontflipSnowboarder = new PIXI.AnimatedSprite(textures.frontflip);
+		frontflipSnowboarder.animationSpeed = .15;
+		frontflipSnowboarder.scale.x = 0.2;
+		frontflipSnowboarder.scale.y = 0.2;
+		frontflipSnowboarder.loop = false;
+		frontflipSnowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "trick3 complete");
+		};
+
+		const backflipSnowboarder = new PIXI.AnimatedSprite(textures.backflip);
+		backflipSnowboarder.animationSpeed = .15;
+		backflipSnowboarder.scale.x = 0.2;
+		backflipSnowboarder.scale.y = 0.2;
+		backflipSnowboarder.loop = false;
+		backflipSnowboarder.onComplete = () => {
+			this.swapSprites(player, viewport, this.sprites.idle, "trick4 complete");
+		};
+
 		// Assign sprites and score to the Game
 		this.sprites.idle = idleSnowboarder;
 		this.sprites.jump = jumpSnowboarder;
-		this.sprites.trick1 = tailGrabSnowboarder;
+		this.sprites.trick1 = tailgrabSnowboarder;
 		this.sprites.trick2 = _360Snowboarder;
+		this.sprites.trick3 = frontflipSnowboarder;
+		this.sprites.trick4 = backflipSnowboarder;
 		this.score = new Score(this.stateController);
 
 		// Generate physics points for curves
@@ -305,7 +351,9 @@ class Game {
 
 		const playingTrickAnimation = () => {
 			if (this.sprites.trick1.playing
-				|| this.sprites.trick2.playing) {
+				|| this.sprites.trick2.playing
+				|| this.sprites.trick3.playing
+				|| this.sprites.trick4.playing) {
 				return true;
 			}
 			else {
@@ -331,6 +379,14 @@ class Game {
 
 			if (this.actionState.trick2 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
 				this.swapSprites(player, viewport, this.sprites.trick2, "trick2");
+			}
+
+			if (this.actionState.trick3 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, viewport, this.sprites.trick3, "trick3");
+			}
+
+			if (this.actionState.trick4 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, viewport, this.sprites.trick4, "trick4");
 			}
 
 		};
@@ -437,14 +493,11 @@ class Game {
 
 	swapSprites(player, viewport, sprite, trick) {
 
-		if (trick === "trick1 complete") {
-			this.calculateScore(1);
-			console.log("NewScore: " + this.score.getScore());
-		}
-
-		if (trick === "trick2 complete") {
-			this.calculateScore(2);
-			console.log("NewScore: " + this.score.getScore());
+		for (let i = 1; i < 5; i++) {
+			if (trick === "trick" + i +" complete") {
+				this.calculateScore(i);
+				console.log("NewScore: " + this.score.getScore());
+			}
 		}
 
 		let rotation = player.sprite.rotation;
@@ -471,6 +524,12 @@ class Game {
 			this.score.updateScore(200 * this.multiplier);
 			return;
 		case 2:
+			this.score.updateScore(250 * this.multiplier);
+			return;
+		case 3:
+			this.score.updateScore(200 * this.multiplier);
+			return;
+		case 4:
 			this.score.updateScore(250 * this.multiplier);
 			return;
 		default:
@@ -507,7 +566,7 @@ class Game {
 			"ollie15.png"
 		];
 
-		let tailGrab = [
+		let tailgrab = [
 			"tail_grab1.png",
 			"tail_grab2.png",
 			"tail_grab3.png",
@@ -540,10 +599,45 @@ class Game {
 			"360_frame_14.png"
 		];
 
+		let frontFlip = [
+			"front flip1.png",
+			"front flip2.png",
+			"front flip3.png",
+			"front flip4.png",
+			"front flip5.png",
+			"front flip6.png",
+			"front flip7.png",
+			"front flip8.png",
+			"front flip9.png",
+			"front flip10.png",
+			"front flip11.png",
+			"front flip12.png",
+			"front flip13.png"
+		];
+
+		let backflip = [
+			"backflip1.png",
+			"backflip2.png",
+			"backflip3.png",
+			"backflip4.png",
+			"backflip5.png",
+			"backflip6.png",
+			"backflip7.png",
+			"backflip8.png",
+			"backflip9.png",
+			"backflip10.png",
+			"backflip11.png",
+			"backflip12.png",
+			"backflip13.png",
+			"backflip14.png"
+		];
+
 		let idleArray = [];
 		let jumpArray = [];
-		let tailGrabArray = [];
+		let tailgrabArray = [];
 		let _360Array = [];
+		let frontflipArray = [];
+		let backflipArray = [];
 
 		for (let i = 0; i < 6; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
@@ -556,8 +650,8 @@ class Game {
 		}
 
 		for (let i = 0; i < 13; i++) {
-			let texture = PIXI.Texture.from("/img/" + tailGrab[i]);
-			tailGrabArray.push(texture);
+			let texture = PIXI.Texture.from("/img/" + tailgrab[i]);
+			tailgrabArray.push(texture);
 		}
 
 		for (let i = 0; i < 14; i++) {
@@ -565,19 +659,29 @@ class Game {
 			_360Array.push(texture);
 		}
 
+		for (let i = 0; i < 13; i++) {
+			let texture = PIXI.Texture.from("/img/" + frontFlip[i]);
+			frontflipArray.push(texture);
+		}
+
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + backflip[i]);
+			backflipArray.push(texture);
+		}
+
 		return {
 			idle: idleArray,
 			jump: jumpArray,
-			tailGrab: tailGrabArray,
-			_360: _360Array
+			tailgrab: tailgrabArray,
+			_360: _360Array,
+			frontflip: frontflipArray,
+			backflip: backflipArray
 		};
 	}
 
 	/**
 	 * Allows input to be received and affect characters in game. Notifies website
 	 * to initiate song playback!
-	 *
-	 * // TODO: actually implement a 2-way comm between modules here
 	 */
 	playLevelState() {
 		this.pixiApp.ticker.start();

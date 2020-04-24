@@ -18,7 +18,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let start, end, beatIterator, curveBeats;
 	let currentTime = 0;
 
-	// Run thorugh all sections
+	// Run through all sections
 	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
 		let  c0, c1, cUp, cBottom;
 
@@ -97,7 +97,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		return conf > maxConf; // true if confidence is higher, false otherwise
 	}
 
-	// helper function to looki into sections
+	// helper function to look into sections
 	function getCurrentSection(currentTime) {
 		let section;
 		for(let i = 0; i < audioAnalysis.sections.length; i += 1){
