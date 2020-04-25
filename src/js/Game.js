@@ -538,16 +538,16 @@ class Game {
 
 		switch (trickNum) {
 		case 1:
-			this.score.updateScore(200 * this.multiplier);
+			this.score.updateScore(200 * this.multiplier, this.multiplier);
 			return;
 		case 2:
-			this.score.updateScore(250 * this.multiplier);
+			this.score.updateScore(250 * this.multiplier, this.multiplier);
 			return;
 		case 3:
-			this.score.updateScore(200 * this.multiplier);
+			this.score.updateScore(200 * this.multiplier, this.multiplier);
 			return;
 		case 4:
-			this.score.updateScore(250 * this.multiplier);
+			this.score.updateScore(250 * this.multiplier, this.multiplier);
 			return;
 		default:
 			this.score.updateScore(100);
