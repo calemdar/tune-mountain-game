@@ -315,7 +315,7 @@ class Game {
 		// add coins
 		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
 		let coinSprites = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
-		Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
+		//Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
 		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
