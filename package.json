@@ -15,7 +15,7 @@
     "moment": "^2.24.0",
     "pixi-particles": "^4.2.0",
     "pixi-viewport": "^4.2.3",
-    "pixi.js": "^5.1.2",
+    "pixi.js": "5.1.2",
     "planck-js": "^0.3.10",
     "rxjs": "^5.5.12",
     "tune-mountain-input-manager": "github:calemdar/tune-mountain-input#master"

@@ -17,6 +17,7 @@ const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
+const Ramps = require("./Ramps");
 const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
@@ -84,6 +85,8 @@ class Game {
 
 		//****** INITIALIZING PIXI *******//
 		this.pixiApp = null;
+		this.viewport = null;
+		this.pixiState = "IDLE";
 
 		this.ON_SLOPE = false;
 
@@ -149,8 +152,9 @@ class Game {
 
 		// If receiving reason, need to reset game and global variables (either song has ended or paused from another device)
 		/*
-		if (reason) {
+		if (reason && this.pixiState === "PLAYING") {
 
+			this.pixiState = "IDLE";
 			this.actionState = {};
 			this.songAnalysis = null;
 			this.songFeatures = null;
@@ -171,7 +175,9 @@ class Game {
 			this.consecutiveTricks = 0;
 			this.multiplier = 1;
 
-			this.pixiApp.destroy();
+			this.pixiApp.ticker.stop();
+			this.pixiApp = null;
+			this.viewport = null;
 		}
 
 		 */
@@ -200,12 +206,6 @@ class Game {
 			alert("Spotify couldn't find correct data");
 
 		}
-		/*
-		PIXI.Loader.shared
-			.add("/img/Idle.json")
-			.add("/img/Jump.json")
-			.load(this.generateMountainState());
-		 */
 	}
 
 	/**
@@ -225,20 +225,22 @@ class Game {
 		}
 
 		this.pixiApp.stage.removeChild(this.sprites.title);
+		this.pixiState = "PLAYING";
 
 		// Compile Shaders
 		let shaderObject = Shaders(this.songFeatures, this.getPixiApp());
 
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
-		const viewport = Viewport(this.pixiApp);
+		this.viewport = Viewport(this.pixiApp);
 
 		Parallax(this.pixiApp, shaderObject);
 
-		this.pixiApp.stage.addChild(viewport);
+		this.pixiApp.stage.addChild(this.viewport);
 
 		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
 
+		// Create textures and animated sprites for character
 		let textures = this.createTextures();
 		const texture = PIXI.Texture.from("../img/snowboarder.png");
 		const followSprite = new PIXI.Sprite(texture);
@@ -257,7 +259,7 @@ class Game {
 		jumpSnowboarder.scale.y = 0.2;
 		jumpSnowboarder.loop = false;
 		jumpSnowboarder.onComplete = () => {
-			this.swapSprites(player, viewport, this.sprites.idle, "finish jump");
+			this.swapSprites(player, this.viewport, this.sprites.idle, "finish jump");
 		};
 
 		const tailgrabSnowboarder = new PIXI.AnimatedSprite(textures.tailgrab);
@@ -266,7 +268,7 @@ class Game {
 		tailgrabSnowboarder.scale.y = 0.2;
 		tailgrabSnowboarder.loop = false;
 		tailgrabSnowboarder.onComplete = () => {
-			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick1 complete");
 		};
 
 		const _360Snowboarder = new PIXI.AnimatedSprite(textures._360);
@@ -275,7 +277,7 @@ class Game {
 		_360Snowboarder.scale.y = 0.2;
 		_360Snowboarder.loop = false;
 		_360Snowboarder.onComplete = () => {
-			this.swapSprites(player, viewport, this.sprites.idle, "trick2 complete");
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick2 complete");
 		};
 
 		const frontflipSnowboarder = new PIXI.AnimatedSprite(textures.frontflip);
@@ -284,7 +286,7 @@ class Game {
 		frontflipSnowboarder.scale.y = 0.2;
 		frontflipSnowboarder.loop = false;
 		frontflipSnowboarder.onComplete = () => {
-			this.swapSprites(player, viewport, this.sprites.idle, "trick3 complete");
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick3 complete");
 		};
 
 		const backflipSnowboarder = new PIXI.AnimatedSprite(textures.backflip);
@@ -293,7 +295,7 @@ class Game {
 		backflipSnowboarder.scale.y = 0.2;
 		backflipSnowboarder.loop = false;
 		backflipSnowboarder.onComplete = () => {
-			this.swapSprites(player, viewport, this.sprites.idle, "trick4 complete");
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick4 complete");
 		};
 
 		// Assign sprites and score to the Game
@@ -309,86 +311,81 @@ class Game {
 		let deletedBodies = [];
 
 		// Generate physics points for curves
-		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world, deletedBodies);
+		const allPoints = Physics(this.pixiApp, this.viewport, curves, player, obj, world, deletedBodies);
 
 		// add coins
-		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, viewport, this.pixiApp);
-		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player, this.pixiApp, world, deletedBodies, this.score);
-
-		Bezier(viewport, allPoints);
+		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
+		let coinSprites = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
+		//Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
+		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
 
-		viewport.addChild(player.followSprite);
-		viewport.addChild(player.sprite);
-		viewport.zoomPercent(6.0);
+		this.viewport.addChild(player.followSprite);
+		this.viewport.addChild(player.sprite);
+		this.viewport.zoomPercent(6.0);
 
 		const followPlayer = () => {
-			viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
+			this.viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
 		};
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
-			let fixtureA = contact.getFixtureA();
-			let fixtureB = contact.getFixtureB();
+			if (this.pixiState === "PLAYING") {
+				let fixtureA = contact.getFixtureA();
+				let fixtureB = contact.getFixtureB();
 
-			let bodyA = fixtureA.getBody();
-			let bodyB = fixtureB.getBody();
+				let bodyA = fixtureA.getBody();
+				let bodyB = fixtureB.getBody();
 
-			let playerA = bodyA === player.physics;
-			let playerB = bodyB === player.physics;
+				let playerA = bodyA === player.physics;
+				let playerB = bodyB === player.physics;
 
-			if (playerA || playerB) {
+				if (playerA || playerB) {
 
-				if (this.ON_SLOPE === false) {
+					if (this.ON_SLOPE === false) {
 
-					if (playingTrickAnimation()) {
-						this.consecutiveTricks = 0;
-						this.multiplier = 1;
+						if (playingTrickAnimation()) {
+							this.consecutiveTricks = 0;
+							this.multiplier = 1;
+						}
+
+						emitter.emit = true;
+						this.swapSprites(player, this.viewport, this.sprites.idle, "idle");
 					}
 
-					emitter.emit = true;
-					this.swapSprites(player, viewport, this.sprites.idle, "idle");
+					this.ON_SLOPE = true;
+					player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				}
 
-				this.ON_SLOPE = true;
-				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
-				//console.log(player.physics.getLinearVelocity());
-				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
-
-				//console.log(fixtureA.getShape());
-				//console.log(fixtureB.getShape());
-
-
-			}
-
-			if (playerA) {
-				// eslint-disable-next-line no-mixed-spaces-and-tabs
-			    player.sprite.rotation = bodyB.getAngle();
-			}
-			else {
-				// eslint-disable-next-line no-mixed-spaces-and-tabs
-				player.sprite.rotation = bodyA.getAngle();
+				if (playerA) {
+					// eslint-disable-next-line no-mixed-spaces-and-tabs
+					player.sprite.rotation = bodyB.getAngle();
+				} else {
+					// eslint-disable-next-line no-mixed-spaces-and-tabs
+					player.sprite.rotation = bodyA.getAngle();
+				}
 			}
 		});
 
 		const playingTrickAnimation = () => {
-			if (this.sprites.trick1.playing
-				|| this.sprites.trick2.playing
-				|| this.sprites.trick3.playing
-				|| this.sprites.trick4.playing) {
-				return true;
+			if (this.sprites.trick1.playing != null
+				&& this.sprites.trick2.playing != null
+				&& this.sprites.trick3.playing != null
+				&& this.sprites.trick4.playing != null) {
+				return this.sprites.trick1.playing
+					|| this.sprites.trick2.playing
+					|| this.sprites.trick3.playing
+					|| this.sprites.trick4.playing;
 			}
-			else {
-				return false;
-			}
+			return false;
 		};
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
 
 				emitter.emit = false;
-				this.swapSprites(player, viewport, this.sprites.jump, "jump");
+				this.swapSprites(player, this.viewport, this.sprites.jump, "jump");
 
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
@@ -396,19 +393,19 @@ class Game {
 			}
 
 			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
-				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
+				this.swapSprites(player, this.viewport, this.sprites.trick1, "trick1");
 			}
 
 			if (this.actionState.trick2 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
-				this.swapSprites(player, viewport, this.sprites.trick2, "trick2");
+				this.swapSprites(player, this.viewport, this.sprites.trick2, "trick2");
 			}
 
 			if (this.actionState.trick3 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
-				this.swapSprites(player, viewport, this.sprites.trick3, "trick3");
+				this.swapSprites(player, this.viewport, this.sprites.trick3, "trick3");
 			}
 
 			if (this.actionState.trick4 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
-				this.swapSprites(player, viewport, this.sprites.trick4, "trick4");
+				this.swapSprites(player, this.viewport, this.sprites.trick4, "trick4");
 			}
 
 		};
@@ -434,7 +431,7 @@ class Game {
 		};
 
 		const particle = PIXI.Texture.from("../img/particle.png");
-		let emitter = new particles.Emitter(viewport, [particle],
+		let emitter = new particles.Emitter(this.viewport, [particle],
 			{
 				"alpha": {
 					"start": 1,
