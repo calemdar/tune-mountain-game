@@ -16,10 +16,12 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
+const Coins = require("./Coins");
 const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
+
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -191,7 +193,19 @@ class Game {
 		this.songAnalysis = analysis;
 		this.songFeatures = features;
 
-		this.generateMountainState();
+		if(!this.songAnalysis.error && !this.songFeatures.error) {
+			this.generateMountainState();
+		}
+		else{
+			alert("Spotify couldn't find correct data");
+
+		}
+		/*
+		PIXI.Loader.shared
+			.add("/img/Idle.json")
+			.add("/img/Jump.json")
+			.load(this.generateMountainState());
+		 */
 	}
 
 	/**
@@ -202,12 +216,14 @@ class Game {
 	 */
 	generateMountainState() {
 
+
 		let canvas = document.getElementById("mycanvas");
 		// check for no pixi
 		if (!this.pixiApp) {
 			//throw new Error("Pixi not initialized properly. Check code.");
 			this.getPixiApp(canvas);
 		}
+
 		this.pixiApp.stage.removeChild(this.sprites.title);
 
 		// Compile Shaders
@@ -289,15 +305,17 @@ class Game {
 		this.sprites.trick4 = backflipSnowboarder;
 		this.score = new Score(this.stateController);
 
+		// global variable so Physics.js can see it
+		let deletedBodies = [];
+
 		// Generate physics points for curves
-		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
+		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world, deletedBodies);
 
 		// add coins
-		//let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, viewport, this.pixiApp);
+		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player, this.pixiApp, world, deletedBodies, this.score);
 
 		Bezier(viewport, allPoints);
-		//Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 
@@ -337,6 +355,11 @@ class Game {
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
+
+				//console.log(fixtureA.getShape());
+				//console.log(fixtureB.getShape());
+
+
 			}
 
 			if (playerA) {
@@ -367,7 +390,6 @@ class Game {
 				emitter.emit = false;
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
-				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
 				this.ON_SLOPE = false;
@@ -693,6 +715,7 @@ class Game {
 	 */
 	pauseState() {
 		this.pixiApp.ticker.stop();
+		console.log(window.AudioContext);
 	}
 
 	// add more states as needed... etc. Not all of these should be implemented for A-Fest

@@ -5,12 +5,13 @@ const Vec2 = Planck.Vec2;
 let tempoFlag = true;			// true = getting bigger, false = getting smaller
 let tempoCounter = 0;
 let allTrees = [];
-let treesPerCurve = 40;
+
 
 function Trees(sections, features, allPoints, viewport, game) {
 
 	let currSectionNum = 0;
 	let allPointsIndex = 0;
+	let treesPerCurve = 40;
 
 	let tempo = features.tempo / 2.0;
 	let treeTextures = [];
@@ -30,8 +31,10 @@ function Trees(sections, features, allPoints, viewport, game) {
 		let currPlacement = allPoints[allPointsIndex];
 		let currSection = sections[currSectionNum];
 
+		treesPerCurve = treesPerCurve + Math.floor(currSection.duration / 20.0);
+		let incrementPos = Math.ceil(60 / treesPerCurve);
 
-		let incrementPos = Math.floor(60 / treesPerCurve);
+		//console.log(treesPerCurve);
 
 		for(let j = 0; j < treesPerCurve; j++){
 			let treeTexIndex = getRandomInt(0, treeTextures.length - 1);
@@ -40,9 +43,13 @@ function Trees(sections, features, allPoints, viewport, game) {
 			let currPointIndex = allPointsIndex;
 
 			// avoid error
-			if(allPointsIndex < 20){
+			if(allPointsIndex < 10){
 				currPointIndex = allPointsIndex + (incrementPos * j);
 				currPlacement = allPoints[currPointIndex];
+			}
+
+			else if (allPointsIndex >= allPoints.length){
+				break;
 			}
 			else{
 				currPointIndex = allPointsIndex + (incrementPos * j) - getRandomInt(0, 4);
@@ -56,10 +63,10 @@ function Trees(sections, features, allPoints, viewport, game) {
 			treeSprite.scale.x = 0.3;
 			treeSprite.scale.y = 0.3;
 
-			treeSprite.position.x = currPlacement.x;
+			treeSprite.position.x = currPlacement.x - getRandomInt(0, 4);
 			treeSprite.position.y = currPlacement.y;
 
-			//console.log(treeSprite.position);
+			//console.log(currPointIndex);
 
 			allTrees.push(treeSprite);
 			viewport.addChild(treeSprite);

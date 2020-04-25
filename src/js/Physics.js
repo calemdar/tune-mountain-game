@@ -12,14 +12,14 @@ const GameObject = require("./GameObject");
  * @param {GameObject} obj the Game object constructor
  * @param {PlanckWorld} world created using Planck.js
  */
-function Physics(game, viewport, curvePoints, player, obj, world) {
+function Physics(game, viewport, curvePoints, player, obj, world, deletedBodies) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
 	let allCurvePoints = [];
 
 	// Player object
 	let playerBody = world.createBody().setDynamic();
-	playerBody.createFixture(pl.Circle(0.5), 1.0);
+	playerBody.createFixture(pl.Circle(1.0), 1.0);
 	//playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
 	playerBody.setPosition(Vec2(-2.0, -17.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
@@ -187,6 +187,14 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 		for (let body = world.getBodyList(); body; body = body.getNext()) {
 			for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
 				// draw or update fixture
+			}
+			if(deletedBodies){
+				for(let del = 0; del < deletedBodies.length; del++){
+					if(body === deletedBodies[del]){
+						world.destroyBody(body);
+					}
+				}
+
 			}
 		}
 

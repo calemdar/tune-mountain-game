@@ -87397,7 +87397,7 @@ const canvas = document.getElementById("mycanvas");
 // init game
 
 new Game(mockStateController, canvas);
-},{"../../static/json/SmokeandGunsAnalysis":577,"../../static/json/SmokeandGunsFeatures":578,"../js/Game":567,"tune-mountain-input-manager":556}],566:[function(require,module,exports){
+},{"../../static/json/SmokeandGunsAnalysis":578,"../../static/json/SmokeandGunsFeatures":579,"../js/Game":568,"tune-mountain-input-manager":556}],566:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Bezier(viewport, curvePoints) {
@@ -87474,6 +87474,188 @@ function drawCurves(bezier, points, curvePoints) {
 }
 
 },{"pixi.js":44}],567:[function(require,module,exports){
+const PIXI = require("pixi.js");
+const Viewport = require("./Viewport");
+const Planck = require("planck-js");
+const Vec2 = Planck.Vec2;
+const GameObject = require("./GameObject");
+
+
+function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies, score) {
+	const obj = new GameObject();
+	let currentSection;
+	let allPointCounter = 0;			// counts all points from the physics
+	let coinSprites = [];				// stores all coin sprite objects
+	let coinObjects = [];				// stores all coin game objects
+	let coinPlacer = 0;					// counter for coin placement
+	let maxCoinSeries = 10;				// max count of coins to spread in series
+	let beatLength;						// num beats / curve resolution
+	let mountainOffset = 5;
+
+	// setup texture
+	const texture = PIXI.Texture.from("../img/snowball1.png");
+	let coinAudio = new Audio("../audio/snowball-trimmed.mp3");
+
+
+	// Start laying coins
+	for(let i = 0; i < analysis.sections.length; i+=1){
+		let rampOffset = 0;
+
+		coinPlacer = 0;
+		currentSection = analysis.sections[i];
+		//sectionBeats = getBeatsInSection(currentSection);
+
+		allPointCounter += (60 - maxCoinSeries);
+
+		for(let k = 0; k < maxCoinSeries; k+=1) {
+			let coin = new PIXI.Sprite(texture);
+
+
+			if(allPointCounter >= allPoints.length){
+				break;
+			}
+
+			coin.scale.x = 0.4;
+			coin.scale.y = 0.4;
+			//coin.anchor.x = 0.5;
+			//coin.anchor.y = 1.0;
+
+			coin.position.x = allPoints[allPointCounter].x;
+			coin.position.y = allPoints[allPointCounter].y - mountainOffset - rampOffset;
+
+			let coinPhysics = world.createBody().setStatic();
+			let coinFixture = coinPhysics.createFixture(Planck.Circle(4.0));
+			coinPhysics.setPosition(Planck.Vec2(coin.position.x, coin.position.y));
+			coinFixture.setSensor(true);
+			console.log("is coin sensor? " + coinFixture.isSensor());
+
+			// increase ramp offset
+			//rampOffset += 3;
+
+			let coinObj = obj.create({name: "coin"+i, position: coin.position, physics: coinPhysics});
+			coinObjects.push(coinObj);
+			coinSprites.push(coin);
+			viewport.addChild(coin);
+
+
+			coinPlacer++;
+			allPointCounter++;
+		}
+
+		world.on("begin-contact", contact => {
+			let fixtureA = contact.getFixtureA();
+			let fixtureB = contact.getFixtureB();
+
+			let bodyA = fixtureA.getBody();
+			let bodyB = fixtureB.getBody();
+
+			let playerA = bodyA === player.physics;
+			let playerB = bodyB === player.physics;
+
+			if (playerA || playerB) {
+				if(fixtureA.getShape().m_type === fixtureB.getShape().m_type){
+					//console.log("two circles collided");
+
+					// delete coin if player is body A
+					if(bodyA === player.physics){
+
+						//bodyB.getWorld().destroyBody(bodyB);
+						deletedBodies.push(bodyB);
+						collectCoin(bodyB);
+					}
+
+					// else delete the other body
+					else{
+
+						//bodyA.getWorld().destroyBody(bodyA);
+						deletedBodies.push(bodyA);
+						collectCoin(bodyA);
+					}
+				}
+			}
+		});
+
+	}
+
+	// Check collision between sprites
+	function collectCoin(coinBody) {
+		let playerPos = player.position;
+		let closestCoin;
+
+		for(let i = 0; i < coinObjects.length; i++){
+			let currCoin = coinObjects[i];
+			if(coinBody === currCoin.physics && currCoin.sprite != null){
+				viewport.removeChild(coinSprites[i]);
+				coinAudio.play();
+				currCoin.sprite = null;
+				console.log("Collected coin in index: " + i);
+				score.updateScore(10);
+				break;
+			}
+		}
+
+	}
+	// TODO add rotation into account
+	function playerHitTest(player, s2){
+		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
+			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
+				if ((player.y - player.height) + (player.height) > (s2.y - s2.height / 2)) {
+					if ((player.y - player.height) < (s2.y - s2.height / 2) + (s2.height / 2)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	// psuedo delete the sprite by moving it out of screen
+	function deleteCoin(coin){
+		world.destroyBody(coin.physics);
+		coin.sprite.position.x = -1000;
+		coin.sprite.position.y = -1000;
+	}
+
+	/*
+	function getBeatsInSection(section) {
+		let beats = [];
+		let currBeat;
+		let currBeatEnd;
+		let sectionEnd = section.start + section.duration;
+
+		for(let k = 0; k < analysis.beats.length; k += 1) {
+			currBeat = analysis.beats[k];
+			currBeatEnd = currBeat.start + currBeat.duration;
+
+			if(currBeat.start >= section.start && currBeatEnd <= sectionEnd) {
+				beats.push(currBeat);
+			}
+		}
+		return beats;
+	}
+
+	function beatsToPoints(numBeats){
+		let numPoints = allPoints.length / analysis.sections.length;
+		//console.log("Num points per curve: " + numPoints);
+		let length;
+		if(numBeats > 0) {
+			length = Math.ceil(numPoints / numBeats);
+		}
+		else {length = 1;}
+
+		return length;
+	}
+
+	 */
+
+	//game.ticker.add(collectCoin);
+	return coinSprites;
+}
+
+module.exports = Coins;
+
+},{"./GameObject":569,"./Viewport":577,"pixi.js":44,"planck-js":71}],568:[function(require,module,exports){
 // npm imports
 const PIXI = require("pixi.js");
 const particles = require("pixi-particles");
@@ -87492,10 +87674,12 @@ const Viewport = require("./Viewport");
 const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
+const Coins = require("./Coins");
 const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
+
 
 /**
  *  The object that will represent the game that will be attached to the application.
@@ -87757,15 +87941,17 @@ class Game {
 		this.sprites.trick1 = trickSnowboarder;
 		this.score = new Score(this.stateController);
 
+		// global variable so Physics.js can see it
+		let deletedBodies = [];
+
 		// Generate physics points for curves
-		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world);
+		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world, deletedBodies);
 
 		// add coins
-		//let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player);
 		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, viewport, this.pixiApp);
+		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player, this.pixiApp, world, deletedBodies, this.score);
 
 		Bezier(viewport, allPoints);
-		//Collisions(this.pixiApp, viewport, player, coinSprites, this.songFeatures);
 
 		// add game object to viewport
 
@@ -87798,6 +87984,11 @@ class Game {
 				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				//console.log(player.physics.getLinearVelocity());
 				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
+
+				//console.log(fixtureA.getShape());
+				//console.log(fixtureB.getShape());
+
+
 			}
 
 			if (playerA) {
@@ -87816,7 +88007,6 @@ class Game {
 
 				this.swapSprites(player, viewport, this.sprites.jump, "jump");
 
-				//player.physics.applyLinearImpulse(Planck.Vec2(100, -150), player.position, true);
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
 				this.ON_SLOPE = false;
@@ -87973,7 +88163,7 @@ class Game {
 
 module.exports = Game;
 
-},{"./Bezier":566,"./GameObject":568,"./GenerationAlgorithm":569,"./Parallax":570,"./Physics":571,"./PulseTrees":572,"./Score":573,"./Shaders":574,"./Trees":575,"./Viewport":576,"pixi-particles":42,"pixi.js":44,"planck-js":71,"tune-mountain-input-manager":556}],568:[function(require,module,exports){
+},{"./Bezier":566,"./Coins":567,"./GameObject":569,"./GenerationAlgorithm":570,"./Parallax":571,"./Physics":572,"./PulseTrees":573,"./Score":574,"./Shaders":575,"./Trees":576,"./Viewport":577,"pixi-particles":42,"pixi.js":44,"planck-js":71,"tune-mountain-input-manager":556}],569:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -88025,7 +88215,7 @@ function GameObject () {
 
 module.exports = GameObject;
 
-},{"./Bezier":566,"./Physics":571,"pixi.js":44,"planck-js":71}],569:[function(require,module,exports){
+},{"./Bezier":566,"./Physics":572,"pixi.js":44,"planck-js":71}],570:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 //let songAnalysis = require("../../static/json/SmokeandGunsAnalysis");
@@ -88227,7 +88417,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 }
 
 module.exports = GenerationAlgorithm;
-},{"pixi.js":44,"planck-js":71}],570:[function(require,module,exports){
+},{"pixi.js":44,"planck-js":71}],571:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Parallax(game, shaders) {
@@ -88337,7 +88527,7 @@ module.exports = Parallax;
 
 
 
-},{"pixi.js":44}],571:[function(require,module,exports){
+},{"pixi.js":44}],572:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const GameObject = require("./GameObject");
@@ -88352,14 +88542,14 @@ const GameObject = require("./GameObject");
  * @param {GameObject} obj the Game object constructor
  * @param {PlanckWorld} world created using Planck.js
  */
-function Physics(game, viewport, curvePoints, player, obj, world) {
+function Physics(game, viewport, curvePoints, player, obj, world, deletedBodies) {
 
 	const pl = Planck, Vec2 = pl.Vec2;
 	let allCurvePoints = [];
 
 	// Player object
 	let playerBody = world.createBody().setDynamic();
-	playerBody.createFixture(pl.Circle(0.5), 1.0);
+	playerBody.createFixture(pl.Circle(1.0), 1.0);
 	//playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
 	playerBody.setPosition(Vec2(0.0, -15.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
@@ -88528,6 +88718,14 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 			for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
 				// draw or update fixture
 			}
+			if(deletedBodies){
+				for(let del = 0; del < deletedBodies.length; del++){
+					if(body === deletedBodies[del]){
+						world.destroyBody(body);
+					}
+				}
+
+			}
 		}
 
 		//console.log(player.physics.getLinearVelocity());
@@ -88545,7 +88743,7 @@ function Physics(game, viewport, curvePoints, player, obj, world) {
 
 module.exports = Physics;
 
-},{"./GameObject":568,"pixi.js":44,"planck-js":71}],572:[function(require,module,exports){
+},{"./GameObject":569,"pixi.js":44,"planck-js":71}],573:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Viewport = require("./Viewport");
 const GameObject = require("./GameObject");
@@ -88603,7 +88801,7 @@ function PulseTrees(game, viewport, player, trees, songFeatures) {
 		}
 	};
 
-	game.ticker.add(pulseTrees);
+	//game.ticker.add(pulseTrees);
 
 	/*
 	Don't want to delete code but refactoring tree pulsing properly
@@ -88652,7 +88850,7 @@ function PulseTrees(game, viewport, player, trees, songFeatures) {
 
 module.exports = PulseTrees;
 
-},{"./GameObject":568,"./Viewport":576,"pixi.js":44}],573:[function(require,module,exports){
+},{"./GameObject":569,"./Viewport":577,"pixi.js":44}],574:[function(require,module,exports){
 const {
 	InputManager,
 	GameStateController,
@@ -88677,7 +88875,7 @@ function Score(stateController) {
 }
 
 module.exports = Score;
-},{"tune-mountain-input-manager":556}],574:[function(require,module,exports){
+},{"tune-mountain-input-manager":556}],575:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
 function Shaders(audioFeatures, game){
@@ -88790,7 +88988,7 @@ function Shaders(audioFeatures, game){
 }
 
 module.exports = Shaders;
-},{"pixi.js":44}],575:[function(require,module,exports){
+},{"pixi.js":44}],576:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 const Vec2 = Planck.Vec2;
@@ -88798,12 +88996,13 @@ const Vec2 = Planck.Vec2;
 let tempoFlag = true;			// true = getting bigger, false = getting smaller
 let tempoCounter = 0;
 let allTrees = [];
-let treesPerCurve = 40;
+
 
 function Trees(sections, features, allPoints, viewport, game) {
 
 	let currSectionNum = 0;
 	let allPointsIndex = 0;
+	let treesPerCurve = 40;
 
 	let tempo = features.tempo / 2.0;
 	let treeTextures = [];
@@ -88823,8 +89022,10 @@ function Trees(sections, features, allPoints, viewport, game) {
 		let currPlacement = allPoints[allPointsIndex];
 		let currSection = sections[currSectionNum];
 
+		treesPerCurve = treesPerCurve + Math.floor(currSection.duration / 20.0);
+		let incrementPos = Math.ceil(60 / treesPerCurve);
 
-		let incrementPos = Math.floor(60 / treesPerCurve);
+		//console.log(treesPerCurve);
 
 		for(let j = 0; j < treesPerCurve; j++){
 			let treeTexIndex = getRandomInt(0, treeTextures.length - 1);
@@ -88833,9 +89034,13 @@ function Trees(sections, features, allPoints, viewport, game) {
 			let currPointIndex = allPointsIndex;
 
 			// avoid error
-			if(allPointsIndex < 20){
+			if(allPointsIndex < 10){
 				currPointIndex = allPointsIndex + (incrementPos * j);
 				currPlacement = allPoints[currPointIndex];
+			}
+
+			else if (allPointsIndex >= allPoints.length){
+				break;
 			}
 			else{
 				currPointIndex = allPointsIndex + (incrementPos * j) - getRandomInt(0, 4);
@@ -88849,10 +89054,10 @@ function Trees(sections, features, allPoints, viewport, game) {
 			treeSprite.scale.x = 0.3;
 			treeSprite.scale.y = 0.3;
 
-			treeSprite.position.x = currPlacement.x;
+			treeSprite.position.x = currPlacement.x - getRandomInt(0, 4);
 			treeSprite.position.y = currPlacement.y;
 
-			//console.log(treeSprite.position);
+			//console.log(currPointIndex);
 
 			allTrees.push(treeSprite);
 			viewport.addChild(treeSprite);
@@ -88922,7 +89127,7 @@ function getRandomInt(min, max) {
 
 module.exports = Trees;
 
-},{"pixi.js":44,"planck-js":71}],576:[function(require,module,exports){
+},{"pixi.js":44,"planck-js":71}],577:[function(require,module,exports){
 
 const Viewport = require("pixi-viewport").Viewport;
 
@@ -88951,7 +89156,7 @@ function CreateViewport(game) {
 }
 
 module.exports = CreateViewport;
-},{"pixi-viewport":43}],577:[function(require,module,exports){
+},{"pixi-viewport":43}],578:[function(require,module,exports){
 module.exports={
   "meta": {
     "analyzer_version": "4.0.0",
@@ -122573,7 +122778,7 @@ module.exports={
     }
   ]
 }
-},{}],578:[function(require,module,exports){
+},{}],579:[function(require,module,exports){
 module.exports={
   "danceability": 0.567,
   "energy": 0.881,

@@ -55,7 +55,7 @@ function PulseTrees(game, viewport, player, trees, songFeatures) {
 		}
 	};
 
-	game.ticker.add(pulseTrees);
+	//game.ticker.add(pulseTrees);
 
 	/*
 	Don't want to delete code but refactoring tree pulsing properly
