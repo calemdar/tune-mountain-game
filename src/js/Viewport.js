@@ -17,9 +17,9 @@ function CreateViewport(game) {
 
 	// activate plugins
 	viewport
-		.drag()
-		.pinch()
-		.wheel()
+		//.drag()
+		//.pinch()
+		//.wheel()
 		.decelerate();
 
 	return viewport;

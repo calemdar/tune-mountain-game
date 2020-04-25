@@ -16,14 +16,12 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let currentCurve = new PIXI.Graphics();
 	let singleCurvePoints = [];
 	let start, end, beatIterator, curveBeats;
-	let currentTime = 0;
 
-	// Run thorugh all sections
+	// Run through all sections
 	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
 		let  c0, c1, cUp, cBottom;
 
 		let currentSection = audioAnalysis.sections[i];
-		currentTime = currentSection.start;
 
 		let durationMultiplier = timeToLength(currentSection);
 		console.log("Section time: " + currentSection.duration);
@@ -37,7 +35,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 		// Start and end points of new section curve
 		start = currentPoint;
-		end = Vec2(start.x + (currentSection.duration), start.y + ((50 + currentSection.loudness)));
+		end = Vec2(start.x + (currentSection.duration), start.y + (50 + currentSection.loudness));
 
 		end = extendCurve(currentSection, start, end, audioFeatures.tempo);
 
@@ -49,8 +47,8 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let divideBox = (cBottom.x - cUp.x) / (timeSignature);
 
 		// Section curve control points
-		c0 = Vec2(cUp.x + (divideBox), cBottom.y + (currentSection.key));
-		c1 = Vec2(cBottom.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
+		c0 = Vec2(cUp.x + (divideBox), cBottom.y + (audioFeatures.danceability * 10));
+		c1 = Vec2(cBottom.x - (divideBox * (timeSignature / 2)), cUp.y - (audioFeatures.danceability * 10));
 
 		// Push current section curve into curve arrays
 		singleCurvePoints.push(start, c0, c1, end);
@@ -74,7 +72,6 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 			currentPoint = end;
 			singleCurvePoints = [];
 		}
-
 	}
 
 	function getRandomInt(min, max) {
@@ -95,24 +92,6 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	function checkConfidence(conf) {
 		let maxConf = 0.6;
 		return conf > maxConf; // true if confidence is higher, false otherwise
-	}
-
-	// helper function to looki into sections
-	function getCurrentSection(currentTime) {
-		let section;
-		for(let i = 0; i < audioAnalysis.sections.length; i += 1){
-			section = audioAnalysis.sections[i];
-			//console.log(section);
-			//console.log(currentTime);
-
-			// checks if within the correct duration
-			if(section.start <= currentTime && ((section.start + section.duration) > currentTime)){
-
-				return section;
-			}
-			console.log("didnt find section");
-		}
-
 	}
 
 	// Utility to find the angle between two Vec2 points in radians
@@ -143,49 +122,50 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let yLength = (endPoint.y - startPoint.y);
 		//console.log("Initial curve X len: " + xLength + " Y len: " + yLength + " Angle: " + sectionAngle);
 
+
 		if (sectionAngle > 0 && sectionAngle <= 10){
-			endPoint.x += xLength * (tempo / 1.50) ;
-			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.44) ;
+			endPoint.y += (yLength * (tempo / 1.44)) / 3.0;
 
 		}
 		else if (sectionAngle > 10 && sectionAngle <= 20){
-			endPoint.x += xLength * (tempo / 1.52);
-			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.46);
+			endPoint.y += (yLength * (tempo / 1.46)) / 3.0;
 
 		}
 		else if (sectionAngle > 20 && sectionAngle <= 30){
+			endPoint.x += xLength * (tempo / 1.48);
+			endPoint.y += (yLength * (tempo / 1.48)) / 3.0;
+
+		}
+		else if (sectionAngle > 30 && sectionAngle <= 40){
+			endPoint.x += xLength * (tempo / 1.50);
+			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
+
+		}
+		else if (sectionAngle > 40 && sectionAngle <= 50){
 			endPoint.x += xLength * (tempo / 1.54);
 			endPoint.y += (yLength * (tempo / 1.54)) / 3.0;
 
 		}
-		else if (sectionAngle > 30 && sectionAngle <= 40){
+		else if (sectionAngle > 50 && sectionAngle <= 60){
 			endPoint.x += xLength * (tempo / 1.56);
 			endPoint.y += (yLength * (tempo / 1.56)) / 3.0;
 
 		}
-		else if (sectionAngle > 40 && sectionAngle <= 50){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
-
-		}
-		else if (sectionAngle > 50 && sectionAngle <= 60){
-			endPoint.x += xLength * (tempo / 1.62);
-			endPoint.y += (yLength * (tempo / 1.62)) / 3.0;
-
-		}
 		else if (sectionAngle > 60 && sectionAngle <= 70){
-			endPoint.x += xLength * (tempo / 1.65);
-			endPoint.y += (yLength * (tempo / 1.65)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.59);
+			endPoint.y += (yLength * (tempo / 1.59)) / 3.0;
 
 		}
 		else if (sectionAngle > 70 && sectionAngle <= 80){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.52);
+			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
 
 		}
 		else if (sectionAngle > 80 && sectionAngle <= 90){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.52);
+			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
 
 		}
 		//console.log("Final curve X len: " + (endPoint.x - startPoint.x) + " Y len: " + (endPoint.y - startPoint.y) + " Angle: " + radianToDegree(findAngle(startPoint, endPoint)));
