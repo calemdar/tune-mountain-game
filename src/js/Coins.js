@@ -44,14 +44,14 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 
 		// create curve with coins
 		let curveStart = coinSprites[coinSprites.length - 1].position;
-		console.log(curveStart);
+		//console.log(curveStart);
 
 		let curveC0 = Planck.Vec2(curveStart.x + 10, curveStart.y - 5);
 		let curveC1 = Planck.Vec2(curveStart.x + 30, curveStart.y - 10);
 		let curveEnd = Planck.Vec2(curveStart.x + 60, curveStart.y - 2);
 		curvedCoins = bezierCurvePoints(curveStart, curveC0, curveC1, curveEnd);
 
-		console.log(curvedCoins);
+		//console.log(curvedCoins);
 		for(let j = 0; j < curvedCoins.length; j++){
 			createPlaceCoin(curvedCoins[j].x, curvedCoins[j].y);
 		}
@@ -128,7 +128,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 				viewport.removeChild(coinSprites[i]);
 				coinAudio.play();
 				currCoin.sprite = null;
-				console.log("Collected coin in index: " + i);
+				//console.log("Collected coin in index: " + i);
 				score.updateScore(10);
 				break;
 			}

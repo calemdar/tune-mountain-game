@@ -18,7 +18,6 @@ const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
 const Ramps = require("./Ramps");
-const PulseTrees = require("./PulseTrees");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
@@ -316,7 +315,7 @@ class Game {
 		// add coins
 		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
 		let coinSprites = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
-		//Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
+		Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
 		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
@@ -515,7 +514,7 @@ class Game {
 		for (let i = 1; i < 5; i++) {
 			if (trick === "trick" + i +" complete") {
 				this.calculateScore(i);
-				console.log("NewScore: " + this.score.getScore());
+				//console.log("NewScore: " + this.score.getScore());
 			}
 		}
 
@@ -712,7 +711,7 @@ class Game {
 	 */
 	pauseState() {
 		this.pixiApp.ticker.stop();
-		console.log(window.AudioContext);
+
 	}
 
 	// add more states as needed... etc. Not all of these should be implemented for A-Fest

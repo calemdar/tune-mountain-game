@@ -87405,6 +87405,7 @@ function Bezier(viewport, curvePoints) {
 	const points = new PIXI.Graphics();
 	const texture = PIXI.Texture.from("..//img/slope tile.png", {wrapMode: PIXI.WRAP_MODES.REPEAT});
 
+
 	// Initialize graphics elements
 	points.lineStyle(0);
 	points.beginFill(0xFFFFFF, 1);
@@ -87419,6 +87420,8 @@ function Bezier(viewport, curvePoints) {
 
 	viewport.addChild(bezier);
 	viewport.addChild(points);
+
+
 }
 
 module.exports = Bezier;
@@ -87487,10 +87490,11 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 	let allPointCounter = 0;			// counts all points from the physics
 	let coinSprites = [];				// stores all coin sprite objects
 	let coinObjects = [];				// stores all coin game objects
-	let coinPlacer = 0;					// counter for coin placement
 	let maxCoinSeries = 10;				// max count of coins to spread in series
 	let beatLength;						// num beats / curve resolution
+	let curvedCoins = [];				// array to store bezier curve points
 	let mountainOffset = 5;
+	let rampOffset = 0;
 
 	// setup texture
 	const texture = PIXI.Texture.from("../img/snowball1.png");
@@ -87499,82 +87503,97 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 
 	// Start laying coins
 	for(let i = 0; i < analysis.sections.length; i+=1){
-		let rampOffset = 0;
 
-		coinPlacer = 0;
 		currentSection = analysis.sections[i];
 		//sectionBeats = getBeatsInSection(currentSection);
 
 		allPointCounter += (60 - maxCoinSeries);
 
 		for(let k = 0; k < maxCoinSeries; k+=1) {
-			let coin = new PIXI.Sprite(texture);
-
 
 			if(allPointCounter >= allPoints.length){
 				break;
 			}
 
-			coin.scale.x = 0.4;
-			coin.scale.y = 0.4;
-			//coin.anchor.x = 0.5;
-			//coin.anchor.y = 1.0;
+			let coinPos = {x: allPoints[allPointCounter].x, y: allPoints[allPointCounter].y - mountainOffset - rampOffset};
+			createPlaceCoin(coinPos.x, coinPos.y);
 
-			coin.position.x = allPoints[allPointCounter].x;
-			coin.position.y = allPoints[allPointCounter].y - mountainOffset - rampOffset;
-
-			let coinPhysics = world.createBody().setStatic();
-			let coinFixture = coinPhysics.createFixture(Planck.Circle(4.0));
-			coinPhysics.setPosition(Planck.Vec2(coin.position.x, coin.position.y));
-			coinFixture.setSensor(true);
-			console.log("is coin sensor? " + coinFixture.isSensor());
-
-			// increase ramp offset
-			//rampOffset += 3;
-
-			let coinObj = obj.create({name: "coin"+i, position: coin.position, physics: coinPhysics});
-			coinObjects.push(coinObj);
-			coinSprites.push(coin);
-			viewport.addChild(coin);
-
-
-			coinPlacer++;
 			allPointCounter++;
 		}
 
-		world.on("begin-contact", contact => {
-			let fixtureA = contact.getFixtureA();
-			let fixtureB = contact.getFixtureB();
+		// create curve with coins
+		let curveStart = coinSprites[coinSprites.length - 1].position;
+		//console.log(curveStart);
 
-			let bodyA = fixtureA.getBody();
-			let bodyB = fixtureB.getBody();
+		let curveC0 = Planck.Vec2(curveStart.x + 10, curveStart.y - 5);
+		let curveC1 = Planck.Vec2(curveStart.x + 30, curveStart.y - 10);
+		let curveEnd = Planck.Vec2(curveStart.x + 60, curveStart.y - 2);
+		curvedCoins = bezierCurvePoints(curveStart, curveC0, curveC1, curveEnd);
 
-			let playerA = bodyA === player.physics;
-			let playerB = bodyB === player.physics;
+		//console.log(curvedCoins);
+		for(let j = 0; j < curvedCoins.length; j++){
+			createPlaceCoin(curvedCoins[j].x, curvedCoins[j].y);
+		}
+		curvedCoins = [];
+	}
 
-			if (playerA || playerB) {
-				if(fixtureA.getShape().m_type === fixtureB.getShape().m_type){
-					//console.log("two circles collided");
+	// collision with coin
+	world.on("begin-contact", contact => {
+		let fixtureA = contact.getFixtureA();
+		let fixtureB = contact.getFixtureB();
 
-					// delete coin if player is body A
-					if(bodyA === player.physics){
+		let bodyA = fixtureA.getBody();
+		let bodyB = fixtureB.getBody();
 
-						//bodyB.getWorld().destroyBody(bodyB);
-						deletedBodies.push(bodyB);
-						collectCoin(bodyB);
-					}
+		let playerA = bodyA === player.physics;
+		let playerB = bodyB === player.physics;
 
-					// else delete the other body
-					else{
+		if (playerA || playerB) {
+			if(fixtureA.getShape().m_type === fixtureB.getShape().m_type){
+				//console.log("two circles collided");
 
-						//bodyA.getWorld().destroyBody(bodyA);
-						deletedBodies.push(bodyA);
-						collectCoin(bodyA);
-					}
+				// delete coin if player is body A
+				if(bodyA === player.physics){
+
+					//bodyB.getWorld().destroyBody(bodyB);
+					deletedBodies.push(bodyB);
+					collectCoin(bodyB);
+				}
+
+				// else delete the other body
+				else{
+
+					//bodyA.getWorld().destroyBody(bodyA);
+					deletedBodies.push(bodyA);
+					collectCoin(bodyA);
 				}
 			}
-		});
+		}
+	});
 
+	function createPlaceCoin(posX, posY){
+		let coin = new PIXI.Sprite(texture);
+
+		coin.scale.x = 0.2;
+		coin.scale.y = 0.2;
+		//coin.anchor.x = 0.5;
+		//coin.anchor.y = 1.0;
+
+		coin.position.x = posX;
+		coin.position.y = posY;
+
+		let coinPhysics = world.createBody().setStatic();
+		let coinFixture = coinPhysics.createFixture(Planck.Circle(3.0));
+		coinPhysics.setPosition(Planck.Vec2(coin.position.x, coin.position.y));
+		coinFixture.setSensor(true);
+
+		// increase ramp offset
+		//rampOffset += 3;
+
+		let coinObj = obj.create({name: "coin"+ coinSprites.length, position: coin.position, physics: coinPhysics});
+		coinObjects.push(coinObj);
+		coinSprites.push(coin);
+		viewport.addChild(coin);
 	}
 
 	// Check collision between sprites
@@ -87588,26 +87607,12 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 				viewport.removeChild(coinSprites[i]);
 				coinAudio.play();
 				currCoin.sprite = null;
-				console.log("Collected coin in index: " + i);
+				//console.log("Collected coin in index: " + i);
 				score.updateScore(10);
 				break;
 			}
 		}
 
-	}
-	// TODO add rotation into account
-	function playerHitTest(player, s2){
-		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
-			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
-				if ((player.y - player.height) + (player.height) > (s2.y - s2.height / 2)) {
-					if ((player.y - player.height) < (s2.y - s2.height / 2) + (s2.height / 2)) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 
 	// psuedo delete the sprite by moving it out of screen
@@ -87617,39 +87622,71 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 		coin.sprite.position.y = -1000;
 	}
 
-	/*
-	function getBeatsInSection(section) {
-		let beats = [];
-		let currBeat;
-		let currBeatEnd;
-		let sectionEnd = section.start + section.duration;
+	function cubicBezierPoint(t, p0, p1, c0, c1) {
 
-		for(let k = 0; k < analysis.beats.length; k += 1) {
-			currBeat = analysis.beats[k];
-			currBeatEnd = currBeat.start + currBeat.duration;
+		//return (1-t)^3 * p0 + 3*(1-t)^2 * t * c0 + 3*(1-t) * t^2 * c1 + t^3 * p1
+		//       {   first   }  {      second     }  {      third      }  { fourth }
+		let point;
+		let addVectors;
+		let first = scaleVec(p0, ((1-t)*(1-t)*(1-t)));
+		let second = scaleVec(c0, (3 * ((1-t)*(1-t)) * t));
+		let third = scaleVec(c1, (3 * (1-t) * (t*t)));
+		let fourth = scaleVec(p1, (t*t*t));
 
-			if(currBeat.start >= section.start && currBeatEnd <= sectionEnd) {
-				beats.push(currBeat);
-			}
-		}
-		return beats;
+
+		addVectors = addVec(first, second);
+		addVectors = addVec(addVectors, third);
+		addVectors = addVec(addVectors, fourth);
+
+		point = addVectors;
+
+		return point;
+
 	}
 
-	function beatsToPoints(numBeats){
-		let numPoints = allPoints.length / analysis.sections.length;
-		//console.log("Num points per curve: " + numPoints);
-		let length;
-		if(numBeats > 0) {
-			length = Math.ceil(numPoints / numBeats);
-		}
-		else {length = 1;}
+	// Creates the Bezier curve with the resolution of "numPoints"
+	// p0 = start point of curve
+	// p1 = end point of curve
+	// c0 = first control point
+	// c1 = second control point
+	function bezierCurvePoints(p0, c0, c1, p1) {
 
-		return length;
+		let t;
+		let points = [];
+		// Curve resolution
+		let numPoints = 5;
+		let point = Vec2();
+
+		for(let i = 0; i < numPoints; i++){
+			t = i / numPoints;
+			point = cubicBezierPoint(t, p0, p1, c0, c1);
+
+			points.push(point);
+		}
+
+		return points;
+	}
+	// Utility to scale Vec2 with a number
+	function scaleVec(vector, number){
+		let result = Vec2();
+
+		result.x = vector.x * number;
+		result.y = vector.y * number;
+
+		return result;
 	}
 
-	 */
+	// Utility to add two Vec2 together
+	function addVec(vector1, vector2){
+		let result = Vec2();
 
-	//game.ticker.add(collectCoin);
+		result.x = vector1.x + vector2.x;
+		result.y = vector1.y + vector2.y;
+
+		return result;
+	}
+
+
 	return coinSprites;
 }
 
@@ -87675,7 +87712,7 @@ const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
-const PulseTrees = require("./PulseTrees");
+const Ramps = require("./Ramps");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
@@ -87725,6 +87762,9 @@ class Game {
 		inputManager.bindAction("j", "jump");
 		inputManager.bindAction(" ", "jump");
 		inputManager.bindAction("w", "trick1");
+		inputManager.bindAction("a", "trick2");
+		inputManager.bindAction("s", "trick3");
+		inputManager.bindAction("d", "trick4");
 
 		// keep track of actions being performed
 		const inputStreamObservable = inputManager.getObservable();
@@ -87739,6 +87779,8 @@ class Game {
 
 		//****** INITIALIZING PIXI *******//
 		this.pixiApp = null;
+		this.viewport = null;
+		this.pixiState = "IDLE";
 
 		this.ON_SLOPE = false;
 
@@ -87750,14 +87792,19 @@ class Game {
 			title: null,
 			idle: null,
 			jump: null,
-			trick1: null
+			trick1: null,
+			trick2: null,
+			trick3: null,
+			trick4: null
 		};
 
 		this.score = null;
+		this.consecutiveTricks = 0;
+		this.multiplier = 1;
 
 		// TODO: must subscribe to state controller for ALL state changes we handle
 		// handles when controller emits a request for an idle state
-		stateController.onRequestTo(GameStateEnums.IDLE, () => this.idleState(canvas));
+		stateController.onRequestTo(GameStateEnums.IDLE, request => this.idleState(canvas, request.body.reason));
 
 		// handles when controller emits song information
 		stateController.onRequestTo(GameStateEnums.GENERATE, request => (
@@ -87785,9 +87832,9 @@ class Game {
 				antialias: true,
 				sharedTicker: true
 			});
-		}
 
-		this.pixiApp.maxFPS = 60;
+			this.pixiApp.maxFPS = 60;
+		}
 
 		return this.pixiApp;
 	}
@@ -87795,7 +87842,40 @@ class Game {
 	/**
 	 * On a request from state controller to switch to Idle state, this function is run.
 	 */
-	idleState(canvas) {
+	idleState(canvas, reason) {
+
+		// If receiving reason, need to reset game and global variables (either song has ended or paused from another device)
+		/*
+		if (reason && this.pixiState === "PLAYING") {
+
+			this.pixiState = "IDLE";
+			this.actionState = {};
+			this.songAnalysis = null;
+			this.songFeatures = null;
+
+			// initialize the sprite tracker
+			this.sprites = {
+				title: null,
+				idle: null,
+				jump: null,
+				trick1: null,
+				trick2: null,
+				trick3: null,
+				trick4: null
+			};
+
+			this.ON_SLOPE = false;
+			this.score = null;
+			this.consecutiveTricks = 0;
+			this.multiplier = 1;
+
+			this.pixiApp.ticker.stop();
+			this.pixiApp = null;
+			this.viewport = null;
+		}
+
+		 */
+
 		this.getPixiApp(canvas);
 
 		const texture = PIXI.Texture.from("../img/title page.png");
@@ -87813,13 +87893,13 @@ class Game {
 		this.songAnalysis = analysis;
 		this.songFeatures = features;
 
-		this.generateMountainState();
-		/*
-		PIXI.Loader.shared
-			.add("/img/Idle.json")
-			.add("/img/Jump.json")
-			.load(this.generateMountainState());
-		 */
+		if(!this.songAnalysis.error && !this.songFeatures.error) {
+			this.generateMountainState();
+		}
+		else{
+			alert("Spotify couldn't find correct data");
+
+		}
 	}
 
 	/**
@@ -87830,190 +87910,196 @@ class Game {
 	 */
 	generateMountainState() {
 
+
 		let canvas = document.getElementById("mycanvas");
 		// check for no pixi
 		if (!this.pixiApp) {
 			//throw new Error("Pixi not initialized properly. Check code.");
 			this.getPixiApp(canvas);
 		}
+
 		this.pixiApp.stage.removeChild(this.sprites.title);
-
-		//let sheet = PIXI.Loader.shared.resources["/img/Idle.json"].spritesheet;
-		let idle = [
-			"idle_frame_1.png",
-			"idle_frame_2.png",
-			"idle_frame_3.png",
-			"idle_frame_4.png",
-			"idle_frame_5.png",
-			"idle_frame_6.png"
-		];
-
-		let jump = [
-			"jump_frame_1.png",
-			"jump_frame_2.png",
-			"jump_frame_3.png",
-			"jump_frame_4.png",
-			"jump_frame_5.png",
-			"jump_frame_6.png",
-			"jump_frame_7.png",
-			"jump_frame_8.png",
-			"jump_frame_9.png",
-			"jump_frame_10.png",
-			"jump_frame_11.png",
-			"jump_frame_12.png",
-			"jump_frame_13.png",
-			"jump_frame_14.png"
-		];
-
-		let trick = [
-			"trick1.png",
-			"trick2.png",
-			"trick3.png",
-			"trick4.png",
-			"trick5.png",
-			"trick6.png",
-			"trick7.png",
-			"trick8.png",
-			"trick9.png",
-			"trick10.png"
-		];
-
-		let idleArray = [];
-		let jumpArray = [];
-		let trickArray = [];
-
-		for (let i = 0; i < 6; i++) {
-			let texture = PIXI.Texture.from("/img/" + idle[i]);
-			idleArray.push(texture);
-		}
-
-		for (let i = 0; i < 14; i++) {
-			let texture = PIXI.Texture.from("/img/" + jump[i]);
-			jumpArray.push(texture);
-		}
-
-		for (let i = 0; i < 10; i++) {
-			let texture = PIXI.Texture.from("/img/" + trick[i]);
-			trickArray.push(texture);
-		}
+		this.pixiState = "PLAYING";
 
 		// Compile Shaders
 		let shaderObject = Shaders(this.songFeatures, this.getPixiApp());
 
 		const curves = GenerateCurve(this.songAnalysis, this.songFeatures);
-		const viewport = Viewport(this.pixiApp);
+		this.viewport = Viewport(this.pixiApp);
 
 		Parallax(this.pixiApp, shaderObject);
 
-		this.pixiApp.stage.addChild(viewport);
+		this.pixiApp.stage.addChild(this.viewport);
 
 		const world = new Planck.World(Planck.Vec2(0, 100));
 		const obj = new GameObject();
 
+		// Create textures and animated sprites for character
+		let textures = this.createTextures();
 		const texture = PIXI.Texture.from("../img/snowboarder.png");
 		const followSprite = new PIXI.Sprite(texture);
 		followSprite.visible = false;
 
-		const idleSnowboarder = new PIXI.AnimatedSprite(idleArray);
+		const idleSnowboarder = new PIXI.AnimatedSprite(textures.idle);
 		idleSnowboarder.animationSpeed = .15;
 		idleSnowboarder.scale.x = 0.2;
 		idleSnowboarder.scale.y = 0.2;
 		idleSnowboarder.play();
 		let player = obj.create({name: "Player", sprite: idleSnowboarder, followSprite: followSprite});
 
-		const jumpSnowboarder = new PIXI.AnimatedSprite(jumpArray);
+		const jumpSnowboarder = new PIXI.AnimatedSprite(textures.jump);
 		jumpSnowboarder.animationSpeed = .15;
 		jumpSnowboarder.scale.x = 0.2;
 		jumpSnowboarder.scale.y = 0.2;
+		jumpSnowboarder.loop = false;
+		jumpSnowboarder.onComplete = () => {
+			this.swapSprites(player, this.viewport, this.sprites.idle, "finish jump");
+		};
 
-		const trickSnowboarder = new PIXI.AnimatedSprite(trickArray);
-		trickSnowboarder.animationSpeed = .15;
-		trickSnowboarder.scale.x = 0.2;
-		trickSnowboarder.scale.y = 0.2;
-		trickSnowboarder.loop = false;
-		trickSnowboarder.onComplete = () => {
-			this.swapSprites(player, viewport, this.sprites.idle, "trick1 complete");
+		const tailgrabSnowboarder = new PIXI.AnimatedSprite(textures.tailgrab);
+		tailgrabSnowboarder.animationSpeed = .15;
+		tailgrabSnowboarder.scale.x = 0.2;
+		tailgrabSnowboarder.scale.y = 0.2;
+		tailgrabSnowboarder.loop = false;
+		tailgrabSnowboarder.onComplete = () => {
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick1 complete");
+		};
+
+		const _360Snowboarder = new PIXI.AnimatedSprite(textures._360);
+		_360Snowboarder.animationSpeed = .15;
+		_360Snowboarder.scale.x = 0.2;
+		_360Snowboarder.scale.y = 0.2;
+		_360Snowboarder.loop = false;
+		_360Snowboarder.onComplete = () => {
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick2 complete");
+		};
+
+		const frontflipSnowboarder = new PIXI.AnimatedSprite(textures.frontflip);
+		frontflipSnowboarder.animationSpeed = .15;
+		frontflipSnowboarder.scale.x = 0.2;
+		frontflipSnowboarder.scale.y = 0.2;
+		frontflipSnowboarder.loop = false;
+		frontflipSnowboarder.onComplete = () => {
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick3 complete");
+		};
+
+		const backflipSnowboarder = new PIXI.AnimatedSprite(textures.backflip);
+		backflipSnowboarder.animationSpeed = .15;
+		backflipSnowboarder.scale.x = 0.2;
+		backflipSnowboarder.scale.y = 0.2;
+		backflipSnowboarder.loop = false;
+		backflipSnowboarder.onComplete = () => {
+			this.swapSprites(player, this.viewport, this.sprites.idle, "trick4 complete");
 		};
 
 		// Assign sprites and score to the Game
 		this.sprites.idle = idleSnowboarder;
 		this.sprites.jump = jumpSnowboarder;
-		this.sprites.trick1 = trickSnowboarder;
+		this.sprites.trick1 = tailgrabSnowboarder;
+		this.sprites.trick2 = _360Snowboarder;
+		this.sprites.trick3 = frontflipSnowboarder;
+		this.sprites.trick4 = backflipSnowboarder;
 		this.score = new Score(this.stateController);
 
 		// global variable so Physics.js can see it
 		let deletedBodies = [];
 
 		// Generate physics points for curves
-		const allPoints = Physics(this.pixiApp, viewport, curves, player, obj, world, deletedBodies);
+		const allPoints = Physics(this.pixiApp, this.viewport, curves, player, obj, world, deletedBodies);
 
 		// add coins
-		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, viewport, this.pixiApp);
-		let coinSprites = Coins(this.songAnalysis, allPoints, viewport, player, this.pixiApp, world, deletedBodies, this.score);
-
-		Bezier(viewport, allPoints);
+		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
+		let coinSprites = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
+		Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
+		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
 
-		viewport.addChild(player.followSprite);
-		viewport.addChild(player.sprite);
-		viewport.zoomPercent(6.0);
+		this.viewport.addChild(player.followSprite);
+		this.viewport.addChild(player.sprite);
+		this.viewport.zoomPercent(6.0);
 
 		const followPlayer = () => {
-			viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
+			this.viewport.moveCenter(player.followSprite.position.x + 20, player.followSprite.position.y - 15);
 		};
 
 		// world on collision for physics
 		world.on("pre-solve", contact => {
-			let fixtureA = contact.getFixtureA();
-			let fixtureB = contact.getFixtureB();
+			if (this.pixiState === "PLAYING") {
+				let fixtureA = contact.getFixtureA();
+				let fixtureB = contact.getFixtureB();
 
-			let bodyA = fixtureA.getBody();
-			let bodyB = fixtureB.getBody();
+				let bodyA = fixtureA.getBody();
+				let bodyB = fixtureB.getBody();
 
-			let playerA = bodyA === player.physics;
-			let playerB = bodyB === player.physics;
+				let playerA = bodyA === player.physics;
+				let playerB = bodyB === player.physics;
 
-			if (playerA || playerB) {
+				if (playerA || playerB) {
 
-				if (this.ON_SLOPE === false) {
-					this.swapSprites(player, viewport, this.sprites.idle, "idle");
+					if (this.ON_SLOPE === false) {
+
+						if (playingTrickAnimation()) {
+							this.consecutiveTricks = 0;
+							this.multiplier = 1;
+						}
+
+						emitter.emit = true;
+						this.swapSprites(player, this.viewport, this.sprites.idle, "idle");
+					}
+
+					this.ON_SLOPE = true;
+					player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
 				}
 
-				this.ON_SLOPE = true;
-				player.physics.applyForce(Planck.Vec2(this.songAnalysis.track.tempo, -100.0), player.position, true);
-				//console.log(player.physics.getLinearVelocity());
-				//player.physics.setLinearVelocity(Planck.Vec2(20, -10));
-
-				//console.log(fixtureA.getShape());
-				//console.log(fixtureB.getShape());
-
-
-			}
-
-			if (playerA) {
-				// eslint-disable-next-line no-mixed-spaces-and-tabs
-			    player.sprite.rotation = bodyB.getAngle();
-			}
-			else {
-				// eslint-disable-next-line no-mixed-spaces-and-tabs
-				player.sprite.rotation = bodyA.getAngle();
+				if (playerA) {
+					// eslint-disable-next-line no-mixed-spaces-and-tabs
+					player.sprite.rotation = bodyB.getAngle();
+				} else {
+					// eslint-disable-next-line no-mixed-spaces-and-tabs
+					player.sprite.rotation = bodyA.getAngle();
+				}
 			}
 		});
 
+		const playingTrickAnimation = () => {
+			if (this.sprites.trick1.playing != null
+				&& this.sprites.trick2.playing != null
+				&& this.sprites.trick3.playing != null
+				&& this.sprites.trick4.playing != null) {
+				return this.sprites.trick1.playing
+					|| this.sprites.trick2.playing
+					|| this.sprites.trick3.playing
+					|| this.sprites.trick4.playing;
+			}
+			return false;
+		};
 
 		const handleActions = () => {
 			if (this.actionState.jump === "press" && this.ON_SLOPE === true) {
 
-				this.swapSprites(player, viewport, this.sprites.jump, "jump");
+				emitter.emit = false;
+				this.swapSprites(player, this.viewport, this.sprites.jump, "jump");
 
 				player.physics.applyLinearImpulse(Planck.Vec2(this.songAnalysis.track.tempo, -200), player.position, true);
 				//player.physics.setAngle(0);
 				this.ON_SLOPE = false;
 			}
 
-			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !this.sprites.trick1.playing) {
-				this.swapSprites(player, viewport, this.sprites.trick1, "trick1");
+			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, this.viewport, this.sprites.trick1, "trick1");
+			}
+
+			if (this.actionState.trick2 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, this.viewport, this.sprites.trick2, "trick2");
+			}
+
+			if (this.actionState.trick3 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, this.viewport, this.sprites.trick3, "trick3");
+			}
+
+			if (this.actionState.trick4 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+				this.swapSprites(player, this.viewport, this.sprites.trick4, "trick4");
 			}
 
 		};
@@ -88039,7 +88125,7 @@ class Game {
 		};
 
 		const particle = PIXI.Texture.from("../img/particle.png");
-		let emitter = new particles.Emitter(viewport, [particle],
+		let emitter = new particles.Emitter(this.viewport, [particle],
 			{
 				"alpha": {
 					"start": 1,
@@ -88120,9 +88206,11 @@ class Game {
 
 	swapSprites(player, viewport, sprite, trick) {
 
-		if (trick === "trick1 complete") {
-			this.score.updateScore(100);
-			console.log("NewScore: " + this.score.getScore());
+		for (let i = 1; i < 5; i++) {
+			if (trick === "trick" + i +" complete") {
+				this.calculateScore(i);
+				//console.log("NewScore: " + this.score.getScore());
+			}
 		}
 
 		let rotation = player.sprite.rotation;
@@ -88138,11 +88226,175 @@ class Game {
 		viewport.addChild(player.sprite);
 	}
 
+	calculateScore(trickNum) {
+		this.consecutiveTricks++;
+		if (this.consecutiveTricks !== 1 && (this.consecutiveTricks - 1) % 5 === 0) {
+			this.multiplier += 0.2;
+		}
+
+		switch (trickNum) {
+		case 1:
+			this.score.updateScore(200 * this.multiplier);
+			return;
+		case 2:
+			this.score.updateScore(250 * this.multiplier);
+			return;
+		case 3:
+			this.score.updateScore(200 * this.multiplier);
+			return;
+		case 4:
+			this.score.updateScore(250 * this.multiplier);
+			return;
+		default:
+			this.score.updateScore(100);
+			return;
+		}
+	}
+
+	createTextures() {
+		let idle = [
+			"idle_frame_1.png",
+			"idle_frame_2.png",
+			"idle_frame_3.png",
+			"idle_frame_4.png",
+			"idle_frame_5.png",
+			"idle_frame_6.png"
+		];
+
+		let jump = [
+			"ollie1.png",
+			"ollie2.png",
+			"ollie3.png",
+			"ollie4.png",
+			"ollie5.png",
+			"ollie6.png",
+			"ollie7.png",
+			"ollie8.png",
+			"ollie9.png",
+			"ollie10.png",
+			"ollie11.png",
+			"ollie12.png",
+			"ollie13.png",
+			"ollie14.png",
+			"ollie15.png"
+		];
+
+		let tailgrab = [
+			"tail_grab1.png",
+			"tail_grab2.png",
+			"tail_grab3.png",
+			"tail_grab4.png",
+			"tail_grab5.png",
+			"tail_grab6.png",
+			"tail_grab7.png",
+			"tail_grab8.png",
+			"tail_grab9.png",
+			"tail_grab10.png",
+			"tail_grab11.png",
+			"tail_grab12.png",
+			"tail_grab13.png"
+		];
+
+		let _360 = [
+			"360_frame_1.png",
+			"360_frame_2.png",
+			"360_frame_3.png",
+			"360_frame_4.png",
+			"360_frame_5.png",
+			"360_frame_6.png",
+			"360_frame_7.png",
+			"360_frame_8.png",
+			"360_frame_9.png",
+			"360_frame_10.png",
+			"360_frame_11.png",
+			"360_frame_12.png",
+			"360_frame_13.png",
+			"360_frame_14.png"
+		];
+
+		let frontFlip = [
+			"front flip1.png",
+			"front flip2.png",
+			"front flip3.png",
+			"front flip4.png",
+			"front flip5.png",
+			"front flip6.png",
+			"front flip7.png",
+			"front flip8.png",
+			"front flip9.png",
+			"front flip10.png",
+			"front flip11.png",
+			"front flip12.png",
+			"front flip13.png"
+		];
+
+		let backflip = [
+			"backflip1.png",
+			"backflip2.png",
+			"backflip3.png",
+			"backflip4.png",
+			"backflip5.png",
+			"backflip6.png",
+			"backflip7.png",
+			"backflip8.png",
+			"backflip9.png",
+			"backflip10.png",
+			"backflip11.png",
+			"backflip12.png",
+			"backflip13.png",
+			"backflip14.png"
+		];
+
+		let idleArray = [];
+		let jumpArray = [];
+		let tailgrabArray = [];
+		let _360Array = [];
+		let frontflipArray = [];
+		let backflipArray = [];
+
+		for (let i = 0; i < 6; i++) {
+			let texture = PIXI.Texture.from("/img/" + idle[i]);
+			idleArray.push(texture);
+		}
+
+		for (let i = 0; i < 15; i++) {
+			let texture = PIXI.Texture.from("/img/" + jump[i]);
+			jumpArray.push(texture);
+		}
+
+		for (let i = 0; i < 13; i++) {
+			let texture = PIXI.Texture.from("/img/" + tailgrab[i]);
+			tailgrabArray.push(texture);
+		}
+
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + _360[i]);
+			_360Array.push(texture);
+		}
+
+		for (let i = 0; i < 13; i++) {
+			let texture = PIXI.Texture.from("/img/" + frontFlip[i]);
+			frontflipArray.push(texture);
+		}
+
+		for (let i = 0; i < 14; i++) {
+			let texture = PIXI.Texture.from("/img/" + backflip[i]);
+			backflipArray.push(texture);
+		}
+
+		return {
+			idle: idleArray,
+			jump: jumpArray,
+			tailgrab: tailgrabArray,
+			_360: _360Array,
+			frontflip: frontflipArray,
+			backflip: backflipArray
+		};
+	}
+
 	/**
 	 * Allows input to be received and affect characters in game. Notifies website
 	 * to initiate song playback!
-	 *
-	 * // TODO: actually implement a 2-way comm between modules here
 	 */
 	playLevelState() {
 		this.pixiApp.ticker.start();
@@ -88154,6 +88406,7 @@ class Game {
 	 */
 	pauseState() {
 		this.pixiApp.ticker.stop();
+
 	}
 
 	// add more states as needed... etc. Not all of these should be implemented for A-Fest
@@ -88163,7 +88416,7 @@ class Game {
 
 module.exports = Game;
 
-},{"./Bezier":566,"./Coins":567,"./GameObject":569,"./GenerationAlgorithm":570,"./Parallax":571,"./Physics":572,"./PulseTrees":573,"./Score":574,"./Shaders":575,"./Trees":576,"./Viewport":577,"pixi-particles":42,"pixi.js":44,"planck-js":71,"tune-mountain-input-manager":556}],569:[function(require,module,exports){
+},{"./Bezier":566,"./Coins":567,"./GameObject":569,"./GenerationAlgorithm":570,"./Parallax":571,"./Physics":572,"./Ramps":573,"./Score":574,"./Shaders":575,"./Trees":576,"./Viewport":577,"pixi-particles":42,"pixi.js":44,"planck-js":71,"tune-mountain-input-manager":556}],569:[function(require,module,exports){
 const PIXI = require("pixi.js");
 const Bezier = require("./Bezier");
 const Physics = require("./Physics");
@@ -88198,17 +88451,9 @@ function GameObject () {
 		object.followSprite.position.x = physicsPos.x;
 		object.followSprite.position.y = physicsPos.y + 15;
 	};
+
 	GameObject.prototype.error = function error (object) {
 		console.log(object.errorMessage);
-	};
-
-	// Change sprite of current game object
-	GameObject.prototype.swapSprites = function swapSprites(object, newSprite) {
-		let tempSprite = object.sprite;
-		tempSprite.alpha = 0;
-
-		object.sprite = newSprite;
-
 	};
 
 }
@@ -88234,14 +88479,12 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	let currentCurve = new PIXI.Graphics();
 	let singleCurvePoints = [];
 	let start, end, beatIterator, curveBeats;
-	let currentTime = 0;
 
-	// Run thorugh all sections
+	// Run through all sections
 	for(let i = 0; i < audioAnalysis.sections.length; i+=1){
 		let  c0, c1, cUp, cBottom;
 
 		let currentSection = audioAnalysis.sections[i];
-		currentTime = currentSection.start;
 
 		let durationMultiplier = timeToLength(currentSection);
 		console.log("Section time: " + currentSection.duration);
@@ -88255,7 +88498,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 		// Start and end points of new section curve
 		start = currentPoint;
-		end = Vec2(start.x + (currentSection.duration), start.y + ((50 + currentSection.loudness)));
+		end = Vec2(start.x + (currentSection.duration), start.y + (50 + currentSection.loudness));
 
 		end = extendCurve(currentSection, start, end, audioFeatures.tempo);
 
@@ -88267,8 +88510,8 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let divideBox = (cBottom.x - cUp.x) / (timeSignature);
 
 		// Section curve control points
-		c0 = Vec2(cUp.x + (divideBox), cBottom.y + (currentSection.key));
-		c1 = Vec2(cBottom.x - (divideBox * (timeSignature / 2)), cUp.y - (currentSection.key));
+		c0 = Vec2(cUp.x + (divideBox), cBottom.y + (audioFeatures.danceability * 10));
+		c1 = Vec2(cBottom.x - (divideBox * (timeSignature / 2)), cUp.y - (audioFeatures.danceability * 10));
 
 		// Push current section curve into curve arrays
 		singleCurvePoints.push(start, c0, c1, end);
@@ -88292,7 +88535,6 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 			currentPoint = end;
 			singleCurvePoints = [];
 		}
-
 	}
 
 	function getRandomInt(min, max) {
@@ -88313,24 +88555,6 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 	function checkConfidence(conf) {
 		let maxConf = 0.6;
 		return conf > maxConf; // true if confidence is higher, false otherwise
-	}
-
-	// helper function to looki into sections
-	function getCurrentSection(currentTime) {
-		let section;
-		for(let i = 0; i < audioAnalysis.sections.length; i += 1){
-			section = audioAnalysis.sections[i];
-			//console.log(section);
-			//console.log(currentTime);
-
-			// checks if within the correct duration
-			if(section.start <= currentTime && ((section.start + section.duration) > currentTime)){
-
-				return section;
-			}
-			console.log("didnt find section");
-		}
-
 	}
 
 	// Utility to find the angle between two Vec2 points in radians
@@ -88363,48 +88587,48 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 
 		if (sectionAngle > 0 && sectionAngle <= 10){
-			endPoint.x += xLength * (tempo / 1.50) ;
-			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.44) ;
+			endPoint.y += (yLength * (tempo / 1.44)) / 3.0;
 
 		}
 		else if (sectionAngle > 10 && sectionAngle <= 20){
-			endPoint.x += xLength * (tempo / 1.52);
-			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.46);
+			endPoint.y += (yLength * (tempo / 1.46)) / 3.0;
 
 		}
 		else if (sectionAngle > 20 && sectionAngle <= 30){
+			endPoint.x += xLength * (tempo / 1.48);
+			endPoint.y += (yLength * (tempo / 1.48)) / 3.0;
+
+		}
+		else if (sectionAngle > 30 && sectionAngle <= 40){
+			endPoint.x += xLength * (tempo / 1.50);
+			endPoint.y += (yLength * (tempo / 1.50)) / 3.0;
+
+		}
+		else if (sectionAngle > 40 && sectionAngle <= 50){
 			endPoint.x += xLength * (tempo / 1.54);
 			endPoint.y += (yLength * (tempo / 1.54)) / 3.0;
 
 		}
-		else if (sectionAngle > 30 && sectionAngle <= 40){
+		else if (sectionAngle > 50 && sectionAngle <= 60){
 			endPoint.x += xLength * (tempo / 1.56);
 			endPoint.y += (yLength * (tempo / 1.56)) / 3.0;
 
 		}
-		else if (sectionAngle > 40 && sectionAngle <= 50){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
-
-		}
-		else if (sectionAngle > 50 && sectionAngle <= 60){
-			endPoint.x += xLength * (tempo / 1.62);
-			endPoint.y += (yLength * (tempo / 1.62)) / 3.0;
-
-		}
 		else if (sectionAngle > 60 && sectionAngle <= 70){
-			endPoint.x += xLength * (tempo / 1.65);
-			endPoint.y += (yLength * (tempo / 1.65)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.59);
+			endPoint.y += (yLength * (tempo / 1.59)) / 3.0;
 
 		}
 		else if (sectionAngle > 70 && sectionAngle <= 80){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.52);
+			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
 
 		}
 		else if (sectionAngle > 80 && sectionAngle <= 90){
-			endPoint.x += xLength * (tempo / 1.60);
-			endPoint.y += (yLength * (tempo / 1.60)) / 3.0;
+			endPoint.x += xLength * (tempo / 1.52);
+			endPoint.y += (yLength * (tempo / 1.52)) / 3.0;
 
 		}
 		//console.log("Final curve X len: " + (endPoint.x - startPoint.x) + " Y len: " + (endPoint.y - startPoint.y) + " Angle: " + radianToDegree(findAngle(startPoint, endPoint)));
@@ -88417,6 +88641,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 }
 
 module.exports = GenerationAlgorithm;
+
 },{"pixi.js":44,"planck-js":71}],571:[function(require,module,exports){
 const PIXI = require("pixi.js");
 
@@ -88428,9 +88653,6 @@ function Parallax(game, shaders) {
 
 	const vShader = null;
 	const fShader = null;
-	let uniforms = {
-		delta: 0
-	};
 
 	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, shaders);
 	const tilingSprite3 = createTilingSprite(game, "../img/bg_layer3.png", -65, shaders);
@@ -88452,8 +88674,6 @@ function Parallax(game, shaders) {
 		tilingSprite3.tilePosition.x -= 0.32;
 		tilingSprite4.tilePosition.x -= 0.16;
 
-		delta += 0.1;
-		uniforms.delta = Math.sin(delta) * 0.5;
 
 		cloud1.position.x -= speed1;
 		cloud2.position.x -= speed2;
@@ -88551,7 +88771,7 @@ function Physics(game, viewport, curvePoints, player, obj, world, deletedBodies)
 	let playerBody = world.createBody().setDynamic();
 	playerBody.createFixture(pl.Circle(1.0), 1.0);
 	//playerBody.createFixture(pl.Box(2.5, 0.1), 1.0);
-	playerBody.setPosition(Vec2(0.0, -15.0));
+	playerBody.setPosition(Vec2(-2.0, -17.0));
 	//playerBody.setLinearVelocity(Vec2(120, 0.0));
 	playerBody.setMassData({
 		mass : 5,
@@ -88745,112 +88965,95 @@ module.exports = Physics;
 
 },{"./GameObject":569,"pixi.js":44,"planck-js":71}],573:[function(require,module,exports){
 const PIXI = require("pixi.js");
-const Viewport = require("./Viewport");
+const Planck = require("planck-js");
+const Vec2 = Planck.Vec2;
 const GameObject = require("./GameObject");
 
-function PulseTrees(game, viewport, player, trees, songFeatures) {
 
-	let tempoCounter = 0;
-	let tempoFlag = true;		// true = getting bigger, false = getting smaller
+/**
+ * @return {number}
+ */
+function Ramps(curves, allPoints, viewport, game, world) {
+	const obj = new GameObject();
+	const texture = PIXI.Texture.from("../img/ramp.png");
 
-	function pulseUp(sprite){
-		//sprite.scale.x += 0.004;
-		sprite.scale.y += 0.004;
+	let sectionCounter = 0;
+	for (let i = 0; i < allPoints.length; i++) {
 
+		if (allPoints[i].x === curves[sectionCounter][3].x
+			&& allPoints[i].y === curves[sectionCounter][3].y) {
 
-	}
-	function pulseDown(sprite){
+			sectionCounter++;
+			createRamp(allPoints, i, findAngle(allPoints[i - 1], allPoints[i]));
 
-		//sprite.scale.x -= 0.004;
-		sprite.scale.y -= 0.004;
-
-	}
-
-	const pulseTrees = () => {
-		let currTree;
-		let tempo = songFeatures.tempo / 2.0;
-
-		if(tempoCounter === 0){
-			tempoFlag = true;
-		}
-		else if(tempoCounter >= tempo){
-			tempoFlag = false;
-		}
-
-		for(let i = 0; i < trees.length; i++) {
-			currTree = trees[i].sprite;
-
-			let screen = viewport.getVisibleBounds();
-			let withinScreen = screen.contains(currTree.position.x, currTree.position.y);
-
-			if (withinScreen) {
-				if (tempoFlag) {
-					pulseUp(currTree);
-				} else {
-					pulseDown(currTree);
-				}
-			}
-		}
-
-		// incrementation
-		if(tempoFlag){
-			tempoCounter++;
-		}
-		else {
-			tempoCounter--;
-		}
-	};
-
-	//game.ticker.add(pulseTrees);
-
-	/*
-	Don't want to delete code but refactoring tree pulsing properly
-	// Collect coin if the sprites collided
-	function collectCoin() {
-		let currCoin;
-
-		for(let i = 0; i < coins.length; i++){
-			currCoin = coins[i].sprite;
-			if(playerHitTest(player.sprite, currCoin)){
-				//console.log("Player collision");
-				//deleteCoin(currCoin);
-				//currCoin.destroy();
+			if (sectionCounter === curves.length - 1) {
 				break;
 			}
-			//if(tempo)
 		}
-
 	}
 
-	// Check collision between sprites
-	// TODO add rotation into account
-	function playerHitTest(player, s2){
-		if ((player.x - player.width / 2) + (player.width / 2) > (s2.x - s2.width / 2)) {
-			if ((player.x - player.width / 2) < (s2.x - s2.width / 2) + (s2.width / 2)) {
-				if ((player.y - player.height) + (player.height) > (s2.y - s2.height / 2)) {
-					if ((player.y - player.height) < (s2.y - s2.height / 2) + (s2.height / 2)) {
-						return true;
-					}
-				}
-			}
-		}
+	function createRamp(allPoints, i, rotation) {
+		let ramp = new PIXI.Sprite(texture);
 
-		return false;
+		ramp.scale.x = 0.3;
+		ramp.scale.y = 0.3;
+		ramp.anchor.x = 1.0;
+		ramp.anchor.y = 1.0;
+		ramp.position.x = allPoints[i].x;
+		ramp.position.y = allPoints[i].y;
+		ramp.rotation = rotation;
+		let bounds = ramp.getBounds();
+
+		let vertex1 = {x: allPoints[i - 1].x - 5, y: allPoints[i - 1].y - 5};
+		let vertex2 = {x: allPoints[i].x + 50, y: allPoints[i].y - 20};
+		let linelength = findMagnitude(subtractVec(vertex2, vertex1));
+
+		let rampPhysics = world.createBody().setStatic();
+		let rampFixture = rampPhysics.createFixture(Planck.Box(linelength, 0.01), 1.0);
+		rampFixture.setFriction(.1);
+		rampPhysics.setPosition(findMidpoint(vertex1, vertex2));
+		let angle = findAngle(vertex1, vertex2);
+		rampPhysics.setAngle(angle);
+
+		//let coinObj = obj.create({name: "coin"+ coinSprites.length, position: coin.position, physics: coinPhysics});
+		viewport.addChild(ramp);
 	}
 
-	// psuedo delete the sprite by moving it out of screen
-	function deleteCoin(coin){
-
-		coin.position.x = -1000;
-		coin.position.y = -1000;
+	// Utility to find the angle between two Vec2 points
+	function findAngle(point1, point2) {
+		return Math.atan2(point2.y - point1.y, point2.x - point1.x);
 	}
 
-	 */
+	// Utility to find the magnitude of a Vec2
+	function findMagnitude(vector){
+		let magnitude = Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+		return magnitude / 2;
+	}
+
+	// Utility to find the midpoint between two Vec2 points
+	function findMidpoint(point1, point2){
+		let result = Vec2();
+
+		result.x = (point1.x + point2.x) / 2.0;
+		result.y = (point1.y + point2.y) / 2.0;
+
+		return result;
+	}
+
+	// Utility to subtract two Vec2 together
+	function subtractVec(vector1, vector2) {
+		let result = Vec2();
+
+		result.x = vector1.x - vector2.x;
+		result.y = vector1.y - vector2.y;
+
+		return result;
+	};
 }
 
-module.exports = PulseTrees;
+module.exports = Ramps;
 
-},{"./GameObject":569,"./Viewport":577,"pixi.js":44}],574:[function(require,module,exports){
+},{"./GameObject":569,"pixi.js":44,"planck-js":71}],574:[function(require,module,exports){
 const {
 	InputManager,
 	GameStateController,
@@ -89110,14 +89313,14 @@ function Trees(sections, features, allPoints, viewport, game) {
 
 function pulseUp(sprite){
 	//sprite.scale.x += 0.004;
-	sprite.scale.y += 0.002;
+	sprite.scale.y += 0.001;
 
 
 }
 function pulseDown(sprite){
 
 	//sprite.scale.x -= 0.004;
-	sprite.scale.y -= 0.002;
+	sprite.scale.y -= 0.001;
 
 }
 
@@ -89147,9 +89350,9 @@ function CreateViewport(game) {
 
 	// activate plugins
 	viewport
-		.drag()
-		.pinch()
-		.wheel()
+		//.drag()
+		//.pinch()
+		//.wheel()
 		.decelerate();
 
 	return viewport;
