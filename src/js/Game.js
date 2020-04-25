@@ -415,7 +415,6 @@ class Game {
 		let curveEndIndex = 0;
 		let nextCurveEnding = curves[curveEndIndex][3];
 		const handleTime = () => {
-			//console.log(player.position);
 			if(player.position.x > nextCurveEnding.x && curveEndIndex < curves.length - 1){
 				let currentTime = performance.now();
 				let timePassed = (currentTime - lastCurveTime) / 1000.0;   // in seconds

@@ -37,10 +37,13 @@ function Ramps(curves, allPoints, viewport, game, world) {
 		ramp.position.y = allPoints[i].y;
 		ramp.rotation = rotation;
 		let bounds = ramp.getBounds();
+		let { top, left, right, bottom } = bounds;
 
-		let vertex1 = {x: allPoints[i - 1].x - 5, y: allPoints[i - 1].y - 5};
-		let vertex2 = {x: allPoints[i].x + 50, y: allPoints[i].y - 20};
+		let vertex1 = {x: left, y: bottom};
+		let vertex2 = {x: right, y: top};
 		let linelength = findMagnitude(subtractVec(vertex2, vertex1));
+		console.log(vertex1);
+		console.log(vertex2);
 
 		let rampPhysics = world.createBody().setStatic();
 		let rampFixture = rampPhysics.createFixture(Planck.Box(linelength, 0.01), 1.0);
@@ -49,7 +52,6 @@ function Ramps(curves, allPoints, viewport, game, world) {
 		let angle = findAngle(vertex1, vertex2);
 		rampPhysics.setAngle(angle);
 
-		//let coinObj = obj.create({name: "coin"+ coinSprites.length, position: coin.position, physics: coinPhysics});
 		viewport.addChild(ramp);
 	}
 
