@@ -19,7 +19,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 
 	// setup texture
 	const texture = PIXI.Texture.from("../img/snowball1.png");
-	let coinAudio = new Audio("../audio/snowball-trimmed.mp3");
+	//let coinAudio = new Audio("../audio/snowball-trimmed.mp3");
 
 
 	// Start laying coins
@@ -126,7 +126,7 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 			let currCoin = coinObjects[i];
 			if(coinBody === currCoin.physics && currCoin.sprite != null){
 				viewport.removeChild(coinSprites[i]);
-				coinAudio.play();
+				playCoinSoundAsync();
 				currCoin.sprite = null;
 				//console.log("Collected coin in index: " + i);
 				score.updateScore(10);
@@ -205,6 +205,10 @@ function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies
 		result.y = vector1.y + vector2.y;
 
 		return result;
+	}
+
+	function playCoinSoundAsync(){
+		new Audio("../audio/snowball-trimmed.mp3").play();
 	}
 
 
