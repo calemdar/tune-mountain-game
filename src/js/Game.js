@@ -315,7 +315,7 @@ class Game {
 		// add coins
 		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
 		let coinSprites = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
-		Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
+		//Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
 		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
@@ -415,7 +415,6 @@ class Game {
 		let curveEndIndex = 0;
 		let nextCurveEnding = curves[curveEndIndex][3];
 		const handleTime = () => {
-			//console.log(player.position);
 			if(player.position.x > nextCurveEnding.x && curveEndIndex < curves.length - 1){
 				let currentTime = performance.now();
 				let timePassed = (currentTime - lastCurveTime) / 1000.0;   // in seconds
