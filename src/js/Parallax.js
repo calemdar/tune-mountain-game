@@ -8,12 +8,10 @@ function Parallax(game, shaders) {
 
 	const vShader = null;
 	const fShader = null;
-	let uniforms = {
-		delta: 0
-	};
 
 	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, shaders);
 	const tilingSprite3 = createTilingSprite(game, "../img/bg_layer3.png", -65, shaders);
+	tilingSprite3.filters = [shaders.shader0];
 	const tilingSprite2 = createTilingSprite(game, "../img/bg_layer2.png", -33, shaders);
 	const tilingSprite1 = createTilingSprite(game, "../img/bg_layer1.png", 0, shaders);
 
@@ -31,8 +29,6 @@ function Parallax(game, shaders) {
 		tilingSprite3.tilePosition.x -= 0.32;
 		tilingSprite4.tilePosition.x -= 0.16;
 
-		delta += 0.1;
-		uniforms.delta = Math.sin(delta) * 0.5;
 
 		cloud1.position.x -= speed1;
 		cloud2.position.x -= speed2;
@@ -66,7 +62,7 @@ function createTilingSprite(game, location, y, shaders) {
 	);
 
 	// adding the shader
-	tilingSprite.filters = [shaders.shader0];
+	//tilingSprite.filters = [shaders.shader0];
 
 	game.stage.addChild(tilingSprite);
 

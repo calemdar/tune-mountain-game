@@ -36,6 +36,7 @@ function Shaders(audioFeatures, game){
 	uniform float time;
 	uniform float tempo;
 	uniform float energy;
+	uniform float valence;
 	uniform float resolutionX;
 	uniform float resolutionY;
 	
@@ -44,8 +45,8 @@ function Shaders(audioFeatures, game){
 		vec2 p = gl_FragCoord.xy / vec2(resolutionX, resolutionY);
 		
 		float frequency = 0.1;
-	
-		color.rgb = vec3(sin(time * p.y * tempo * energy * frequency) , 0.8 - cos(time * energy * 0.1), smoothstep(abs(time + (energy * tempo)), 0.2, 0.7) - 0.2);
+		
+		color.rgb = vec3(valence * p.y , 1. - cos(time * energy * 4.), smoothstep(abs(time * energy + tempo * 10.), 0.2, 0.7));
 		
 		gl_FragColor = color;
 	}`;
@@ -91,7 +92,7 @@ function Shaders(audioFeatures, game){
 
 	let time = 0;
 	game.ticker.add(() => {
-		time += 0.1;
+		time += 0.01;
 		uniforms.time = time;
 	});
 
