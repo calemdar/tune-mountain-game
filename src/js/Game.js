@@ -100,7 +100,9 @@ class Game {
 			trick1: null,
 			trick2: null,
 			trick3: null,
-			trick4: null
+			trick4: null,
+			coins: null,
+			trees: null
 		};
 
 		this.score = null;
@@ -150,7 +152,7 @@ class Game {
 	idleState(canvas, reason) {
 
 		// If receiving reason, need to reset game and global variables (either song has ended or paused from another device)
-		/*
+
 		if (reason && this.pixiState === "PLAYING") {
 
 			this.pixiState = "IDLE";
@@ -166,7 +168,9 @@ class Game {
 				trick1: null,
 				trick2: null,
 				trick3: null,
-				trick4: null
+				trick4: null,
+				coins: null,
+				trees: null
 			};
 
 			this.ON_SLOPE = false;
@@ -174,12 +178,11 @@ class Game {
 			this.consecutiveTricks = 0;
 			this.multiplier = 1;
 
-			this.pixiApp.ticker.stop();
+			this.pixiApp.ticker = null;
 			this.pixiApp = null;
 			this.viewport = null;
 		}
 
-		 */
 
 		this.getPixiApp(canvas);
 
@@ -313,8 +316,8 @@ class Game {
 		const allPoints = Physics(this.pixiApp, this.viewport, curves, player, obj, world, deletedBodies);
 
 		// add coins
-		let allTrees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
-		let coinSprites = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
+		this.sprites.trees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
+		this.sprites.coins = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
 		//Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
 		Bezier(this.viewport, allPoints);
 
