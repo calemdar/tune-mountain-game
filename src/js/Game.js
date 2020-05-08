@@ -153,6 +153,7 @@ class Game {
 
 		// If receiving reason, need to reset game and global variables (either song has ended or paused from another device)
 
+		/*
 		if (reason && this.pixiState === "PLAYING") {
 
 			this.pixiState = "IDLE";
@@ -182,7 +183,7 @@ class Game {
 			this.pixiApp = null;
 			this.viewport = null;
 		}
-
+		*/
 
 		this.getPixiApp(canvas);
 
