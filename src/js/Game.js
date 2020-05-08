@@ -88,6 +88,7 @@ class Game {
 		this.pixiState = "IDLE";
 
 		this.ON_SLOPE = false;
+		this.TUMBLING = false;
 
 		this.songAnalysis = null;
 		this.songFeatures = null;
@@ -101,6 +102,7 @@ class Game {
 			trick2: null,
 			trick3: null,
 			trick4: null,
+			tumble: null,
 			coins: null,
 			trees: null
 		};
@@ -301,6 +303,16 @@ class Game {
 			this.swapSprites(player, this.viewport, this.sprites.idle, "trick4 complete");
 		};
 
+		const tumbleSnowboarder = new PIXI.AnimatedSprite(textures.tumble);
+		tumbleSnowboarder.animationSpeed = .15;
+		tumbleSnowboarder.scale.x = 0.2;
+		tumbleSnowboarder.scale.y = 0.2;
+		tumbleSnowboarder.loop = false;
+		tumbleSnowboarder.onComplete = () => {
+			this.TUMBLING = false;
+			this.swapSprites(player, this.viewport, this.sprites.idle, "tumble complete");
+		};
+
 		// Assign sprites and score to the Game
 		this.sprites.idle = idleSnowboarder;
 		this.sprites.jump = jumpSnowboarder;
@@ -308,6 +320,7 @@ class Game {
 		this.sprites.trick2 = _360Snowboarder;
 		this.sprites.trick3 = frontflipSnowboarder;
 		this.sprites.trick4 = backflipSnowboarder;
+		this.sprites.tumble = tumbleSnowboarder;
 		this.score = new Score(this.stateController);
 
 		// global variable so Physics.js can see it
@@ -348,9 +361,16 @@ class Game {
 
 					if (this.ON_SLOPE === false) {
 
+						if (this.TUMBLING) {
+							return;
+						}
+
 						if (playingTrickAnimation()) {
 							this.consecutiveTricks = 0;
 							this.multiplier = 1;
+							this.TUMBLING = true;
+							this.swapSprites(player, this.viewport, this.sprites.tumble, "tumble");
+							return;
 						}
 
 						emitter.emit = true;
@@ -517,7 +537,6 @@ class Game {
 		for (let i = 1; i < 5; i++) {
 			if (trick === "trick" + i +" complete") {
 				this.calculateScore(i);
-				//console.log("NewScore: " + this.score.getScore());
 			}
 		}
 
@@ -588,19 +607,15 @@ class Game {
 		];
 
 		let tailgrab = [
-			"tail_grab1.png",
-			"tail_grab2.png",
-			"tail_grab3.png",
-			"tail_grab4.png",
-			"tail_grab5.png",
-			"tail_grab6.png",
-			"tail_grab7.png",
-			"tail_grab8.png",
-			"tail_grab9.png",
-			"tail_grab10.png",
-			"tail_grab11.png",
-			"tail_grab12.png",
-			"tail_grab13.png"
+			"tail grab1.png",
+			"tail grab2.png",
+			"tail grab3.png",
+			"tail grab4.png",
+			"tail grab5.png",
+			"tail grab6.png",
+			"tail grab7.png",
+			"tail grab8.png",
+			"tail grab9.png"
 		];
 
 		let _360 = [
@@ -653,41 +668,64 @@ class Game {
 			"backflip14.png"
 		];
 
+		let tumble = [
+			"tumble1.png",
+			"tumble2.png",
+			"tumble3.png",
+			"tumble4.png",
+			"tumble5.png",
+			"tumble6.png",
+			"tumble7.png",
+			"tumble8.png",
+			"tumble9.png",
+			"tumble10.png",
+			"tumble11.png",
+			"tumble12.png",
+			"tumble13.png",
+			"tumble14.png"
+		];
+
 		let idleArray = [];
 		let jumpArray = [];
 		let tailgrabArray = [];
 		let _360Array = [];
 		let frontflipArray = [];
 		let backflipArray = [];
+		let tumbleArray = [];
 
-		for (let i = 0; i < 6; i++) {
+		for (let i = 0; i < idle.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + idle[i]);
 			idleArray.push(texture);
 		}
 
-		for (let i = 0; i < 15; i++) {
+		for (let i = 0; i < jump.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + jump[i]);
 			jumpArray.push(texture);
 		}
 
-		for (let i = 0; i < 13; i++) {
+		for (let i = 0; i < tailgrab.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + tailgrab[i]);
 			tailgrabArray.push(texture);
 		}
 
-		for (let i = 0; i < 14; i++) {
+		for (let i = 0; i < _360.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + _360[i]);
 			_360Array.push(texture);
 		}
 
-		for (let i = 0; i < 13; i++) {
+		for (let i = 0; i < frontFlip.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + frontFlip[i]);
 			frontflipArray.push(texture);
 		}
 
-		for (let i = 0; i < 14; i++) {
+		for (let i = 0; i < backflip.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + backflip[i]);
 			backflipArray.push(texture);
+		}
+
+		for (let i = 0; i < tumble.length; i++) {
+			let texture = PIXI.Texture.from("/img/" + tumble[i]);
+			tumbleArray.push(texture);
 		}
 
 		return {
@@ -696,7 +734,8 @@ class Game {
 			tailgrab: tailgrabArray,
 			_360: _360Array,
 			frontflip: frontflipArray,
-			backflip: backflipArray
+			backflip: backflipArray,
+			tumble: tumbleArray
 		};
 	}
 
