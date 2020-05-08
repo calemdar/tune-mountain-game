@@ -6,7 +6,15 @@ let tempoFlag = true;			// true = getting bigger, false = getting smaller
 let tempoCounter = 0;
 let allTrees = [];
 
-
+/**
+ * Creates tree sprites and places them on the proper place on the slope
+ * @param sections - sections of the curve
+ * @param features - features of the song
+ * @param allPoints - all the points of the curves
+ * @param viewport - camera viewport
+ * @param game - pixi.js application
+ * @returns {[]} - array of tree sprites
+ */
 function Trees(sections, features, allPoints, viewport, game) {
 
 	let currSectionNum = 0;

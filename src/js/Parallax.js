@@ -1,5 +1,10 @@
 const PIXI = require("pixi.js");
 
+/**
+ * Creates the parallax mountain background layers and clouds
+ * @param game - the pixi.js application
+ * @param shaders - shader objects created in Shaders.js
+ */
 function Parallax(game, shaders) {
 
 	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, shaders);

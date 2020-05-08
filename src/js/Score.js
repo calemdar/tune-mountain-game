@@ -4,6 +4,11 @@ const {
 	GameStateEnums
 } = require("tune-mountain-input-manager");
 
+/**
+ * Creates the game score object
+ * @param stateController - the stateController for the game
+ * @returns {number} - the total score
+ */
 function Score(stateController) {
 
 	let totalScore = 0;

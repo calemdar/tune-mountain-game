@@ -5,7 +5,7 @@ const GameObject = require("./GameObject");
 /**
  * Create all physical objects.
  *
- * @param {PixiApp} game app to draw alll the objects on
+ * @param {PixiApp} game app to draw all the objects on
  * @param {Viewport} viewport to add all Sprites to
  * @param {Array} curvePoints that has all the points on the Bezier curves
  * @param {GameObject} player that is the player to control

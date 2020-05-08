@@ -1,5 +1,10 @@
 const PIXI = require("pixi.js");
 
+/**
+ * Creates the drawing of the mountain slope
+ * @param viewport - the camera viewport
+ * @param curvePoints - the points of the mountain slope
+ */
 function Bezier(viewport, curvePoints) {
 	const bezier = new PIXI.Graphics();
 	const texture = PIXI.Texture.from("..//img/slope tile.png", {wrapMode: PIXI.WRAP_MODES.REPEAT});
