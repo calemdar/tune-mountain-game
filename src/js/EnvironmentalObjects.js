@@ -1,8 +1,9 @@
 const PIXI = require("pixi.js");
 const Planck = require("planck-js");
 
-function Ramps(curves, allPoints, viewport) {
+function EnvironmentalObjects(curves, allPoints, viewport) {
 	const textures = createFlagTextures();
+	const tentTexture = PIXI.Texture.from("../img/tent.png");
 
 	let sectionCounter = 0;
 	for (let i = 0; i < allPoints.length; i++) {
@@ -11,10 +12,10 @@ function Ramps(curves, allPoints, viewport) {
 			&& allPoints[i].y === curves[sectionCounter][3].y) {
 
 			sectionCounter++;
-			createFlags(allPoints, i - 3, findAngle(allPoints[i - 4], allPoints[i - 3]));
-			createFlags(allPoints, i - 2, findAngle(allPoints[i - 3], allPoints[i - 2]));
-			createFlags(allPoints, i - 1, findAngle(allPoints[i - 2], allPoints[i - 1]));
-			createFlags(allPoints, i, findAngle(allPoints[i - 1], allPoints[i]));
+			createFlag(allPoints, i - 3, findAngle(allPoints[i - 4], allPoints[i - 3]));
+			createFlag(allPoints, i - 2, findAngle(allPoints[i - 3], allPoints[i - 2]));
+			createFlag(allPoints, i - 1, findAngle(allPoints[i - 2], allPoints[i - 1]));
+			createFlag(allPoints, i, findAngle(allPoints[i - 1], allPoints[i]));
 
 			if (sectionCounter === curves.length - 1) {
 				break;
@@ -22,7 +23,13 @@ function Ramps(curves, allPoints, viewport) {
 		}
 	}
 
-	function createFlags(allPoints, i, rotation) {
+	let numPointsPerSection = Math.ceil(allPoints.length / curves.length);
+	for (let j = 0; j < curves.length; j++) {
+		let point = getRandomIntInclusive(numPointsPerSection * j, numPointsPerSection * (j + 1));
+		createTent(allPoints, point, findAngle(allPoints[point - 1], allPoints[point]));
+	}
+
+	function createFlag(allPoints, i, rotation) {
 		let flagTextureArray = textures[getRandomIntInclusive(0, 1)];
 		let flag = new PIXI.AnimatedSprite(flagTextureArray);
 
@@ -37,6 +44,21 @@ function Ramps(curves, allPoints, viewport) {
 		flag.play();
 
 		viewport.addChild(flag);
+	}
+
+	function createTent(allPoints, i, rotation) {
+		//let tentTextureArray = tentTextures[getRandomIntInclusive(0, 1)];
+		let tent = new PIXI.Sprite(tentTexture);
+
+		tent.scale.x = 0.3;
+		tent.scale.y = 0.3;
+		tent.anchor.x = 0.5;
+		tent.anchor.y = 1.0;
+		tent.position.x = allPoints[i].x;
+		tent.position.y = allPoints[i].y;
+		tent.rotation = rotation;
+
+		viewport.addChild(tent);
 	}
 
 	// Utility to find the angle between two Vec2 points
@@ -95,4 +117,4 @@ function Ramps(curves, allPoints, viewport) {
 
 }
 
-module.exports = Ramps;
+module.exports = EnvironmentalObjects;

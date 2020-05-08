@@ -17,7 +17,7 @@ const Physics = require("./Physics");
 const GenerateCurve = require("./GenerationAlgorithm");
 const GameObject = require("./GameObject");
 const Coins = require("./Coins");
-const Ramps = require("./Ramps");
+const EnvironmentalObjects = require("./EnvironmentalObjects");
 const Score = require("./Score");
 const Shaders = require("./Shaders");
 const Trees = require("./Trees");
@@ -327,7 +327,7 @@ class Game {
 		// add coins
 		this.sprites.trees = Trees(this.songAnalysis.sections, this.songFeatures, allPoints, this.viewport, this.pixiApp);
 		this.sprites.coins = Coins(this.songAnalysis, allPoints, this.viewport, player, this.pixiApp, world, deletedBodies, this.score);
-		Ramps(curves, allPoints, this.viewport, this.pixiApp, world);
+		EnvironmentalObjects(curves, allPoints, this.viewport, this.pixiApp, world);
 		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
