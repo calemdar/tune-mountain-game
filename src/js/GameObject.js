@@ -4,6 +4,9 @@ const Physics = require("./Physics");
 const Planck = require("planck-js");
 const Vec2 = Planck.Vec2;
 
+/**
+ * Creates a game object (really only used for the player object)
+ */
 function GameObject () {
 
 	// Object constructor

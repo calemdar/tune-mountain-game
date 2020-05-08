@@ -1,13 +1,11 @@
 const PIXI = require("pixi.js");
 
+/**
+ * Creates the parallax mountain background layers and clouds
+ * @param game - the pixi.js application
+ * @param shaders - shader objects created in Shaders.js
+ */
 function Parallax(game, shaders) {
-
-	// Shader stuff
-	//const vShader = document.getElementById("vertShader").innerText;
-	//const fShader = document.getElementById("fragShader").innerText;
-
-	const vShader = null;
-	const fShader = null;
 
 	const tilingSprite4 = createTilingSprite(game, "../img/bg_layer4.png", -100, shaders);
 	const tilingSprite3 = createTilingSprite(game, "../img/bg_layer3.png", -65, shaders);
@@ -20,9 +18,7 @@ function Parallax(game, shaders) {
 
 	let speed1 = getRandomArbitrary(0.1, 0.5);
 	let speed2 = getRandomArbitrary(0.1, 0.5);
-	let zIndex;
 
-	let delta = 0;
 	game.ticker.add(() => {
 		tilingSprite1.tilePosition.x -= 1.28; // 0.128
 		tilingSprite2.tilePosition.x -= 0.64; // 0.64
@@ -50,19 +46,14 @@ function Parallax(game, shaders) {
 
 }
 
-function createTilingSprite(game, location, y, shaders) {
+function createTilingSprite(game, location, y) {
 
 	const texture = PIXI.Texture.from(location);
-	//const shader = new PIXI.Filter(vertShader, fragShader, uniforms);
-
 	const tilingSprite = new PIXI.TilingSprite(
 		texture,
 		game.screen.width,
 		game.screen.height,
 	);
-
-	// adding the shader
-	//tilingSprite.filters = [shaders.shader0];
 
 	game.stage.addChild(tilingSprite);
 
@@ -70,8 +61,6 @@ function createTilingSprite(game, location, y, shaders) {
 	tilingSprite.position.y = y;
 	tilingSprite.tilePosition.x = 0;
 	tilingSprite.tilePosition.y = 0;
-	//tilingSprite.scale.x = 0.75;
-	//tilingSprite.scale.y = 0.75;
 
 	return tilingSprite;
 }
