@@ -3,7 +3,7 @@ const Planck = require("planck-js");
 
 function EnvironmentalObjects(curves, allPoints, viewport) {
 	const textures = createFlagTextures();
-	const tentTexture = PIXI.Texture.from("../img/tent.png");
+	const tentTextureArray = createTentTextures();
 
 	let sectionCounter = 0;
 	for (let i = 0; i < allPoints.length; i++) {
@@ -24,13 +24,13 @@ function EnvironmentalObjects(curves, allPoints, viewport) {
 	}
 
 	let numPointsPerSection = Math.ceil(allPoints.length / curves.length);
-	for (let j = 0; j < curves.length; j++) {
+	for (let j = 0; j < curves.length - 1; j++) {
 		let point = getRandomIntInclusive(numPointsPerSection * j, numPointsPerSection * (j + 1));
 		createTent(allPoints, point, findAngle(allPoints[point - 1], allPoints[point]));
 	}
 
 	function createFlag(allPoints, i, rotation) {
-		let flagTextureArray = textures[getRandomIntInclusive(0, 1)];
+		let flagTextureArray = textures[getRandomIntInclusive(0, 5)];
 		let flag = new PIXI.AnimatedSprite(flagTextureArray);
 
 		flag.scale.x = 0.3;
@@ -47,7 +47,7 @@ function EnvironmentalObjects(curves, allPoints, viewport) {
 	}
 
 	function createTent(allPoints, i, rotation) {
-		//let tentTextureArray = tentTextures[getRandomIntInclusive(0, 1)];
+		let tentTexture = tentTextureArray[getRandomIntInclusive(0, 5)];
 		let tent = new PIXI.Sprite(tentTexture);
 
 		tent.scale.x = 0.3;
@@ -89,8 +89,56 @@ function EnvironmentalObjects(curves, allPoints, viewport) {
 			"flag2_8.png"
 		];
 
+		let flag3 = [
+			"flag3-1.png",
+			"flag3-2.png",
+			"flag3-3.png",
+			"flag3-4.png",
+			"flag3-5.png",
+			"flag3-6.png",
+			"flag3-7.png",
+			"flag3-8.png"
+		];
+
+		let flag4 = [
+			"flag4-1.png",
+			"flag4-2.png",
+			"flag4-3.png",
+			"flag4-4.png",
+			"flag4-5.png",
+			"flag4-6.png",
+			"flag4-7.png",
+			"flag4-8.png"
+		];
+
+		let flag5 = [
+			"flag5-1.png",
+			"flag5-2.png",
+			"flag5-3.png",
+			"flag5-4.png",
+			"flag5-5.png",
+			"flag5-6.png",
+			"flag5-7.png",
+			"flag5-8.png"
+		];
+
+		let flag6 = [
+			"flag6-1.png",
+			"flag6-2.png",
+			"flag6-3.png",
+			"flag6-4.png",
+			"flag6-5.png",
+			"flag6-6.png",
+			"flag6-7.png",
+			"flag6-8.png"
+		];
+
 		let flag1Array = [];
 		let flag2Array = [];
+		let flag3Array = [];
+		let flag4Array = [];
+		let flag5Array = [];
+		let flag6Array = [];
 
 		for (let i = 0; i < flag1.length; i++) {
 			let texture = PIXI.Texture.from("/img/" + flag1[i]);
@@ -102,11 +150,38 @@ function EnvironmentalObjects(curves, allPoints, viewport) {
 			flag2Array.push(texture);
 		}
 
-		let flags = [];
-		flags.push(flag1Array);
-		flags.push(flag2Array);
+		for (let i = 0; i < flag3.length; i++) {
+			let texture = PIXI.Texture.from("/img/" + flag3[i]);
+			flag3Array.push(texture);
+		}
 
-		return flags;
+		for (let i = 0; i < flag4.length; i++) {
+			let texture = PIXI.Texture.from("/img/" + flag4[i]);
+			flag4Array.push(texture);
+		}
+
+		for (let i = 0; i < flag5.length; i++) {
+			let texture = PIXI.Texture.from("/img/" + flag5[i]);
+			flag5Array.push(texture);
+		}
+
+		for (let i = 0; i < flag6.length; i++) {
+			let texture = PIXI.Texture.from("/img/" + flag6[i]);
+			flag6Array.push(texture);
+		}
+
+		return [flag1Array, flag2Array, flag3Array, flag4Array, flag5Array, flag6Array];
+	}
+
+	function createTentTextures() {
+		let tex1 = PIXI.Texture.from("../img/tent.png");
+		let tex2 = PIXI.Texture.from("../img/tent2.png");
+		let tex3 = PIXI.Texture.from("../img/tent3.png");
+		let tex4 = PIXI.Texture.from("../img/tent4.png");
+		let tex5 = PIXI.Texture.from("../img/tent5.png");
+		let tex6 = PIXI.Texture.from("../img/tent6.png");
+
+		return [tex1, tex2, tex3, tex4, tex5, tex6];
 	}
 
 	function getRandomIntInclusive(min, max) {
