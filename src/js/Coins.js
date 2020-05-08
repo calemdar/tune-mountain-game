@@ -4,7 +4,18 @@ const Planck = require("planck-js");
 const Vec2 = Planck.Vec2;
 const GameObject = require("./GameObject");
 
-
+/**
+ * Places the snowball coins onto the mountain slope
+ * @param analysis - analysis received from Spotify
+ * @param allPoints - all the points of the curve
+ * @param viewport - camera viewport
+ * @param player - player object
+ * @param game - pixi.js application
+ * @param world - physics world
+ * @param deletedBodies - any physical bodies to be deleted
+ * @param score - game score
+ * @returns {[]} - list of coin sprites
+ */
 function Coins(analysis, allPoints, viewport, player, game, world, deletedBodies, score) {
 	const obj = new GameObject();
 	let currentSection;

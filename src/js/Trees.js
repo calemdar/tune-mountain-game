@@ -6,7 +6,15 @@ let tempoFlag = true;			// true = getting bigger, false = getting smaller
 let tempoCounter = 0;
 let allTrees = [];
 
-
+/**
+ * Creates tree sprites and places them on the proper place on the slope
+ * @param sections - sections of the curve
+ * @param features - features of the song
+ * @param allPoints - all the points of the curves
+ * @param viewport - camera viewport
+ * @param game - pixi.js application
+ * @returns {[]} - array of tree sprites
+ */
 function Trees(sections, features, allPoints, viewport, game) {
 
 	let currSectionNum = 0;
@@ -22,8 +30,6 @@ function Trees(sections, features, allPoints, viewport, game) {
 	treeTextures.push(tree1Tex, tree2Tex, tree3Tex, tree4Tex);
 
 	treesPerCurve = treesPerCurve + Math.ceil(features.energy * 10);
-
-	//console.log(sections);
 
 	// increments as the resolution of the curve
 	// loops for each section
@@ -120,14 +126,10 @@ function Trees(sections, features, allPoints, viewport, game) {
 function pulseUp(sprite){
 	//sprite.scale.x += 0.004;
 	sprite.scale.y += 0.001;
-
-
 }
 function pulseDown(sprite){
-
 	//sprite.scale.x -= 0.004;
 	sprite.scale.y -= 0.001;
-
 }
 
 function getRandomInt(min, max) {

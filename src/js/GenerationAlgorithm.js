@@ -4,9 +4,13 @@ const Planck = require("planck-js");
 //let songFeatures = require("../../static/json/SmokeandGunsFeatures");
 const Vec2 = Planck.Vec2;
 
-
-// Algorithm to generate the tune mountain
-// y = -1 up, y = +1 down, x = -1 left, x = +1 right
+/**
+ * Algorithm to generate the tune mountain
+ * y = -1 up, y = +1 down, x = -1 left, x = +1 right
+ * @param audioAnalysis - analysis received from Spotify
+ * @param audioFeatures - features received from Spotify
+ * @returns {[]} - all the curves of the slope
+ */
 function GenerationAlgorithm (audioAnalysis, audioFeatures){
 
 	let currentPoint = Vec2(-10,0);
@@ -24,7 +28,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let currentSection = audioAnalysis.sections[i];
 
 		let durationMultiplier = timeToLength(currentSection);
-		console.log("Section time: " + currentSection.duration);
+		//console.log("Section time: " + currentSection.duration);
 		/*
 		// Random points
 
