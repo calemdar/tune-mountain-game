@@ -12,9 +12,6 @@ function CreateViewport(game) {
 		interaction: game.renderer.plugins.interaction
 	});
 
-	// add the viewport to the stage
-	//game.stage.addChild(viewport);
-
 	// activate plugins
 	viewport
 		//.drag()

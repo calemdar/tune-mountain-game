@@ -189,12 +189,10 @@ class Game {
 
 		this.getPixiApp(canvas);
 
-		const texture = PIXI.Texture.from("../img/title page.png");
+		const texture = PIXI.Texture.from("../img/title image.png");
 		const background = new PIXI.Sprite(texture);
-		background.position.x = 0;
-		background.position.y = -175;
-		background.scale.x = 1.75;
-		background.scale.y = 1.5;
+		background.width = window.innerWidth;
+		background.height = window.innerHeight;
 		this.pixiApp.stage.addChild(background);
 		this.sprites.title = background;
 	}
@@ -215,9 +213,6 @@ class Game {
 
 	/**
 	 *  Generate Mountain when a song is received.
-	 *
-	 *  I'M GONNA TEMPORARILY MAKE THIS FUNCTION PERFORM EVERYTHING ELSE GAME.JS DID
-	 *  PRIOR TO THIS REFACTOR!! SO PLS FIGURE IT OUT IF I F*CKED SOMETHING UP.
 	 */
 	generateMountainState() {
 
@@ -304,7 +299,7 @@ class Game {
 		};
 
 		const tumbleSnowboarder = new PIXI.AnimatedSprite(textures.tumble);
-		tumbleSnowboarder.animationSpeed = .15;
+		tumbleSnowboarder.animationSpeed = .10;
 		tumbleSnowboarder.scale.x = 0.2;
 		tumbleSnowboarder.scale.y = 0.2;
 		tumbleSnowboarder.loop = false;
@@ -336,7 +331,6 @@ class Game {
 		Bezier(this.viewport, allPoints);
 
 		// add game object to viewport
-
 		this.viewport.addChild(player.followSprite);
 		this.viewport.addChild(player.sprite);
 		this.viewport.zoomPercent(6.0);
@@ -415,19 +409,19 @@ class Game {
 				this.ON_SLOPE = false;
 			}
 
-			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+			if (this.actionState.trick1 === "press" && this.ON_SLOPE === false && this.TUMBLING === false && !playingTrickAnimation()) {
 				this.swapSprites(player, this.viewport, this.sprites.trick1, "trick1");
 			}
 
-			if (this.actionState.trick2 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+			if (this.actionState.trick2 === "press" && this.ON_SLOPE === false && this.TUMBLING === false && !playingTrickAnimation()) {
 				this.swapSprites(player, this.viewport, this.sprites.trick2, "trick2");
 			}
 
-			if (this.actionState.trick3 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+			if (this.actionState.trick3 === "press" && this.ON_SLOPE === false && this.TUMBLING === false && !playingTrickAnimation()) {
 				this.swapSprites(player, this.viewport, this.sprites.trick3, "trick3");
 			}
 
-			if (this.actionState.trick4 === "press" && this.ON_SLOPE === false && !playingTrickAnimation()) {
+			if (this.actionState.trick4 === "press" && this.ON_SLOPE === false && this.TUMBLING === false && !playingTrickAnimation()) {
 				this.swapSprites(player, this.viewport, this.sprites.trick4, "trick4");
 			}
 
@@ -445,8 +439,7 @@ class Game {
 				curveEndIndex += 1;
 				nextCurveEnding = curves[curveEndIndex][3];
 
-
-				console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
+				//console.log("Time taken to finish curve" + curveEndIndex + " : " + timePassed);
 				//console.log("Total time passed: " + ((currentTime - time0) / 1000.0));
 				lastCurveTime = currentTime;
 			}

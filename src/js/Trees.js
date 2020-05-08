@@ -23,8 +23,6 @@ function Trees(sections, features, allPoints, viewport, game) {
 
 	treesPerCurve = treesPerCurve + Math.ceil(features.energy * 10);
 
-	//console.log(sections);
-
 	// increments as the resolution of the curve
 	// loops for each section
 	for(let i = 0; i < sections.length; i++){
@@ -120,14 +118,10 @@ function Trees(sections, features, allPoints, viewport, game) {
 function pulseUp(sprite){
 	//sprite.scale.x += 0.004;
 	sprite.scale.y += 0.001;
-
-
 }
 function pulseDown(sprite){
-
 	//sprite.scale.x -= 0.004;
 	sprite.scale.y -= 0.001;
-
 }
 
 function getRandomInt(min, max) {

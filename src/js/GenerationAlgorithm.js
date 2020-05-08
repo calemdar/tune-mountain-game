@@ -24,7 +24,7 @@ function GenerationAlgorithm (audioAnalysis, audioFeatures){
 		let currentSection = audioAnalysis.sections[i];
 
 		let durationMultiplier = timeToLength(currentSection);
-		console.log("Section time: " + currentSection.duration);
+		//console.log("Section time: " + currentSection.duration);
 		/*
 		// Random points
 
